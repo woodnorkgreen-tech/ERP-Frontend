@@ -1,0 +1,179 @@
+// src/composables/useAuth.ts
+import { ref } from 'vue'
+import api, { setAuthToken, removeAuthToken } from '../plugins/axios'
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  department_id?: number
+  department?: {
+    id: number
+    name: string
+  }
+  roles?: string[]
+}
+
+export interface UserPermissions {
+  can_access_admin: boolean
+  can_access_hr: boolean
+  can_manage_users: boolean
+  can_manage_employees: boolean
+  can_manage_departments: boolean
+  can_view_reports: boolean
+  accessible_departments: number[]
+  user_department: {
+    id: number
+    name: string
+  } | null
+}
+
+export interface UserPermissionList {
+  permissions: UserPermissions
+  user_permissions: string[]
+  roles: string[]
+  departments: any[]
+}
+
+const isLoggedIn = ref(false)
+const user = ref<User | null>(null)
+const permissions = ref<UserPermissionList | null>(null)
+
+export function useAuth() {
+
+const login = async (email: string, password: string) => {
+  console.log('Login attempt started for email:', email)
+  try {
+    console.log('Initializing Sanctum CSRF protection...')
+    await api.get('/sanctum/csrf-cookie', { withCredentials: true })
+
+    console.log('Sending login request to /api/login')
+    const response = await api.post('/api/login', { email, password }, { withCredentials: true })
+
+    console.log('Login response status:', response.status)
+    console.log('Login response data:', response.data)
+
+    if (response.status === 200 && response.data.token) {
+      setAuthToken(response.data.token)
+      console.log('Auth token stored in localStorage')
+      isLoggedIn.value = true
+      await fetchUser()
+      localStorage.setItem('isLoggedIn', 'true')
+      console.log('Login successful, user authenticated')
+      return true
+    } else {
+      console.log('Login failed: No token in response or status not 200')
+      return false
+    }
+  } catch (error) {
+    console.error('Login failed with error:', error)
+    console.error('Error response:', error.response?.data)
+    console.error('Error status:', error.response?.status)
+    throw error
+  }
+}
+
+
+  const register = async (name: string, email: string, password: string, password_confirmation?: string) => {
+    try {
+      const response = await api.post('/api/register', {
+        name,
+        email,
+        password,
+        password_confirmation: password_confirmation || password
+      })
+      if (response.status === 201 && response.data.token) {
+        setAuthToken(response.data.token)
+        isLoggedIn.value = true
+        await fetchUser()
+        localStorage.setItem('isLoggedIn', 'true')
+      }
+    } catch (error) {
+      console.error('Registration failed:', error)
+      throw error
+    }
+  }
+
+  const logout = async () => {
+    try {
+      await api.post('/api/logout')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    } finally {
+      removeAuthToken()
+      isLoggedIn.value = false
+      user.value = null
+      permissions.value = null
+      localStorage.removeItem('isLoggedIn')
+      // Navigation will be handled by the component using this composable
+          //  Dynamic redirect based on environment
+    const baseUrl = import.meta.env.VITE_APP_URL || '/'
+    window.location.href = baseUrl
+    }
+  }
+
+  const fetchUser = async () => {
+    try {
+      const response = await api.get('/api/user')
+      const userData = response.data
+
+      // Extract role names from the roles relationship
+      userData.roles = userData.roles?.map((role: { name: string }) => role.name) || []
+
+      user.value = userData
+      isLoggedIn.value = true
+      console.log('User data fetched successfully')
+
+      // Fetch permissions after user data
+      await fetchPermissions()
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
+      console.log('Removing auth token due to fetchUser failure')
+      isLoggedIn.value = false
+      user.value = null
+      permissions.value = null
+      removeAuthToken()
+    }
+  }
+
+  const fetchPermissions = async () => {
+    try {
+      const response = await api.get('/api/user/permissions')
+      permissions.value = response.data
+      // Update user with additional data from permissions
+      if (user.value && response.data.departments) {
+        user.value.department = response.data.departments.find((d: { id: number }) =>
+          d.id === permissions.value?.permissions?.user_department?.id
+        ) || null
+      }
+    } catch (error) {
+      console.error('Failed to fetch permissions:', error)
+      permissions.value = null
+    }
+  }
+
+  const checkAuth = () => {
+    const token = localStorage.getItem('auth_token')
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    console.log('Checking auth: token present:', !!token, 'isLoggedIn:', loggedIn)
+    if (token && loggedIn) {
+      fetchUser()
+    } else if (!token && loggedIn) {
+      // Token is missing but user thinks they're logged in
+      console.log('Token missing but isLoggedIn true, removing isLoggedIn')
+      localStorage.removeItem('isLoggedIn')
+    }
+  }
+
+  return {
+    isLoggedIn,
+    user,
+    permissions,
+    login,
+    register,
+    logout,
+    fetchUser,
+    fetchPermissions,
+    checkAuth
+  }
+}

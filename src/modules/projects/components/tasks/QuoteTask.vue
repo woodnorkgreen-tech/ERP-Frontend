@@ -1,0 +1,1467 @@
+<template>
+  <div class="quote-task-content">
+    <!-- Project Header Section -->
+    <div class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        Quote Task - {{ task.title }}
+      </h4>
+
+      <!-- Project Information Display -->
+      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Project Information</h5>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
+            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ quoteData.projectInfo.enquiryTitle }}</p>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
+            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ quoteData.projectInfo.projectId }}</p>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
+            <p class="text-sm text-gray-900 dark:text-white">{{ quoteData.projectInfo.clientName }}</p>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
+            <p class="text-sm text-gray-900 dark:text-white">{{ quoteData.projectInfo.eventVenue }}</p>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
+            <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(quoteData.projectInfo.setupDate) }}</p>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400">Quote Status</label>
+            <span :class="getQuoteStatusColor(quoteData.status)" class="px-2 py-1 text-xs rounded-full font-medium">
+              {{ getQuoteStatusLabel(quoteData.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Import Status -->
+    <div v-if="isImporting" class="mb-6">
+      <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 animate-spin text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <div>
+            <h5 class="text-sm font-medium text-blue-800 dark:text-blue-200">Loading Budget Data</h5>
+            <p class="text-xs text-blue-600 dark:text-blue-300">Importing budget data from the project's budget task...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Import Success -->
+    <div v-else-if="quoteData.budgetImported" class="mb-6">
+      <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <h5 class="text-sm font-medium text-green-800 dark:text-green-200">Budget Data Imported</h5>
+            <p class="text-xs text-green-600 dark:text-green-300">
+              Successfully imported {{ getTotalImportedItems() }} items from budget task.
+              Base total: {{ formatCurrency(getBaseTotalAll()) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quote Tabs -->
+    <div v-if="quoteData.budgetImported || isImporting || hasExistingQuoteData" class="mb-6">
+      <!-- Tab Navigation -->
+      <div class="mb-6">
+        <nav class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="[
+              'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+              activeTab === tab.id
+                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+            ]"
+          >
+            <span class="mr-2">{{ tab.icon }}</span>
+            {{ tab.label }}
+            <span v-if="getTabTotal(tab.id) > 0" class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+              {{ formatCurrency(getTabTotal(tab.id)) }}
+            </span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <!-- Materials Tab -->
+        <div v-if="activeTab === 'materials'" class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Materials & Components</h5>
+            <div class="flex items-center space-x-3">
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                Base: {{ formatCurrency(quoteData.totals.materialsBase) }} |
+                Final: {{ formatCurrency(quoteData.totals.materialsTotal) }}
+              </div>
+            </div>
+          </div>
+
+          <div v-if="quoteData.materials.length > 0" class="space-y-4">
+            <div v-for="element in quoteData.materials" :key="element.id" class="border border-gray-200 dark:border-gray-700 rounded-lg">
+              <!-- Element Header -->
+              <div
+                :class="[
+                  getElementHeaderClass(element.templateId),
+                  'px-4 py-3 flex items-center justify-between rounded-t-lg'
+                ]"
+              >
+                <div class="flex items-center space-x-3">
+                  <h6 class="text-sm font-semibold">{{ element.name }}</h6>
+                  <span class="text-xs opacity-75">
+                    {{ element.materials.length }} items
+                  </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-medium">
+                    Base: {{ formatCurrency(element.baseTotal) }} → Final: {{ formatCurrency(element.finalTotal) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Materials Table -->
+              <div class="border-t border-gray-200 dark:border-gray-700">
+                <div class="p-4">
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                      <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Description</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit Price (KES)</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Base Total (KES)</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
+                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Final Price (KES)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="material in element.materials" :key="material.id" class="border-b border-gray-100 dark:border-gray-800">
+                          <td class="py-2 text-gray-900 dark:text-white">
+                            {{ material.description }}
+                            <span v-if="material.isAddition" class="ml-2 text-xs bg-orange-100 text-orange-800 px-1 py-0.5 rounded">
+                              Addition
+                            </span>
+                          </td>
+                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
+                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ material.quantity }}</td>
+                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.unitPrice) }}</td>
+                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.totalPrice) }}</td>
+                          <td class="py-2">
+                            <div class="flex items-center space-x-1">
+                              <input
+                                v-model.number="material.marginPercentage"
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.5"
+                                class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                                @input="updateIndividualMargin(material)"
+                              />
+                              <span class="text-xs text-gray-500">%</span>
+                            </div>
+                          </td>
+                          <td class="py-2 text-gray-900 dark:text-white font-medium">
+                            {{ formatCurrency(material.finalPrice) }}
+                            <div class="text-xs text-green-600 dark:text-green-400">
+                              +{{ formatCurrency(material.marginAmount) }}
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Labour Tab -->
+        <div v-if="activeTab === 'labour'" class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Direct Labour and Welfare Costs</h5>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              Total: {{ formatCurrency(quoteData.totals.labourBase) }}
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Type</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.category }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ labour.type }}</span>
+                      <span v-if="labour.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.unit }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.quantity }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(labour.unitRate) }}</td>
+                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(labour.amount) }}</td>
+                </tr>
+                <tr v-if="quoteData.labour.length === 0">
+                  <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
+                    No labour items imported
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Expenses Tab -->
+        <div v-if="activeTab === 'expenses'" class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Expenses & Overheads</h5>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              Base: {{ formatCurrency(quoteData.totals.expensesBase) }} |
+              Final: {{ formatCurrency(quoteData.totals.expensesTotal) }}
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Amount (KES)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ expense.description }}</span>
+                      <span v-if="expense.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ expense.category }}</td>
+                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(expense.amount) }}</td>
+                </tr>
+                <tr v-if="quoteData.expenses.length === 0">
+                  <td colspan="3" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
+                    No expenses imported
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Logistics Tab -->
+        <div v-if="activeTab === 'logistics'" class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Logistics & Transportation</h5>
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              Base: {{ formatCurrency(quoteData.totals.logisticsBase) }} |
+              Final: {{ formatCurrency(quoteData.totals.logisticsTotal) }}
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Vehicle</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
+                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-200 dark:border-gray-700">
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ logistics.vehicleReg }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logistics.description }}</span>
+                      <span v-if="logistics.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.unit }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.quantity }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.unitRate) }}</td>
+                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(logistics.amount) }}</td>
+                </tr>
+                <tr v-if="quoteData.logistics.length === 0">
+                  <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
+                    No logistics items imported
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Summary Tab -->
+        <div v-if="activeTab === 'summary'" class="p-6">
+          <h5 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-6">Quote Summary</h5>
+
+
+
+          <!-- Discount & VAT Section -->
+          <div class="mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Discount Section -->
+              <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg border border-red-200 dark:border-red-700">
+                <div class="flex items-center justify-between mb-3">
+                  <h6 class="text-sm font-medium text-red-800 dark:text-red-200">Quote Discount</h6>
+                  <div class="text-xs text-red-600 dark:text-red-400">
+                    Subtotal: {{ formatCurrency(quoteData.totals.subtotal) }}
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                  <div class="flex-1">
+                    <label class="block text-xs text-red-700 dark:text-red-300 mb-1">Discount Amount (KES)</label>
+                    <input
+                      v-model.number="quoteData.discountAmount"
+                      type="number"
+                      min="0"
+                      :max="quoteData.totals.subtotal"
+                      step="100"
+                      placeholder="0"
+                      class="w-full px-3 py-2 text-sm border border-red-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                      @input="updateDiscount"
+                    />
+                  </div>
+                  <div class="text-right">
+                    <div class="text-xs text-red-600 dark:text-red-400 mb-1">Discount %</div>
+                    <div class="text-sm font-medium text-red-800 dark:text-red-200">
+                      {{ quoteData.totals.subtotal > 0 ? ((quoteData.discountAmount / quoteData.totals.subtotal) * 100).toFixed(1) : 0 }}%
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3 text-xs text-red-600 dark:text-red-400">
+                  <span v-if="quoteData.discountAmount > 0">
+                    After discount: {{ formatCurrency(quoteData.totals.totalAfterDiscount) }}
+                  </span>
+                  <span v-else>
+                    No discount applied
+                  </span>
+                </div>
+              </div>
+
+              <!-- VAT Section -->
+              <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div class="flex items-center justify-between mb-3">
+                  <h6 class="text-sm font-medium text-purple-800 dark:text-purple-200">Value Added Tax (16%)</h6>
+                  <div class="flex items-center space-x-2">
+                    <label class="text-xs text-purple-700 dark:text-purple-300">Enable VAT</label>
+                    <input
+                      v-model="quoteData.vatEnabled"
+                      type="checkbox"
+                      class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+                      @change="toggleVAT"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-xs text-purple-700 dark:text-purple-300 mb-1">VAT Rate (Fixed)</div>
+                    <div class="text-lg font-bold text-purple-800 dark:text-purple-200">16%</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-xs text-purple-600 dark:text-purple-400 mb-1">VAT Amount</div>
+                    <div class="text-lg font-bold text-purple-800 dark:text-purple-200">
+                      {{ formatCurrency(quoteData.totals.vatAmount) }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3 text-xs text-purple-600 dark:text-purple-400">
+                  <span v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0">
+                    VAT on {{ formatCurrency(quoteData.totals.totalAfterDiscount) }} = {{ formatCurrency(quoteData.totals.vatAmount) }}
+                  </span>
+                  <span v-else-if="!quoteData.vatEnabled">
+                    VAT is disabled for this quote
+                  </span>
+                  <span v-else>
+                    No VAT applicable
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quote Summary Table -->
+          <div class="mb-6">
+            <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Cost Breakdown</h6>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
+                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Base Cost</th>
+                    <th class="text-center py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
+                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin Amount</th>
+                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Materials & Components</td>
+                    <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.materialsBase) }}</td>
+                    <td class="py-3 px-4 text-center text-blue-600 dark:text-blue-400 font-medium">{{ quoteData.margins.materials }}%</td>
+                    <td class="py-3 px-4 text-right text-blue-600 dark:text-blue-400">{{ formatCurrency(quoteData.totals.materialsMargin) }}</td>
+                    <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.materialsTotal) }}</td>
+                  </tr>
+                  <tr class="border-t border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Labour & Welfare</td>
+                    <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.labourBase) }}</td>
+                    <td class="py-3 px-4 text-center text-yellow-600 dark:text-yellow-400 font-medium">{{ quoteData.margins.labour }}%</td>
+                    <td class="py-3 px-4 text-right text-yellow-600 dark:text-yellow-400">{{ formatCurrency(quoteData.totals.labourMargin) }}</td>
+                    <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
+                  </tr>
+                  <tr class="border-t border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Expenses & Overheads</td>
+                    <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.expensesBase) }}</td>
+                    <td class="py-3 px-4 text-center text-green-600 dark:text-green-400 font-medium">{{ quoteData.margins.expenses }}%</td>
+                    <td class="py-3 px-4 text-right text-green-600 dark:text-green-400">{{ formatCurrency(quoteData.totals.expensesMargin) }}</td>
+                    <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
+                  </tr>
+                  <tr class="border-t border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Logistics & Transportation</td>
+                    <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.logisticsBase) }}</td>
+                    <td class="py-3 px-4 text-center text-orange-600 dark:text-orange-400 font-medium">{{ quoteData.margins.logistics }}%</td>
+                    <td class="py-3 px-4 text-right text-orange-600 dark:text-orange-400">{{ formatCurrency(quoteData.totals.logisticsMargin) }}</td>
+                    <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
+                  </tr>
+                </tbody>
+                <tfoot class="bg-gray-100 dark:bg-gray-600">
+                  <tr>
+                    <td class="py-3 px-4 font-bold text-gray-900 dark:text-white">SUBTOTAL</td>
+                    <td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(getBaseTotalAll()) }}</td>
+                    <td class="py-3 px-4 text-center font-bold text-gray-900 dark:text-white">{{ quoteData.totals.overallMarginPercentage.toFixed(1) }}%</td>
+                    <td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.totalMargin) }}</td>
+                    <td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.subtotal) }}</td>
+                  </tr>
+                  <tr v-if="quoteData.discountAmount > 0" class="border-t border-gray-300 dark:border-gray-500">
+                    <td class="py-3 px-4 font-bold text-red-700 dark:text-red-400">DISCOUNT</td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-center font-bold text-red-700 dark:text-red-400">
+                      {{ quoteData.totals.subtotal > 0 ? ((quoteData.discountAmount / quoteData.totals.subtotal) * 100).toFixed(1) : 0 }}%
+                    </td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-right font-bold text-red-700 dark:text-red-400">-{{ formatCurrency(quoteData.discountAmount) }}</td>
+                  </tr>
+                  <tr class="border-t border-gray-300 dark:border-gray-500">
+                    <td class="py-3 px-4 font-bold text-gray-900 dark:text-white">TOTAL (Before VAT)</td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.totalAfterDiscount) }}</td>
+                  </tr>
+                  <tr v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0" class="border-t border-gray-300 dark:border-gray-500">
+                    <td class="py-3 px-4 font-bold text-purple-700 dark:text-purple-400">VAT ({{ quoteData.vatPercentage }}%)</td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4"></td>
+                    <td class="py-3 px-4 text-right font-bold text-purple-700 dark:text-purple-400">{{ formatCurrency(quoteData.totals.vatAmount) }}</td>
+                  </tr>
+                  <tr class="border-t-2 border-gray-400 dark:border-gray-300">
+                    <td class="py-4 px-4 font-bold text-lg text-gray-900 dark:text-white">FINAL TOTAL (Inc. VAT)</td>
+                    <td class="py-4 px-4"></td>
+                    <td class="py-4 px-4"></td>
+                    <td class="py-4 px-4"></td>
+                    <td class="py-4 px-4 text-right font-bold text-2xl text-blue-600 dark:text-blue-400">{{ formatCurrency(quoteData.totals.grandTotal) }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Profit Analysis -->
+          <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 p-6 rounded-lg border border-green-200 dark:border-green-700">
+            <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Profit Analysis</h6>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(getBaseTotalAll()) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Base Cost</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(quoteData.totals.totalMargin) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Total Margin</div>
+              </div>
+              <div class="text-center" v-if="quoteData.discountAmount > 0">
+                <div class="text-2xl font-bold text-red-600 dark:text-red-400">-{{ formatCurrency(quoteData.discountAmount) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Discount</div>
+              </div>
+              <div class="text-center" v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0">
+                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ formatCurrency(quoteData.totals.vatAmount) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">VAT ({{ quoteData.vatPercentage }}%)</div>
+              </div>
+              <div class="text-center" :class="getAnalysisColumnSpan()">
+                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(quoteData.totals.grandTotal) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Final Total</div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                Overall Profit Margin:
+                <span class="text-green-600 dark:text-green-400">{{ quoteData.totals.overallMarginPercentage.toFixed(1) }}%</span>
+                <span v-if="quoteData.discountAmount > 0" class="ml-4 text-red-600 dark:text-red-400">
+                  ({{ ((quoteData.discountAmount / quoteData.totals.subtotal) * 100).toFixed(1) }}% discount)
+                </span>
+                <span v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0" class="ml-4 text-purple-600 dark:text-purple-400">
+                  ({{ quoteData.vatPercentage }}% VAT included)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quote Actions -->
+          <div class="mt-8 flex justify-center">
+            <button
+              @click="openQuoteViewer"
+              class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center space-x-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <span>View Quote</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quote Viewer Modal -->
+    <QuoteViewer
+      :is-visible="showQuoteViewer"
+      :quote-data="quoteData"
+      :readonly="task.status === 'completed'"
+      @close="closeQuoteViewer"
+    />
+
+    <!-- No Budget Data Message -->
+    <div v-if="!quoteData.budgetImported && !isImporting" class="mb-6">
+      <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <div>
+            <h5 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Budget Required</h5>
+            <p class="text-xs text-yellow-600 dark:text-yellow-300">Please complete the budget task before creating a quote.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Status and Actions -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
+        <span :class="getStatusColor(task.status)" class="px-2 py-1 text-xs rounded-full font-medium">
+          {{ getStatusLabel(task.status) }}
+        </span>
+      </div>
+
+      <div class="flex space-x-3">
+        <button
+          v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+          @click="$emit('update-status', 'completed')"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Mark Complete</span>
+        </button>
+
+        <div v-if="task.status === 'completed'" class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 text-green-600 dark:text-green-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-sm font-medium">Task Completed</span>
+          </div>
+
+          <!-- View Quote Button for completed tasks -->
+          <button
+            v-if="quoteData.budgetImported && hasExistingQuoteData"
+            @click="openQuoteViewer"
+            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            <span>View Quote</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import type { EnquiryTask } from '../../types/enquiry'
+import axios from '@/plugins/axios'
+import QuoteViewer from './QuoteViewer.vue'
+
+/**
+ * Props interface for the QuoteTask component
+ */
+interface Props {
+  /** The enquiry task object containing task details and metadata */
+  task: EnquiryTask
+}
+
+/**
+ * Events emitted by the QuoteTask component
+ */
+interface Emits {
+  /** Emitted when task status needs to be updated */
+  'update-status': [status: EnquiryTask['status']]
+  /** Emitted when quote data is saved */
+  'save-quote': [data: QuoteData]
+}
+
+/**
+ * Project information structure for the quote task
+ */
+interface ProjectInfo {
+  /** Unique project identifier */
+  projectId: string
+  /** Title/name of the enquiry/project */
+  enquiryTitle: string
+  /** Name of the client for this project */
+  clientName: string
+  /** Venue where the event will take place */
+  eventVenue: string
+  /** Date when project setup begins (ISO date string) */
+  setupDate: string
+  /** Date when project set down occurs (ISO date string or "tbc") */
+  setDownDate: string
+}
+
+/**
+ * Quote material element structure
+ */
+interface QuoteMaterialElement {
+  /** Unique identifier for this element */
+  id: string
+  /** Reference to the element template */
+  templateId: string
+  /** Display name for this element */
+  name: string
+  /** List of materials for this element */
+  materials: QuoteMaterial[]
+  /** Base total cost before margin */
+  baseTotal: number
+  /** Margin percentage applied */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final total including margin */
+  finalTotal: number
+}
+
+/**
+ * Individual quote material structure
+ */
+interface QuoteMaterial {
+  /** Unique identifier for the material */
+  id: string
+  /** Description of the material */
+  description: string
+  /** Unit of measurement */
+  unitOfMeasurement: string
+  /** Quantity required */
+  quantity: number
+  /** Unit price */
+  unitPrice: number
+  /** Total price for this material */
+  totalPrice: number
+  /** Whether this is an addition */
+  isAddition: boolean
+  /** Individual margin percentage for this material */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final price including margin */
+  finalPrice: number
+}
+
+/**
+ * Quote labour item structure
+ */
+interface QuoteLabourItem {
+  /** Unique identifier */
+  id: string
+  /** Labour type/description */
+  type: string
+  /** Unit of measurement */
+  unit: string
+  /** Quantity */
+  quantity: number
+  /** Unit rate */
+  unitRate: number
+  /** Total amount */
+  amount: number
+  /** Whether this is an addition */
+  isAddition: boolean
+  /** Labour category */
+  category: string
+  /** Individual margin percentage for this labour item */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final price including margin */
+  finalPrice: number
+}
+
+/**
+ * Quote expense item structure
+ */
+interface QuoteExpenseItem {
+  /** Unique identifier */
+  id: string
+  /** Expense description */
+  description: string
+  /** Expense category */
+  category: string
+  /** Expense amount */
+  amount: number
+  /** Whether this is an addition */
+  isAddition: boolean
+  /** Individual margin percentage for this expense */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final price including margin */
+  finalPrice: number
+}
+
+/**
+ * Quote logistics item structure
+ */
+interface QuoteLogisticsItem {
+  /** Unique identifier */
+  id: string
+  /** Vehicle registration */
+  vehicleReg: string
+  /** Description */
+  description: string
+  /** Unit of measurement */
+  unit: string
+  /** Quantity */
+  quantity: number
+  /** Unit rate */
+  unitRate: number
+  /** Total amount */
+  amount: number
+  /** Whether this is an addition */
+  isAddition: boolean
+  /** Individual margin percentage for this logistics item */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final price including margin */
+  finalPrice: number
+}
+
+/**
+ * Margin settings for each category
+ */
+interface MarginSettings {
+  /** Materials margin percentage */
+  materials: number
+  /** Labour margin percentage */
+  labour: number
+  /** Expenses margin percentage */
+  expenses: number
+  /** Logistics margin percentage */
+  logistics: number
+}
+
+/**
+ * Quote totals structure
+ */
+interface QuoteTotals {
+  /** Materials base total */
+  materialsBase: number
+  /** Materials margin amount */
+  materialsMargin: number
+  /** Materials final total */
+  materialsTotal: number
+  /** Labour base total */
+  labourBase: number
+  /** Labour margin amount */
+  labourMargin: number
+  /** Labour final total */
+  labourTotal: number
+  /** Expenses base total */
+  expensesBase: number
+  /** Expenses margin amount */
+  expensesMargin: number
+  /** Expenses final total */
+  expensesTotal: number
+  /** Logistics base total */
+  logisticsBase: number
+  /** Logistics margin amount */
+  logisticsMargin: number
+  /** Logistics final total */
+  logisticsTotal: number
+  /** Subtotal before discount */
+  subtotal: number
+  /** Discount amount in KES */
+  discountAmount: number
+  /** Total after discount, before VAT */
+  totalAfterDiscount: number
+  /** VAT percentage */
+  vatPercentage: number
+  /** VAT amount in KES */
+  vatAmount: number
+  /** Grand total including VAT */
+  grandTotal: number
+  /** Total margin amount */
+  totalMargin: number
+  /** Overall margin percentage */
+  overallMarginPercentage: number
+}
+
+/**
+ * Core quote data structure
+ */
+interface QuoteData {
+  /** Project information */
+  projectInfo: ProjectInfo
+  /** Whether budget data has been imported */
+  budgetImported: boolean
+  /** Quote materials */
+  materials: QuoteMaterialElement[]
+  /** Quote labour items */
+  labour: QuoteLabourItem[]
+  /** Quote expenses */
+  expenses: QuoteExpenseItem[]
+  /** Quote logistics */
+  logistics: QuoteLogisticsItem[]
+  /** Margin settings */
+  margins: MarginSettings
+  /** Discount amount in KES */
+  discountAmount: number
+  /** VAT percentage */
+  vatPercentage: number
+  /** Whether VAT is enabled */
+  vatEnabled: boolean
+  /** Calculated totals */
+  totals: QuoteTotals
+  /** Quote status */
+  status: 'draft' | 'pending' | 'approved' | 'rejected'
+  /** Creation timestamp */
+  createdAt: Date
+  /** Last update timestamp */
+  updatedAt: Date
+}
+
+// Props and emits
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+// Reactive state
+const isImporting = ref(false)
+const activeTab = ref('materials')
+const marginUpdateTimeout = ref<NodeJS.Timeout | null>(null)
+const showQuoteViewer = ref(false)
+
+// Computed property to check if we have existing quote data
+const hasExistingQuoteData = computed(() => {
+  return quoteData.materials.length > 0 ||
+         quoteData.labour.length > 0 ||
+         quoteData.expenses.length > 0 ||
+         quoteData.logistics.length > 0
+})
+
+// Tab configuration
+const tabs = [
+  { id: 'materials', label: 'Materials', icon: '🔧' },
+  { id: 'labour', label: 'Labour', icon: '👷' },
+  { id: 'expenses', label: 'Expenses', icon: '💰' },
+  { id: 'logistics', label: 'Logistics', icon: '🚛' },
+  { id: 'summary', label: 'Summary', icon: '📊' }
+]
+
+/**
+ * Initialize project information from task data
+ */
+const initializeProjectInfo = (): ProjectInfo => {
+  // Use default values - real data will be loaded from API
+  return {
+    projectId: String(props.task.project_enquiry_id || 'WNG-11-2025-001'),
+    enquiryTitle: 'Project Title',
+    clientName: 'Client Name',
+    eventVenue: 'Venue TBC',
+    setupDate: new Date().toISOString(),
+    setDownDate: 'TBC'
+  }
+}
+
+/**
+ * Initialize default margin settings
+ */
+const initializeMargins = (): MarginSettings => {
+  return {
+    materials: 20, // 20% default margin
+    labour: 15,    // 15% default margin
+    expenses: 10,  // 10% default margin
+    logistics: 15  // 15% default margin
+  }
+}
+
+/**
+ * Initialize empty totals structure
+ */
+const initializeTotals = (): QuoteTotals => {
+  return {
+    materialsBase: 0,
+    materialsMargin: 0,
+    materialsTotal: 0,
+    labourBase: 0,
+    labourMargin: 0,
+    labourTotal: 0,
+    expensesBase: 0,
+    expensesMargin: 0,
+    expensesTotal: 0,
+    logisticsBase: 0,
+    logisticsMargin: 0,
+    logisticsTotal: 0,
+    subtotal: 0,
+    discountAmount: 0,
+    totalAfterDiscount: 0,
+    vatPercentage: 16,
+    vatAmount: 0,
+    grandTotal: 0,
+    totalMargin: 0,
+    overallMarginPercentage: 0
+  }
+}
+
+/**
+ * Reactive quote data structure
+ */
+const quoteData = reactive<QuoteData>({
+  projectInfo: initializeProjectInfo(),
+  budgetImported: false,
+  materials: [],
+  labour: [],
+  expenses: [],
+  logistics: [],
+  margins: initializeMargins(),
+  discountAmount: 0,
+  vatPercentage: 16,
+  vatEnabled: true,
+  totals: initializeTotals(),
+  status: 'draft',
+  createdAt: new Date(),
+  updatedAt: new Date()
+})
+
+// Utility functions
+/**
+ * Format date for display
+ */
+const formatDate = (dateString: string): string => {
+  if (!dateString || dateString === 'tbc') return 'TBC'
+  try {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return dateString
+  }
+}
+
+/**
+ * Get quote status color classes
+ */
+const getQuoteStatusColor = (status: QuoteData['status']): string => {
+  const colors = {
+    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+  }
+  return colors[status] || colors.draft
+}
+
+/**
+ * Get quote status label
+ */
+const getQuoteStatusLabel = (status: QuoteData['status']): string => {
+  const labels = {
+    draft: 'Draft',
+    pending: 'Pending Approval',
+    approved: 'Approved',
+    rejected: 'Rejected'
+  }
+  return labels[status] || 'Draft'
+}
+
+/**
+ * Get task status color classes
+ */
+const getStatusColor = (status: EnquiryTask['status']): string => {
+  const colors = {
+    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+    'in-progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+  }
+  return colors[status] || colors['in-progress']
+}
+
+/**
+ * Get task status label
+ */
+const getStatusLabel = (status: EnquiryTask['status']): string => {
+  const labels = {
+    pending: 'Pending',
+    'in-progress': 'In Progress',
+    completed: 'Completed',
+    cancelled: 'Cancelled'
+  }
+  return labels[status] || 'In Progress'
+}
+
+/**
+ * Format currency for display
+ */
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-KE', {
+    style: 'currency',
+    currency: 'KES',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount)
+}
+
+/**
+ * Get total number of imported items
+ */
+const getTotalImportedItems = (): number => {
+  const materialItems = quoteData.materials.reduce((sum, element) => sum + element.materials.length, 0)
+  return materialItems + quoteData.labour.length + quoteData.expenses.length + quoteData.logistics.length
+}
+
+/**
+ * Get base total of all categories
+ */
+const getBaseTotalAll = (): number => {
+  return quoteData.totals.materialsBase + quoteData.totals.labourBase +
+         quoteData.totals.expensesBase + quoteData.totals.logisticsBase
+}
+
+/**
+ * Get total for a specific tab
+ */
+const getTabTotal = (tabId: string): number => {
+  switch (tabId) {
+    case 'materials':
+      return quoteData.totals.materialsTotal
+    case 'labour':
+      return quoteData.totals.labourTotal
+    case 'expenses':
+      return quoteData.totals.expensesTotal
+    case 'logistics':
+      return quoteData.totals.logisticsTotal
+    case 'summary':
+      return quoteData.totals.grandTotal
+    default:
+      return 0
+  }
+}
+
+/**
+ * Get element header class based on template ID
+ */
+const getElementHeaderClass = (templateId: string): string => {
+  const classes = {
+    stage: 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100',
+    backdrop: 'bg-purple-100 dark:bg-purple-900 text-purple-900 dark:text-purple-100',
+    lighting: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100',
+    sound: 'bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-100',
+    furniture: 'bg-orange-100 dark:bg-orange-900 text-orange-900 dark:text-orange-100',
+    decoration: 'bg-pink-100 dark:bg-pink-900 text-pink-900 dark:text-pink-100',
+    catering: 'bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-100',
+    security: 'bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100'
+  }
+  return classes[templateId as keyof typeof classes] || classes.stage
+}
+
+
+
+/**
+ * Update individual item margin
+ */
+const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExpenseItem | QuoteLogisticsItem) => {
+  // Validate margin input
+  item.marginPercentage = Math.max(0, Math.min(100, item.marginPercentage || 0))
+
+  // Calculate margin amount and final price
+  const baseAmount = 'totalPrice' in item ? item.totalPrice : item.amount
+  item.marginAmount = baseAmount * (item.marginPercentage / 100)
+  item.finalPrice = baseAmount + item.marginAmount
+
+  // Recalculate totals
+  calculateAllTotals()
+
+  // Update element totals if it's a material
+  if ('totalPrice' in item) {
+    updateMaterialElementTotals()
+  }
+
+  // Update timestamp
+  quoteData.updatedAt = new Date()
+}
+
+/**
+ * Update material element totals based on individual material margins
+ */
+const updateMaterialElementTotals = () => {
+  quoteData.materials.forEach(element => {
+    element.baseTotal = element.materials.reduce((sum, material) => sum + material.totalPrice, 0)
+    element.marginAmount = element.materials.reduce((sum, material) => sum + material.marginAmount, 0)
+    element.finalTotal = element.baseTotal + element.marginAmount
+    element.marginPercentage = element.baseTotal > 0 ? (element.marginAmount / element.baseTotal) * 100 : 0
+  })
+}
+
+/**
+ * Apply bulk margin to all items in a category
+ */
+const applyBulkMargin = (category: 'materials' | 'expenses' | 'logistics', marginPercentage: number) => {
+  switch (category) {
+    case 'materials':
+      quoteData.materials.forEach(element => {
+        element.materials.forEach(material => {
+          material.marginPercentage = marginPercentage
+          updateIndividualMargin(material)
+        })
+      })
+      break
+    case 'expenses':
+      quoteData.expenses.forEach(expense => {
+        expense.marginPercentage = marginPercentage
+        updateIndividualMargin(expense)
+      })
+      break
+    case 'logistics':
+      quoteData.logistics.forEach(logistics => {
+        logistics.marginPercentage = marginPercentage
+        updateIndividualMargin(logistics)
+      })
+      break
+  }
+}
+
+/**
+ * Update discount amount and recalculate totals
+ */
+const updateDiscount = () => {
+  // Validate discount amount (cannot be negative or exceed subtotal)
+  const maxDiscount = quoteData.totals.subtotal
+  quoteData.discountAmount = Math.max(0, Math.min(maxDiscount, quoteData.discountAmount || 0))
+
+  // Recalculate totals
+  calculateAllTotals()
+
+  // Update timestamp
+  quoteData.updatedAt = new Date()
+}
+
+/**
+ * Toggle VAT enabled/disabled (VAT rate is fixed at 16%)
+ */
+const toggleVAT = () => {
+  quoteData.vatEnabled = !quoteData.vatEnabled
+  // Ensure VAT percentage is always 16%
+  quoteData.vatPercentage = 16
+  calculateAllTotals()
+  quoteData.updatedAt = new Date()
+}
+
+/**
+ * Get column span for final total in profit analysis
+ */
+const getAnalysisColumnSpan = (): string => {
+  let usedColumns = 2 // Base Cost + Total Margin always present
+  if (quoteData.discountAmount > 0) usedColumns++
+  if (quoteData.vatEnabled && quoteData.totals.vatAmount > 0) usedColumns++
+
+  const remainingColumns = 5 - usedColumns
+  return remainingColumns > 1 ? `md:col-span-${remainingColumns}` : ''
+}
+
+/**
+ * Open quote viewer modal
+ */
+const openQuoteViewer = () => {
+  showQuoteViewer.value = true
+}
+
+/**
+ * Close quote viewer modal
+ */
+const closeQuoteViewer = () => {
+  showQuoteViewer.value = false
+}
+
+
+
+/**
+ * Auto-import budget data when component loads
+ */
+const autoImportBudgetData = async () => {
+  // Skip if budget is already imported
+  if (quoteData.budgetImported) {
+    return
+  }
+
+  isImporting.value = true
+  try {
+    // Real API call to import budget data
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/import-budget`)
+
+    if (response.data.data) {
+      // Update reactive data with imported budget data
+      Object.assign(quoteData, response.data.data)
+      calculateAllTotals()
+
+      console.log(`Budget data imported successfully! ${quoteData.materials.length} material elements, ${quoteData.labour.length} labour items, ${quoteData.expenses.length} expenses, ${quoteData.logistics.length} logistics items.`)
+    } else {
+      throw new Error('No data received from budget import')
+    }
+  } catch (error: any) {
+    // Check if it's a 404 (no budget data available yet) - this is expected
+    if (error.response?.status === 404) {
+      console.log('No budget data available yet - budget task needs to be completed first')
+      // Don't treat 404 as an error - it's expected when budget doesn't exist
+      return
+    }
+
+    // Check if it's a 409 (budget task not completed) - also expected
+    if (error.response?.status === 409) {
+      console.log('Budget task not completed yet - cannot import data')
+      // Don't treat 409 as an error - it's expected when budget task is pending
+      return
+    }
+
+    // Only log actual errors, not expected 404s or 409s
+    console.error('Failed to auto-import budget data:', error)
+  } finally {
+    isImporting.value = false
+  }
+}
+
+/**
+ * Import budget data from the backend API
+ */
+const importBudgetData = async () => {
+  try {
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/import-budget`)
+
+    if (response.data.data) {
+      // Update reactive data with imported budget data
+      Object.assign(quoteData, response.data.data)
+      calculateAllTotals()
+
+      console.log(`Budget data imported successfully! ${quoteData.materials.length} material elements, ${quoteData.labour.length} labour items, ${quoteData.expenses.length} expenses, ${quoteData.logistics.length} logistics items.`)
+    } else {
+      throw new Error('No data received from budget import')
+    }
+  } catch (error) {
+    console.error('Failed to import budget data:', error)
+    throw error
+  }
+}
+
+/**
+ * Calculate all quote totals based on individual item margins
+ */
+const calculateAllTotals = () => {
+  // Helper function to round to 2 decimal places
+  const roundCurrency = (amount: number): number => Math.round(amount * 100) / 100
+
+  // Materials totals (sum from individual materials)
+  quoteData.totals.materialsBase = roundCurrency(
+    quoteData.materials.reduce((sum, element) =>
+      sum + element.materials.reduce((matSum, material) => matSum + material.totalPrice, 0), 0)
+  )
+  quoteData.totals.materialsMargin = roundCurrency(
+    quoteData.materials.reduce((sum, element) =>
+      sum + element.materials.reduce((matSum, material) => matSum + material.marginAmount, 0), 0)
+  )
+  quoteData.totals.materialsTotal = roundCurrency(
+    quoteData.materials.reduce((sum, element) =>
+      sum + element.materials.reduce((matSum, material) => matSum + material.finalPrice, 0), 0)
+  )
+
+  // Labour totals (no individual margins, use category margin)
+  quoteData.totals.labourBase = roundCurrency(
+    quoteData.labour.reduce((sum, labour) => sum + labour.amount, 0)
+  )
+  quoteData.totals.labourMargin = roundCurrency(
+    quoteData.totals.labourBase * (quoteData.margins.labour / 100)
+  )
+  quoteData.totals.labourTotal = roundCurrency(
+    quoteData.totals.labourBase + quoteData.totals.labourMargin
+  )
+
+  // Expenses totals (sum from individual expense items)
+  quoteData.totals.expensesBase = roundCurrency(
+    quoteData.expenses.reduce((sum, expense) => sum + expense.amount, 0)
+  )
+  quoteData.totals.expensesMargin = roundCurrency(
+    quoteData.expenses.reduce((sum, expense) => sum + expense.marginAmount, 0)
+  )
+  quoteData.totals.expensesTotal = roundCurrency(
+    quoteData.expenses.reduce((sum, expense) => sum + expense.finalPrice, 0)
+  )
+
+  // Logistics totals (sum from individual logistics items)
+  quoteData.totals.logisticsBase = roundCurrency(
+    quoteData.logistics.reduce((sum, logistics) => sum + logistics.amount, 0)
+  )
+  quoteData.totals.logisticsMargin = roundCurrency(
+    quoteData.logistics.reduce((sum, logistics) => sum + logistics.marginAmount, 0)
+  )
+  quoteData.totals.logisticsTotal = roundCurrency(
+    quoteData.logistics.reduce((sum, logistics) => sum + logistics.finalPrice, 0)
+  )
+
+  // Grand totals
+  const baseGrandTotal = quoteData.totals.materialsBase + quoteData.totals.labourBase +
+                        quoteData.totals.expensesBase + quoteData.totals.logisticsBase
+
+  quoteData.totals.totalMargin = roundCurrency(
+    quoteData.totals.materialsMargin + quoteData.totals.labourMargin +
+    quoteData.totals.expensesMargin + quoteData.totals.logisticsMargin
+  )
+
+  // Subtotal before discount
+  quoteData.totals.subtotal = roundCurrency(
+    quoteData.totals.materialsTotal + quoteData.totals.labourTotal +
+    quoteData.totals.expensesTotal + quoteData.totals.logisticsTotal
+  )
+
+  // Apply discount
+  quoteData.totals.discountAmount = roundCurrency(quoteData.discountAmount || 0)
+  quoteData.totals.totalAfterDiscount = roundCurrency(
+    quoteData.totals.subtotal - quoteData.totals.discountAmount
+  )
+
+  // Calculate VAT (always 16% when enabled)
+  quoteData.vatPercentage = 16 // Ensure VAT is always 16%
+  quoteData.totals.vatPercentage = 16
+  quoteData.totals.vatAmount = quoteData.vatEnabled ?
+    roundCurrency(quoteData.totals.totalAfterDiscount * 0.16) : 0
+
+  // Final total including VAT
+  quoteData.totals.grandTotal = roundCurrency(
+    quoteData.totals.totalAfterDiscount + quoteData.totals.vatAmount
+  )
+
+  quoteData.totals.overallMarginPercentage = baseGrandTotal > 0 ?
+    roundCurrency((quoteData.totals.totalMargin / baseGrandTotal) * 100) : 0
+}
+
+
+// Component lifecycle
+onMounted(async () => {
+  await loadExistingQuote()
+  if (!quoteData.budgetImported) {
+    await autoImportBudgetData()
+  }
+})
+
+// Load existing quote data
+const loadExistingQuote = async () => {
+  try {
+    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote`)
+
+    if (response.data.data) {
+      Object.assign(quoteData, response.data.data)
+      calculateAllTotals()
+      console.log('Existing quote data loaded successfully')
+    }
+  } catch (error) {
+    // Quote doesn't exist yet, use defaults
+    console.log('No existing quote found, starting fresh')
+  }
+}
+
+// Save quote data (exposed for external use)
+const saveQuote = async () => {
+  try {
+    await axios.post(`/api/projects/tasks/${props.task.id}/quote`, {
+      projectInfo: quoteData.projectInfo,
+      budgetImported: quoteData.budgetImported,
+      materials: quoteData.materials,
+      labour: quoteData.labour,
+      expenses: quoteData.expenses,
+      logistics: quoteData.logistics,
+      margins: quoteData.margins,
+      discountAmount: quoteData.discountAmount,
+      vatPercentage: quoteData.vatPercentage,
+      vatEnabled: quoteData.vatEnabled,
+      totals: quoteData.totals,
+      status: quoteData.status
+    })
+
+    quoteData.updatedAt = new Date()
+    console.log('Quote saved successfully!')
+
+  } catch (error) {
+    console.error('Failed to save quote:', error)
+    throw error
+  }
+}
+
+// Expose saveQuote function for external use
+defineExpose({
+  saveQuote
+})
+</script>
+
+<style scoped>
+/* Component-specific styles will be added as needed */
+</style>
