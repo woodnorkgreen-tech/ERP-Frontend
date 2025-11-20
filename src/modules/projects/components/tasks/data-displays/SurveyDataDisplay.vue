@@ -29,18 +29,30 @@
             </svg>
             <span>Basic Information</span>
           </h3>
-          <button
-            @click="toggleEdit('basic')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg v-if="!isEditing.basic" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-            {{ isEditing.basic ? 'Cancel Edit' : 'Edit' }}
-          </button>
+          <div class="flex space-x-2">
+            <button
+              @click="downloadPDF"
+              class="inline-flex items-center px-3 py-1.5 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900 hover:bg-red-100 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              title="Download PDF Report"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              PDF
+            </button>
+            <button
+              @click="toggleEdit('basic')"
+              class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <svg v-if="!isEditing.basic" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              {{ isEditing.basic ? 'Cancel Edit' : 'Edit' }}
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1478,6 +1490,51 @@ const formatList = (items: unknown) => {
     return items
   }
   return []
+}
+
+const downloadPDF = async () => {
+  try {
+    if (!props.taskData?.id) {
+      error.value = 'Survey data not found. Cannot generate PDF.'
+      return
+    }
+
+    const surveyId = props.taskData.id as number
+
+    // Use axios to download the PDF (it will automatically include auth headers)
+    const response = await api.get(`/api/projects/site-surveys/${surveyId}/pdf`, {
+      responseType: 'blob', // Important: get response as blob
+      headers: {
+        'Accept': 'application/pdf'
+      }
+    })
+
+    // Create download link from blob
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `site-survey-${surveyId}.pdf`
+    document.body.appendChild(link)
+    link.click()
+
+    // Clean up
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { status?: number; data?: any }; message?: string }
+    console.error('PDF download error:', err)
+
+    if (errorObj.response?.status === 404) {
+      error.value = 'Survey not found. Please ensure the survey data exists.'
+    } else if (errorObj.response?.status === 403) {
+      error.value = 'You do not have permission to download this PDF.'
+    } else if (errorObj.response?.status === 500) {
+      error.value = 'Server error occurred while generating PDF. Please try again later.'
+    } else {
+      error.value = errorObj.message || 'Failed to download PDF. Please try again.'
+    }
+  }
 }
 
 onMounted(() => {

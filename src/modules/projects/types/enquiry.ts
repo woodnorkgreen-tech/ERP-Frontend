@@ -12,6 +12,7 @@ export interface ProjectEnquiry {
   assigned_department?: string;
   project_deliverables?: string;
   contact_person: string;
+  project_officer_id?: number;
   assigned_po?: number;
   follow_up_notes?: string;
   enquiry_number: string;
@@ -33,6 +34,11 @@ export interface ProjectEnquiry {
   department?: {
     id: number;
     name: string;
+  };
+  project_officer?: {
+    id: number;
+    name: string;
+    email: string;
   };
   enquiryTasks?: EnquiryTask[];
   creator?: {
@@ -115,6 +121,7 @@ export interface CreateProjectEnquiryData {
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   status: ProjectEnquiry['status'];
   contact_person: string;
+  project_officer_id?: number | null;
   assigned_po?: number;
   follow_up_notes?: string;
   venue?: string;

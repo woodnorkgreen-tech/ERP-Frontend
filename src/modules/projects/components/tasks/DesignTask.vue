@@ -1,8 +1,34 @@
 <template>
   <div class="design-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-    <!-- Editable section - only show when not readonly (not completed) -->
-    <div v-if="!readonly">
-      <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
+    <!-- Header Section - Always visible -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
+        
+        <!-- Completion Badge -->
+        <span
+          v-if="readonly || task.status === 'completed'"
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+        >
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Completed
+        </span>
+      </div>
+
+      <!-- Completion Notice -->
+      <div
+        v-if="readonly || task.status === 'completed'"
+        class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+      >
+        <div class="flex items-center space-x-2">
+          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">This task has been completed. You can view all assets below.</span>
+        </div>
+      </div>
 
       <!-- Error Display -->
       <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -25,28 +51,82 @@
         </div>
         <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
       </div>
+
+      <!-- Tab Navigation - Always visible -->
+      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+        <nav class="flex space-x-8" aria-label="Tabs">
+          <!-- Upload Tab -->
+          <button
+            @click="activeTab = 'upload'"
+            :class="[
+              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+              activeTab === 'upload'
+                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            ]"
+          >
+            <span class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <span>Upload</span>
+            </span>
+          </button>
+          
+          <button
+            @click="activeTab = 'gallery'"
+            :class="[
+              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+              activeTab === 'gallery'
+                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            ]"
+          >
+            <span class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <span>Gallery ({{ stats.total }})</span>
+            </span>
+          </button>
+          
+          <button
+            @click="activeTab = 'approvals'"
+            :class="[
+              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+              activeTab === 'approvals'
+                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            ]"
+          >
+            <span class="flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Approvals</span>
+              <span v-if="pendingAssets.length > 0" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-purple-600 rounded-full">
+                {{ pendingAssets.length }}
+              </span>
+            </span>
+          </button>
+        </nav>
+      </div>
     </div>
 
-    <!-- Use TaskDataViewer for completed tasks -->
-    <TaskDataViewer
-      v-if="readonly"
-      :task="task"
-    />
-
-    <div v-else class="space-y-6">
+    <div class="space-y-6">
       <!-- Loading State -->
-      <div v-if="isLoadingExistingData" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div v-if="isLoadingExistingData || isLoadingAssets" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <div class="flex items-center space-x-2">
           <svg class="animate-spin h-5 w-5 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Loading existing design assets...</span>
+          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Loading design assets...</span>
         </div>
       </div>
 
-      <!-- Design Assets Upload Section -->
-      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+      <!-- Upload Tab -->
+      <div v-show="activeTab === 'upload'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
         <div class="flex items-center space-x-2 mb-6">
           <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
             <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,32 +248,12 @@
               <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" :style="{ width: uploadProgress + '%' }"></div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex space-x-2">
-          <button
-            v-if="task.status === 'pending'"
-            @click="updateStatus('in_progress')"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Start Design Task
-          </button>
-          <button
-            v-if="task.status === 'in_progress'"
-            @click="updateStatus('completed')"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            Complete Design Task
-          </button>
-        </div>
-        <div class="flex space-x-2">
+          <!-- Upload Button -->
           <button
             @click="handleUpload"
             :disabled="selectedFiles.length === 0 || isUploading"
-            class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="isUploading" class="inline-flex items-center">
               <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -202,19 +262,441 @@
               </svg>
               Uploading...
             </span>
-            <span v-else>Upload Assets</span>
+            <span v-else>Upload Selected Files</span>
           </button>
         </div>
       </div>
+
+      <!-- Gallery Tab -->
+      <div v-show="activeTab === 'gallery'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center space-x-2">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Design Assets Gallery</h3>
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            {{ stats.total }} asset{{ stats.total !== 1 ? 's' : '' }}
+          </div>
+        </div>
+
+        <div v-if="assets.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No assets</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by uploading design files.</p>
+          <div class="mt-6">
+            <button
+              @click="activeTab = 'upload'"
+              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+            >
+              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Upload Assets
+            </button>
+          </div>
+        </div>
+
+        <!-- Assets Grid -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            v-for="asset in assets"
+            :key="asset.id"
+            class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+            @click="openPreview(asset)"
+          >
+            <!-- Asset Preview/Icon -->
+            <div class="h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+              <!-- Image Preview -->
+              <img
+                v-if="isImageAsset(asset)"
+                :src="getAssetUrl(asset)"
+                :alt="asset.name || asset.original_name"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+              />
+              
+              <!-- PDF Icon -->
+              <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-xs text-gray-600 dark:text-gray-300 mt-2 font-medium">PDF</span>
+              </div>
+              
+              <!-- Generic File Icon -->
+              <div v-else class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                </svg>
+                <span class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ asset.category }}</span>
+              </div>
+
+              <!-- Hover Overlay -->
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Asset Info -->
+            <div class="p-4">
+              <h4 class="font-medium text-gray-900 dark:text-white truncate" :title="asset.name || asset.original_name">
+                {{ asset.name || asset.original_name }}
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ asset.category }}</p>
+              
+              <!-- Status Badge -->
+              <div class="mt-2">
+                <span
+                  :class="{
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': asset.status === 'pending',
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': asset.status === 'approved',
+                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': asset.status === 'rejected',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': asset.status === 'revision',
+                  }"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                >
+                  {{ asset.status }}
+                </span>
+              </div>
+
+              <!-- Asset Meta -->
+              <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <div>{{ new Date(asset.created_at).toLocaleDateString() }}</div>
+                <div v-if="asset.file_size">{{ formatFileSize(asset.file_size) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approvals Tab  -->
+      <div v-show="activeTab === 'approvals'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+        <div class="flex items-center space-x-2 mb-6">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+            <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Asset Approvals</h3>
+        </div>
+
+        <div v-if="pendingAssets.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No pending approvals</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">All assets have been reviewed.</p>
+        </div>
+
+        <!-- Pending Assets List -->
+        <div v-else class="space-y-4">
+          <div
+            v-for="asset in pendingAssets"
+            :key="asset.id"
+            class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden"
+          >
+            <div class="flex gap-4 p-4">
+              <!-- Asset Thumbnail -->
+              <div class="flex-shrink-0 w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden cursor-pointer" @click="openPreview(asset)">
+                <img
+                  v-if="isImageAsset(asset)"
+                  :src="getAssetUrl(asset)"
+                  :alt="asset.name || asset.original_name"
+                  class="w-full h-full object-cover hover:scale-105 transition-transform"
+                  @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                />
+                <div v-else-if="isPdfAsset(asset)" class="w-full h-full flex items-center justify-center">
+                  <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Asset Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between mb-2">
+                  <div class="flex-1 min-w-0">
+                    <h4 class="font-medium text-gray-900 dark:text-white truncate">
+                      {{ asset.name || asset.original_name }}
+                    </h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {{ asset.category }} • 
+                      Uploaded {{ new Date(asset.created_at).toLocaleDateString() }}
+                      <span v-if="(asset as any).file_size"> • {{ formatFileSize((asset as any).file_size) }}</span>
+                    </p>
+                  </div>
+                  <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    Pending Review
+                  </span>
+                </div>
+                
+                <p v-if="asset.description" class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                  {{ asset.description }}
+                </p>
+
+                <!-- Tags -->
+                <div v-if="(asset as any).tags && (asset as any).tags.length > 0" class="flex flex-wrap gap-1 mb-3">
+                  <span
+                    v-for="tag in (asset as any).tags"
+                    :key="tag"
+                    class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="approveAsset(asset)"
+                    class="inline-flex items-center px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Approve
+                  </button>
+                  
+                  <button
+                    @click="rejectAsset(asset)"
+                    class="inline-flex items-center px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Reject
+                  </button>
+
+                  <button
+                    @click="openPreview(asset)"
+                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Preview
+                  </button>
+
+                  <button
+                    @click="downloadAsset(asset)"
+                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Status Actions -->
+      <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+        <div class="flex space-x-2">
+          <button
+            v-if="task.status === 'pending'"
+            @click="updateStatus('in_progress')"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Start Design Task
+          </button>
+          <button
+            v-if="task.status === 'in_progress'"
+            @click="updateStatus('completed')"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors inline-flex items-center"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Complete Design Task
+          </button>
+        </div>
+        
+        <!-- Stats Summary -->
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <span class="font-medium">{{ stats.total }}</span> assets •
+          <span class="text-green-600 dark:text-green-400 font-medium">{{ stats.approved }}</span> approved •
+          <span class="text-yellow-600 dark:text-yellow-400 font-medium">{{ stats.pending }}</span> pending
+        </div>
+      </div>
     </div>
+
+    <!-- Preview Modal -->
+    <Transition name="modal">
+      <div
+        v-if="showPreviewModal && previewAsset"
+        class="fixed inset-0 z-50 overflow-y-auto"
+        @click.self="closePreview"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="closePreview"></div>
+
+        <!-- Modal Content -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div
+            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+            @click.stop
+          >
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <div class="flex-1 min-w-0 mr-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                  {{ previewAsset.name || previewAsset.original_name }}
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {{ previewAsset.category }} • 
+                  <span v-if="(previewAsset as any).file_size">{{ formatFileSize((previewAsset as any).file_size) }}</span>
+                </p>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex items-center space-x-2">
+                <!-- Approve/Reject buttons (only for pending assets) -->
+                <template v-if="previewAsset.status === 'pending'">
+                  <button
+                    @click="approveAsset(previewAsset); closePreview()"
+                    class="px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors inline-flex items-center"
+                    title="Approve"
+                  >
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Approve
+                  </button>
+                  <button
+                    @click="rejectAsset(previewAsset); closePreview()"
+                    class="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors inline-flex items-center"
+                    title="Reject"
+                  >
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Reject
+                  </button>
+                </template>
+
+                <button
+                  @click="downloadAsset(previewAsset)"
+                  class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Download"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                </button>
+                <button
+                  @click="closePreview"
+                  class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Close"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Content -->
+            <div class="p-4 overflow-auto max-h-[calc(90vh-180px)]">
+              <!-- Image Preview -->
+              <div v-if="isImageAsset(previewAsset)" class="flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
+                <img
+                  :src="getAssetUrl(previewAsset)"
+                  :alt="previewAsset.name || previewAsset.original_name"
+                  class="max-w-full max-h-[70vh] object-contain"
+                />
+              </div>
+
+              <!-- PDF Preview -->
+              <div v-else-if="isPdfAsset(previewAsset)" class="bg-gray-100 dark:bg-gray-900 rounded-lg">
+                <iframe
+                  :src="getAssetUrl(previewAsset)"
+                  class="w-full h-[70vh] rounded-lg"
+                  frameborder="0"
+                ></iframe>
+              </div>
+
+              <!-- Other File Types -->
+              <div v-else class="flex flex-col items-center justify-center py-12 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">Preview not available for this file type</p>
+                <button
+                  @click="downloadAsset(previewAsset)"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  Download File
+                </button>
+              </div>
+            </div>
+
+            <!-- Footer with Asset Details -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Status:</span>
+                  <span
+                    :class="{
+                      'text-yellow-600': previewAsset.status === 'pending',
+                      'text-green-600': previewAsset.status === 'approved',
+                      'text-red-600': previewAsset.status === 'rejected',
+                      'text-blue-600': previewAsset.status === 'revision',
+                    }"
+                    class="ml-2 font-medium capitalize"
+                  >
+                    {{ previewAsset.status }}
+                  </span>
+                </div>
+                <div>
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Uploaded:</span>
+                  <span class="ml-2 text-gray-600 dark:text-gray-400">
+                    {{ new Date(previewAsset.created_at).toLocaleString() }}
+                  </span>
+                </div>
+                <div v-if="previewAsset.description" class="col-span-2">
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+                  <p class="mt-1 text-gray-600 dark:text-gray-400">{{ previewAsset.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import api from '@/plugins/axios'
 import type { EnquiryTask } from '../../types/enquiry'
-import TaskDataViewer from './TaskDataViewer.vue'
+import type { DesignAsset, AssetCategory } from './design/types/design'
 
 interface Props {
   task: EnquiryTask
@@ -228,9 +710,20 @@ const emit = defineEmits<{
   'complete': []
 }>()
 
+// Active tab for navigation
+const activeTab = ref<'upload' | 'gallery' | 'approvals'>('upload')
+
+// Assets state
+const assets = ref<DesignAsset[]>([])
+const isLoadingAssets = ref(false)
+
+// Preview modal state
+const previewAsset = ref<DesignAsset | null>(null)
+const showPreviewModal = ref(false)
+
 // Upload data
 const uploadData = ref({
-  category: 'other',
+  category: 'concept' as AssetCategory,
   description: '',
   tags: [] as string[]
 })
@@ -242,6 +735,23 @@ const successMessage = ref('')
 const isLoadingExistingData = ref(false)
 const isUploading = ref(false)
 const uploadProgress = ref(0)
+
+// Computed properties
+const pendingAssets = computed(() => 
+  assets.value.filter(asset => asset.status === 'pending')
+)
+
+const approvedAssets = computed(() => 
+  assets.value.filter(asset => asset.status === 'approved')
+)
+
+const stats = computed(() => ({
+  total: assets.value.length,
+  approved: approvedAssets.value.length,
+  pending: pendingAssets.value.length,
+  rejected: assets.value.filter(a => a.status === 'rejected').length,
+  revision: assets.value.filter(a => a.status === 'revision').length,
+}))
 
 // Utility functions
 const isImageFile = (mimeType: string): boolean => {
@@ -255,6 +765,100 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
+
+const getAssetUrl = (asset: DesignAsset): string => {
+  // Priority 1: Use file_url from backend (added via $appends in model)
+  if ((asset as any).file_url) {
+    return (asset as any).file_url
+  }
+  
+  // Priority 2: Use url property if available
+  if (asset.url) {
+    return asset.url
+  }
+  
+  // Priority 3: Construct URL from file_path
+  const filePath = (asset as any).file_path || ''
+  if (filePath) {
+    // Remove 'public/' prefix if it exists and add '/storage/'
+    const cleanPath = filePath.replace(/^public\//, '')
+    return `/storage/${cleanPath}`
+  }
+  
+  return ''
+}
+
+const isImageAsset = (asset: DesignAsset): boolean => {
+  const mimeType = (asset as any).mime_type || asset.type || ''
+  return mimeType.startsWith('image/')
+}
+
+const isPdfAsset = (asset: DesignAsset): boolean => {
+  const mimeType = (asset as any).mime_type || asset.type || ''
+  return mimeType.includes('pdf')
+}
+
+const openPreview = (asset: DesignAsset) => {
+  previewAsset.value = asset
+  showPreviewModal.value = true
+}
+
+const closePreview = () => {
+  showPreviewModal.value = false
+  setTimeout(() => {
+    previewAsset.value = null
+  }, 300)
+}
+
+const downloadAsset = (asset: DesignAsset) => {
+  const url = `/api/projects/enquiry-tasks/${props.task.id}/design-assets/${asset.id}/download`
+  window.open(url, '_blank')
+}
+
+const approveAsset = async (asset: DesignAsset) => {
+  try {
+    const response = await api.post(`/api/projects/enquiry-tasks/${props.task.id}/design-assets/${asset.id}/approve`)
+    
+    // Update the asset in local state
+    const index = assets.value.findIndex(a => a.id === asset.id)
+    if (index !== -1) {
+      assets.value[index] = { ...assets.value[index], ...response.data.asset }
+    }
+    
+    successMessage.value = `Asset "${asset.name || asset.original_name}" approved successfully!`
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { message?: string } } }
+    console.error('Approve error:', errorObj)
+    error.value = errorObj.response?.data?.message || 'Failed to approve asset'
+  }
+}
+
+const rejectAsset = async (asset: DesignAsset, reason?: string) => {
+  try {
+    const response = await api.post(`/api/projects/enquiry-tasks/${props.task.id}/design-assets/${asset.id}/reject`, {
+      reason: reason || ''
+    })
+    
+    // Update the asset in local state
+    const index = assets.value.findIndex(a => a.id === asset.id)
+    if (index !== -1) {
+      assets.value[index] = { ...assets.value[index], ...response.data.asset }
+    }
+    
+    successMessage.value = `Asset "${asset.name || asset.original_name}" rejected.`
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { message?: string } } }
+    console.error('Reject error:', errorObj)
+    error.value = errorObj.response?.data?.message || 'Failed to reject asset'
+  }
+}
+
 
 // Methods
 const updateStatus = (status: EnquiryTask['status']) => {
@@ -344,7 +948,7 @@ const handleUpload = async () => {
     }
 
     // Upload to correct endpoint
-    await api.post(`/api/projects/enquiry-tasks/${props.task.id}/design-assets`, formData, {
+    const response = await api.post(`/api/projects/enquiry-tasks/${props.task.id}/design-assets`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -355,16 +959,27 @@ const handleUpload = async () => {
       }
     })
 
+    // Add uploaded assets to the assets list
+    if (response.data && Array.isArray(response.data)) {
+      assets.value.unshift(...response.data)
+    }
+
     successMessage.value = `Successfully uploaded ${selectedFiles.value.length} design asset(s)!`
 
     // Clear form
     selectedFiles.value = []
     uploadData.value = {
-      category: 'other',
+      category: 'concept',
       description: '',
       tags: []
     }
     tagsText.value = ''
+
+    // Reload assets to ensure sync
+    await loadDesignAssets()
+
+    // Switch to gallery tab to show uploaded assets
+    activeTab.value = 'gallery'
 
     // Clear success message after 5 seconds
     setTimeout(() => {
@@ -389,19 +1004,36 @@ const handleUpload = async () => {
   }
 }
 
-// Function to load existing design data
+// Function to load existing design assets
+const loadDesignAssets = async () => {
+  error.value = ''
+  isLoadingAssets.value = true
+
+  try {
+    const response = await api.get(`/api/projects/enquiry-tasks/${props.task.id}/design-assets`)
+    if (response.data && response.data.data) {
+      assets.value = response.data.data
+    } else if (Array.isArray(response.data)) {
+      assets.value = response.data
+    }
+  } catch (loadError) {
+    console.error('Error loading design assets:', loadError)
+    error.value = 'Failed to load design assets.'
+  } finally {
+    isLoadingAssets.value = false
+  }
+}
+
+// Function to load existing design data (legacy)
 const loadDesignData = async () => {
   error.value = ''
   successMessage.value = ''
   isLoadingExistingData.value = true
 
   try {
-    // Load existing design assets for display
-    await api.get(`/api/projects/enquiry-tasks/${props.task.id}/design-assets`)
-    // The data will be displayed by TaskDataViewer when readonly
+    await loadDesignAssets()
   } catch (loadError) {
     console.error('Error loading existing design data:', loadError)
-    // Don't show error for loading existing data, as it's not critical
   } finally {
     isLoadingExistingData.value = false
   }
@@ -430,9 +1062,38 @@ watch(() => props.task?.id, async (newTaskId, oldTaskId) => {
     isLoadingExistingData.value = false
   }
 }, { immediate: true })
+
+// Load assets on mount
+onMounted(() => {
+  if (props.task?.id) {
+    loadDesignAssets()
+  }
+})
 </script>
 <style scoped>
 .design-task {
   max-width: none;
+}
+
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
 }
 </style>

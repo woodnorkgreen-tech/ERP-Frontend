@@ -14,7 +14,7 @@
     <div v-else-if="importError" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3 text-red-600 dark:text-red-400">
-          <span class="text-lg">❌</span>
+
           <div>
             <p class="text-sm font-medium">Failed to load procurement data</p>
             <p class="text-xs text-red-500 dark:text-red-300">{{ importError }}</p>
@@ -189,7 +189,7 @@
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-medium text-blue-700 dark:text-blue-300">Materials Budget</h3>
-                <span class="text-2xl">💰</span>
+
               </div>
               <div class="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-2">
                 KES {{ (totalBudget || 0).toLocaleString() }}
@@ -203,7 +203,7 @@
             <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-medium text-green-700 dark:text-green-300">Budget Allocated</h3>
-                <span class="text-2xl">📊</span>
+
               </div>
               <div class="text-3xl font-bold text-green-900 dark:text-green-100 mb-2">
                 KES {{ (totalSpent || 0).toLocaleString() }}
@@ -245,7 +245,7 @@
           <!-- Procurement Progress Dashboard -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-              <span class="mr-2">📈</span>
+              <span class="mr-2"></span>
               Procurement Progress Dashboard
             </h4>
 
@@ -290,7 +290,7 @@
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <span class="mr-2">📋</span>
+              <span class="mr-2"></span>
               Export Procurement Data
             </h4>
           </div>
@@ -300,14 +300,14 @@
               @click="exportToExcel"
               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
-              <span>📊</span>
+              <span></span>
               <span>Export Excel</span>
             </button>
             <button
               @click="printReport"
               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
-              <span>🖨️</span>
+              <span></span>
               <span>Print Report</span>
             </button>
           </div>
@@ -319,7 +319,7 @@
         <!-- Success Message -->
         <div v-if="saveSuccess" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
           <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-            <span class="text-lg">✅</span>
+            <span class="text-lg"></span>
             <div>
               <p class="text-sm font-medium">Procurement data saved successfully</p>
               <p class="text-xs text-green-500 dark:text-green-300" v-if="lastSaveTime">
@@ -332,7 +332,7 @@
         <!-- Error Message -->
         <div v-if="saveError" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div class="flex items-center space-x-3 text-red-600 dark:text-red-400">
-            <span class="text-lg">❌</span>
+
             <div>
               <p class="text-sm font-medium">Failed to save procurement data</p>
               <p class="text-xs text-red-500 dark:text-red-300">{{ saveError }}</p>

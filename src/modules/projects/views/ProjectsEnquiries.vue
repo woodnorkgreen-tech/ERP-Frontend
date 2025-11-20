@@ -29,12 +29,20 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Project Enquiries</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage project enquiries and track progress</p>
         </div>
-        <button
-          @click="showCreateModal = true"
-          class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          Log Enquiry
-        </button>
+        <div class="flex items-center space-x-4">
+          <button
+            @click="openLogisticsLogModal()"
+            class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors ml-3"
+          >
+            View Logistics Log
+          </button>
+                    <button
+            @click="showCreateModal = true"
+            class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Log Enquiry
+          </button>
+        </div>
       </div>
 
     <!-- Status Tabs -->
@@ -115,7 +123,7 @@
                 Contact Person
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Department
+                Project Officer
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
@@ -147,7 +155,7 @@
                  </span>
                </td>
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                 {{ enquiry.department?.name || 'No Department' }}
+                 {{ enquiry.project_officer?.name || 'Not assigned' }}
                </td>
                <td class="px-6 py-4 whitespace-nowrap">
                  <span :class="getStatusColor(enquiry.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
@@ -337,6 +345,23 @@
             </div>
 
             <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Officer</label>
+              <select
+                v-model="enquiryFormData.project_officer_id"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select a project officer</option>
+                <option
+                  v-for="officer in availableProjectOfficers"
+                  :key="officer.id"
+                  :value="officer.id"
+                >
+                  {{ officer.name }} ({{ officer.email }})
+                </option>
+              </select>
+            </div>
+
+            <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status *</label>
               <select
                 v-model="enquiryFormData.status"
@@ -466,6 +491,243 @@
       @task-assigned="handleTaskAssigned"
     />
 
+    <!-- Logistics Log Modal -->
+    <div v-if="showLogisticsLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-8xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+            Logistics Log - All Projects
+          </h2>
+          <button
+            @click="closeLogisticsLogModal"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Add New Entry Button and Filters -->
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <button
+            @click="showAddEntryForm = !showAddEntryForm"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>{{ showAddEntryForm ? 'Cancel' : 'Add New Entry' }}</span>
+          </button>
+
+          <!-- Status Filter -->
+          <div class="flex items-center space-x-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status:</label>
+            <select
+              v-model="logisticsStatusFilter"
+              @change="applyLogisticsFilter"
+              class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">All Status</option>
+              <option value="open">Open</option>
+              <option value="completed">Completed</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Add Entry Form -->
+        <div v-if="showAddEntryForm" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Logistics Entry</h3>
+          <form @submit.prevent="addLogisticsEntry" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name *</label>
+                <select
+                  v-model="logisticsEntryForm.project_id"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="">Select a project</option>
+                  <option
+                    v-for="enquiry in enquiries"
+                    :key="enquiry.id"
+                    :value="enquiry.id"
+                  >
+                    {{ enquiry.title }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Site</label>
+                <input
+                  v-model="logisticsEntryForm.site"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter site location"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loading Time</label>
+                <input
+                  v-model="logisticsEntryForm.loading_time"
+                  type="datetime-local"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure</label>
+                <input
+                  v-model="logisticsEntryForm.departure"
+                  type="datetime-local"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle Allocated</label>
+                <input
+                  v-model="logisticsEntryForm.vehicle_allocated"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="e.g., Truck ABC-123"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Officer Incharge</label>
+                <input
+                  v-model="logisticsEntryForm.project_officer_incharge"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter officer name"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remarks</label>
+              <textarea
+                v-model="logisticsEntryForm.remarks"
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Additional remarks or notes"
+              ></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+              <button
+                type="button"
+                @click="showAddEntryForm = false"
+                class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="savingLogisticsEntry"
+                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg transition-colors"
+              >
+                <span v-if="savingLogisticsEntry" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                {{ savingLogisticsEntry ? 'Saving...' : 'Save Entry' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Logistics Entries Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Logistics Entries</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">History of logistics activities for this project</p>
+          </div>
+
+          <div v-if="logisticsEntries.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p>No logistics entries found for this project.</p>
+            <p class="text-sm mt-1">Add your first entry using the button above.</p>
+          </div>
+
+          <div v-else class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th @click="sortLogisticsEntries('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                    Date <span v-if="sortField === 'created_at'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Project Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Site</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loading Time</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Departure</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vehicle</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Officer</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Remarks</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="entry in sortedLogisticsEntries" :key="entry.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ formatDate(entry.created_at) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ getProjectName(entry.project_id) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ entry.site }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ formatDateTime(entry.loading_time) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ formatDateTime(entry.departure) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ entry.vehicle_allocated }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ entry.project_officer_incharge }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span :class="getLogisticsStatusColor(entry.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ getLogisticsStatusLabel(entry.status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                    {{ entry.remarks || 'N/A' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      v-if="entry.status === 'open'"
+                      @click="closeLogisticsEntry(entry.id)"
+                      class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
+                    >
+                      Close
+                    </button>
+                    <span v-else class="text-gray-500 dark:text-gray-400">Closed</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            @click="closeLogisticsLogModal"
+            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -479,6 +741,7 @@ import { useAuth } from '@/composables/useAuth'
 import TaskAssignmentModal from '../components/TaskAssignmentModal.vue'
 import Pagination from '@/components/Pagination.vue'
 import { ENQUIRY_STATUS_LABELS, ENQUIRY_STATUS_COLORS, PAGINATION_PER_PAGE } from '../constants/enquiryConstants'
+import api from '@/plugins/axios'
 
 const router = useRouter()
 const emit = defineEmits<{
@@ -510,6 +773,44 @@ const formSuccess = ref('')
 // Task Assignment Modal
 const showTaskAssignmentModal = ref(false)
 const selectedEnquiry = ref<ProjectEnquiry | null>(null)
+
+// Available Project Officers
+const availableProjectOfficers = ref<Array<{id: number, name: string, email: string}>>([])
+
+// Logistics Entry Type
+interface LogisticsEntry {
+  id: number
+  project_id: number
+  site: string
+  loading_time: string
+  departure: string
+  vehicle_allocated: string
+  project_officer_incharge: string
+  remarks: string
+  status: 'open' | 'completed' | 'closed'
+  created_at: string
+}
+
+// Logistics Log Modal
+const showLogisticsLogModal = ref(false)
+const selectedEnquiryForLog = ref<ProjectEnquiry | null>(null)
+const showAddEntryForm = ref(false)
+const savingLogisticsEntry = ref(false)
+const logisticsEntries = ref<LogisticsEntry[]>([])
+const sortField = ref('created_at')
+const sortDirection = ref<'asc' | 'desc'>('desc')
+const logisticsStatusFilter = ref('')
+
+// Logistics Entry Form
+const logisticsEntryForm = ref({
+  project_id: null as number | null,
+  site: '',
+  loading_time: '',
+  departure: '',
+  vehicle_allocated: '',
+  project_officer_incharge: '',
+  remarks: ''
+})
 
 
 // Modal Tabs
@@ -547,6 +848,7 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   priority: 'medium',
   status: 'enquiry_logged',
   contact_person: '',
+  project_officer_id: null as number | null,
   follow_up_notes: '',
   venue: '',
   site_survey_skipped: false,
@@ -597,6 +899,7 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     priority: enquiry.priority || 'medium',
     status: enquiry.status || 'enquiry_logged',
     contact_person: enquiry.contact_person || '',
+    project_officer_id: enquiry.project_officer_id || null,
     follow_up_notes: enquiry.follow_up_notes || '',
     venue: enquiry.venue || '',
     site_survey_skipped: enquiry.site_survey_skipped ?? false,
@@ -617,6 +920,140 @@ const openTaskAssignment = (enquiry: ProjectEnquiry) => {
 const closeTaskAssignmentModal = () => {
   showTaskAssignmentModal.value = false
   selectedEnquiry.value = null
+}
+
+// Logistics Log Modal Functions
+const openLogisticsLogModal = async () => {
+  selectedEnquiryForLog.value = null
+  showLogisticsLogModal.value = true
+  showAddEntryForm.value = false
+
+  // Fetch all logistics entries
+  await fetchLogisticsEntries()
+}
+
+const closeLogisticsLogModal = () => {
+  showLogisticsLogModal.value = false
+  selectedEnquiryForLog.value = null
+  showAddEntryForm.value = false
+  logisticsEntries.value = []
+  sortField.value = 'created_at'
+  sortDirection.value = 'desc'
+  logisticsStatusFilter.value = ''
+}
+
+const fetchLogisticsEntries = async () => {
+  try {
+    const response = await api.get('/api/projects/logistics-log')
+    logisticsEntries.value = response.data.data.data || []
+  } catch (error) {
+    console.error('Failed to fetch logistics entries:', error)
+    logisticsEntries.value = []
+  }
+}
+
+const addLogisticsEntry = async () => {
+  if (!logisticsEntryForm.value.project_id) return
+
+  try {
+    savingLogisticsEntry.value = true
+
+    const response = await api.post('/api/projects/logistics-log', logisticsEntryForm.value)
+    logisticsEntries.value.unshift(response.data.data)
+
+    // Reset form
+    logisticsEntryForm.value = {
+      project_id: null,
+      site: '',
+      loading_time: '',
+      departure: '',
+      vehicle_allocated: '',
+      project_officer_incharge: '',
+      remarks: ''
+    }
+
+    showAddEntryForm.value = false
+  } catch (error: any) {
+    console.error('Failed to add logistics entry:', error)
+    alert('Failed to add logistics entry: ' + (error.response?.data?.message || error.message || 'Unknown error'))
+  } finally {
+    savingLogisticsEntry.value = false
+  }
+}
+
+const sortLogisticsEntries = (field: string) => {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortDirection.value = 'asc'
+  }
+}
+
+const sortedLogisticsEntries = computed(() => {
+  let filtered = [...logisticsEntries.value]
+
+  // Apply status filter
+  if (logisticsStatusFilter.value) {
+    filtered = filtered.filter(entry => entry.status === logisticsStatusFilter.value)
+  }
+
+  // Sort the filtered results
+  return filtered.sort((a, b) => {
+    let aValue: string | number = ''
+    let bValue: string | number = ''
+
+    // Handle sorting by different fields
+    switch (sortField.value) {
+      case 'created_at':
+        aValue = new Date(a.created_at).getTime()
+        bValue = new Date(b.created_at).getTime()
+        break
+      case 'project_name':
+        aValue = getProjectName(a.project_id).toLowerCase()
+        bValue = getProjectName(b.project_id).toLowerCase()
+        break
+      case 'site':
+        aValue = a.site.toLowerCase()
+        bValue = b.site.toLowerCase()
+        break
+      default:
+        aValue = a.created_at
+        bValue = b.created_at
+    }
+
+    if (sortDirection.value === 'asc') {
+      return aValue > bValue ? 1 : -1
+    } else {
+      return aValue < bValue ? 1 : -1
+    }
+  })
+})
+
+// Date formatting functions
+const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return 'N/A'
+  return new Date(dateString).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const getProjectName = (projectId: number) => {
+  const project = enquiries.value.find(e => e.id === projectId)
+  return project?.title || 'Unknown Project'
 }
 
 
@@ -658,6 +1095,7 @@ const closeModal = () => {
     priority: 'medium',
     status: 'enquiry_logged',
     contact_person: '',
+    project_officer_id: null,
     follow_up_notes: '',
     venue: '',
     site_survey_skipped: false,
@@ -701,6 +1139,64 @@ const getUserTaskCount = (enquiry: ProjectEnquiry) => {
   return enquiry.enquiryTasks.filter(task => task.assigned_to?.id === user.value!.id).length
 }
 
+const getLogisticsStatusColor = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'closed':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+const getLogisticsStatusLabel = (status: string) => {
+  switch (status) {
+    case 'open':
+      return 'Open'
+    case 'completed':
+      return 'Completed'
+    case 'closed':
+      return 'Closed'
+    default:
+      return status
+  }
+}
+
+const closeLogisticsEntry = async (entryId: number) => {
+  if (!confirm('Are you sure you want to close this logistics entry?')) return
+
+  console.log('Closing logistics entry:', entryId)
+
+  try {
+    console.log('Making API call to:', `/api/projects/logistics-log/${entryId}`)
+    const response = await api.put(`/api/projects/logistics-log/${entryId}`, { status: 'closed' })
+    console.log('API response:', response)
+
+    // Update the local entry status
+    const entry = logisticsEntries.value.find(e => e.id === entryId)
+    if (entry) {
+      entry.status = 'closed'
+      console.log('Updated local entry status to closed')
+    }
+
+    alert('Logistics entry closed successfully')
+  } catch (error: any) {
+    console.error('Failed to close logistics entry:', error)
+    console.error('Error response:', error.response)
+    console.error('Error message:', error.message)
+    alert('Failed to close logistics entry: ' + (error.response?.data?.message || error.message || 'Unknown error'))
+  }
+}
+
+const applyLogisticsFilter = () => {
+  // For now, this is just a placeholder - in a real implementation,
+  // you might want to refetch data with filters or filter locally
+  // Since we're fetching all data, we'll filter locally for now
+}
+
 
 
 watch(showCreateModal, (newVal) => {
@@ -711,8 +1207,19 @@ watch(showCreateModal, (newVal) => {
   }
 })
 
+const fetchAvailableProjectOfficers = async () => {
+  try {
+    const response = await api.get('/api/projects/available-project-officers')
+    availableProjectOfficers.value = response.data.data || []
+  } catch (error) {
+    console.error('Failed to fetch available project officers:', error)
+    availableProjectOfficers.value = []
+  }
+}
+
 onMounted(async () => {
   await fetchEnquiries()
   await fetchClients()
+  await fetchAvailableProjectOfficers()
 })
 </script>

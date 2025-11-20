@@ -1,8 +1,8 @@
 <template>
   <div class="task-renderer">
-    <!-- Special handling for budget tasks - let them manage their own readonly/edit mode -->
+    <!-- Special handling for budget and design tasks - let them manage their own readonly/edit mode -->
     <component
-      v-if="task.type === 'budget'"
+      v-if="task.type === 'budget' || task.type === 'design'"
       :is="taskComponent"
       :task="task"
       :readonly="false"
@@ -46,6 +46,7 @@ import SetupTask from './SetupTask.vue'
 import HandoverTask from './HandoverTask.vue'
 import SetdownTask from './SetdownTask.vue'
 import ReportTask from './ReportTask.vue'
+import TeamsTask from './TeamsTask.vue'
 import DefaultTask from './DefaultTask.vue'
 
 interface Props {
@@ -61,38 +62,64 @@ const emit = defineEmits<{
 }>()
 
 const taskComponent = computed(() => {
-  switch (props.task.type) {
+  const taskType = props.task.type
+  let component
+
+  switch (taskType) {
     case 'site-survey':
-      return SurveyTask
+      component = SurveyTask
+      break
     case 'design':
-      return DesignTask
+      component = DesignTask
+      break
     case 'materials':
-      return MaterialsTask
+      component = MaterialsTask
+      break
     case 'budget':
-      return BudgetTask
+      component = BudgetTask
+      break
     case 'quote':
-      return QuoteTask
+      component = QuoteTask
+      break
     case 'quote_approval':
-      return QuoteApprovalTask
+      component = QuoteApprovalTask
+      break
     case 'procurement':
-      return ProcurementTask
+      component = ProcurementTask
+      break
     case 'conversion':
-      return ConversionTask
+      component = ConversionTask
+      break
     case 'production':
-      return ProductionTask
+      component = ProductionTask
+      break
     case 'logistics':
-      return LogisticsTask
+      component = LogisticsTask
+      break
     case 'setup':
-      return SetupTask
+      component = SetupTask
+      break
     case 'handover':
-      return HandoverTask
+      component = HandoverTask
+      break
     case 'setdown':
-      return SetdownTask
+      component = SetdownTask
+      break
     case 'report':
-      return ReportTask
+      component = ReportTask
+      break
+    case 'teams':
+      component = TeamsTask
+      break
     default:
-      return DefaultTask
+      component = DefaultTask
+      break
   }
+
+  // Debug log to validate task type and component selection
+  console.log('[DEBUG] TaskRenderer: task.type =', taskType, 'selected component:', component?.name || 'unknown')
+
+  return component
 })
 
 const handleStatusUpdate = (status: EnquiryTask['status']) => {
