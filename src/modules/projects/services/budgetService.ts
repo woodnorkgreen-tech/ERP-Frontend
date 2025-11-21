@@ -104,6 +104,7 @@ export interface BudgetData {
   budgetSummary: BudgetSummary
   status: 'draft' | 'pending_approval' | 'approved' | 'rejected'
   materialsImportInfo?: MaterialsImportInfo
+  materialsApprovalStatus?: any
   taskId?: number // Added for backend validation
   createdAt?: Date
   updatedAt?: Date

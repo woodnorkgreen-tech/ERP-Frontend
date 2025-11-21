@@ -154,6 +154,7 @@
           :form-data="state.formData"
           :import-status="state.importStatus"
           :materials-update-check="state.materialsUpdateCheck"
+          :approval-status="state.materialsApprovalStatus"
           :is-importing="state.isImporting"
           :is-checking-updates="state.isCheckingUpdates"
           @import-materials="importMaterials"

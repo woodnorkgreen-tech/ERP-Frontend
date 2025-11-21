@@ -39,6 +39,7 @@ export interface BudgetState {
   // Import related
   importStatus: MaterialsImportInfo | null
   materialsUpdateCheck: MaterialsUpdateCheckResponse | null
+  materialsApprovalStatus: any | null
 
   // Form data
   formData: BudgetFormData
@@ -54,6 +55,7 @@ export function useBudgetState() {
     successMessage: null,
     importStatus: null,
     materialsUpdateCheck: null,
+    materialsApprovalStatus: null,
     formData: {
       projectInfo: {
         projectId: '',

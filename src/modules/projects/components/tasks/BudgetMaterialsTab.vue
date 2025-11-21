@@ -1,5 +1,34 @@
 <template>
   <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+    <!-- Approval Warning -->
+    <div v-if="!canImport && (!formData.materials || formData.materials.length === 0)" class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+      <div class="flex items-start space-x-3">
+        <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+        <div>
+          <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Materials Approval Pending</h4>
+          <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+            Materials must be approved by all departments (Design, Production, Finance) before they can be imported into the budget.
+          </p>
+          <div class="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+            <span class="font-medium">Current Status:</span>
+            <ul class="list-disc list-inside mt-1 ml-1">
+              <li :class="{'text-green-600 dark:text-green-400': approvalStatus?.design?.approved}">
+                Design: {{ approvalStatus?.design?.approved ? 'Approved' : 'Pending' }}
+              </li>
+              <li :class="{'text-green-600 dark:text-green-400': approvalStatus?.production?.approved}">
+                Production: {{ approvalStatus?.production?.approved ? 'Approved' : 'Pending' }}
+              </li>
+              <li :class="{'text-green-600 dark:text-green-400': approvalStatus?.finance?.approved}">
+                Finance: {{ approvalStatus?.finance?.approved ? 'Approved' : 'Pending' }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-2">
         <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
@@ -14,8 +43,14 @@
           v-if="!formData.materials || formData.materials.length === 0"
           @click="() => importMaterials(false)"
           type="button"
-          :disabled="isImporting"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors"
+          :disabled="isImporting || !canImport"
+          :class="[
+            'px-4 py-2 text-white text-sm rounded-lg transition-colors',
+            isImporting || !canImport 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-500 hover:bg-blue-600'
+          ]"
+          :title="!canImport ? 'Materials must be approved by all departments first' : ''"
         >
           {{ isImporting ? 'Importing...' : 'Import from Materials Task' }}
         </button>
@@ -171,6 +206,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { BudgetElement, BudgetMaterialItem, MaterialsImportInfo, MaterialsUpdateCheckResponse } from '../../services/budgetService'
 
 interface Props {
@@ -179,6 +215,7 @@ interface Props {
   }
   importStatus: MaterialsImportInfo | null
   materialsUpdateCheck: MaterialsUpdateCheckResponse | null
+  approvalStatus: any | null
   isImporting: boolean
   isCheckingUpdates: boolean
 }
@@ -190,8 +227,12 @@ interface Emits {
   (e: 'calculate-material-total', material: BudgetMaterialItem): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const canImport = computed(() => {
+  return props.approvalStatus?.all_approved ?? false
+})
 
 const importMaterials = (forceReimport: boolean) => {
   emit('import-materials', forceReimport)

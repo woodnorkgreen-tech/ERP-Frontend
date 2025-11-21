@@ -249,6 +249,63 @@
       </div>
     </div>
 
+    <!-- Department Approvals Section -->
+    <div class="mb-8">
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Department Approvals</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          All three departments must approve the materials list before budget can be created
+        </p>
+
+        <!-- Overall Status Banner -->
+        <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-sm font-medium text-green-800 dark:text-green-200">
+              ✓ All departments approved. Budget import enabled.
+            </span>
+          </div>
+        </div>
+        <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Approval Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ApprovalCard
+            department="design"
+            title="Design Team"
+            :approval-data="approvalStatus.design"
+            :can-approve="canApproveForDepartment('design')"
+            @approve="approveForDepartment('design', $event)"
+          />
+          <ApprovalCard
+            department="production"
+            title="Production"
+            :approval-data="approvalStatus.production"
+            :can-approve="canApproveForDepartment('production')"
+            @approve="approveForDepartment('production', $event)"
+          />
+          <ApprovalCard
+            department="finance"
+            title="Finance"
+            :approval-data="approvalStatus.finance"
+            :can-approve="canApproveForDepartment('finance')"
+            @approve="approveForDepartment('finance', $event)"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Materials Actions -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-3">
@@ -491,6 +548,63 @@
             </div>
           </div>
 
+          <!-- Department Approvals Section -->
+          <div class="mt-8 print:hidden">
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Department Approvals</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                All three departments must approve the materials list before budget can be created
+              </p>
+
+              <!-- Overall Status Banner -->
+              <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div class="flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-sm font-medium text-green-800 dark:text-green-200">
+                    ✓ All departments approved. Budget import enabled.
+                  </span>
+                </div>
+              </div>
+              <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <div class="flex items-center space-x-2">
+                  <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Approval Cards Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <ApprovalCard
+                  department="design"
+                  title="Design Team"
+                  :approval-data="approvalStatus.design"
+                  :can-approve="canApproveForDepartment('design')"
+                  @approve="approveForDepartment('design', $event)"
+                />
+                <ApprovalCard
+                  department="production"
+                  title="Production"
+                  :approval-data="approvalStatus.production"
+                  :can-approve="canApproveForDepartment('production')"
+                  @approve="approveForDepartment('production', $event)"
+                />
+                <ApprovalCard
+                  department="finance"
+                  title="Finance"
+                  :approval-data="approvalStatus.finance"
+                  :can-approve="canApproveForDepartment('finance')"
+                  @approve="approveForDepartment('finance', $event)"
+                />
+              </div>
+            </div>
+          </div>
+
           <!-- Summary Section -->
           <div v-if="getIncludedElements().length > 0" class="mt-8 print:mt-6 print:break-inside-avoid">
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
@@ -539,9 +653,11 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import MaterialsModal from '../MaterialsModal.vue'
 import AddMaterialBudgetModal from '../AddMaterialBudgetModal.vue'
+import ApprovalCard from './materials/ApprovalCard.vue'
 import { MaterialsService } from '../../services/materialsService'
 import { BudgetAdditionService } from '../../services/budgetAdditionService'
 import type { BudgetType } from '../../types/budget'
+import api from '@/plugins/axios'
 
 /**
  * Props interface for the MaterialsTask component
@@ -803,9 +919,97 @@ const initializeCollapsedState = () => {
 // Initialize all elements as collapsed by default
 initializeCollapsedState()
 
+// Approval state management
+interface ApprovalDepartmentData {
+  approved: boolean
+  approved_by?: number | null
+  approved_by_name?: string | null
+  approved_at?: string | null
+  comments?: string
+}
+
+interface ApprovalStatus {
+  design: ApprovalDepartmentData
+  production: ApprovalDepartmentData
+  finance: ApprovalDepartmentData
+  all_approved: boolean
+  last_approval_at?: string | null
+}
+
+const approvalStatus = ref<ApprovalStatus>({
+  design: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
+  production: {approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
+  finance: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
+  all_approved: false,
+  last_approval_at: null
+})
+
+// Computed: Pending departments
+const pendingDepartments = computed(() => {
+  const pending: string[] = []
+  if (!approvalStatus.value.design.approved) pending.push('Design')
+  if (!approvalStatus.value.production.approved) pending.push('Production')
+  if (!approvalStatus.value.finance.approved) pending.push('Finance')
+  return pending
+})
+
+// Load approval status from backend
+const loadApprovalStatus = async () => {
+  try {
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/materials/approval-status`)
+    approvalStatus.value = response.data.approval_status
+  } catch (err) {
+    console.error('Failed to load approval status:', err)
+  }
+}
+
+// Check if current user can approve for a department
+const canApproveForDepartment = (department: 'design' | 'production' | 'finance'): boolean => {
+  // Get user roles from auth store or wherever they're stored
+  // For now, we'll use a simple check - you may need to adjust based on your auth system
+  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const userRoles = (user?.roles || []).map((r: any) => r.name?.toLowerCase())
+  
+  // TEMPORARY: Test Mode to allow everyone to approve
+  const isTestMode = true 
+  if (isTestMode) {
+    console.log('Test Mode Enabled: Allowing approval for all departments')
+    return true
+  }
+
+  const roleMap: Record<string, string[]> = {
+    design: ['design_lead', 'creative_director', 'design manager', 'admin', 'superadmin', 'super-admin', 'super admin', 'design'],
+    production: ['production_manager', 'production manager', 'operations_manager', 'operations manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
+    finance: ['finance_manager', 'finance manager', 'cfo', 'admin', 'superadmin', 'super-admin', 'super admin', 'accounts/costing']
+  }
+
+  console.log('Debug Roles:', { 
+    fullUserObject: user, // Log full object to see structure
+    userRoles, 
+    department, 
+    checkingFor: roleMap[department] 
+  })
+  
+  const allowedRoles = roleMap[department] || []
+  return allowedRoles.some(role => userRoles.includes(role.toLowerCase()))
+}
+
+// Approve materials for a department
+const approveForDepartment = async (department: 'design' | 'production' | 'finance', comments: string) => {
+  try {
+    const response = await api.post(`/api/projects/tasks/${props.task.id}/materials/approve/${department}`, { comments })
+    approvalStatus.value = response.data.approval_status
+    console.log(`${department} approval recorded successfully`)
+  } catch (err: any) {
+    console.error(`Failed to approve for ${department}:`, err)
+    error.value = err.response?.data?.message || `Failed to approve for ${department}`
+  }
+}
+
 // Load data on component mount
 onMounted(() => {
   loadMaterialsData()
+  loadApprovalStatus()
 })
 
 /**

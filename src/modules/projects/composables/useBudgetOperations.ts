@@ -38,10 +38,15 @@ export function useBudgetOperations(state: any, task: any, emit: any) {
         state.importStatus = data.materialsImportInfo
       }
 
-      // If no materials, try to import
-      if (data.materials.length === 0) {
+      // Set approval status if available
+      if (data.materialsApprovalStatus) {
+        state.materialsApprovalStatus = data.materialsApprovalStatus
+      }
+
+      // If no materials, try to import (only if approved)
+      if (data.materials.length === 0 && state.materialsApprovalStatus?.all_approved) {
         await importMaterials()
-      } else {
+      } else if (data.materials.length > 0) {
         // Check for updates if materials exist
         await checkMaterialsUpdates()
       }
@@ -260,15 +265,15 @@ export function useBudgetOperations(state: any, task: any, emit: any) {
 
     // Check for empty budget (at least one category should have data)
     const hasData = budgetData.materials.length > 0 || budgetData.labour.length > 0 ||
-                   budgetData.expenses.length > 0 || budgetData.logistics.length > 0
+      budgetData.expenses.length > 0 || budgetData.logistics.length > 0
     if (!hasData) {
       integrityErrors.push('Budget appears to be empty. Please add at least one item to materials, labour, expenses, or logistics.')
     }
 
     // Check for negative totals
     if (budgetData.budgetSummary.materialsTotal < 0 || budgetData.budgetSummary.labourTotal < 0 ||
-        budgetData.budgetSummary.expensesTotal < 0 || budgetData.budgetSummary.logisticsTotal < 0 ||
-        budgetData.budgetSummary.grandTotal < 0) {
+      budgetData.budgetSummary.expensesTotal < 0 || budgetData.budgetSummary.logisticsTotal < 0 ||
+      budgetData.budgetSummary.grandTotal < 0) {
       integrityErrors.push('Budget contains negative totals. Please review all amounts and ensure they are correct.')
     }
 
