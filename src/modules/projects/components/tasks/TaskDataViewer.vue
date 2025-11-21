@@ -99,7 +99,6 @@ import type { EnquiryTask } from '../../types/enquiry'
 import SurveyDataDisplay from './data-displays/SurveyDataDisplay.vue'
 import MaterialsDataDisplay from './data-displays/MaterialsDataDisplay.vue'
 import BudgetDataDisplay from './data-displays/BudgetDataDisplay.vue'
-import ConversionDataDisplay from './data-displays/ConversionDataDisplay.vue'
 import DesignDataDisplay from './data-displays/DesignDataDisplay.vue'
 import HandoverDataDisplay from './data-displays/HandoverDataDisplay.vue'
 import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
@@ -130,7 +129,6 @@ const dataDisplayComponents = {
   'site-survey': SurveyDataDisplay,
   'materials': MaterialsDataDisplay,
   'budget': BudgetDataDisplay,
-  'conversion': ConversionDataDisplay,
   'design': DesignDataDisplay,
   'handover': HandoverDataDisplay,
   'logistics': LogisticsDataDisplay,
@@ -227,6 +225,10 @@ const fetchTaskData = async () => {
       case 'quote':
         endpoint = `/api/projects/tasks/${props.task.id}/quote`
         console.log('TaskDataViewer: Quote task endpoint:', endpoint)
+        break
+      case 'quote_approval':
+        endpoint = `/api/projects/tasks/${props.task.id}/approval`
+        console.log('TaskDataViewer: Quote approval task endpoint:', endpoint)
         break
       case 'procurement':
         endpoint = `/api/projects/tasks/${props.task.id}/procurement`

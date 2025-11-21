@@ -53,19 +53,23 @@
 
       <!-- Tab Navigation -->
       <div class="mb-6">
-        <nav class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+        <nav class="flex space-x-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-1.5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
+              'flex-1 relative py-3 px-4 rounded-lg font-medium text-sm transition-all duration-300 transform',
               activeTab === tab.id
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-md scale-105 border border-blue-200 dark:border-blue-800'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
             ]"
           >
-            {{ tab.label }}
+            <span class="flex items-center justify-center space-x-2">
+              <span class="text-lg">{{ tab.icon }}</span>
+              <span>{{ tab.label }}</span>
+            </span>
+            <div v-if="activeTab === tab.id" class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-t-full"></div>
           </button>
         </nav>
       </div>
@@ -419,11 +423,11 @@ const emit = defineEmits<{
 }>()
 
 // Tab management
-const activeTab = ref('items')
+const activeTab = ref('budget')
 const tabs = [
-  { id: 'items', label: 'Procurement Items' },
-  { id: 'budget', label: 'Budget Summary' },
-  { id: 'report', label: 'Export Data' }
+  { id: 'budget', label: 'Budget Summary', icon: '📊' },
+  { id: 'items', label: 'Procurement Progress', icon: '📦' },
+  { id: 'report', label: 'Export Data', icon: '📄' }
 ]
 
 // Use composables

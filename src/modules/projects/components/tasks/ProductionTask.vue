@@ -156,7 +156,7 @@
           <div v-else-if="materialsImportError" class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
             <div class="flex items-start justify-between">
               <div class="flex items-start space-x-3">
-                <span class="text-lg mt-0.5">❌</span>
+
                 <div class="flex-1">
                   <p class="text-sm font-medium text-red-800 dark:text-red-200">Failed to Import Materials</p>
                   <p class="text-xs text-red-600 dark:text-red-300 mt-1">{{ materialsImportError }}</p>
@@ -174,7 +174,7 @@
           <!-- Success State -->
           <div v-else-if="lastMaterialsImport" class="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
             <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-              <span class="text-lg">✅</span>
+
               <div>
                 <p class="text-sm font-medium">Materials imported successfully</p>
                 <p class="text-xs text-green-500 dark:text-green-300">
@@ -188,71 +188,61 @@
         <!-- Production Elements Content -->
         <div v-if="productionData.productionElements.length > 0">
           <!-- Summary Header -->
-          <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div class="flex justify-between items-center mb-2">
-              <h4 class="text-md font-medium text-gray-900 dark:text-white">Production Elements Summary</h4>
+          <div class="mb-6 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div class="flex justify-between items-center mb-4">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Production Elements</h4>
               <div class="flex items-center space-x-2">
                 <button
                   @click="toggleAllCategories"
-                  class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+                  class="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded transition-colors"
                 >
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                  </svg>
-                  <span>{{ allCategoriesCollapsed ? 'Expand All' : 'Collapse All' }}</span>
+                  {{ allCategoriesCollapsed ? 'Expand All' : 'Collapse All' }}
                 </button>
                 <button
                   @click="retryMaterialsImport"
-                  class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  class="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded transition-colors"
                 >
-                  Refresh Materials
+                  Refresh
                 </button>
               </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ productionData.productionElements.length }}</div>
-                <div class="text-gray-600 dark:text-gray-400">Total Elements</div>
+            <div class="grid grid-cols-4 gap-4 text-xs text-gray-600 dark:text-gray-400">
+              <div>
+                <span class="font-medium">{{ productionData.productionElements.length }}</span> Elements
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ categoriesWithElements.length }}</div>
-                <div class="text-gray-600 dark:text-gray-400">Categories</div>
+              <div>
+                <span class="font-medium">{{ categoriesWithElements.length }}</span> Categories
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ getTotalQuantity() }}</div>
-                <div class="text-gray-600 dark:text-gray-400">Total Items</div>
+              <div>
+                <span class="font-medium">{{ getTotalQuantity() }}</span> Items
               </div>
-              <div class="text-center">
-                <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ getUniqueUnits().length }}</div>
-                <div class="text-gray-600 dark:text-gray-400">Unit Types</div>
+              <div>
+                <span class="font-medium">{{ getUniqueUnits().length }}</span> Units
               </div>
             </div>
           </div>
 
           <!-- Elements by Category -->
-          <div class="space-y-6">
-            <div v-for="category in categoriesWithElements" :key="category.id" class="category-section">
+          <div class="space-y-4">
+            <div v-for="category in categoriesWithElements" :key="category.id" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
               <!-- Category Header -->
               <div
-                :class="[
-                  'category-header p-4 rounded-t-lg cursor-pointer transition-colors',
-                  getCategoryHeaderClass(category.id)
-                ]"
+                class="p-3 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors border-b border-gray-200 dark:border-gray-700"
                 @click="toggleCategoryCollapse(category.id)"
               >
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-3">
-                    <h3 class="text-lg font-semibold text-white">{{ category.displayName }}</h3>
-                    <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium text-white">
+                  <div class="flex items-center space-x-2">
+                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ category.displayName }}</h3>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
                       {{ getElementsByCategory(category.id).length }} items
                     </span>
                   </div>
                   <div class="flex items-center space-x-3">
-                    <span class="text-sm text-white/80">
-                      Total: {{ getCategoryTotalQuantity(category.id) }} items
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ getCategoryTotalQuantity(category.id) }} total
                     </span>
                     <svg
-                      :class="['w-5 h-5 text-white transition-transform', { 'rotate-180': !isCategoryCollapsed(category.id) }]"
+                      :class="['w-4 h-4 text-gray-500 transition-transform', { 'rotate-180': !isCategoryCollapsed(category.id) }]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -264,44 +254,49 @@
               </div>
 
               <!-- Category Elements (Expandable) -->
-              <div v-if="!isCategoryCollapsed(category.id)" class="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700 rounded-b-lg">
-                <div class="p-4">
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div
+              <div v-if="!isCategoryCollapsed(category.id)" class="bg-white dark:bg-gray-800">
+                <table class="w-full text-sm">
+                  <thead class="border-b border-gray-200 dark:border-gray-700">
+                    <tr class="text-left text-xs text-gray-600 dark:text-gray-400 uppercase">
+                      <th class="px-4 py-2 font-medium">Name</th>
+                      <th class="px-4 py-2 font-medium">Description</th>
+                      <th class="px-4 py-2 font-medium text-right">Quantity</th>
+                      <th class="px-4 py-2 font-medium">Unit</th>
+                      <th class="px-4 py-2 font-medium text-right">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
                       v-for="element in getElementsByCategory(category.id)"
                       :key="element.id"
-                      class="production-element-card p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow"
+                      class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750"
                     >
-                      <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900 dark:text-white text-sm leading-tight">{{ element.description }}</h4>
-                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                          ID: {{ element.id.slice(-6) }}
-                        </span>
-                      </div>
-                      <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                          {{ element.quantity }} {{ element.unitOfMeasurement }}
-                        </span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">
-                          {{ formatDate(element.createdAt.toISOString()) }}
-                        </span>
-                      </div>
-                      <div v-if="element.notes" class="mt-2 text-xs text-gray-600 dark:text-gray-400 italic">
-                        {{ element.notes }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                        {{ element.name || element.description }}
+                      </td>
+                      <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        {{ element.description }}
+                      </td>
+                      <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">
+                        {{ element.quantity }}
+                      </td>
+                      <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        {{ element.unitOfMeasurement || element.unit }}
+                      </td>
+                      <td class="px-4 py-3 text-right text-xs text-gray-500 dark:text-gray-400">
+                        {{ formatDate(element.createdAt?.toString() || element.created_at) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
               <!-- Collapsed Category Summary -->
               <div
                 v-else
-                class="bg-gray-50 dark:bg-gray-700 border-x border-b border-gray-200 dark:border-gray-600 rounded-b-lg p-3"
+                class="bg-gray-50 dark:bg-gray-800 p-2 text-xs text-gray-500 dark:text-gray-400 text-center"
               >
-                <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
-                  Click to expand {{ getElementsByCategory(category.id).length }} production elements
-                </div>
+                Click to expand {{ getElementsByCategory(category.id).length }} elements
               </div>
             </div>
           </div>
@@ -310,7 +305,7 @@
         <!-- No Materials State -->
         <div v-else-if="!isImportingMaterials" class="text-center py-12">
           <div class="mb-4">
-            <span class="text-6xl">📦</span>
+
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Production Elements Available</h3>
           <p class="text-gray-600 dark:text-gray-400 mb-4">
@@ -436,10 +431,10 @@
                       getQualityStatusSelectClass(checkpoint.status)
                     ]"
                   >
-                    <option value="pending">📋 Pending</option>
-                    <option value="in_progress">🔄 In Progress</option>
-                    <option value="passed">✅ Passed</option>
-                    <option value="failed">❌ Failed</option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
                   </select>
 
                   <button
@@ -511,9 +506,9 @@
                     @change="updateCheckpointPriority(checkpoint.id, checkpoint.priority)"
                     class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
-                    <option value="low">🟢 Low</option>
-                    <option value="medium">🟡 Medium</option>
-                    <option value="high">🔴 High</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                   </select>
                 </div>
               </div>
@@ -547,7 +542,7 @@
         <!-- No Quality Control State -->
         <div v-else class="text-center py-12">
           <div class="mb-4">
-            <span class="text-6xl">✅</span>
+
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Quality Control Checkpoints</h3>
           <p class="text-gray-600 dark:text-gray-400 mb-4">
@@ -593,12 +588,12 @@
               class="category-filter px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">All Categories</option>
-              <option value="materials">📦 Materials</option>
-              <option value="equipment">🔧 Equipment</option>
-              <option value="quality">✅ Quality</option>
-              <option value="timeline">⏰ Timeline</option>
-              <option value="safety">⚠️ Safety</option>
-              <option value="other">📝 Other</option>
+              <option value="materials">Materials</option>
+              <option value="equipment">Equipment</option>
+              <option value="quality">Quality</option>
+              <option value="timeline">Timeline</option>
+              <option value="safety">Safety</option>
+              <option value="other">Other</option>
             </select>
             <button
               @click="showAddIssueModal = true"
@@ -665,9 +660,9 @@
                   </div>
                   <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ issue.description }}</p>
                   <div class="flex flex-wrap items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span>Reported: {{ formatDate(issue.reportedDate.toISOString()) }}</span>
+                    <span>Reported: {{ formatDate(issue.reportedDate) }}</span>
                     <span>By: {{ issue.reportedBy }}</span>
-                    <span v-if="issue.resolvedDate">Resolved: {{ formatDate(issue.resolvedDate.toISOString()) }}</span>
+                    <span v-if="issue.resolvedDate">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
                   </div>
                 </div>
 
@@ -682,9 +677,9 @@
                       getIssueStatusSelectClass(issue.status)
                     ]"
                   >
-                    <option value="open">🔴 Open</option>
-                    <option value="in_progress">🟡 In Progress</option>
-                    <option value="resolved">🟢 Resolved</option>
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
                   </select>
 
                   <button
@@ -759,7 +754,6 @@
         <!-- No Issues State -->
         <div v-else class="text-center py-12">
           <div class="mb-4">
-            <span class="text-6xl">🚨</span>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {{ selectedIssueCategory ? 'No issues in this category' : 'No Production Issues' }}
@@ -1011,7 +1005,7 @@
                           {{ criterion.notes }}
                         </div>
                         <div v-if="criterion.met && criterion.completedAt" class="text-xs text-green-600 dark:text-green-400 mt-1">
-                          ✓ Completed {{ formatDate(criterion.completedAt.toISOString()) }}
+                          ✓ Completed {{ formatDate(criterion.completedAt) }}
                         </div>
                       </div>
                       <div class="flex items-center space-x-2 ml-4">
@@ -1648,13 +1642,15 @@ const getQualityStatusSelectClass = (status: QualityControlCheckpoint['status'])
 
 const getQualityStatusIcon = (status: QualityControlCheckpoint['status']) => {
   const icons: Record<string, string> = {
-    'pending': '📋',
+    'pending': '⏳',
     'in_progress': '🔄',
     'passed': '✅',
     'failed': '❌'
   }
-  return icons[status] || '📋'
+  return icons[status] || '❓'
 }
+
+
 
 // Quality control management functions
 const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
@@ -1746,7 +1742,7 @@ const generateQualityCheckpoints = async () => {
 
   try {
     const taskId = props.task.id.toString()
-    const response = await api.post(`/api/production/tasks/${taskId}/generate-checkpoints`, {
+    const response = await api.post(`/api/projects/tasks/${taskId}/production/generate-checkpoints`, {
       production_elements: elements
     })
 
@@ -1973,6 +1969,28 @@ const escalateIssue = (issueId: string) => {
   }
 }
 
+// Issue icon functions
+const getCategoryIcon = (category: ProductionIssue['category']): string => {
+  const icons: Record<string, string> = {
+    'materials': '📦',
+    'equipment': '🔧',
+    'quality': '✓',
+    'timeline': '⏰',
+    'safety': '⚠️',
+    'other': '📋'
+  }
+  return icons[category] || '📋'
+}
+
+const getPriorityIcon = (priority: ProductionIssue['priority']): string => {
+  const icons: Record<string, string> = {
+    'low': '🔵',
+    'medium': '🟡',
+    'high': '🔴'
+  }
+  return icons[priority] || '⚪'
+}
+
 const getCategoryClass = (category: ProductionIssue['category']) => {
   const categoryInfo = issueCategories.value.find(c => c.id === category)
   const colorClasses: Record<string, string> = {
@@ -1986,10 +2004,7 @@ const getCategoryClass = (category: ProductionIssue['category']) => {
   return colorClasses[categoryInfo?.color || 'gray']
 }
 
-const getCategoryIcon = (category: ProductionIssue['category']) => {
-  const categoryInfo = issueCategories.value.find(c => c.id === category)
-  return categoryInfo?.icon || '📝'
-}
+
 
 const getPriorityClass = (priority: ProductionIssue['priority']) => {
   const classes: Record<string, string> = {
@@ -2000,14 +2015,7 @@ const getPriorityClass = (priority: ProductionIssue['priority']) => {
   return classes[priority] || 'bg-gray-100 text-gray-800'
 }
 
-const getPriorityIcon = (priority: ProductionIssue['priority']) => {
-  const icons: Record<string, string> = {
-    'low': '🟢',
-    'medium': '🟡',
-    'high': '🔴'
-  }
-  return icons[priority] || '⚪'
-}
+
 
 const getIssueBorderClass = (status: ProductionIssue['status'], priority: ProductionIssue['priority']) => {
   // Priority-based left border with status-based styling
@@ -2052,25 +2060,21 @@ const completionCategories = [
   {
     id: 'production',
     name: 'Production Tasks',
-    icon: '🏭',
     description: 'Core production activities and deliverables'
   },
   {
     id: 'quality',
     name: 'Quality Assurance',
-    icon: '✅',
     description: 'Quality control and validation checks'
   },
   {
     id: 'documentation',
     name: 'Documentation',
-    icon: '📋',
     description: 'Required documentation and records'
   },
   {
     id: 'approval',
     name: 'Approvals',
-    icon: '👍',
     description: 'Client and stakeholder approvals'
   }
 ]
@@ -2280,8 +2284,18 @@ const autoSave = async () => {
     isSaving.value = true
     saveError.value = null
 
-    // Validate data before saving
+    // Map production elements to backend field names for validation and saving
+    const mappedElements = productionData.value.productionElements.map(e => ({
+      ...e,
+      description: e.name ?? e.description,
+      unit_of_measurement: e.unit ?? e.unitOfMeasurement ?? e.unit_of_measurement
+    }))
+    // Temporarily replace productionElements for validation
+    const originalElements = productionData.value.productionElements
+    productionData.value.productionElements = mappedElements
     const validationResult = validateProductionData()
+    // Restore original elements after validation
+    productionData.value.productionElements = originalElements
     if (!validationResult.isValid) {
       throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`)
     }
@@ -2290,7 +2304,9 @@ const autoSave = async () => {
     const taskId = props.task.id.toString()
     // Convert camelCase to snake_case for backend compatibility
     const convertToSnakeCase = (obj: any): any => {
-      if (obj === null || typeof obj !== 'object') return obj
+      if (obj === null || obj === undefined) return obj
+      if (obj instanceof Date) return obj.toISOString()
+      if (typeof obj !== 'object') return obj
       if (Array.isArray(obj)) return obj.map(convertToSnakeCase)
 
       const result: any = {}
@@ -2302,11 +2318,12 @@ const autoSave = async () => {
     }
 
     const saveData = {
+      production_elements: convertToSnakeCase(mappedElements),
       quality_control: convertToSnakeCase(productionData.value.qualityControl),
       issues: convertToSnakeCase(productionData.value.issues),
       completion_criteria: convertToSnakeCase(productionData.value.completionCriteria)
     }
-    const result = await api.put(`/api/production/tasks/${taskId}`, saveData)
+    const result = await api.put(`/api/projects/tasks/${taskId}/production`, saveData)
 
     if (result.data.success) {
       hasUnsavedChanges.value = false
@@ -2343,19 +2360,49 @@ const manualSave = async (): Promise<boolean> => {
     isSaving.value = true
     saveError.value = null
 
+    // Map production elements to backend field names for validation and saving
+    const mappedElements = productionData.value.productionElements.map(e => ({
+      ...e,
+      description: e.name ?? e.description,
+      unit_of_measurement: e.unit ?? e.unitOfMeasurement ?? e.unit_of_measurement
+    }))
+    // Temporarily replace productionElements for validation
+    const originalElements = productionData.value.productionElements
+    productionData.value.productionElements = mappedElements
+
     const validationResult = validateProductionData()
+    
+    // Restore original elements after validation
+    productionData.value.productionElements = originalElements
+
     if (!validationResult.isValid) {
       throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`)
     }
 
     const taskId = props.task.id.toString()
-    const saveData = {
-      quality_control: productionData.value.qualityControl,
-      issues: productionData.value.issues,
-      completion_criteria: productionData.value.completionCriteria
+    
+    // Convert camelCase to snake_case for backend compatibility
+    const convertToSnakeCase = (obj: any): any => {
+      if (obj === null || obj === undefined) return obj
+      if (obj instanceof Date) return obj.toISOString()
+      if (typeof obj !== 'object') return obj
+      if (Array.isArray(obj)) return obj.map(convertToSnakeCase)
+
+      const result: any = {}
+      for (const [key, value] of Object.entries(obj)) {
+        const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+        result[snakeKey] = convertToSnakeCase(value)
+      }
+      return result
     }
 
-    const response = await api.put(`/api/production/tasks/${taskId}`, saveData)
+    const saveData = {
+      quality_control: convertToSnakeCase(productionData.value.qualityControl),
+      issues: convertToSnakeCase(productionData.value.issues),
+      completion_criteria: convertToSnakeCase(productionData.value.completionCriteria)
+    }
+
+    const response = await api.put(`/api/projects/tasks/${taskId}/production`, saveData)
 
     if (response.data.success) {
       hasUnsavedChanges.value = false
@@ -2439,7 +2486,7 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
         elementErrors++
       }
 
-      if (!element.unitOfMeasurement) {
+      if (!element.unitOfMeasurement && !element.unit_of_measurement) {
         errors.push(`Production element ${index + 1}: Unit of measurement is required`)
         elementErrors++
       }
@@ -2753,7 +2800,7 @@ const convertToCamelCase = (obj: any): any => {
 const loadProductionData = async () => {
   try {
     const taskId = props.task.id.toString()
-    const response = await api.get(`/api/production/tasks/${taskId}`)
+    const response = await api.get(`/api/projects/tasks/${taskId}/production`)
 
     if (response.data.success && response.data.data) {
       // Update production data with backend data (convert snake_case to camelCase)
@@ -2832,11 +2879,11 @@ const importMaterialsFromTask = async () => {
     materialsImportError.value = null
 
     const taskId = props.task.id.toString()
-    const response = await api.post(`/api/production/tasks/${taskId}/import-elements`)
+    const response = await api.post(`/api/projects/tasks/${taskId}/production/import-materials`)
 
     if (response.data.success) {
       // Update production data with imported elements
-      productionData.value.productionElements = response.data.data.elements || []
+      productionData.value.productionElements = response.data.data.productionElements || []
       productionData.value.qualityControl = response.data.data.qualityControl || []
 
       // Only update issues and completion criteria if they're empty (preserve user changes)

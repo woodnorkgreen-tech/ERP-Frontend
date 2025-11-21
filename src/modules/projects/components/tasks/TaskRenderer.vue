@@ -39,7 +39,6 @@ import BudgetTask from './BudgetTask.vue'
 import QuoteTask from './QuoteTask.vue'
 import QuoteApprovalTask from './QuoteApprovalTask.vue'
 import ProcurementTask from './ProcurementTask.vue'
-import ConversionTask from './ConversionTask.vue'
 import ProductionTask from './ProductionTask.vue'
 import LogisticsTask from './LogisticsTask.vue'
 import SetupTask from './SetupTask.vue'
@@ -62,64 +61,61 @@ const emit = defineEmits<{
 }>()
 
 const taskComponent = computed(() => {
-  const taskType = props.task.type
-  let component
+  // Debug - always log what component is selected for what task type
+  console.log(`[DEBUG] TaskRenderer: task.type = ${props.task.type}`)
 
-  switch (taskType) {
+  switch (props.task.type?.toLowerCase()) {
+    case 'survey':
+    case 'site survey':
     case 'site-survey':
-      component = SurveyTask
-      break
+      console.log('selected component: SurveyTask')
+      return SurveyTask
     case 'design':
-      component = DesignTask
-      break
+      console.log('selected component: DesignTask')
+      return DesignTask
     case 'materials':
-      component = MaterialsTask
-      break
+      console.log('selected component: MaterialsTask')
+      return MaterialsTask
     case 'budget':
-      component = BudgetTask
-      break
+      console.log('selected component: BudgetTask')
+      return BudgetTask
     case 'quote':
-      component = QuoteTask
-      break
+      console.log('selected component: QuoteTask')
+      return QuoteTask
+    case 'quote approval':
+    case 'quote-approval':
     case 'quote_approval':
-      component = QuoteApprovalTask
-      break
+      console.log('selected component: QuoteApprovalTask')
+      return QuoteApprovalTask
     case 'procurement':
-      component = ProcurementTask
-      break
-    case 'conversion':
-      component = ConversionTask
-      break
+      console.log('selected component: ProcurementTask')
+      return ProcurementTask
     case 'production':
-      component = ProductionTask
-      break
+      console.log('selected component: ProductionTask')
+      return ProductionTask
     case 'logistics':
-      component = LogisticsTask
-      break
+      console.log('selected component: LogisticsTask')
+      return LogisticsTask
     case 'setup':
-      component = SetupTask
-      break
+      console.log('selected component: SetupTask')
+      return SetupTask
     case 'handover':
-      component = HandoverTask
-      break
+      console.log('selected component: HandoverTask')
+      return HandoverTask
     case 'setdown':
-      component = SetdownTask
-      break
+      console.log('selected component: SetdownTask')
+      return SetdownTask
     case 'report':
-      component = ReportTask
-      break
+      console.log('selected component: ReportTask')
+      return ReportTask
     case 'teams':
-      component = TeamsTask
-      break
+      console.log('selected component: TeamsTask')
+      return TeamsTask
     default:
-      component = DefaultTask
-      break
+      console.log('selected component: unknown, using DefaultTask')
+      console.warn(`Unknown task type: ${props.task.type}, falling back to DefaultTask`)
+      return DefaultTask
   }
-
-  // Debug log to validate task type and component selection
-  console.log('[DEBUG] TaskRenderer: task.type =', taskType, 'selected component:', component?.name || 'unknown')
-
-  return component
 })
 
 const handleStatusUpdate = (status: EnquiryTask['status']) => {

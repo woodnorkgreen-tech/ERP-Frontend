@@ -5,22 +5,51 @@
         <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span>Quote Approval</span>
+        <span>Quote Approval Details</span>
       </h3>
 
       <div class="space-y-4">
-        <DataField label="Quote Reference Number" :value="taskData.quote_reference_number" />
-        <DataField label="Quote Amount" :value="formatCurrency(taskData.quote_amount)" />
-        <DataField label="Approval Date" :value="formatDate(taskData.approval_date)" />
-        <DataField label="Approved By" :value="taskData.approved_by" />
-        <DataField label="Approval Level" :value="taskData.approval_level" />
-        <DataField label="Client Approval Required" :value="taskData.client_approval_required" />
-        <DataField label="Client Approval Date" :value="formatDate(taskData.client_approval_date)" />
-        <DataField label="Approval Conditions" :value="taskData.approval_conditions" type="textarea" />
-        <DataField label="Payment Terms" :value="taskData.payment_terms" type="textarea" />
-        <DataField label="Validity Period" :value="taskData.validity_period" />
-        <DataField label="Approval Notes" :value="taskData.approval_notes" type="textarea" />
-        <DataField label="Status" :value="taskData.status" />
+        <!-- Approval Status with color coding -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Approval Status
+          </label>
+          <div class="text-sm font-medium px-3 py-2 rounded-md inline-block"
+               :class="getStatusClass(taskData.approvalStatus)">
+            {{ getStatusLabel(taskData.approvalStatus) }}
+          </div>
+        </div>
+
+        <DataField label="Approved By" :value="taskData.approvedBy" />
+        <DataField label="Approval Date" :value="formatDate(taskData.approvalDate)" />
+        <DataField label="Quote Amount" :value="formatCurrency(taskData.quoteAmount)" />
+        
+        <DataField 
+          v-if="taskData.comments" 
+          label="Comments" 
+          :value="taskData.comments" 
+          type="textarea" 
+        />
+        
+        <DataField 
+          v-if="taskData.rejectionReason" 
+          label="Rejection Reason" 
+          :value="taskData.rejectionReason" 
+          type="textarea" 
+        />
+
+        <!-- Quote Summary if available -->
+        <div v-if="taskData.quoteData" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Quote Summary</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <DataField label="Project" :value="taskData.quoteData.projectInfo?.enquiryTitle" />
+            <DataField label="Client" :value="taskData.quoteData.projectInfo?.clientName" />
+            <DataField label="Venue" :value="taskData.quoteData.projectInfo?.eventVenue" />
+            <DataField label="Setup Date" :value="formatDate(taskData.quoteData.projectInfo?.setupDate)" />
+            <DataField label="Subtotal" :value="formatCurrency(taskData.quoteData.totals?.subtotal)" />
+            <DataField label="Grand Total" :value="formatCurrency(taskData.quoteData.totals?.grandTotal)" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -68,14 +97,37 @@ const formatDate = (dateString: unknown) => {
   }
 }
 
+
 const formatCurrency = (amount: unknown) => {
   if (!amount) return null
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
   if (typeof numAmount !== 'number' || isNaN(numAmount)) return amount
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-KE', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'KES',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(numAmount)
+}
+
+const getStatusClass = (status: unknown) => {
+  const statusStr = String(status || '').toLowerCase()
+  const classes: Record<string, string> = {
+    'approved': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    'rejected': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+  }
+  return classes[statusStr] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+}
+
+const getStatusLabel = (status: unknown) => {
+  const statusStr = String(status || '').toLowerCase()
+  const labels: Record<string, string> = {
+    'approved': 'Approved ✓',
+    'rejected': 'Rejected ✗',
+    'pending': 'Pending Review'
+  }
+  return labels[statusStr] || String(status || 'Unknown')
 }
 </script>
 

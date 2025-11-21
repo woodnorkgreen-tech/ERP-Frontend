@@ -99,58 +99,8 @@ export class ProcurementService {
       console.log(`Successfully imported ${procurementData.procurementItems.length} procurement items`)
       return procurementData
     } catch (error) {
-      console.error('Failed to fetch real budget data:', error)
-
-      // Fallback to mock data for development/testing
-      console.log('Falling back to mock procurement data...')
-      try {
-        const { mockProcurementAPI } = await import('./MockProcurementAPI')
-        // Use the mock API's built-in procurement data creation
-        const mockData = await mockProcurementAPI.getProcurementData(taskId.toString())
-        if (mockData) {
-          return mockData
-        }
-        // If no existing data, create new mock procurement data
-        const mockBudgetData = await mockProcurementAPI.getBudgetData(taskId.toString())
-        const procurementItems = []
-
-        // Transform mock budget data manually
-        for (const element of mockBudgetData.materials) {
-          for (const material of element.materials) {
-            procurementItems.push({
-              budgetId: material.id,
-              elementName: element.name,
-              description: material.description,
-              quantity: material.quantity,
-              unitOfMeasurement: material.unitOfMeasurement,
-              budgetUnitPrice: material.unitPrice,
-              budgetTotalPrice: material.totalPrice,
-              category: 'materials',
-              vendorName: '',
-              availabilityStatus: 'available' as const,
-              procurementNotes: '',
-              lastUpdated: new Date(),
-              budgetElementId: element.id,
-              budgetItemId: material.id
-            })
-          }
-        }
-
-        return {
-          projectInfo: mockBudgetData.projectInfo,
-          budgetImported: true,
-          procurementItems,
-          budgetSummary: {
-            materialsTotal: mockBudgetData.totals.materialsTotal,
-            totalItems: procurementItems.length,
-            importedAt: new Date()
-          },
-          lastImportDate: new Date()
-        }
-      } catch (mockError) {
-        console.error('Mock data fallback also failed:', mockError)
-        throw new Error('Unable to load budget data. Please ensure the budget task is completed and has materials.')
-      }
+      console.error('Failed to import budget data:', error)
+      throw error
     }
   }
 
