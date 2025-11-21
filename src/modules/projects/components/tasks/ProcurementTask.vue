@@ -59,13 +59,12 @@
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200',
               activeTab === tab.id
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
             ]"
           >
-            <span class="mr-2">{{ tab.icon }}</span>
             {{ tab.label }}
           </button>
         </nav>
@@ -270,7 +269,6 @@
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div v-for="status in ['available', 'ordered', 'received', 'hired', 'cancelled']" :key="status"
                    class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl mb-2">{{ getStatusIcon(status) }}</div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   {{ getStatusCount(status) }}
                 </div>
@@ -423,9 +421,9 @@ const emit = defineEmits<{
 // Tab management
 const activeTab = ref('items')
 const tabs = [
-  { id: 'items', label: 'Procurement Items', icon: '📦' },
-  { id: 'budget', label: 'Budget Summary', icon: '💰' },
-  { id: 'report', label: 'Export Data', icon: '📋' }
+  { id: 'items', label: 'Procurement Items' },
+  { id: 'budget', label: 'Budget Summary' },
+  { id: 'report', label: 'Export Data' }
 ]
 
 // Use composables
@@ -543,17 +541,6 @@ const updateAvailabilityStatus = (itemId: string, status: string) => {
 }
 
 // UI helpers
-const getStatusIcon = (status: string) => {
-  const iconMap: Record<string, string> = {
-    'available': '📋',
-    'ordered': '🛒',
-    'received': '📦',
-    'hired': '✅',
-    'cancelled': '❌'
-  }
-  return iconMap[status] || '⏳'
-}
-
 const getStatusCount = (status: string) => {
   return procurementData.procurementItems.filter(item => item.availabilityStatus === status).length
 }

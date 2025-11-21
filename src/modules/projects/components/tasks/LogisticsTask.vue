@@ -196,12 +196,6 @@
           role="tab"
           :tabindex="activeTab === tab.id ? 0 : -1"
         >
-          <span
-            class="mr-2 text-base transition-transform duration-200"
-            :class="{ 'scale-110': activeTab === tab.id }"
-          >
-            {{ tab.icon }}
-          </span>
           <span class="truncate">{{ tab.label }}</span>
           <!-- Tab indicator badges -->
           <span
@@ -230,7 +224,7 @@
         <div v-if="!logisticsData.logistics_planning?.vehicle_type && !logisticsData.logistics_planning?.vehicle_identification && !logisticsData.logistics_planning?.driver_name">
           <!-- Empty State -->
           <div class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-            <div class="text-6xl mb-4">🚛</div>
+            <div class="text-6xl mb-4"></div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Logistics Planning Yet</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
               Start planning your transportation logistics by setting up vehicle assignments, routes, and timelines for this project.
@@ -278,7 +272,7 @@
             <!-- Vehicle Information Card -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl">🚛</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Vehicle Information</h4>
               </div>
               <div class="space-y-3">
@@ -296,7 +290,7 @@
             <!-- Driver Information Card -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl">👨‍💼</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Driver Information</h4>
               </div>
               <div class="space-y-3">
@@ -314,7 +308,7 @@
             <!-- Route Planning Card -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl">🗺️</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Route Planning</h4>
               </div>
               <div class="space-y-3">
@@ -340,7 +334,7 @@
             <!-- Timeline Card -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl">⏰</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Timeline</h4>
               </div>
               <div class="space-y-3">
@@ -399,7 +393,7 @@
           <!-- Vehicle Information Section -->
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
             <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base">🚛</span>
+              <span class="text-base"></span>
               <h4 class="text-sm font-medium text-gray-900 dark:text-white">Vehicle Information</h4>
             </div>
 
@@ -463,7 +457,7 @@
           <!-- Driver Information Section -->
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
             <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base">👨‍💼</span>
+              <span class="text-base"></span>
               <h4 class="text-sm font-medium text-gray-900 dark:text-white">Driver Information</h4>
             </div>
 
@@ -536,7 +530,7 @@
           <!-- Route Planning Section -->
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
             <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base">🗺️</span>
+              <span class="text-base"></span>
               <h4 class="text-sm font-medium text-gray-900 dark:text-white">Route Planning</h4>
             </div>
 
@@ -631,7 +625,7 @@
           <!-- Timeline Section -->
           <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
             <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base">⏰</span>
+              <span class="text-base"></span>
               <h4 class="text-sm font-medium text-gray-900 dark:text-white">Timeline</h4>
             </div>
 
@@ -824,7 +818,7 @@
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-3">
-                <span class="text-2xl">🏗️</span>
+                <span class="text-2xl"></span>
                 <div>
                   <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Setup Teams</h4>
                   <p class="text-sm text-gray-600 dark:text-gray-400">Teams assigned for event setup and installation</p>
@@ -854,7 +848,7 @@
                   <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center space-x-3">
                       <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <span class="text-lg">👥</span>
+                        <span class="text-lg"></span>
                       </div>
                       <div>
                         <h5 class="font-medium text-gray-900 dark:text-white">{{ team.name }}</h5>
@@ -892,8 +886,8 @@
             </div>
 
             <!-- No Setup Teams Message -->
-            <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
-              <div class="text-4xl mb-4">🏗️</div>
+            <div v-else class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
+              <div class="text-4xl mb-4"></div>
               <h5 class="text-lg font-medium mb-2">No Setup Teams Assigned</h5>
               <p class="text-sm">Setup teams need to be created in the Teams Task first before they can be confirmed for logistics.</p>
             </div>
@@ -932,7 +926,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-blue-500">📋</span>
+                  <span class="text-blue-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Team Assignment</span>
                 </div>
                 <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ getSelectedTeamTypes('setup').length }}</div>
@@ -941,7 +935,7 @@
 
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-green-500">👥</span>
+                  <span class="text-green-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Team Members</span>
                 </div>
                 <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ logisticsData.team_confirmation.setup_teams_confirmed ? '7' : '0' }}</div>
@@ -950,7 +944,7 @@
 
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-purple-500">✅</span>
+                  <span class="text-purple-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Confirmation</span>
                 </div>
                 <div class="text-2xl font-bold" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'">
@@ -1003,7 +997,7 @@
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
-                <span class="text-xl">📦</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Transport Items</h4>
                 <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ filteredTransportItems.length }}</span>
               </div>
@@ -1044,7 +1038,7 @@
           <!-- Custom Item Form -->
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-2 mb-3">
-              <span class="text-xl">➕</span>
+              <span class="text-xl"></span>
               <h4 class="text-md font-medium text-gray-900 dark:text-white">Add Custom Item</h4>
             </div>
 
@@ -1115,7 +1109,7 @@
           <!-- Items Checklist -->
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 lg:col-span-2">
             <div class="flex items-center gap-2 mb-3">
-              <span class="text-xl">📦</span>
+              <span class="text-xl"></span>
               <h4 class="text-md font-medium text-gray-900 dark:text-white">Items</h4>
               <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ checklist.items.length }}</span>
             </div>
@@ -1155,7 +1149,7 @@
             <!-- Teams -->
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl">👥</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Teams</h4>
               </div>
               <div class="space-y-2">
@@ -1177,7 +1171,7 @@
             <!-- Safety -->
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl">🦺</span>
+                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Safety</h4>
               </div>
               <div class="space-y-2">
@@ -2179,10 +2173,10 @@ const isAllTeamsConfirmed = computed((): boolean => {
 const activeTab = ref('logistics-planning')
 
 const tabs = [
-  { id: 'logistics-planning', label: 'Logistics Planning', icon: '🚛', description: 'Plan transportation details and routes' },
-  { id: 'team-confirmation', label: 'Team Confirmation', icon: '👥', description: 'Confirm team assignments from Teams Task' },
-  { id: 'items-management', label: 'Items Management', icon: '📦', description: 'Manage transport items and production elements' },
-  { id: 'checklist', label: 'Checklist', icon: '✅', description: 'Verify items, teams, and safety requirements' }
+  { id: 'logistics-planning', label: 'Logistics Planning', description: 'Plan transportation details and routes' },
+  { id: 'team-confirmation', label: 'Team Confirmation', description: 'Confirm team assignments from Teams Task' },
+  { id: 'items-management', label: 'Items Management', description: 'Manage transport items and production elements' },
+  { id: 'checklist', label: 'Checklist', description: 'Verify items, teams, and safety requirements' }
 ]
 
 // Tab navigation functions

@@ -89,7 +89,6 @@
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
             ]"
           >
-            <span class="mr-2">{{ tab.icon }}</span>
             {{ tab.label }}
             <span v-if="getTabTotal(tab.id) > 0" class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
               {{ formatCurrency(getTabTotal(tab.id)) }}
@@ -911,11 +910,11 @@ const hasExistingQuoteData = computed(() => {
 
 // Tab configuration
 const tabs = [
-  { id: 'materials', label: 'Materials', icon: '🔧' },
-  { id: 'labour', label: 'Labour', icon: '👷' },
-  { id: 'expenses', label: 'Expenses', icon: '💰' },
-  { id: 'logistics', label: 'Logistics', icon: '🚛' },
-  { id: 'summary', label: 'Summary', icon: '📊' }
+  { id: 'materials', label: 'Materials' },
+  { id: 'labour', label: 'Labour' },
+  { id: 'expenses', label: 'Expenses' },
+  { id: 'logistics', label: 'Logistics' },
+  { id: 'summary', label: 'Summary' }
 ]
 
 /**

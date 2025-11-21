@@ -103,35 +103,29 @@
         aria-label="Production task navigation"
       >
         <button
-          v-for="(tab, index) in tabs"
+          v-for="tab in tabs"
           :key="tab.id"
           @click="setActiveTab(tab.id)"
-          @keydown="handleTabKeydown($event, index)"
-          :class="[
-            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap min-w-0',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700',
-            activeTab === tab.id
-              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm transform scale-105'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:scale-102'
-          ]"
-          :aria-selected="activeTab === tab.id"
-          :aria-controls="`tab-panel-${tab.id}`"
+          @keydown="handleTabKeydown($event, tabs.indexOf(tab))"
           :id="`tab-${tab.id}`"
           role="tab"
+          :aria-selected="activeTab === tab.id"
+          :aria-controls="`tab-panel-${tab.id}`"
           :tabindex="activeTab === tab.id ? 0 : -1"
+          :class="[
+            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+            activeTab === tab.id
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+          ]"
         >
-          <span
-            class="mr-2 text-base transition-transform duration-200"
-            :class="{ 'scale-110': activeTab === tab.id }"
-          >
-            {{ tab.icon }}
-          </span>
-          <span class="truncate">{{ tab.label }}</span>
-          <!-- Tab indicator badges -->
+          {{ tab.label }}
           <span
             v-if="getTabBadgeCount(tab.id) > 0"
-            class="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200"
-            :class="getTabBadgeClass(tab.id)"
+            :class="[
+              'ml-2 px-2 py-0.5 text-xs rounded-full',
+              getTabBadgeClass(tab.id)
+            ]"
           >
             {{ getTabBadgeCount(tab.id) }}
           </span>
@@ -828,12 +822,12 @@
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="">Select category</option>
-                    <option value="materials">📦 Materials</option>
-                    <option value="equipment">🔧 Equipment</option>
-                    <option value="quality">✅ Quality</option>
-                    <option value="timeline">⏰ Timeline</option>
-                    <option value="safety">⚠️ Safety</option>
-                    <option value="other">📝 Other</option>
+                    <option value="materials">Materials</option>
+                    <option value="equipment">Equipment</option>
+                    <option value="quality">Quality</option>
+                    <option value="timeline">Timeline</option>
+                    <option value="safety">Safety</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 
@@ -845,9 +839,9 @@
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="">Select priority</option>
-                    <option value="low">🟢 Low</option>
-                    <option value="medium">🟡 Medium</option>
-                    <option value="high">🔴 High</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                   </select>
                 </div>
               </div>
@@ -943,13 +937,13 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
               <span v-if="completionPercentage === 100" class="text-green-600 dark:text-green-400">
-                ✅ Ready for production completion
+                Ready for production completion
               </span>
               <span v-else-if="completionPercentage >= 75" class="text-yellow-600 dark:text-yellow-400">
-                ⚠️ Almost ready - {{ productionData.completionCriteria.length - completedCriteriaCount }} criteria remaining
+                Almost ready - {{ productionData.completionCriteria.length - completedCriteriaCount }} criteria remaining
               </span>
               <span v-else class="text-blue-600 dark:text-blue-400">
-                🔄 In progress - {{ completedCriteriaCount }} criteria completed
+                In progress - {{ completedCriteriaCount }} criteria completed
               </span>
             </div>
             <button
@@ -968,7 +962,7 @@
             <!-- Category Header -->
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-3">
-                <span class="text-2xl">{{ category.icon }}</span>
+                <span class="text-2xl"></span>
                 <div>
                   <h4 class="text-md font-medium text-gray-900 dark:text-white">{{ category.name }}</h4>
                   <p class="text-sm text-gray-600 dark:text-gray-400">{{ category.description }}</p>
@@ -1052,7 +1046,7 @@
         <!-- Material-Related Completion Items -->
         <div v-if="materialRelatedCriteria.length > 0" class="mt-8">
           <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span class="text-xl mr-2">📦</span>
+            <span class="text-xl mr-2"></span>
             Material-Related Completion Items
           </h4>
           <div class="space-y-2">
@@ -1107,10 +1101,10 @@
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Select category</option>
-                  <option value="production">🏭 Production</option>
-                  <option value="quality">✅ Quality</option>
-                  <option value="documentation">📋 Documentation</option>
-                  <option value="approval">👍 Approval</option>
+                  <option value="production">Production</option>
+                  <option value="quality">Quality</option>
+                  <option value="documentation">Documentation</option>
+                  <option value="approval">Approval</option>
                 </select>
               </div>
 
@@ -1156,7 +1150,7 @@
       <div v-else-if="saveError" class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
         <div class="flex items-start justify-between">
           <div class="flex items-start space-x-3">
-            <span class="text-lg mt-0.5">❌</span>
+            <span class="text-lg mt-0.5"></span>
             <div class="flex-1">
               <p class="text-sm font-medium text-red-800 dark:text-red-200">Failed to Save</p>
               <p class="text-xs text-red-600 dark:text-red-300 mt-1">{{ saveError }}</p>
@@ -1185,7 +1179,7 @@
       <!-- Save Success State -->
       <div v-else-if="lastSaveTime" class="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
         <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-          <span class="text-lg">✅</span>
+          <span class="text-lg"></span>
           <div>
             <p class="text-sm font-medium">Data saved successfully</p>
             <p class="text-xs text-green-500 dark:text-green-300">
@@ -1300,10 +1294,10 @@ const emit = defineEmits<Emits>()
 const activeTab = ref('production-elements')
 
 const tabs = [
-  { id: 'production-elements', label: 'Production Elements', icon: '📦', description: 'View and manage production elements' },
-  { id: 'quality', label: 'Quality Control', icon: '✅', description: 'Manage quality control checkpoints' },
-  { id: 'issues', label: 'Issues', icon: '🚨', description: 'Track and resolve production issues' },
-  { id: 'completion', label: 'Completion', icon: '🎯', description: 'Review completion criteria' }
+  { id: 'production-elements', label: 'Production Elements', description: 'View and manage production elements' },
+  { id: 'quality', label: 'Quality Control', description: 'Manage quality control checkpoints' },
+  { id: 'issues', label: 'Issues', description: 'Track and resolve production issues' },
+  { id: 'completion', label: 'Completion', description: 'Review completion criteria' }
 ]
 
 // Tab navigation functions
@@ -1417,12 +1411,12 @@ const productionElementCategories = ref<ProductionElementCategory[]>([
 
 // Issue categories (will be loaded from backend)
 const issueCategories = ref<IssueCategory[]>([
-  { id: 'materials', label: 'Materials', icon: '📦', color: 'blue' },
-  { id: 'equipment', label: 'Equipment', icon: '🔧', color: 'orange' },
-  { id: 'quality', label: 'Quality', icon: '✅', color: 'green' },
-  { id: 'timeline', label: 'Timeline', icon: '⏰', color: 'yellow' },
-  { id: 'safety', label: 'Safety', icon: '⚠️', color: 'red' },
-  { id: 'other', label: 'Other', icon: '📝', color: 'gray' }
+  { id: 'materials', label: 'Materials', color: 'blue' },
+  { id: 'equipment', label: 'Equipment', color: 'orange' },
+  { id: 'quality', label: 'Quality', color: 'green' },
+  { id: 'timeline', label: 'Timeline', color: 'yellow' },
+  { id: 'safety', label: 'Safety', color: 'red' },
+  { id: 'other', label: 'Other', color: 'gray' }
 ])
 
 // Default completion criteria (will be loaded from backend)

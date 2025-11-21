@@ -681,6 +681,296 @@
         </div>
       </div>
 
+      <!-- Photos Tab -->
+      <div v-show="activeTab === 'photos'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+        <div class="flex items-center space-x-2 mb-4">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900 flex items-center justify-center">
+            <svg class="w-4 h-4 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Site Photos</h3>
+        </div>
+
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Upload photos from the site survey (max 20 photos, 10MB each)
+        </p>
+
+        <!-- Upload Area -->
+        <div class="mb-6">
+          <label
+            class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600 transition-colors"
+            @dragover.prevent
+            @drop.prevent="handlePhotoDrop"
+          >
+            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+              <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="font-semibold">Click to upload</span> or drag and drop
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">JPG, JPEG, PNG (MAX. 10MB)</p>
+            </div>
+            <input
+              ref="photoInput"
+              type="file"
+              class="hidden"
+              accept="image/jpeg,image/jpg,image/png"
+              multiple
+              @change="handlePhotoSelect"
+            />
+          </label>
+        </div>
+
+        <!-- Photo Previews (before upload) -->
+        <div v-if="photoPreviews.length > 0" class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Selected Photos ({{ photoPreviews.length }})
+            </h4>
+            <button
+              type="button"
+              @click="uploadAllPreviews"
+              class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Upload All
+            </button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div
+              v-for="(preview, index) in photoPreviews"
+              :key="index"
+              class="relative rounded-lg overflow-hidden border-2 border-blue-300 dark:border-blue-600"
+            >
+              <img
+                :src="preview.dataUrl"
+                :alt="preview.file.name"
+                class="w-full h-48 object-cover"
+              />
+              <button
+                type="button"
+                @click="removePreview(index)"
+                class="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                title="Remove photo"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+              <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 p-2">
+                <p class="text-xs text-white truncate" :title="preview.file.name">
+                  {{ preview.file.name }}
+                </p>
+                <p class="text-xs text-gray-300">
+                  {{ formatFileSize(preview.file.size) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Progress -->
+        <div v-if="uploadingPhotos.length > 0" class="mb-4 space-y-2">
+          <div v-for="upload in uploadingPhotos" :key="upload.name" class="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+            <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm text-gray-700 dark:text-gray-300">Uploading {{ upload.name }}...</span>
+          </div>
+        </div>
+
+        <!-- Photos Grid -->
+        <div v-if="surveyPhotos.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div
+            v-for="photo in surveyPhotos"
+            :key="photo.id"
+            class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+            @click="viewPhoto(photo)"
+          >
+            <!-- Photo Preview -->
+            <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+              <img
+                :src="getPhotoUrl(photo)"
+                :alt="photo.filename"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              
+              <!-- Hover Overlay with Actions -->
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center space-x-3">
+                <!-- Preview Button -->
+                <button 
+                  type="button"
+                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-white hover:text-blue-600 transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300"
+                  title="Preview"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+
+                <!-- Delete Button -->
+                <button
+                  type="button"
+                  @click.stop="deletePhotoConfirm(photo.id)"
+                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
+                  title="Delete photo"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Photo Info -->
+            <div class="p-4">
+              <h4 class="font-medium text-gray-900 dark:text-white truncate text-sm" :title="photo.filename">
+                {{ photo.filename }}
+              </h4>
+              <input
+                v-model="photo.caption"
+                type="text"
+                placeholder="Add caption..."
+                class="mt-2 w-full text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                @click.stop
+                @blur="updatePhotoCaption(photo)"
+              />
+              
+              <!-- Photo Meta -->
+              <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <div>{{ new Date(photo.uploaded_at).toLocaleDateString() }}</div>
+                <div>{{ formatFileSize(photo.size) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p v-else class="text-center text-gray-500 dark:text-gray-400 py-8">
+          No photos uploaded yet
+        </p>
+
+        <!-- Photo Preview Modal (Design Assets Pattern) -->
+        <Transition
+          enter-active-class="transition ease-out duration-300"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition ease-in duration-200"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="photoPreviewModal.show"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            @click.self="closePhotoModal"
+          >
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="closePhotoModal"></div>
+
+            <!-- Modal Content -->
+            <div class="flex min-h-screen items-center justify-center p-4">
+              <div
+                class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+                @click.stop
+              >
+                <!-- Header -->
+                <div v-if="photoPreviewModal.photo" class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                  <div class="flex-1 min-w-0 mr-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                      {{ photoPreviewModal.photo.filename }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Site Photo • {{ formatFileSize(photoPreviewModal.photo.size) }}
+                      <span v-if="photoPreviewModal.photo.caption"> • {{ photoPreviewModal.photo.caption }}</span>
+                    </p>
+                  </div>
+                  
+                  <!-- Action Buttons -->
+                  <div class="flex items-center space-x-2">
+                    <!-- Navigation -->
+                    <button
+                      type="button"
+                      v-if="surveyPhotos.length > 1"
+                      @click.stop="previousPhoto"
+                      class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Previous"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      v-if="surveyPhotos.length > 1"
+                      @click.stop="nextPhoto"
+                      class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Next"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </button>
+                    
+                    <!-- Close -->
+                    <button
+                      type="button"
+                      @click="closePhotoModal"
+                      class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Close"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+
+                <!-- Preview Content -->
+                <div class="p-4 overflow-auto max-h-[calc(90vh-180px)]">
+                  <!-- Image Preview -->
+                  <div v-if="photoPreviewModal.photo" class="flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
+                    <img
+                      :src="getPhotoUrl(photoPreviewModal.photo)"
+                      :alt="photoPreviewModal.photo.filename"
+                      class="max-w-full max-h-[70vh] object-contain"
+                      @error="handleImageError"
+                    />
+                  </div>
+                  <div v-else class="flex items-center justify-center py-12">
+                    <p class="text-gray-500 dark:text-gray-400">Loading photo...</p>
+                  </div>
+                </div>
+
+                <!-- Footer with Photo Details -->
+                <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="font-medium text-gray-700 dark:text-gray-300">Photo:</span>
+                      <span class="ml-2 text-gray-600 dark:text-gray-400">
+                        {{ surveyPhotos.indexOf(photoPreviewModal.photo) + 1 }} of {{ surveyPhotos.length }}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-700 dark:text-gray-300">Uploaded:</span>
+                      <span class="ml-2 text-gray-600 dark:text-gray-400">
+                        {{ new Date(photoPreviewModal.photo.uploaded_at).toLocaleString() }}
+                      </span>
+                    </div>
+                    <div v-if="photoPreviewModal.photo.caption" class="col-span-2">
+                      <span class="font-medium text-gray-700 dark:text-gray-300">Caption:</span>
+                      <p class="mt-1 text-gray-600 dark:text-gray-400">{{ photoPreviewModal.photo.caption }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </div>
+
       <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex space-x-2">
           <button
@@ -801,14 +1091,27 @@ const isLoading = ref(false)
 const isSavingDraft = ref(false)
 const isLoadingExistingData = ref(false)
 
+// Photo management
+const surveyPhotos = ref<any[]>([])
+const uploadingPhotos = ref<any[]>([])
+const photoInput = ref<HTMLInputElement | null>(null)
+const photoPreviews = ref<{ file: File; dataUrl: string }[]>([])
+const photoPreviewModal = ref<{ show: boolean; photo: any }>({
+  show: false,
+  photo: null
+})
+
+
 const tabs = [
   { key: 'basic', label: 'Basic Information' },
   { key: 'assessment', label: 'Site Assessment' },
   { key: 'access', label: 'Access & Logistics' },
   { key: 'requirements', label: 'Requirements & Preferences' },
   { key: 'safety', label: 'Safety & Timeline' },
-  { key: 'additional', label: 'Additional Information' }
+  { key: 'additional', label: 'Additional Information' },
+  { key: 'photos', label: 'Site Photos' }
 ]
+
 
 
 // Computed properties
@@ -1007,6 +1310,9 @@ const loadSurveyData = async () => {
       const actionItemsArray = Array.isArray(existingData.action_items) ? existingData.action_items : []
       attendeesText.value = attendeesArray.join('\n')
       actionItemsText.value = actionItemsArray.join('\n')
+      
+      // Load photos
+      surveyPhotos.value = existingData.survey_photos || []
     } else {
       // Reset form for new task
       formData.value = {
@@ -1098,6 +1404,183 @@ const loadSurveyData = async () => {
   } finally {
     isLoadingExistingData.value = false
   }
+}
+
+// Photo management functions
+const handlePhotoSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+  
+  await createPreviews(Array.from(files))
+  // Reset input
+  if(photoInput.value) photoInput.value.value = ''
+}
+
+const handlePhotoDrop = async (event: DragEvent) => {
+  const files = event.dataTransfer?.files
+  if (!files) return
+  
+  await createPreviews(Array.from(files))
+}
+
+const createPreviews = async (files: File[]) => {
+  for (const file of files) {
+    // Validate file
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+      error.value = `Invalid file type: ${file.name}. Only JPG, JPEG, PNG allowed.`
+      continue
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = `File too large: ${file.name}. Maximum size is 10MB.`
+      continue
+    }
+    
+    if (surveyPhotos.value.length + photoPreviews.value.length >= 20) {
+      error.value = 'Maximum 20 photos allowed per survey.'
+      return
+    }
+    
+    // Create preview using FileReader
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      photoPreviews.value.push({
+        file: file,
+        dataUrl: e.target?.result as string
+      })
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const removePreview = (index: number) => {
+  photoPreviews.value.splice(index, 1)
+}
+
+const uploadAllPreviews = async () => {
+  const filesToUpload = photoPreviews.value.map(p => p.file)
+  photoPreviews.value = [] // Clear previews
+  await uploadPhotos(filesToUpload)
+}
+
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+
+const uploadPhotos = async (files: File[]) => {
+  for (const file of files) {
+    // Validate file
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+      error.value = `Invalid file type: ${file.name}. Only JPG, JPEG, PNG allowed.`
+      continue
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = `File too large: ${file.name}. Maximum size is 10MB.`
+      continue
+    }
+    
+    if (surveyPhotos.value.length >= 20) {
+      error.value = 'Maximum 20 photos allowed per survey.'
+      return
+    }
+    
+    // Add to uploading list
+    uploadingPhotos.value.push({ name: file.name })
+    
+    try {
+      const formData = new FormData()
+      formData.append('photo', file)
+      
+      const response = await api.post(`/api/projects/tasks/${props.task.id}/survey/photos`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      
+      if (response.data.photo) {
+        surveyPhotos.value.push(response.data.photo)
+        successMessage.value = 'Photo uploaded successfully!'
+        setTimeout(() => { successMessage.value = '' }, 3000)
+      }
+    } catch (err: any) {
+      console.error('Photo upload error:', err)
+      error.value = err.response?.data?.message || 'Failed to upload photo'
+    } finally {
+      // Remove from uploading list
+      uploadingPhotos.value = uploadingPhotos.value.filter(u => u.name !== file.name)
+    }
+  }
+}
+
+const deletePhotoConfirm = async (photoId: string) => {
+  if (!confirm('Are you sure you want to delete this photo?')) return
+  
+  try {
+    await api.delete(`/api/projects/tasks/${props.task.id}/survey/photos/${photoId}`)
+    
+    surveyPhotos.value = surveyPhotos.value.filter(p => p.id !== photoId)
+    successMessage.value = 'Photo deleted successfully!'
+    setTimeout(() => { successMessage.value = '' }, 3000)
+  } catch (err: any) {
+    console.error('Photo delete error:', err)
+    error.value = err.response?.data?.message || 'Failed to delete photo'
+  }
+}
+
+const updatePhotoCaption = async (photo: any) => {
+  // Just update locally - will be saved with the survey
+  console.log('Photo caption updated:', photo.caption)
+}
+
+const viewPhoto = (photo: any) => {
+  console.log('Opening photo preview:', photo)
+  // Open photo in modal lightbox
+  photoPreviewModal.value = {
+    show: true,
+    photo: photo
+  }
+}
+
+const closePhotoModal = () => {
+  photoPreviewModal.value.show = false
+}
+
+const nextPhoto = () => {
+  const currentIndex = surveyPhotos.value.indexOf(photoPreviewModal.value.photo)
+  const nextIndex = (currentIndex + 1) % surveyPhotos.value.length
+  photoPreviewModal.value.photo = surveyPhotos.value[nextIndex]
+}
+
+const previousPhoto = () => {
+  const currentIndex = surveyPhotos.value.indexOf(photoPreviewModal.value.photo)
+  const prevIndex = currentIndex === 0 ? surveyPhotos.value.length - 1 : currentIndex - 1
+  photoPreviewModal.value.photo = surveyPhotos.value[prevIndex]
+}
+
+const getPhotoUrl = (photo: any) => {
+  if (!photo) return ''
+  
+  // Priority 1: Use full URL if available
+  if (photo.url) return photo.url
+  
+  // Priority 2: Construct from path
+  if (photo.path) {
+    // Remove 'public/' prefix if it exists (just in case)
+    const cleanPath = photo.path.replace(/^public\//, '')
+    return `/storage/${cleanPath}`
+  }
+  
+  return ''
+}
+
+const handleImageError = (e: Event) => {
+  console.error('Failed to load image:', (e.target as HTMLImageElement).src)
+  // Could set a fallback image here if needed
 }
 
 // Function to auto-fill basic information from project enquiry
