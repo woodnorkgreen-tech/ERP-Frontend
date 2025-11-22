@@ -959,18 +959,18 @@
 
       <!-- Items Management Tab -->
       <div
-        v-show="activeTab === 'items-management'"
-        class="items-management-section tab-panel"
-        :id="`tab-panel-items-management`"
+        v-show="activeTab === 'loading-sheet'"
+        class="loading-sheet-section tab-panel"
+        :id="`tab-panel-loading-sheet`"
         role="tabpanel"
-        :aria-labelledby="`tab-items-management`"
-        :class="{ 'animate-fade-in': activeTab === 'items-management' }"
+        :aria-labelledby="`tab-loading-sheet`"
+        :class="{ 'animate-fade-in': activeTab === 'loading-sheet' }"
       >
         <!-- Header actions -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Items Management</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import production elements and add custom transport items</p>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Loading Sheet</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import production elements and add custom loading items</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
@@ -988,17 +988,21 @@
               @click="importProductionElements"
               class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
             >Retry Import</button>
+            <button
+              @click="openAddCustomItemModal"
+              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >Add Custom Item</button>
           </div>
         </div>
 
         <!-- Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="w-full gap-4">
           <!-- Imported/Existing Items -->
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
-                <span class="text-xl"></span>
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Transport Items</h4>
+                <span class="text-xl">📋</span>
+                <h4 class="text-md font-medium text-gray-900 dark:text-white">Loading Sheet Items</h4>
                 <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ filteredTransportItems.length }}</span>
               </div>
               <input
@@ -1014,66 +1018,177 @@
               <div v-if="itemsState.importError" class="mt-2 text-red-600 dark:text-red-400">{{ itemsState.importError }}</div>
             </div>
 
-            <ul v-else class="divide-y divide-gray-200 dark:divide-gray-700">
-              <li v-for="item in filteredTransportItems" :key="item.id" class="py-3 flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span :class="item.category === 'production' ? 'text-purple-600' : 'text-blue-600'">•</span>
-                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ item.name }}</p>
-                  </div>
-                  <p v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ item.description }}</p>
-                  <div class="mt-1 flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
-                    <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700">Qty: {{ item.quantity }} {{ item.unit }}</span>
-                    <span v-if="item.weight" class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700">Weight: {{ item.weight }}</span>
-                    <span v-if="item.special_handling" class="px-2 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200">{{ item.special_handling }}</span>
-                  </div>
-                </div>
-                <button @click="removeTransportItem(item.id.toString())" class="text-gray-400 hover:text-red-500 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </li>
-            </ul>
-          </div>
+            <!-- Table Layout -->
+            <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[40%]">Item Details</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Quantity</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Weight</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%]">Handling</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[10%]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="item in filteredTransportItems" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    
+                    <!-- Read Mode -->
+                    <template v-if="!isEditing(item.id)">
+                      <td class="px-6 py-4">
+                        <div class="flex items-start gap-3">
+                          <div class="flex-shrink-0 mt-1">
+                            <span 
+                              class="inline-block w-2.5 h-2.5 rounded-full" 
+                              :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
+                              :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
+                            ></span>
+                          </div>
+                          <div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
+                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{{ item.description }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+                          {{ item.special_handling }}
+                        </span>
+                        <span v-else class="text-gray-400 text-xs">-</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                          <button 
+                            @click="startEditingItem(item)" 
+                            class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            title="Edit"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                          </button>
+                          <button 
+                            @click="removeTransportItem(item.id.toString())" 
+                            class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </template>
 
-          <!-- Custom Item Form -->
-          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-xl"></span>
-              <h4 class="text-md font-medium text-gray-900 dark:text-white">Add Custom Item</h4>
+                    <!-- Edit Mode -->
+                    <template v-else>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
+                        <div class="space-y-2">
+                          <input 
+                            v-model="itemsState.editData[item.id].name"
+                            type="text"
+                            placeholder="Item Name"
+                            class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                            :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                          />
+                          <textarea 
+                            v-model="itemsState.editData[item.id].description"
+                            rows="1"
+                            placeholder="Description"
+                            class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                          ></textarea>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <div class="flex flex-col gap-1">
+                          <div class="flex items-center gap-1">
+                            <button 
+                              @click="adjustQuantity(item.id, -1)"
+                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                              type="button"
+                            >−</button>
+                            <input 
+                              v-model.number="itemsState.editData[item.id].quantity"
+                              type="number"
+                              min="1"
+                              class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                              :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                            />
+                            <button 
+                              @click="adjustQuantity(item.id, 1)"
+                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                              type="button"
+                            >+</button>
+                          </div>
+                          <input 
+                            v-model="itemsState.editData[item.id].unit"
+                            type="text"
+                            placeholder="Unit"
+                            class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                          />
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <input 
+                          v-model="itemsState.editData[item.id].weight"
+                          type="text"
+                          placeholder="Weight"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        />
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <input 
+                          v-model="itemsState.editData[item.id].special_handling"
+                          type="text"
+                          placeholder="Handling"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        />
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
+                        <div class="flex flex-col gap-2 items-end">
+                          <button 
+                            @click="saveEditedItem(item.id)"
+                            :disabled="itemsState.isSaving[item.id]"
+                            class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
+                          </button>
+                          <button 
+                            @click="cancelEditingItem(item.id)"
+                            class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </td>
+                    </template>
+                  </tr>
+                  
+                  <!-- Empty State -->
+                  <tr v-if="filteredTransportItems.length === 0">
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                      <div class="flex flex-col items-center justify-center">
+                        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <p class="text-base font-medium">No items in loading sheet</p>
+                        <p class="text-sm mt-1">Import from production or add custom items above</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-
-            <form @submit.prevent="addCustomTransportItem" class="space-y-3">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Item Name <span class="text-red-500">*</span></label>
-                  <input v-model="itemsState.newItem.name" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Quantity <span class="text-red-500">*</span></label>
-                  <input v-model.number="itemsState.newItem.quantity" type="number" min="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Unit <span class="text-red-500">*</span></label>
-                  <input v-model="itemsState.newItem.unit" type="text" placeholder="pcs, boxes, kg" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Weight (optional)</label>
-                  <input v-model="itemsState.newItem.weight" type="text" placeholder="e.g., 20kg" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Special Handling (optional)</label>
-                <input v-model="itemsState.newItem.specialHandling" type="text" placeholder="e.g., Fragile" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-              </div>
-              <div>
-                <label class="block text-xs text-gray-600 dark:text-gray-300 mb-1">Description (optional)</label>
-                <textarea v-model="itemsState.newItem.description" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
-              </div>
-              <div class="flex justify-end">
-                <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">Add Item</button>
-              </div>
-            </form>
           </div>
+
+
         </div>
       </div>
 
@@ -1243,6 +1358,121 @@
         </div>
       </div>
     </div>
+    <!-- Add Custom Item Modal -->
+    <div v-if="itemsState.isAddCustomItemModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeAddCustomItemModal"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-top bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:mt-20 sm:max-w-md w-full">
+          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                  Add Custom Item
+                </h3>
+                <div class="mt-4 space-y-4">
+                  <!-- Item Name -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Item Name <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="customItemForm.name" 
+                      type="text" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g., Stage Deck"
+                    />
+                  </div>
+
+                  <!-- Quantity & Unit -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Quantity <span class="text-red-500">*</span>
+                      </label>
+                      <input 
+                        v-model.number="customItemForm.quantity" 
+                        type="number" 
+                        min="1"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Unit <span class="text-red-500">*</span>
+                      </label>
+                      <input 
+                        v-model="customItemForm.unit" 
+                        type="text" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="pcs, kg, box"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Weight & Handling -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Weight (optional)
+                      </label>
+                      <input 
+                        v-model="customItemForm.weight" 
+                        type="text" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., 50kg"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Special Handling
+                      </label>
+                      <input 
+                        v-model="customItemForm.special_handling" 
+                        type="text" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., Fragile"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Description (optional)
+                    </label>
+                    <textarea 
+                      v-model="customItemForm.description" 
+                      rows="3" 
+                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Additional details..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button 
+              type="button" 
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+              @click="addCustomTransportItem"
+            >
+              Add Item
+            </button>
+            <button 
+              type="button" 
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              @click="closeAddCustomItemModal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1395,7 +1625,7 @@ interface LogisticsTaskData {
   logistics_planning: LogisticsPlanning
   /** Team confirmation data */
   team_confirmation: TeamConfirmation
-  /** Transport items for items management */
+  /** Loading sheet items (transport items) */
   transport_items: TransportItem[]
   /** Checklist data */
   checklist: ChecklistData
@@ -2025,32 +2255,148 @@ const hasTeamConfirmationChanges = computed((): boolean => {
 /**
  * Items management state
  */
+// Items State
 const itemsState = reactive({
+  loading: false,
+  error: null as string | null,
+  importError: null as string | null,
   isImporting: false,
   searchQuery: '',
-  importError: '' as string | null,
-  newItem: {
-    name: '',
-    description: '',
-    quantity: 1,
-    unit: 'pcs',
-    weight: '',
-    specialHandling: ''
-  }
+  isAddCustomItemModalOpen: false, // Modal state
+  editingItemId: null as number | null,
+  editData: {} as Record<number, Partial<TransportItem>>,
+  isSaving: {} as Record<number, boolean>,
+  validationErrors: {} as Record<number, Record<string, string>>
+})
+
+// Custom Item Form State
+const customItemForm = reactive({
+  name: '',
+  quantity: 1,
+  unit: 'pcs',
+  weight: '',
+  special_handling: '',
+  description: ''
 })
 
 /**
  * Reset form function for itemsState
  */
 const resetItemsForm = () => {
-  itemsState.newItem = {
+  Object.assign(customItemForm, {
     name: '',
     description: '',
     quantity: 1,
     unit: 'pcs',
     weight: '',
-    specialHandling: ''
+    special_handling: ''
+  })
+}
+
+/**
+ * Check if item is in edit mode
+ */
+const isEditing = (itemId: number): boolean => {
+  return itemsState.editingItemId === itemId
+}
+
+/**
+ * Start editing an item
+ */
+const startEditingItem = (item: TransportItem) => {
+  itemsState.editingItemId = item.id
+  // Clone item data for editing
+  itemsState.editData[item.id] = {
+    name: item.name,
+    description: item.description,
+    quantity: item.quantity,
+    unit: item.unit,
+    weight: item.weight,
+    special_handling: item.special_handling
   }
+  // Clear any previous validation errors
+  delete itemsState.validationErrors[item.id]
+}
+
+/**
+ * Cancel editing an item
+ */
+const cancelEditingItem = (itemId: number) => {
+  itemsState.editingItemId = null
+  delete itemsState.editData[itemId]
+  delete itemsState.validationErrors[itemId]
+}
+
+/**
+ * Validate item data
+ */
+const validateItemData = (itemId: number): boolean => {
+  const data = itemsState.editData[itemId]
+  const errors: Record<string, string> = {}
+
+  if (!data.name || data.name.trim().length === 0) {
+    errors.name = 'Name is required'
+  } else if (data.name.length > 255) {
+    errors.name = 'Name must be less than 255 characters'
+  }
+
+  if (!data.quantity || data.quantity < 1) {
+    errors.quantity = 'Quantity must be at least 1'
+  }
+
+  if (!data.unit || data.unit.trim().length === 0) {
+    errors.unit = 'Unit is required'
+  } else if (data.unit.length > 50) {
+    errors.unit = 'Unit must be less than 50 characters'
+  }
+
+  itemsState.validationErrors[itemId] = errors
+  return Object.keys(errors).length === 0
+}
+
+/**
+ * Save edited item
+ */
+const saveEditedItem = async (itemId: number) => {
+  if (!validateItemData(itemId)) {
+    addFeedbackMessage('warning', 'Please fix validation errors before saving')
+    return
+  }
+
+  try {
+    itemsState.isSaving[itemId] = true
+    const editData = itemsState.editData[itemId]
+
+    const updatedItem = await logistics.updateTransportItem(props.task.id, itemId, editData)
+
+    // Update local state
+    const index = logisticsData.transport_items?.findIndex(i => i.id === itemId)
+    if (index !== undefined && index >= 0 && logisticsData.transport_items) {
+      logisticsData.transport_items[index] = updatedItem
+    }
+
+    // Clear edit state
+    itemsState.editingItemId = null
+    delete itemsState.editData[itemId]
+    delete itemsState.validationErrors[itemId]
+
+    addFeedbackMessage('success', 'Item updated successfully')
+  } catch (error) {
+    console.error('Failed to update item:', error)
+    addFeedbackMessage('error', 'Failed to update item. Please try again.')
+  } finally {
+    delete itemsState.isSaving[itemId]
+  }
+}
+
+/**
+ * Quick adjust quantity
+ */
+const adjustQuantity = (itemId: number, delta: number) => {
+  if (!itemsState.editData[itemId]) return
+  const currentQty = itemsState.editData[itemId].quantity || 0
+  const newQty = Math.max(1, currentQty + delta)
+  itemsState.editData[itemId].quantity = newQty
 }
 
 /**
@@ -2085,11 +2431,24 @@ const importProductionElements = async () => {
       }
     })
 
-    addFeedbackMessage('success', `${importedItems.length} production elements imported`)
-  } catch (error) {
+    if (importedItems.length > 0) {
+      addFeedbackMessage('success', `${importedItems.length} production elements imported successfully`)
+    } else {
+      addFeedbackMessage('info', 'No production elements found to import. Please ensure the production task has been completed with production elements.')
+    }
+  } catch (error: any) {
     console.error('Failed to import production elements', error)
-    itemsState.importError = 'Failed to import production elements. Check connection and retry.'
-    addFeedbackMessage('error', itemsState.importError)
+
+    // Provide more specific error messages based on the error response
+    let errorMessage = 'Failed to import production elements.'
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+
+    itemsState.importError = errorMessage
+    addFeedbackMessage('error', errorMessage)
   } finally {
     itemsState.isImporting = false
   }
@@ -2099,37 +2458,65 @@ const importProductionElements = async () => {
  * Add a custom transport item
  */
 const addCustomTransportItem = async () => {
-  const name = itemsState.newItem.name?.trim()
-  const unit = itemsState.newItem.unit?.trim()
-  const quantity = Number(itemsState.newItem.quantity)
-  if (!name || !unit || !quantity || quantity < 1) {
-    addFeedbackMessage('warning', 'Please provide valid item name, unit and quantity')
+  if (!customItemForm.name || !customItemForm.quantity || !customItemForm.unit) {
+    addFeedbackMessage('error', 'Please fill in all required fields')
     return
   }
 
   try {
     const newItem = await logistics.addTransportItem(props.task.id, {
-      name,
-      description: itemsState.newItem.description?.trim() || undefined,
-      quantity,
-      unit,
+      name: customItemForm.name?.trim(),
+      description: customItemForm.description?.trim() || undefined,
+      quantity: customItemForm.quantity,
+      unit: customItemForm.unit?.trim(),
       category: 'custom',
-      weight: itemsState.newItem.weight?.trim() || undefined,
-      special_handling: itemsState.newItem.specialHandling?.trim() || undefined,
+      weight: customItemForm.weight?.trim() || undefined,
+      special_handling: customItemForm.special_handling?.trim() || undefined,
       source: 'manual'
     })
 
     // Update local state
     if (!logisticsData.transport_items) logisticsData.transport_items = []
     logisticsData.transport_items.push(newItem)
-
+    
     // Reset form
-    itemsState.newItem = { name: '', description: '', quantity: 1, unit: 'pcs', weight: '', specialHandling: '' }
-    addFeedbackMessage('success', 'Custom item added')
+    Object.assign(customItemForm, {
+      name: '',
+      quantity: 1,
+      unit: 'pcs',
+      weight: '',
+      special_handling: '',
+      description: ''
+    })
+
+    // Close modal on success
+    closeAddCustomItemModal()
+
+    addFeedbackMessage('success', 'Item added successfully')
   } catch (error) {
-    console.error('Failed to add custom transport item:', error)
-    addFeedbackMessage('error', 'Failed to add custom item. Please try again.')
+    console.error('Failed to add item', error)
+    addFeedbackMessage('error', 'Failed to add item')
   }
+}
+
+// Modal Control Methods
+const openAddCustomItemModal = () => {
+  itemsState.isAddCustomItemModalOpen = true
+}
+
+const closeAddCustomItemModal = () => {
+  itemsState.isAddCustomItemModalOpen = false
+  // Optional: Reset form when closing without saving? 
+  // Usually better to keep state if user accidentally closes, but for "Add" it's often safer to clear.
+  // Let's clear it to avoid confusion next time.
+  Object.assign(customItemForm, {
+    name: '',
+    quantity: 1,
+    unit: 'pcs',
+    weight: '',
+    special_handling: '',
+    description: ''
+  })
 }
 
 /**
@@ -2175,7 +2562,7 @@ const activeTab = ref('logistics-planning')
 const tabs = [
   { id: 'logistics-planning', label: 'Logistics Planning', description: 'Plan transportation details and routes' },
   { id: 'team-confirmation', label: 'Team Confirmation', description: 'Confirm team assignments from Teams Task' },
-  { id: 'items-management', label: 'Items Management', description: 'Manage transport items and production elements' },
+  { id: 'loading-sheet', label: 'Loading Sheet', description: 'Manage loading sheet items and production elements' },
   { id: 'checklist', label: 'Checklist', description: 'Verify items, teams, and safety requirements' }
 ]
 
@@ -2272,7 +2659,7 @@ const getTabBadgeCount = (tabId: string): number => {
     case 'team-confirmation':
       // Count unconfirmed setup teams only (since we only show setup teams)
       return logisticsData.team_confirmation?.setup_teams_confirmed ? 0 : 1
-    case 'items-management':
+    case 'loading-sheet':
       return (logisticsData.transport_items?.length || 0)
     case 'checklist':
       // Incomplete checklist items
@@ -2293,7 +2680,7 @@ const getTabBadgeClass = (tabId: string): string => {
       return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
     case 'team-confirmation':
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    case 'items-management':
+    case 'loading-sheet':
       return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
     case 'checklist':
       return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'

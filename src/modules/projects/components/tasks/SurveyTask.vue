@@ -1565,17 +1565,29 @@ const previousPhoto = () => {
 const getPhotoUrl = (photo: any) => {
   if (!photo) return ''
   
-  // Priority 1: Use full URL if available
-  if (photo.url) return photo.url
+  let url = ''
   
+  // Priority 1: Use full URL if available
+  if (photo.url) {
+    url = photo.url
+  } 
   // Priority 2: Construct from path
-  if (photo.path) {
+  else if (photo.path) {
     // Remove 'public/' prefix if it exists (just in case)
     const cleanPath = photo.path.replace(/^public\//, '')
-    return `/storage/${cleanPath}`
+    url = `/storage/${cleanPath}`
   }
   
-  return ''
+  // If URL is relative, prepend the API base URL
+  if (url && !url.startsWith('http') && !url.startsWith('blob:')) {
+    const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:8000'
+    // Ensure we don't have double slashes
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '')
+    const cleanUrl = url.startsWith('/') ? url : `/${url}`
+    return `${cleanBaseUrl}${cleanUrl}`
+  }
+  
+  return url
 }
 
 const handleImageError = (e: Event) => {

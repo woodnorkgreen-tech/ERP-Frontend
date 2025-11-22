@@ -338,11 +338,26 @@
               </div>
 
               <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
-                <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center space-x-2">
+                <button 
+                  @click.stop="openPreview(asset)"
+                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-white hover:text-blue-600 transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300"
+                  title="Preview"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+                <button
+                  @click.stop="deleteAsset(asset)"
+                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
+                  title="Delete"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -607,6 +622,15 @@
                   </svg>
                 </button>
                 <button
+                  @click="deleteAsset(previewAsset)"
+                  class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  title="Delete"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+                <button
                   @click="closePreview"
                   class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Close"
@@ -856,6 +880,33 @@ const rejectAsset = async (asset: DesignAsset, reason?: string) => {
     const errorObj = err as { response?: { data?: { message?: string } } }
     console.error('Reject error:', errorObj)
     error.value = errorObj.response?.data?.message || 'Failed to reject asset'
+  }
+}
+
+const deleteAsset = async (asset: DesignAsset) => {
+  if (!confirm(`Are you sure you want to delete "${asset.name || asset.original_name}"? This action cannot be undone.`)) {
+    return
+  }
+
+  try {
+    await api.delete(`/api/projects/enquiry-tasks/${props.task.id}/design-assets/${asset.id}`)
+    
+    // Remove the asset from local state
+    assets.value = assets.value.filter(a => a.id !== asset.id)
+    
+    // If deleting the previewed asset, close the modal
+    if (previewAsset.value && previewAsset.value.id === asset.id) {
+      closePreview()
+    }
+    
+    successMessage.value = `Asset "${asset.name || asset.original_name}" deleted successfully.`
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { message?: string } } }
+    console.error('Delete error:', errorObj)
+    error.value = errorObj.response?.data?.message || 'Failed to delete asset'
   }
 }
 

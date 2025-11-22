@@ -234,6 +234,10 @@ const fetchTaskData = async () => {
         endpoint = `/api/projects/tasks/${props.task.id}/procurement`
         console.log('TaskDataViewer: Procurement task endpoint:', endpoint)
         break
+      case 'logistics':
+        endpoint = `/api/projects/tasks/${props.task.id}/logistics`
+        console.log('TaskDataViewer: Logistics task endpoint:', endpoint)
+        break
       // Add more task types here
       default:
         console.warn('TaskDataViewer: No specific endpoint for task type:', taskKey, '- will use default display')
