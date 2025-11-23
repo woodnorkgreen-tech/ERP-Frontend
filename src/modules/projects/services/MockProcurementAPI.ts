@@ -50,7 +50,19 @@ export interface ProcurementItem {
 
   // Procurement-specific data
   vendorName: string
-  availabilityStatus: 'available' | 'ordered' | 'received' | 'hired' | 'cancelled'
+  // availabilityStatus is deprecated but kept for backward compatibility if needed, 
+  // though we should move to the new fields.
+  availabilityStatus?: 'available' | 'ordered' | 'received' | 'hired' | 'cancelled'
+
+  // New Fields
+  stockStatus: 'in_stock' | 'partial_stock' | 'out_of_stock' | 'pending_check'
+  stockQuantity: number
+
+  procurementStatus: 'not_needed' | 'pending' | 'ordered' | 'received' | 'cancelled'
+  purchaseQuantity: number
+  purchaseOrderNumber?: string
+  expectedDeliveryDate?: string
+
   procurementNotes: string
   lastUpdated: Date
 
@@ -237,7 +249,13 @@ class MockProcurementAPI {
             budgetTotalPrice: material.totalPrice,
             category: 'materials',
             vendorName: Math.random() > 0.5 ? this.getVendorSuggestions(material.description)[0] : '',
-            availabilityStatus: ['available', 'ordered', 'received', 'hired'][Math.floor(Math.random() * 4)] as ProcurementItem['availabilityStatus'],
+
+            // New fields with mock data
+            stockStatus: 'pending_check',
+            stockQuantity: 0,
+            procurementStatus: 'pending',
+            purchaseQuantity: material.quantity,
+
             procurementNotes: '',
             lastUpdated: new Date(),
             budgetElementId: element.id,

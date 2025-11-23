@@ -104,8 +104,6 @@ import HandoverDataDisplay from './data-displays/HandoverDataDisplay.vue'
 import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
 import ProcurementDataDisplay from './data-displays/ProcurementDataDisplay.vue'
 import ProductionDataDisplay from './data-displays/ProductionDataDisplay.vue'
-import QuoteApprovalDataDisplay from './data-displays/QuoteApprovalDataDisplay.vue'
-import QuotePreparationDataDisplay from './data-displays/QuotePreparationDataDisplay.vue'
 import ReportDataDisplay from './data-displays/ReportDataDisplay.vue'
 import SetdownDataDisplay from './data-displays/SetdownDataDisplay.vue'
 import SetupDataDisplay from './data-displays/SetupDataDisplay.vue'
@@ -134,8 +132,6 @@ const dataDisplayComponents = {
   'logistics': LogisticsDataDisplay,
   'procurement': ProcurementDataDisplay,
   'production': ProductionDataDisplay,
-  'quote_approval': QuoteApprovalDataDisplay,
-  'quote': QuotePreparationDataDisplay,
   'report': ReportDataDisplay,
   'setdown': SetdownDataDisplay,
   'setup': SetupDataDisplay,

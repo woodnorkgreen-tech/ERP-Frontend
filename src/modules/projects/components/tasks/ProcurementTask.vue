@@ -123,10 +123,12 @@
                   <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Material Description</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Budget Cost</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Qty</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stock Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stock Qty</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Purchase Qty</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Procurement Status</th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vendor</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -140,39 +142,76 @@
                       <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                         {{ material.quantity }} {{ material.unitOfMeasurement }}
                       </td>
+                      
+                      <!-- Stock Status (Store User) -->
                       <td class="px-4 py-3 text-sm">
-                        <div class="text-gray-900 dark:text-white">
-                          <div class="font-medium">KES {{ (material.budgetTotalPrice || 0).toLocaleString() }}</div>
-                          <div class="text-xs text-gray-500 dark:text-gray-400">
-                            @ KES {{ (material.budgetUnitPrice || 0).toLocaleString() }}
-                          </div>
-                        </div>
+                        <select
+                          v-model="material.stockStatus"
+                          @change="updateStockStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
+                          :class="[
+                            'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
+                            'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                            getStockStatusClass(material.stockStatus)
+                          ]"
+                        >
+                          <option value="pending_check">Pending Check</option>
+                          <option value="in_stock">In Stock</option>
+                          <option value="partial_stock">Partial Stock</option>
+                          <option value="out_of_stock">Out of Stock</option>
+                        </select>
                       </td>
+
+                      <!-- Stock Quantity -->
+                      <td class="px-4 py-3 text-sm">
+                        <input
+                          type="number"
+                          v-model.number="material.stockQuantity"
+                          @input="updateStockQuantity(material.budgetItemId, ($event.target as HTMLInputElement).value)"
+                          min="0"
+                          :max="material.quantity"
+                          :disabled="material.stockStatus === 'out_of_stock' || material.stockStatus === 'pending_check'"
+                          class="w-20 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                        />
+                      </td>
+
+                      <!-- Purchase Quantity (Auto-calculated) -->
+                      <td class="px-4 py-3 text-sm">
+                        <span :class="[
+                          'font-medium',
+                          material.purchaseQuantity > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'
+                        ]">
+                          {{ material.purchaseQuantity }}
+                        </span>
+                      </td>
+
+                      <!-- Procurement Status (Procurement Officer) -->
+                      <td class="px-4 py-3 text-sm">
+                        <select
+                          v-model="material.procurementStatus"
+                          @change="updateProcurementStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
+                          :disabled="material.purchaseQuantity === 0 && material.procurementStatus === 'not_needed'"
+                          :class="[
+                            'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
+                            'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                            getProcurementStatusClass(material.procurementStatus)
+                          ]"
+                        >
+                          <option value="not_needed">Not Needed</option>
+                          <option value="pending">Pending Purchase</option>
+                          <option value="ordered">Ordered</option>
+                          <option value="received">Received</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+
                       <td class="px-4 py-3 text-sm">
                         <input
                           v-model="material.vendorName"
                           @input="updateVendorName(material.budgetItemId, ($event.target as HTMLInputElement).value)"
                           type="text"
-                          placeholder="Enter vendor name"
+                          placeholder="Vendor name"
                           class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                         />
-                      </td>
-                      <td class="px-4 py-3 text-sm">
-                        <select
-                          v-model="material.availabilityStatus"
-                          @change="updateAvailabilityStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
-                          :class="[
-                            'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                            'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                            getBudgetStatusClass(material.availabilityStatus)
-                          ]"
-                        >
-                          <option value="available">Available</option>
-                          <option value="ordered">Ordered</option>
-                          <option value="received">Received</option>
-                          <option value="hired">Hired</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
                       </td>
                     </tr>
                   </tbody>
@@ -192,7 +231,7 @@
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-medium text-blue-700 dark:text-blue-300">Materials Budget</h3>
-
+                <span class="text-2xl">💰</span>
               </div>
               <div class="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-2">
                 KES {{ (totalBudget || 0).toLocaleString() }}
@@ -206,13 +245,13 @@
             <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-medium text-green-700 dark:text-green-300">Budget Allocated</h3>
-
+                <span class="text-2xl">📉</span>
               </div>
               <div class="text-3xl font-bold text-green-900 dark:text-green-100 mb-2">
                 KES {{ (totalSpent || 0).toLocaleString() }}
               </div>
               <div class="text-sm text-green-600 dark:text-green-400">
-                {{ Math.round((totalSpent / totalBudget) * 100) }}% of budget
+                {{ totalBudget ? Math.round((totalSpent / totalBudget) * 100) : 0 }}% of budget
               </div>
             </div>
 
@@ -248,7 +287,7 @@
           <!-- Procurement Progress Dashboard -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-              <span class="mr-2"></span>
+              <span class="mr-2">📊</span>
               Procurement Progress Dashboard
             </h4>
 
@@ -271,14 +310,14 @@
 
             <!-- Status Breakdown -->
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div v-for="status in ['available', 'ordered', 'received', 'hired', 'cancelled']" :key="status"
+              <div v-for="status in ['pending', 'ordered', 'received', 'cancelled']" :key="status"
                    class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
                 <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   {{ getStatusCount(status) }}
                 </div>
                 <div class="text-xs text-gray-600 dark:text-gray-400 capitalize mb-2">{{ status }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-500">
-                  {{ Math.round((getStatusCount(status) / procurementData.procurementItems.length) * 100) }}%
+                  {{ procurementData.procurementItems.length ? Math.round((getStatusCount(status) / procurementData.procurementItems.length) * 100) : 0 }}%
                 </div>
               </div>
             </div>
@@ -292,7 +331,7 @@
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <span class="mr-2"></span>
+              <span class="mr-2">📤</span>
               Export Procurement Data
             </h4>
           </div>
@@ -302,14 +341,14 @@
               @click="exportToExcel"
               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
             >
-              <span></span>
+              <span>📊</span>
               <span>Export Excel</span>
             </button>
             <button
               @click="printReport"
               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
-              <span></span>
+              <span>🖨️</span>
               <span>Print Report</span>
             </button>
           </div>
@@ -321,7 +360,7 @@
         <!-- Success Message -->
         <div v-if="saveSuccess" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
           <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-            <span class="text-lg"></span>
+            <span class="text-lg">✅</span>
             <div>
               <p class="text-sm font-medium">Procurement data saved successfully</p>
               <p class="text-xs text-green-500 dark:text-green-300" v-if="lastSaveTime">
@@ -334,7 +373,7 @@
         <!-- Error Message -->
         <div v-if="saveError" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div class="flex items-center space-x-3 text-red-600 dark:text-red-400">
-
+            <span class="text-lg">⚠️</span>
             <div>
               <p class="text-sm font-medium">Failed to save procurement data</p>
               <p class="text-xs text-red-500 dark:text-red-300">{{ saveError }}</p>
@@ -536,28 +575,103 @@ const updateVendorName = (itemId: string, vendorName: string) => {
   }
 }
 
-const updateAvailabilityStatus = (itemId: string, status: string) => {
+// New Logic for Dual-Status Workflow
+
+const updateStockStatus = (itemId: string, status: string) => {
   const item = procurementData.procurementItems.find(i => i.budgetItemId === itemId)
   if (item) {
-    item.availabilityStatus = status as ProcurementItem['availabilityStatus']
+    item.stockStatus = status as ProcurementItem['stockStatus']
+    
+    // Auto-calculate quantities based on status
+    if (status === 'in_stock') {
+      item.stockQuantity = item.quantity
+      item.purchaseQuantity = 0
+      item.procurementStatus = 'not_needed'
+    } else if (status === 'out_of_stock') {
+      item.stockQuantity = 0
+      item.purchaseQuantity = item.quantity
+      if (item.procurementStatus === 'not_needed') {
+        item.procurementStatus = 'pending'
+      }
+    } else if (status === 'partial_stock') {
+      // Keep existing stock quantity if valid, otherwise reset
+      if (item.stockQuantity >= item.quantity) {
+        item.stockQuantity = 0
+      }
+      item.purchaseQuantity = Math.max(0, item.quantity - item.stockQuantity)
+      if (item.purchaseQuantity > 0 && item.procurementStatus === 'not_needed') {
+        item.procurementStatus = 'pending'
+      }
+    } else if (status === 'pending_check') {
+      item.stockQuantity = 0
+      item.purchaseQuantity = item.quantity // Assume purchase needed until checked
+    }
+    
+    item.lastUpdated = new Date()
+  }
+}
+
+const updateStockQuantity = (itemId: string, qtyValue: string) => {
+  const item = procurementData.procurementItems.find(i => i.budgetItemId === itemId)
+  if (item) {
+    const qty = parseInt(qtyValue) || 0
+    item.stockQuantity = Math.min(Math.max(0, qty), item.quantity) // Clamp between 0 and total qty
+    
+    // Update purchase quantity
+    item.purchaseQuantity = Math.max(0, item.quantity - item.stockQuantity)
+    
+    // Update statuses based on quantity
+    if (item.stockQuantity === item.quantity) {
+      item.stockStatus = 'in_stock'
+      item.procurementStatus = 'not_needed'
+    } else if (item.stockQuantity === 0) {
+      item.stockStatus = 'out_of_stock'
+      if (item.procurementStatus === 'not_needed') {
+        item.procurementStatus = 'pending'
+      }
+    } else {
+      item.stockStatus = 'partial_stock'
+      if (item.procurementStatus === 'not_needed') {
+        item.procurementStatus = 'pending'
+      }
+    }
+    
+    item.lastUpdated = new Date()
+  }
+}
+
+const updateProcurementStatus = (itemId: string, status: string) => {
+  const item = procurementData.procurementItems.find(i => i.budgetItemId === itemId)
+  if (item) {
+    item.procurementStatus = status as ProcurementItem['procurementStatus']
     item.lastUpdated = new Date()
   }
 }
 
 // UI helpers
 const getStatusCount = (status: string) => {
-  return procurementData.procurementItems.filter(item => item.availabilityStatus === status).length
+  return procurementData.procurementItems.filter(item => item.procurementStatus === status).length
 }
 
-const getBudgetStatusClass = (status: string) => {
+const getStockStatusClass = (status: string) => {
   const classes: Record<string, string> = {
-    'available': 'border-green-300 dark:border-green-600',
-    'ordered': 'border-blue-300 dark:border-blue-600',
-    'received': 'border-purple-300 dark:border-purple-600',
-    'hired': 'border-indigo-300 dark:border-indigo-600',
-    'cancelled': 'border-red-300 dark:border-red-600'
+    'in_stock': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
+    'partial_stock': 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 text-amber-700 dark:text-amber-300',
+    'out_of_stock': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300',
+    'pending_check': 'border-gray-300 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300'
   }
-  return classes[status] || 'border-gray-300 dark:border-gray-600'
+  return classes[status] || classes['pending_check']
+}
+
+const getProcurementStatusClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'not_needed': 'border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-500',
+    'pending': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
+    'ordered': 'border-purple-300 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-600 text-purple-700 dark:text-purple-300',
+    'received': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
+    'cancelled': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300'
+  }
+  return classes[status] || classes['pending']
 }
 
 // Export functions

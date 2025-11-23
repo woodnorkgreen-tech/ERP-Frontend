@@ -30,16 +30,16 @@ export class CSVExporter {
     rows.push(['Total Budget', `KES ${data.budgetSummary.materialsTotal.toLocaleString()}`])
     rows.push(['Total Items', data.procurementItems.length.toString()])
     rows.push(['Completion', `${Math.round((data.procurementItems.filter(item =>
-      ['received', 'hired'].includes(item.availabilityStatus)
+      ['received', 'cancelled', 'not_needed'].includes(item.procurementStatus)
     ).length / data.procurementItems.length) * 100)}%`])
     rows.push([])
 
     // Status breakdown
-    rows.push(['STATUS BREAKDOWN'])
+    rows.push(['PROCUREMENT STATUS BREAKDOWN'])
     rows.push(['Status', 'Count'])
-    const statuses = ['available', 'ordered', 'received', 'hired', 'cancelled']
+    const statuses = ['not_needed', 'pending', 'ordered', 'received', 'cancelled']
     statuses.forEach(status => {
-      const count = data.procurementItems.filter(item => item.availabilityStatus === status).length
+      const count = data.procurementItems.filter(item => item.procurementStatus === status).length
       if (count > 0) {
         rows.push([status, count.toString()])
       }
@@ -50,12 +50,15 @@ export class CSVExporter {
     rows.push([
       'Element',
       'Description',
-      'Quantity',
+      'Total Qty',
       'Unit',
+      'Stock Status',
+      'Stock Qty',
+      'Purchase Qty',
       'Unit Cost',
       'Total Cost',
       'Vendor',
-      'Status'
+      'Procurement Status'
     ])
 
     // Data rows
@@ -65,10 +68,13 @@ export class CSVExporter {
         item.description,
         item.quantity.toString(),
         item.unitOfMeasurement,
+        item.stockStatus,
+        item.stockQuantity.toString(),
+        item.purchaseQuantity.toString(),
         item.budgetUnitPrice.toString(),
         item.budgetTotalPrice.toString(),
         item.vendorName || 'Not assigned',
-        item.availabilityStatus
+        item.procurementStatus
       ])
     })
 
@@ -97,10 +103,10 @@ export class CSVExporter {
       'Element Name',
       'Total Items',
       'Total Budget',
-      'Available',
+      'In Stock',
+      'Pending Purchase',
       'Ordered',
       'Received',
-      'Hired',
       'Cancelled'
     ])
 
@@ -117,21 +123,21 @@ export class CSVExporter {
     elementGroups.forEach((items, elementName) => {
       const totalBudget = items.reduce((sum, item) => sum + item.budgetTotalPrice, 0)
       const statusCounts = {
-        available: items.filter(item => item.availabilityStatus === 'available').length,
-        ordered: items.filter(item => item.availabilityStatus === 'ordered').length,
-        received: items.filter(item => item.availabilityStatus === 'received').length,
-        hired: items.filter(item => item.availabilityStatus === 'hired').length,
-        cancelled: items.filter(item => item.availabilityStatus === 'cancelled').length
+        in_stock: items.filter(item => item.stockStatus === 'in_stock').length,
+        pending: items.filter(item => item.procurementStatus === 'pending').length,
+        ordered: items.filter(item => item.procurementStatus === 'ordered').length,
+        received: items.filter(item => item.procurementStatus === 'received').length,
+        cancelled: items.filter(item => item.procurementStatus === 'cancelled').length
       }
 
       rows.push([
         elementName,
         items.length.toString(),
         `KES ${totalBudget.toLocaleString()}`,
-        statusCounts.available.toString(),
+        statusCounts.in_stock.toString(),
+        statusCounts.pending.toString(),
         statusCounts.ordered.toString(),
         statusCounts.received.toString(),
-        statusCounts.hired.toString(),
         statusCounts.cancelled.toString()
       ])
     })

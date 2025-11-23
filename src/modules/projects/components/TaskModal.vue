@@ -1,6 +1,6 @@
 <template>
     <div v-if="show && task" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-4 mx-auto p-5 border w-11/12 max-w-7xl shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[90vh] overflow-y-auto" @click.stop>
+      <div class="relative top-2 mx-auto p-5 border w-[95%] max-w-[1600px] shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[95vh] overflow-y-auto" @click.stop>
         <div class="mt-2">
   <!-- Compact Task Header -->
   <div class="flex items-center justify-between py-2">
