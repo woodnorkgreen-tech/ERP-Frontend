@@ -1,6 +1,6 @@
 <template>
   <aside :class="[
-    'sticky top-0 border-r shadow-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 overflow-hidden',
+    'h-full bg-white dark:bg-gray-800 overflow-hidden flex flex-col',
     collapsed ? 'w-16' : 'w-64'
   ]" style="transition: width 0.3s ease-in-out;">
     <div :class="[

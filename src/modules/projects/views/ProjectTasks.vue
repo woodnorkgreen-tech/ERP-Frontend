@@ -190,24 +190,43 @@
             </div>
 
             <!-- Material Approval Badge (for materials tasks only) -->
-            <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="px-6 py-3 bg-amber-50 dark:bg-amber-900/20 border-y border-amber-200 dark:border-amber-800">
+            <!-- Material Approval Badge (for materials tasks only) -->
+            <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="px-6 py-3 bg-orange-50 dark:bg-orange-900/20 border-y border-orange-100 dark:border-orange-800/50">
               <div class="flex items-center space-x-2 text-sm">
-                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-amber-800 dark:text-amber-300 font-medium">
+                <span class="text-orange-900 dark:text-orange-100 font-medium">
                   Pending Approval ({{ task.material_approval.approved_count }} of {{ task.material_approval.total_count }})
                 </span>
               </div>
-              <div class="mt-1 text-xs text-amber-700 dark:text-amber-400">
-                <span v-if="task.material_approval.departments.design" class="mr-2">✓ Design</span>
-                <span v-else class="mr-2 text-amber-500">⏳ Design</span>
+              <div class="mt-2 text-xs flex items-center gap-3">
+                <span v-if="task.material_approval.departments.design" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  Design
+                </span>
+                <span v-else class="flex items-center text-gray-400 dark:text-gray-500">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Design
+                </span>
                 
-                <span v-if="task.material_approval.departments.production" class="mr-2">✓ Production</span>
-                <span v-else class="mr-2 text-amber-500">⏳ Production</span>
+                <span v-if="task.material_approval.departments.production" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  Production
+                </span>
+                <span v-else class="flex items-center text-gray-400 dark:text-gray-500">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Production
+                </span>
                 
-                <span v-if="task.material_approval.departments.finance">✓ Finance</span>
-                <span v-else class="text-amber-500">⏳ Finance</span>
+                <span v-if="task.material_approval.departments.finance" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  Finance
+                </span>
+                <span v-else class="flex items-center text-gray-400 dark:text-gray-500">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Finance
+                </span>
               </div>
             </div>
 
@@ -298,10 +317,10 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <!-- Material approval badge for table view -->
                   <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex items-center space-x-1 text-xs">
-                    <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-3 h-3 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="text-amber-700 dark:text-amber-400 font-medium">
+                    <span class="text-orange-700 dark:text-orange-400 font-medium">
                       Approval {{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }}
                     </span>
                   </div>
@@ -544,7 +563,7 @@ const getTaskTypeIcon = (type: string) => {
   const icons: Record<string, string> = {
     'site-survey': 'bg-blue-500',
     'design': 'bg-purple-500',
-    'materials': 'bg-green-500',
+    'materials': 'bg-emerald-600',
     'budget': 'bg-yellow-500',
     'quote': 'bg-indigo-500',
     'event': 'bg-pink-500',
