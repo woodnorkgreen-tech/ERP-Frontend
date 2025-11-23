@@ -728,6 +728,15 @@
       </div>
     </div>
 
+    <!-- Enquiry Detail Slide-Over -->
+    <EnquiryDetailSlideOver
+      :show="showDetailSlideOver"
+      :enquiry="selectedEnquiry"
+      @close="closeDetailSlideOver"
+      @edit="handleEditFromSlideOver"
+      @convert="handleConvertFromSlideOver"
+    />
+
   </div>
 </template>
 
@@ -739,6 +748,7 @@ import { useClients } from '../../clientService/composables/useClients'
 import { useProjectsEnquiries } from '../composables/useProjectsEnquiries'
 import { useAuth } from '@/composables/useAuth'
 import TaskAssignmentModal from '../components/TaskAssignmentModal.vue'
+import EnquiryDetailSlideOver from '../components/EnquiryDetailSlideOver.vue'
 import Pagination from '@/components/Pagination.vue'
 import { ENQUIRY_STATUS_LABELS, ENQUIRY_STATUS_COLORS, PAGINATION_PER_PAGE } from '../constants/enquiryConstants'
 import api from '@/plugins/axios'
@@ -773,6 +783,9 @@ const formSuccess = ref('')
 // Task Assignment Modal
 const showTaskAssignmentModal = ref(false)
 const selectedEnquiry = ref<ProjectEnquiry | null>(null)
+
+// Detail Slide-Over
+const showDetailSlideOver = ref(false)
 
 // Available Project Officers
 const availableProjectOfficers = ref<Array<{id: number, name: string, email: string}>>([])
@@ -909,7 +922,33 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
 }
 
 const viewEnquiryDetails = (enquiry: ProjectEnquiry) => {
-  router.push(`/projects/enquiries/${enquiry.id}`)
+  selectedEnquiry.value = enquiry
+  showDetailSlideOver.value = true
+}
+
+const closeDetailSlideOver = () => {
+  showDetailSlideOver.value = false
+  // Don't clear selectedEnquiry immediately for smooth transition
+  setTimeout(() => {
+    selectedEnquiry.value = null
+  }, 300)
+}
+
+const handleEditFromSlideOver = (enquiry: ProjectEnquiry) => {
+  closeDetailSlideOver()
+  setTimeout(() => {
+    editEnquiry(enquiry)
+  }, 300)
+}
+
+const handleConvertFromSlideOver = async (id: number) => {
+  try {
+    await convertToProject(id)
+    await fetchEnquiries()
+    closeDetailSlideOver()
+  } catch (error) {
+    console.error('Failed to convert enquiry:', error)
+  }
 }
 
 const openTaskAssignment = (enquiry: ProjectEnquiry) => {

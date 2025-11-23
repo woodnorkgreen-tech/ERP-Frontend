@@ -132,61 +132,79 @@
                   </span>
                 </div>
               </div>
+          <!-- Materials Table -->
+          <div class="border-t border-gray-200 dark:border-gray-700">
+            <div class="p-4">
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Days</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
+                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final (KES)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template v-for="element in quoteData.materials" :key="element.id">
+                      <!-- Element Header Row -->
+                      <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                        <td colspan="8" class="py-2 px-4 font-medium text-gray-900 dark:text-white">
+                          {{ element.name }}
+                        </td>
+                      </tr>
 
-              <!-- Materials Table -->
-              <div class="border-t border-gray-200 dark:border-gray-700">
-                <div class="p-4">
-                  <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                      <thead>
-                        <tr class="border-b border-gray-200 dark:border-gray-700">
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Description</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit Price (KES)</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Base Total (KES)</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
-                          <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Final Price (KES)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="material in element.materials" :key="material.id" class="border-b border-gray-100 dark:border-gray-800">
-                          <td class="py-2 text-gray-900 dark:text-white">
-                            {{ material.description }}
-                            <span v-if="material.isAddition" class="ml-2 text-xs bg-orange-100 text-orange-800 px-1 py-0.5 rounded">
-                              Addition
-                            </span>
-                          </td>
-                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
-                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ material.quantity }}</td>
-                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.unitPrice) }}</td>
-                          <td class="py-2 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.totalPrice) }}</td>
-                          <td class="py-2">
-                            <div class="flex items-center space-x-1">
-                              <input
-                                v-model.number="material.marginPercentage"
-                                type="number"
-                                min="0"
-                                max="100"
-                                step="0.5"
-                                class="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                                @input="updateIndividualMargin(material)"
-                              />
-                              <span class="text-xs text-gray-500">%</span>
-                            </div>
-                          </td>
-                          <td class="py-2 text-gray-900 dark:text-white font-medium">
-                            {{ formatCurrency(material.finalPrice) }}
-                            <div class="text-xs text-green-600 dark:text-green-400">
-                              +{{ formatCurrency(material.marginAmount) }}
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                      <!-- Material Rows -->
+                      <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700">
+                        <td class="py-3 px-4 pl-8">
+                          <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ material.description }}</span>
+                            <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                          </div>
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.quantity }}</td>
+                        <td class="py-3 px-4">
+                          <input
+                            type="number"
+                            v-model.number="material.days"
+                            @input="updateIndividualMargin(material)"
+                            min="1"
+                            class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          >
+                        </td>
+                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.unitPrice) }}</td>
+                        <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(material.totalPrice) }}</td>
+                        <td class="py-3 px-4">
+                          <div class="flex items-center space-x-1">
+                            <input
+                              type="number"
+                              v-model.number="material.marginPercentage"
+                              @input="updateIndividualMargin(material)"
+                              class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            >
+                            <span class="text-gray-500 dark:text-gray-400">%</span>
+                          </div>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-green-600 dark:text-green-400 text-right">
+                          {{ formatCurrency(material.finalPrice) }}
+                        </td>
+                      </tr>
+                    </template>
+                    <tr v-if="quoteData.materials.length === 0">
+                      <td colspan="8" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
+                        No materials imported from budget
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
+          </div>
             </div>
           </div>
         </div>
@@ -1126,7 +1144,35 @@ const getElementHeaderClass = (templateId: string): string => {
   return classes[templateId as keyof typeof classes] || classes.stage
 }
 
+/**
+ * Individual quote material structure
+ */
+interface QuoteMaterial {
+  /** Unique identifier for the material */
+  id: string
+  /** Description of the material */
+  description: string
+  /** Unit of measurement */
+  unitOfMeasurement: string
+  /** Quantity required */
+  quantity: number
+  /** Number of days (multiplier) */
+  days: number
+  /** Unit price */
+  unitPrice: number
+  /** Total price for this material */
+  totalPrice: number
+  /** Whether this is an addition */
+  isAddition: boolean
+  /** Individual margin percentage for this material */
+  marginPercentage: number
+  /** Calculated margin amount */
+  marginAmount: number
+  /** Final price including margin */
+  finalPrice: number
+}
 
+// ... (keep other interfaces)
 
 /**
  * Update individual item margin
@@ -1136,7 +1182,21 @@ const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExp
   item.marginPercentage = Math.max(0, Math.min(100, item.marginPercentage || 0))
 
   // Calculate margin amount and final price
-  const baseAmount = 'totalPrice' in item ? item.totalPrice : item.amount
+  let baseAmount = 0
+  
+  if ('totalPrice' in item) {
+    // Material item
+    // Ensure days is at least 1
+    if (!item.days || item.days < 1) item.days = 1
+    
+    // Calculate total price: Qty * Days * Unit Price
+    item.totalPrice = item.quantity * item.days * item.unitPrice
+    baseAmount = item.totalPrice
+  } else {
+    // Other items (Labour, Expenses, Logistics)
+    baseAmount = item.amount
+  }
+
   item.marginAmount = baseAmount * (item.marginPercentage / 100)
   item.finalPrice = baseAmount + item.marginAmount
 

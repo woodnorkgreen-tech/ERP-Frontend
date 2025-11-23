@@ -233,8 +233,8 @@ export function useRouteGuard() {
 
     // Check for actual petty cash permissions (the only implemented finance feature)
     return hasPermission(PERMISSIONS.FINANCE_VIEW) ||
-           hasPermission(PERMISSIONS.FINANCE_BUDGET_READ) ||
-           hasPermission(PERMISSIONS.FINANCE_BUDGET_UPDATE)
+      hasPermission(PERMISSIONS.FINANCE_BUDGET_READ) ||
+      hasPermission(PERMISSIONS.FINANCE_BUDGET_UPDATE)
   }
 
 

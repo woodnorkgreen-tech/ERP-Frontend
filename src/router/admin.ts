@@ -3,7 +3,7 @@ import MainLayout from '../layouts/MainLayout.vue'
 import AdminDashboard from '../modules/admin/dashboard/AdminDashboard.vue'
 import SuperAdminDashboard from '../modules/admin/dashboard/SuperAdminDashboard.vue'
 import UserManagement from '../modules/admin/userManagement/UserManagement.vue'
-import EmployeeManagement from '../modules/admin/employeeManagement/EmployeeManagement.vue'
+import EmployeeManagement from '../modules/hr/views/EmployeeManagement.vue'
 import RoleManagement from '../modules/admin/roleManagement/RoleManagement.vue'
 import DepartmentManagement from '../modules/admin/departmentManagement/DepartmentManagement.vue'
 
@@ -42,7 +42,7 @@ export const adminRoutes: RouteRecordRaw[] = [
         name: 'admin-departments',
         component: DepartmentManagement,
         meta: { title: 'Department Management' }
-      },
+      }
     ],
   },
   {

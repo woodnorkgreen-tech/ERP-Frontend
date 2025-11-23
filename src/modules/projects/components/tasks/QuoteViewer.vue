@@ -2,8 +2,8 @@
   <!-- Modal Overlay -->
   <div v-if="isVisible" class="quote-viewer-modal fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto print:max-h-none print:shadow-none print:rounded-none">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-4 border-b">
+      <!-- Modal Header (Controls) -->
+      <div class="flex items-center justify-between p-4 border-b print:hidden">
         <h3 class="text-lg font-semibold text-gray-900">Client Quote Preview</h3>
         <div class="flex items-center space-x-4">
           <!-- Detail Level Toggle -->
@@ -66,337 +66,248 @@
       </div>
 
       <!-- Quote Content -->
-      <div class="quote-content p-8">
+      <div class="quote-content p-8 bg-white">
         <!-- Header Section -->
-        <div class="flex items-start justify-between mb-8">
+        <div class="flex items-start justify-between mb-6">
           <!-- Company Logo and Name -->
-          <div class="flex items-center space-x-4">
+          <div class="flex flex-col items-center">
             <img
               src="/src/assets/WNG-Logo.png"
               alt="WoodnorkGreen Logo"
-              class="h-16 w-auto"
+              class="h-20 w-auto mb-2"
               @error="handleImageError"
             />
-            <div>
-              <h1 class="text-2xl font-bold text-gray-900">WoodnorkGreen</h1>
-              <p class="text-sm text-gray-600">Experience</p>
-            </div>
+            <h1 class="text-sm font-bold text-gray-900 tracking-widest uppercase">Woodnork Green</h1>
           </div>
 
-          <!-- Quote Info -->
+          <!-- Quote Info Table -->
           <div class="text-right">
-            <h2 class="text-3xl font-bold text-green-600 mb-2">QUOTE</h2>
-            <div class="space-y-1">
-              <div class="flex items-center justify-end space-x-2">
-                <span class="text-sm font-medium text-gray-700">Date:</span>
-                <span class="text-sm border border-gray-300 px-2 py-1 bg-gray-50">{{ formatDate(new Date()) }}</span>
+            <h2 class="text-2xl font-bold text-green-500 mb-2 uppercase tracking-wide">QUOTE</h2>
+            <div class="border border-gray-300 inline-block">
+              <div class="flex border-b border-gray-300">
+                <div class="bg-white px-4 py-1 text-xs font-bold text-gray-700 border-r border-gray-300 w-24 text-center">DATE</div>
+                <div class="bg-white px-4 py-1 text-xs font-bold text-red-500 w-32 text-center">{{ formatDate(new Date()) }}</div>
               </div>
-              <div class="flex items-center justify-end space-x-2">
-                <span class="text-sm font-medium text-gray-700">Quote #:</span>
-                <span class="text-sm border border-gray-300 px-2 py-1 bg-gray-50">{{ quoteNumber }}</span>
+              <div class="flex">
+                <div class="bg-white px-4 py-1 text-xs font-bold text-gray-700 border-r border-gray-300 w-24 text-center">QUOTE #</div>
+                <div class="bg-white px-4 py-1 text-xs font-bold text-red-500 w-32 text-center">{{ quoteNumber }}</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Customer Section -->
-        <div class="mb-8">
-          <div class="bg-green-500 text-white px-4 py-2 font-semibold text-sm">
-            CUSTOMER
+        <!-- Customer Details Section -->
+        <div class="mb-6">
+          <div class="bg-green-500 text-white px-2 py-1 font-bold text-xs uppercase tracking-wide w-1/2">
+            CUSTOMER DETAILS
           </div>
-          <div class="bg-gray-100 p-4 border border-gray-300">
-            <div class="space-y-1">
-              <div class="font-semibold text-gray-900">{{ quoteData.projectInfo.clientName }}</div>
-              <div class="text-sm text-gray-700">{{ quoteData.projectInfo.enquiryTitle }}</div>
-              <div class="text-sm text-gray-700">{{ quoteData.projectInfo.eventVenue }}</div>
-              <div class="text-sm text-gray-700">Nairobi, Kenya</div>
-              <div class="text-sm text-gray-700 mt-2">ATTN: Project Manager</div>
+          <div class="bg-gray-200 p-3 text-xs text-gray-900">
+            <div class="font-bold mb-1">{{ quoteData.projectInfo.clientName }}</div>
+            <div class="mb-1">Nairobi, Kenya</div>
+            <div class="mb-1"><span class="font-bold">Attn:</span> Project Manager</div>
+            <div class="mb-1">
+              <span class="font-bold">Project/Event/Setup/Delivery Date:</span> 
+              {{ quoteData.projectInfo.setupDate ? formatDate(new Date(quoteData.projectInfo.setupDate)) : 'TBC' }}
+            </div>
+            <div>
+              <span class="font-bold text-red-600">Ref:</span> 
+              <span class="text-red-600">{{ quoteData.projectInfo.enquiryTitle }}</span>
             </div>
           </div>
         </div>
 
         <!-- Quote Table -->
-        <div class="mb-8">
-          <div class="bg-green-500 text-white px-4 py-2 font-semibold text-sm">
-            DESCRIPTION
-          </div>
-          <div class="border border-gray-300">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="text-left py-2 px-4 font-semibold text-gray-700 border-r border-gray-300">DESCRIPTION</th>
-                  <th class="text-center py-2 px-4 font-semibold text-gray-700 border-r border-gray-300 w-24">QTY</th>
-                  <th class="text-right py-2 px-4 font-semibold text-gray-700 w-32">AMOUNT</th>
+        <div class="mb-6">
+          <table class="w-full text-xs border-collapse">
+            <thead>
+              <tr class="bg-green-100 border-b-2 border-green-500">
+                <th class="text-center py-1 px-2 font-bold text-white bg-green-500 border border-white w-12">LINE #</th>
+                <th class="text-left py-1 px-2 font-bold text-white bg-green-500 border border-white">DESCRIPTION</th>
+                <th class="text-center py-1 px-2 font-bold text-white bg-green-500 border border-white w-12">QTY</th>
+                <th class="text-center py-1 px-2 font-bold text-white bg-green-500 border border-white w-24">Unit Price</th>
+                <th class="text-center py-1 px-2 font-bold text-white bg-green-500 border border-white w-24">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Materials -->
+              <template v-for="(element, elementIndex) in quoteData.materials" :key="element.id">
+                <!-- Summary View (Default) -->
+                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ elementIndex + 1 }}</td>
+                  <td class="py-1 px-2 border-r border-gray-300">
+                    <div class="font-bold text-gray-900">{{ element.name }}</div>
+                    <div v-if="!isEditMode" class="text-gray-600">{{ getDescription(element.id, element) }}</div>
+                    <textarea
+                      v-else
+                      v-model="editableDescriptions[element.id]"
+                      class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
+                      rows="2"
+                      placeholder="Enter description..."
+                    ></textarea>
+                  </td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(element.finalTotal / ((element.materials?.[0]?.quantity || 1) * (element.materials?.[0]?.days || 1))) }}</td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(element.finalTotal) }}</td>
                 </tr>
-              </thead>
-              <tbody>
-                <!-- Materials -->
-                <template v-for="element in quoteData.materials" :key="element.id">
-                  <!-- Summary View (Default) -->
-                  <tr v-if="!showDetailedItems" class="border-t border-gray-300">
-                    <td class="py-3 px-4 border-r border-gray-300">
-                      <div class="font-medium text-gray-900">{{ element.name }}</div>
-                      <div v-if="!isEditMode" class="text-xs text-gray-600 mt-1">{{ getDescription(element.id, element) }}</div>
-                      <textarea
-                        v-else
-                        v-model="editableDescriptions[element.id]"
-                        class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
-                        rows="2"
-                        placeholder="Enter description..."
-                      ></textarea>
+
+                <!-- Detailed View -->
+                <template v-else>
+                  <!-- Element Header -->
+                  <tr class="bg-gray-100 border-b border-gray-300">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ elementIndex + 1 }}</td>
+                    <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
+                      <div v-if="!isEditMode">{{ element.name }} - {{ getDescription(element.id, element) }}</div>
+                      <div v-else class="flex items-center space-x-2">
+                        <span>{{ element.name }} - </span>
+                        <input
+                          v-model="editableDescriptions[element.id]"
+                          class="flex-1 text-xs bg-yellow-50 border border-yellow-300 rounded px-2 py-1"
+                          placeholder="Enter description..."
+                        />
+                      </div>
                     </td>
-                    <td class="py-3 px-4 text-center border-r border-gray-300">1</td>
-                    <td class="py-3 px-4 text-right font-medium">{{ formatCurrency(element.finalTotal) }}</td>
                   </tr>
 
-                  <!-- Detailed View -->
-                  <template v-else>
-                    <!-- Element Header -->
-                    <tr class="border-t border-gray-300 bg-gray-50">
-                      <td colspan="3" class="py-2 px-4 font-semibold text-gray-800 text-sm">
-                        <div v-if="!isEditMode">{{ element.name }} - {{ getDescription(element.id, element) }}</div>
-                        <div v-else class="flex items-center space-x-2">
-                          <span>{{ element.name }} - </span>
-                          <input
-                            v-model="editableDescriptions[element.id]"
-                            class="flex-1 text-sm bg-yellow-50 border border-yellow-300 rounded px-2 py-1"
-                            placeholder="Enter description..."
-                          />
-                        </div>
-                      </td>
-                    </tr>
-
-                    <!-- Individual Materials -->
-                    <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-200">
-                      <td class="py-2 px-4 pl-8 border-r border-gray-300">
-                        <div class="text-sm text-gray-900">{{ material.description }}</div>
-                        <div class="text-xs text-gray-500">{{ material.unitOfMeasurement }}</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300 text-sm">{{ material.quantity }}</td>
-                      <td class="py-2 px-4 text-right text-sm">{{ formatCurrency(material.finalPrice) }}</td>
-                    </tr>
-
-                    <!-- Element Subtotal -->
-                    <tr class="border-t border-gray-300 bg-blue-50">
-                      <td class="py-2 px-4 border-r border-gray-300">
-                        <div class="font-medium text-blue-800 text-sm">{{ element.name }} Subtotal</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300"></td>
-                      <td class="py-2 px-4 text-right font-medium text-blue-800">{{ formatCurrency(element.finalTotal) }}</td>
-                    </tr>
-                  </template>
-                </template>
-
-                <!-- Labour -->
-                <template v-if="quoteData.totals.labourTotal > 0">
-                  <!-- Summary View -->
-                  <tr v-if="!showDetailedItems" class="border-t border-gray-300">
-                    <td class="py-3 px-4 border-r border-gray-300">
-                      <div class="font-medium text-gray-900">Labour & Installation</div>
-                      <div v-if="!isEditMode" class="text-xs text-gray-600 mt-1">{{ getDescription('labour') }}</div>
-                      <textarea
-                        v-else
-                        v-model="editableDescriptions['labour']"
-                        class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
-                        rows="2"
-                        placeholder="Enter description..."
-                      ></textarea>
+                  <!-- Individual Materials -->
+                  <tr v-for="(material, matIndex) in element.materials" :key="material.id" class="border-b border-gray-200">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
+                    <td class="py-1 px-2 pl-6 border-r border-gray-300">
+                      <div class="text-gray-900">{{ material.description }}</div>
                     </td>
-                    <td class="py-3 px-4 text-center border-r border-gray-300">1</td>
-                    <td class="py-3 px-4 text-right font-medium">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300">{{ material.quantity }}</td>
+                    <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(material.finalPrice / (material.quantity * (material.days || 1))) }}</td>
+                    <td class="py-1 px-2 text-right">{{ formatCurrency(material.finalPrice) }}</td>
                   </tr>
-
-                  <!-- Detailed View -->
-                  <template v-else>
-                    <!-- Labour Header -->
-                    <tr class="border-t border-gray-300 bg-gray-50">
-                      <td colspan="3" class="py-2 px-4 font-semibold text-gray-800 text-sm">
-                        <div v-if="!isEditMode">Labour & Installation - {{ getDescription('labour') }}</div>
-                        <div v-else class="flex items-center space-x-2">
-                          <span>Labour & Installation - </span>
-                          <input
-                            v-model="editableDescriptions['labour']"
-                            class="flex-1 text-sm bg-yellow-50 border border-yellow-300 rounded px-2 py-1"
-                            placeholder="Enter description..."
-                          />
-                        </div>
-                      </td>
-                    </tr>
-
-                    <!-- Individual Labour Items -->
-                    <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-200">
-                      <td class="py-2 px-4 pl-8 border-r border-gray-300">
-                        <div class="text-sm text-gray-900">{{ labour.type }}</div>
-                        <div class="text-xs text-gray-500">{{ labour.category }} - {{ labour.unit }}</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300 text-sm">{{ labour.quantity }}</td>
-                      <td class="py-2 px-4 text-right text-sm">{{ formatCurrency(labour.amount) }}</td>
-                    </tr>
-
-                    <!-- Labour Subtotal -->
-                    <tr class="border-t border-gray-300 bg-yellow-50">
-                      <td class="py-2 px-4 border-r border-gray-300">
-                        <div class="font-medium text-yellow-800 text-sm">Labour & Installation Subtotal</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300"></td>
-                      <td class="py-2 px-4 text-right font-medium text-yellow-800">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
-                    </tr>
-                  </template>
                 </template>
+              </template>
 
-                <!-- Expenses -->
-                <template v-if="quoteData.totals.expensesTotal > 0">
-                  <!-- Summary View -->
-                  <tr v-if="!showDetailedItems" class="border-t border-gray-300">
-                    <td class="py-3 px-4 border-r border-gray-300">
-                      <div class="font-medium text-gray-900">Project Expenses</div>
-                      <div v-if="!isEditMode" class="text-xs text-gray-600 mt-1">{{ getDescription('expenses') }}</div>
-                      <textarea
-                        v-else
-                        v-model="editableDescriptions['expenses']"
-                        class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
-                        rows="2"
-                        placeholder="Enter description..."
-                      ></textarea>
-                    </td>
-                    <td class="py-3 px-4 text-center border-r border-gray-300">1</td>
-                    <td class="py-3 px-4 text-right font-medium">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
-                  </tr>
+              <!-- Labour -->
+              <template v-if="quoteData.totals.labourTotal > 0">
+                <tr class="border-b border-gray-300 hover:bg-gray-50">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
+                  <td class="py-1 px-2 border-r border-gray-300">
+                    <div class="font-bold text-gray-900">Provision of labour for setup (within Nairobi)</div>
+                  </td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
+                </tr>
+              </template>
 
-                  <!-- Detailed View -->
-                  <template v-else>
-                    <!-- Expenses Header -->
-                    <tr class="border-t border-gray-300 bg-gray-50">
-                      <td colspan="3" class="py-2 px-4 font-semibold text-gray-800 text-sm">
-                        Project Expenses - Transportation, accommodation and other project costs
-                      </td>
-                    </tr>
+              <!-- Logistics -->
+              <template v-if="quoteData.totals.logisticsTotal > 0">
+                <tr class="border-b border-gray-300 hover:bg-gray-50">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 2 }}</td>
+                  <td class="py-1 px-2 border-r border-gray-300">
+                    <div class="font-bold text-gray-900">Transport cost</div>
+                  </td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
+                </tr>
+              </template>
 
-                    <!-- Individual Expense Items -->
-                    <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-200">
-                      <td class="py-2 px-4 pl-8 border-r border-gray-300">
-                        <div class="text-sm text-gray-900">{{ expense.description }}</div>
-                        <div class="text-xs text-gray-500 capitalize">{{ expense.category }}</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300 text-sm">1</td>
-                      <td class="py-2 px-4 text-right text-sm">{{ formatCurrency(expense.finalPrice) }}</td>
-                    </tr>
+              <!-- Expenses -->
+              <template v-if="quoteData.totals.expensesTotal > 0">
+                <tr class="border-b border-gray-300 hover:bg-gray-50">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 3 }}</td>
+                  <td class="py-1 px-2 border-r border-gray-300">
+                    <div class="font-bold text-gray-900">Provision of Generator and fuel during setup</div>
+                  </td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
+                </tr>
+              </template>
 
-                    <!-- Expenses Subtotal -->
-                    <tr class="border-t border-gray-300 bg-green-50">
-                      <td class="py-2 px-4 border-r border-gray-300">
-                        <div class="font-medium text-green-800 text-sm">Project Expenses Subtotal</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300"></td>
-                      <td class="py-2 px-4 text-right font-medium text-green-800">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
-                    </tr>
-                  </template>
-                </template>
+              <!-- Subtotal Row -->
+              <tr class="border-t-2 border-gray-400">
+                <td colspan="3" class="border-r border-gray-300"></td>
+                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">Sub Total</td>
+                <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.subtotal) }}</td>
+              </tr>
+              
+              <!-- Total Row -->
+              <tr>
+                <td colspan="3" class="border-r border-gray-300"></td>
+                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">Total</td>
+                <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.grandTotal) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-                <!-- Logistics -->
-                <template v-if="quoteData.totals.logisticsTotal > 0">
-                  <!-- Summary View -->
-                  <tr v-if="!showDetailedItems" class="border-t border-gray-300">
-                    <td class="py-3 px-4 border-r border-gray-300">
-                      <div class="font-medium text-gray-900">Logistics & Transportation</div>
-                      <div v-if="!isEditMode" class="text-xs text-gray-600 mt-1">{{ getDescription('logistics') }}</div>
-                      <textarea
-                        v-else
-                        v-model="editableDescriptions['logistics']"
-                        class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
-                        rows="2"
-                        placeholder="Enter description..."
-                      ></textarea>
-                    </td>
-                    <td class="py-3 px-4 text-center border-r border-gray-300">1</td>
-                    <td class="py-3 px-4 text-right font-medium">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
-                  </tr>
+        <!-- Terms and Conditions & Footer -->
+        <div class="flex flex-col md:flex-row gap-8 break-inside-avoid">
+          <!-- Terms Section (Left) -->
+          <div class="w-full md:w-2/3">
+            <div class="bg-green-500 text-white px-2 py-1 font-bold text-xs uppercase tracking-wide mb-1">
+              TERMS AND CONDITIONS
+            </div>
+            <div class="border border-gray-300 p-3 bg-gray-50 text-[10px] leading-tight">
+              
+              <!-- Payment Terms -->
+              <div class="mb-2">
+                <h4 class="font-bold text-red-600 mb-1">PAYMENT TERMS</h4>
+                <ul class="list-none space-y-0.5 text-gray-800">
+                  <li><span class="font-semibold">Deposit Payment:</span> Within Agreed Timelines (Per Email)</li>
+                  <li><span class="font-semibold">Balance Payment:</span> Upon complete delivery</li>
+                  <li><span class="font-semibold">Late Payment Penalty:</span> 2% Monthly for Late Payments</li>
+                  <li>Production begins after receipt of LPO and payment of 70% Deposit</li>
+                  <li>The Total Quote amount is <span class="text-red-600 font-semibold">exclusive of 16% VAT</span></li>
+                </ul>
+              </div>
 
-                  <!-- Detailed View -->
-                  <template v-else>
-                    <!-- Logistics Header -->
-                    <tr class="border-t border-gray-300 bg-gray-50">
-                      <td colspan="3" class="py-2 px-4 font-semibold text-gray-800 text-sm">
-                        Logistics & Transportation - Equipment delivery and logistics coordination
-                      </td>
-                    </tr>
+              <!-- Client Obligations -->
+              <div class="mb-2">
+                <h4 class="font-bold text-red-600 mb-1">CLIENT OBLIGATIONS</h4>
+                <ul class="list-none space-y-0.5 text-gray-800">
+                  <li><span class="font-semibold">Setup & Branding Time:</span> Client must provide ample time for setup</li>
+                  <li><span class="font-semibold">Pre-Production Approvals:</span> Client must approve pre-production on time</li>
+                </ul>
+              </div>
 
-                    <!-- Individual Logistics Items -->
-                    <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-200">
-                      <td class="py-2 px-4 pl-8 border-r border-gray-300">
-                        <div class="text-sm text-gray-900">{{ logistics.description }}</div>
-                        <div class="text-xs text-gray-500">{{ logistics.vehicleReg }} - {{ logistics.unit }}</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300 text-sm">{{ logistics.quantity }}</td>
-                      <td class="py-2 px-4 text-right text-sm">{{ formatCurrency(logistics.finalPrice) }}</td>
-                    </tr>
+              <!-- Approval & Execution -->
+              <div class="mb-2">
+                <h4 class="font-bold text-red-600 mb-1">APPROVAL & EXECUTION</h4>
+                <ul class="list-none space-y-0.5 text-gray-800">
+                  <li><span class="font-semibold">Approval Required Before Work:</span> Client must approve before work starts</li>
+                  <li><span class="font-semibold">Change Requests Process:</span> Changes to initial quote will be billed separately</li>
+                </ul>
+              </div>
 
-                    <!-- Logistics Subtotal -->
-                    <tr class="border-t border-gray-300 bg-orange-50">
-                      <td class="py-2 px-4 border-r border-gray-300">
-                        <div class="font-medium text-orange-800 text-sm">Logistics & Transportation Subtotal</div>
-                      </td>
-                      <td class="py-2 px-4 text-center border-r border-gray-300"></td>
-                      <td class="py-2 px-4 text-right font-medium text-orange-800">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
-                    </tr>
-                  </template>
-                </template>
-              </tbody>
-            </table>
-
-            <!-- Totals Section -->
-            <div class="border-t-2 border-gray-400">
-              <div class="flex justify-end">
-                <div class="w-64">
-                  <!-- Subtotal -->
-                  <div class="flex justify-between py-2 px-4 border-b border-gray-300">
-                    <span class="font-medium">Sub Total</span>
-                    <span class="font-medium">{{ formatCurrency(quoteData.totals.subtotal) }}</span>
-                  </div>
-
-                  <!-- Discount -->
-                  <div v-if="quoteData.discountAmount > 0" class="flex justify-between py-2 px-4 border-b border-gray-300 text-red-600">
-                    <span class="font-medium">Discount</span>
-                    <span class="font-medium">-{{ formatCurrency(quoteData.discountAmount) }}</span>
-                  </div>
-
-                  <!-- VAT -->
-                  <div v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0" class="flex justify-between py-2 px-4 border-b border-gray-300">
-                    <span class="font-medium">VAT 16%</span>
-                    <span class="font-medium">{{ formatCurrency(quoteData.totals.vatAmount) }}</span>
-                  </div>
-
-                  <!-- Final Total -->
-                  <div class="flex justify-between py-3 px-4 bg-gray-50 font-bold text-lg">
-                    <span>Total</span>
-                    <span>{{ formatCurrency(quoteData.totals.grandTotal) }}</span>
+              <!-- Bank Details -->
+              <div class="mt-3 border-t border-gray-200 pt-2">
+                <div class="font-bold text-gray-900 mb-1">Cheques payable to Woodnork Green Limited</div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-gray-800">
+                  <div><span class="font-semibold">Account Name:</span> Woodnork Green Ltd</div>
+                  <div><span class="font-semibold">Bank Name:</span> NCBA Bank. <span class="font-semibold">Code:</span> 07000</div>
+                  <div><span class="font-semibold">Branch:</span> Kenyatta Avenue. <span class="font-semibold">Code:</span> 125</div>
+                  <div><span class="font-semibold">Account Number:</span> <span class="text-red-600 font-bold">1002970089</span></div>
+                  <div><span class="font-semibold">SWIFT Code:</span> CBAFKENX</div>
+                  <div class="col-span-2 flex space-x-2">
+                    <div><span class="font-semibold">PAYBILL:</span> <span class="text-red-600 font-bold">880100</span></div>
+                    <div><span class="font-semibold">A/C:</span> <span class="text-red-600 font-bold">1002970089</span></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Terms and Conditions -->
-        <div class="mb-8">
-          <div class="bg-green-500 text-white px-4 py-2 font-semibold text-sm">
-            TERMS AND CONDITIONS
-          </div>
-          <div class="border border-gray-300 p-4 bg-gray-50">
-            <div class="text-sm space-y-2">
-              <div><strong>1.</strong> Quotation is valid for 30 days</div>
-              <div><strong>2.</strong> Production begins immediately after receipt of LPO</div>
-              <div><strong>3.</strong> The above prices are exclusive of 16% Government Tax</div>
-              <div><strong>4.</strong> Prices quoted are as per the quantities indicated. Any change of quantity will affect the price</div>
-            </div>
+          <!-- Right Side (Image Placeholder or Empty) -->
+          <div class="w-full md:w-1/3 flex items-end justify-center">
+             <!-- Placeholder for 3D render if available, or just empty space as per design -->
+             <div class="h-48 w-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs italic">
+               Project Render / Image
+             </div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="text-center text-xs text-gray-600 border-t pt-4">
-          <p class="mb-1">If you have any questions about this quote, please contact us below</p>
-          <p>Unit 1, Trust Merchant Building, 1st Floor, Koinange Road, Unit 2, Gathondu Office Suites, Suite 406, Woodvale Lane, Nairobi</p>
-          <p>Tel: +254 700 397 246 • +254 20 4449999 | Email: admin@woodnorkgreen.co.ke | Website: www.woodnorkgreen.co.ke</p>
+        <div class="text-center text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-200">
+          <p class="font-bold text-gray-800">Woodnork Green Ltd</p>
+          <p>Tel: +254 780 397 798 | Email: admin@woodnorkgreen.co.ke</p>
+          <p>Physical Address: Karen Village, Ngong Road, Nairobi, Kenya | Website: www.woodnorkgreen.co.ke</p>
         </div>
       </div>
     </div>

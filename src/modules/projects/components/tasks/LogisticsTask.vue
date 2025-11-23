@@ -2524,11 +2524,12 @@ const closeAddCustomItemModal = () => {
  */
 const removeTransportItem = async (id: string) => {
   try {
-    await logistics.deleteTransportItem(props.task.id, parseInt(id))
+    const numericId = parseInt(id)
+    await logistics.deleteTransportItem(props.task.id, numericId)
 
     // Update local state
     if (!logisticsData.transport_items) return
-    const idx = logisticsData.transport_items.findIndex(i => i.id === id)
+    const idx = logisticsData.transport_items.findIndex(i => parseInt(i.id as any) === numericId)
     if (idx >= 0) {
       logisticsData.transport_items.splice(idx, 1)
       addFeedbackMessage('info', 'Item removed')
