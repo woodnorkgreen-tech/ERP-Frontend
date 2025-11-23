@@ -743,7 +743,6 @@
 
           <!-- View Quote Button for completed tasks -->
           <button
-            v-if="quoteData.budgetImported && hasExistingQuoteData"
             @click="openQuoteViewer"
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
           >

@@ -49,14 +49,38 @@
             <DataField label="Subtotal" :value="formatCurrency(taskData.quoteData.totals?.subtotal)" />
             <DataField label="Grand Total" :value="formatCurrency(taskData.quoteData.totals?.grandTotal)" />
           </div>
+          
+          <!-- View Full Quote Button -->
+          <div class="mt-4">
+            <button
+              @click="openQuoteViewer"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <span>View Full Quote</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
+    
+    <!-- Quote Viewer Modal -->
+    <QuoteViewer
+      :is-visible="showQuoteViewer"
+      :quote-data="taskData.quoteData"
+      :readonly="true"
+      @close="closeQuoteViewer"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { EnquiryTask } from '../../../types/enquiry'
+import QuoteViewer from '../QuoteViewer.vue'
 
 // Reusable Data Field Component
 const DataField = {
@@ -86,6 +110,17 @@ interface Props {
 }
 
 defineProps<Props>()
+
+// Quote Viewer Modal State
+const showQuoteViewer = ref(false)
+
+const openQuoteViewer = () => {
+  showQuoteViewer.value = true
+}
+
+const closeQuoteViewer = () => {
+  showQuoteViewer.value = false
+}
 
 // Utility functions
 const formatDate = (dateString: unknown) => {

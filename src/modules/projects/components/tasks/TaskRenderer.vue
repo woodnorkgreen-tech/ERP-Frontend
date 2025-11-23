@@ -1,8 +1,8 @@
 <template>
   <div class="task-renderer">
-    <!-- Special handling for budget and design tasks - let them manage their own readonly/edit mode -->
+    <!-- Special handling for budget, design, quote, and quote_approval tasks - let them manage their own readonly/edit mode -->
     <component
-      v-if="task.type === 'budget' || task.type === 'design'"
+      v-if="task.type === 'budget' || task.type === 'design' || task.type === 'quote' || task.type === 'quote_approval'"
       :is="taskComponent"
       :task="task"
       :readonly="false"
@@ -15,7 +15,7 @@
       v-else-if="task.status === 'completed'"
       :task="task"
     />
-    <!-- Show editable task form for other incomplete tasks -->
+    <!-- Show appropriate task component for active tasks -->
     <component
       v-else
       :is="taskComponent"
