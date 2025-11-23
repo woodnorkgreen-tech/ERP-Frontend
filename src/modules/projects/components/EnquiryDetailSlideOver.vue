@@ -3,14 +3,14 @@
     <div v-if="show" class="fixed inset-0 overflow-hidden z-50">
       <!-- Background overlay -->
       <div class="absolute inset-0 overflow-hidden">
-        <div 
-          @click="$emit('close')" 
+        <div
+          @click="$emit('close')"
           class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
         ></div>
 
         <!-- Slide-over panel -->
         <div class="fixed inset-y-0 right-0 max-w-full flex">
-          <div class="w-screen max-w-4xl">
+          <div class="w-screen max-w-6xl">
             <div class="h-full flex flex-col bg-white dark:bg-gray-800 shadow-xl">
               <!-- Header -->
               <div class="px-6 py-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
@@ -33,7 +33,7 @@
                         </p>
                       </div>
                     </div>
-                    
+
                     <!-- Status and Priority badges -->
                     <div v-if="enquiry" class="flex items-center space-x-2 mt-4">
                       <span :class="getStatusColor(enquiry.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
@@ -85,7 +85,7 @@
               <!-- Content -->
               <div v-if="enquiry" class="flex-1 overflow-y-auto">
                 <div class="px-6 py-6 space-y-6">
-                  
+
                   <!-- Client Information Card -->
                   <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
@@ -172,7 +172,7 @@
                       </svg>
                       Project Conversion Status
                     </h3>
-                    
+
                     <div class="space-y-3">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
@@ -248,7 +248,7 @@
                         </span>
                       </div>
 
-                      <button 
+                      <button
                         v-if="!isConverted && canConvert"
                         @click="$emit('convert', enquiry.id)"
                         class="w-full mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
@@ -433,9 +433,9 @@ const formatDate = (date: string | null) => {
 
 const formatDateTime = (date: string | null) => {
   if (!date) return 'N/A'
-  return new Date(date).toLocaleString('en-US', { 
-    year: 'numeric', 
-    month: 'short', 
+  return new Date(date).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'

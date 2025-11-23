@@ -40,47 +40,136 @@
       </div>
     </div>
 
-    <!-- Budget Sync Warning Banner -->
-    <div v-if="isQuoteOutdated && showBudgetWarning" class="mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-      <div class="flex items-start justify-between">
-        <div class="flex items-start space-x-3">
-          <svg class="w-5 h-5 text-orange-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    <!-- Preview Mode Banner -->
+    <div class="flex items-center space-x-4 mb-6" v-if="isPreviewingVersion">
+      <div class="flex-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          <div class="flex-1">
-            <h5 class="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
-              Budget Updated
+          <div>
+            <h5 class="text-sm font-semibold text-blue-800 dark:text-blue-200">
+              Previewing: {{ previewingVersionLabel }}
             </h5>
-            <p class="text-sm text-orange-700 dark:text-orange-300">
-              The budget has been modified since this quote was created. Your quote may contain outdated pricing or missing items.
+            <p class="text-xs text-blue-600 dark:text-blue-300">
+              You are viewing a snapshot. Changes made here will not be saved unless you restore this version.
             </p>
           </div>
         </div>
-        <div class="flex items-center space-x-2 ml-4">
-          <button
-            @click="smartMergeBudget"
-            :disabled="isMerging"
-            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+        <div class="flex items-center space-x-2">
+          <button 
+            @click="exitPreview"
+            class="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <svg v-if="isMerging" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            {{ isMerging ? 'Refreshing...' : 'Refresh from Budget' }}
+            Exit Preview
           </button>
-          <button
-            @click="showBudgetWarning = false"
-            class="p-2 text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors"
-            title="Dismiss"
+          <button 
+            @click="restoreVersion(versions.find(v => v.label === previewingVersionLabel)?.id!)"
+            class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
           >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+            Restore This Version
           </button>
         </div>
+      </div>
+    </div>
+
+
+    <!-- Versioning Controls (Always Visible) -->
+    <div class="mb-6 flex justify-end" v-if="hasExistingQuoteData || versions.length > 0">
+      <div class="relative">
+        <button 
+          @click="showVersionHistory = !showVersionHistory"
+          class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center"
+        >
+          <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Versions
+        </button>
+        
+        <!-- Version History Dropdown -->
+        <div v-if="showVersionHistory" class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+          <div class="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h6 class="text-xs font-semibold uppercase text-gray-500">History</h6>
+            <button @click="createVersion" :disabled="isSavingVersion" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
+              <svg v-if="isSavingVersion" class="animate-spin mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isSavingVersion ? 'Saving...' : '+ Save Snapshot' }}
+            </button>
+          </div>
+          <div class="max-h-64 overflow-y-auto">
+            <div v-if="versions.length === 0" class="p-4 text-center text-xs text-gray-500 italic">
+              No saved versions
+            </div>
+            <div v-else v-for="version in versions" :key="version.id" class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0">
+              <div class="flex justify-between items-start mb-1">
+                <span class="font-medium text-sm">Version {{ version.version_number }}</span>
+                <span class="text-xs text-gray-500">{{ new Date(version.created_at).toLocaleDateString() }}</span>
+              </div>
+              <div class="text-xs text-gray-500 mb-2">{{ version.label }}</div>
+              <div class="flex space-x-2">
+                <button 
+                  @click="previewVersion(version)" 
+                  class="flex-1 px-2 py-1 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 text-xs rounded text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                  View
+                </button>
+                <button 
+                  @click="restoreVersion(version.id)" 
+                  :disabled="isRestoringVersion"
+                  class="flex-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-xs rounded text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                  Restore
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Sync Warning Banner -->
+    <div class="flex items-center space-x-4 mb-6" v-if="showBudgetWarning && !isPreviewingVersion">
+      <div class="flex-1 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 flex items-start space-x-3">
+        <svg class="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="flex-1">
+          <h5 class="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
+            Budget Updated
+          </h5>
+          <p class="text-sm text-orange-700 dark:text-orange-300">
+            The budget has been modified since this quote was created. Your quote may contain outdated pricing or missing items.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 ml-4">
+        <button
+          @click="smartMergeBudget"
+          :disabled="isMerging"
+          class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+        >
+          <svg v-if="isMerging" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          {{ isMerging ? 'Refreshing...' : 'Refresh from Budget' }}
+        </button>
+        <button
+          @click="showBudgetWarning = false"
+          class="p-2 text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors"
+          title="Dismiss"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -975,6 +1064,112 @@ const showQuoteViewer = ref(false)
 const budgetStatus = ref<'checking' | 'up_to_date' | 'outdated' | 'no_budget'>('checking')
 const showBudgetWarning = ref(false)
 
+// Versioning state
+interface QuoteVersion {
+  id: number
+  version_number: number
+  label: string
+  created_at: string
+  created_by_name: string
+}
+
+const versions = ref<QuoteVersion[]>([])
+const isSavingVersion = ref(false)
+const isRestoringVersion = ref(false)
+const showVersionHistory = ref(false)
+const isPreviewingVersion = ref(false)
+const previewingVersionLabel = ref('')
+let originalQuoteData: any = null
+
+// Fetch versions
+const fetchVersions = async () => {
+  try {
+    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote/versions`)
+    versions.value = response.data.data
+  } catch (error) {
+    console.error('Failed to fetch versions:', error)
+  }
+}
+
+// Create version
+const createVersion = async () => {
+  isSavingVersion.value = true
+  try {
+    // First, save the current quote to ensure it exists in the database
+    console.log('Saving quote before creating version...')
+    await saveQuote()
+    console.log('Quote saved successfully, waiting for DB commit...')
+    
+    // Wait a moment for database transaction to complete
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // Then create the version
+    console.log('Creating version snapshot...')
+    await axios.post(`/api/projects/tasks/${props.task.id}/quote/version`)
+    await fetchVersions()
+    alert('Version saved successfully!')
+  } catch (error: any) {
+    console.error('Failed to create version:', error)
+    console.error('Error response:', error.response?.data)
+    console.error('Error status:', error.response?.status)
+    alert(`Failed to create version: ${error.response?.data?.message || error.message}`)
+  } finally {
+    isSavingVersion.value = false
+  }
+}
+
+// Preview version
+const previewVersion = async (version: QuoteVersion) => {
+  try {
+    // Backup current data if not already previewing
+    if (!isPreviewingVersion.value) {
+      originalQuoteData = JSON.parse(JSON.stringify(quoteData))
+    }
+    
+    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote/version/${version.id}`)
+    const versionData = response.data.data.data // .data.data (api response) .data (version model json field)
+    
+    Object.assign(quoteData, versionData)
+    calculateAllTotals()
+    
+    isPreviewingVersion.value = true
+    previewingVersionLabel.value = version.label
+    showVersionHistory.value = false
+  } catch (error) {
+    console.error('Failed to preview version:', error)
+  }
+}
+
+// Exit preview
+const exitPreview = () => {
+  if (originalQuoteData) {
+    Object.assign(quoteData, originalQuoteData)
+    calculateAllTotals()
+    originalQuoteData = null
+  }
+  isPreviewingVersion.value = false
+  previewingVersionLabel.value = ''
+}
+
+// Restore version
+const restoreVersion = async (versionId: number) => {
+  if (!confirm('Are you sure you want to restore this version? Current changes will be lost unless you saved a version.')) return
+  
+  isRestoringVersion.value = true
+  try {
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/restore/${versionId}`)
+    Object.assign(quoteData, response.data.data)
+    calculateAllTotals()
+    showVersionHistory.value = false
+    isPreviewingVersion.value = false // Exit preview mode if we restore
+    originalQuoteData = null
+  } catch (error) {
+    console.error('Failed to restore version:', error)
+  } finally {
+    isRestoringVersion.value = false
+  }
+}
+
 // Computed property to check if we have existing quote data
 const hasExistingQuoteData = computed(() => {
   return quoteData.materials.length > 0 ||
@@ -1509,6 +1704,7 @@ onMounted(async () => {
   }
   // Check if budget has been updated after quote was created
   await checkBudgetStatus()
+  await fetchVersions()
 })
 
 // Load existing quote data
