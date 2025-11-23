@@ -78,13 +78,7 @@ const PERMISSIONS = {
   // HR_CREATE_POSITION: 'hr.create_position',
   // HR_MANAGE_ATTENDANCE: 'hr.manage_attendance',
 
-  // Creatives
-  CREATIVES_VIEW: 'creatives.view',
-  // Future Creatives Permissions (commented out - not yet implemented)
-  // CREATIVES_DESIGN_CREATE: 'creatives.design.create',
-  // CREATIVES_DESIGN_UPDATE: 'creatives.design.update',
-  // CREATIVES_DESIGN_APPROVE: 'creatives.design.approve',
-  // CREATIVES_MATERIALS_MANAGE: 'creatives.materials.manage',
+
 
   // Client Service
   CLIENT_READ: 'client.read',
@@ -207,19 +201,7 @@ export function useRouteGuard() {
     return hasPermission(PERMISSIONS.CLIENT_READ)
   }
 
-  const canAccessCreatives = (): boolean => {
-    if (!isLoggedIn.value || !user.value) {
-      return false
-    }
 
-    // Super Admin can access everything
-    if (user.value.roles?.includes('Super Admin')) {
-      return true
-    }
-
-    // Check creatives view permission
-    return hasPermission(PERMISSIONS.CREATIVES_VIEW)
-  }
 
   const canAccessFinance = (): boolean => {
     if (!isLoggedIn.value || !user.value) {
@@ -237,23 +219,6 @@ export function useRouteGuard() {
       hasPermission(PERMISSIONS.FINANCE_BUDGET_UPDATE)
   }
 
-
-  const canAccessProjectsDashboard = (): boolean => {
-    if (!isLoggedIn.value || !user.value) {
-      return false
-    }
-
-    // Super Admin can access everything
-    if (user.value.roles?.includes('Super Admin')) {
-      return true
-    }
-
-    // Check if user is in Projects department and has Project Manager role
-    const userDepartment = permissions.value?.permissions?.user_department?.name
-    const userRoles = user.value.roles || []
-
-    return userDepartment === 'Projects' && userRoles.includes('Project Manager')
-  }
 
   const redirectToAppropriateRoute = () => {
     if (!isLoggedIn.value || !user.value) {
@@ -293,10 +258,14 @@ export function useRouteGuard() {
       return
     }
 
-
-    // Creatives/Designers go to Design dashboard
-    if (userRoles.includes('Designer')) {
-      router.push('/creatives/design')
+    // Production, Logistics, Stores, and Procurement users go to projects dashboard
+    // (temporary until their dedicated modules are developed)
+    if (userRoles.includes('Production') ||
+      userRoles.includes('Logistics') ||
+      userRoles.includes('Stores') ||
+      userRoles.includes('Designer') ||
+      userRoles.includes('Procurement')) {
+      router.push('/projects/dashboard')
       return
     }
 
@@ -363,12 +332,7 @@ export function useRouteGuard() {
             { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: '📝' }
           ]
         },
-        {
-          department: 'Creatives',
-          routes: [
-            { name: 'creatives-enquiries', path: '/creatives/enquiries', label: 'Enquiries', icon: '📝' }
-          ]
-        },
+
         {
           department: 'Finance',
           routes: [
@@ -425,16 +389,7 @@ export function useRouteGuard() {
       )
     }
 
-    // Add creatives routes for authorized users (skip for Super Admin as they're already included in departments)
-    if (canAccessCreatives() && !userRoles.includes('Super Admin')) {
-      routes.push(
-        { name: 'design-dashboard', path: '/creatives/design', label: 'Design Department', icon: '🎨' },
-        { name: 'creatives-materials', path: '/creatives/materials', label: 'Material & Cost Listing', icon: '📦' },
-        { name: 'creatives-final-design', path: '/creatives/final-design', label: 'Final Design', icon: '✨' },
-        { name: 'creatives-enquiries', path: '/creatives/enquiries', label: 'Enquiries', icon: '📝' },
-        { name: 'creatives-element-templates', path: '/creatives/element-templates', label: 'Element Templates', icon: '📋' }
-      )
-    }
+    // Creatives module not yet implemented - designers use projects module
 
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
@@ -445,13 +400,6 @@ export function useRouteGuard() {
       )
     }
 
-
-    // Add Projects department dashboard for users who work in Projects department (skip for Super Admin)
-    if (canAccessProjectsDashboard() && !userRoles.includes('Super Admin')) {
-      routes.push(
-        { name: 'projects-department-dashboard', path: '/projects/department', label: 'Project Coordination', icon: '🎯' }
-      )
-    }
 
     return routes
   }
@@ -483,10 +431,6 @@ export function useRouteGuard() {
 
     if (canAccessClientService()) {
       return 'Client Service Panel'
-    }
-
-    if (canAccessCreatives()) {
-      return 'Creatives Panel'
     }
 
     if (canAccessFinance()) {
@@ -531,10 +475,6 @@ export function useRouteGuard() {
       return 'Client Acquisition & Marketing'
     }
 
-    if (canAccessCreatives()) {
-      return 'Creative Design & Production'
-    }
-
     if (canAccessFinance()) {
       return 'Financial Management'
     }
@@ -552,9 +492,7 @@ export function useRouteGuard() {
     canAccessRoute,
     canAccessDepartment,
     canAccessProjects,
-    canAccessProjectsDashboard,
     canAccessClientService,
-    canAccessCreatives,
     canAccessFinance,
     redirectToAppropriateRoute,
     getAllowedRoutes,

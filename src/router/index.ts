@@ -7,7 +7,7 @@ import { adminRoutes } from './admin'
 import { hrRoutes } from './hr'
 import { projectsRoutes } from './projects'
 import { clientServiceRoutes } from './clientservice'
-import { creativesRoutes } from './creatives'
+
 import { financeRoutes } from './finance'
 
 // Combine all routes
@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
   ...hrRoutes,
   ...projectsRoutes,
   ...clientServiceRoutes,
-  ...creativesRoutes,
+
   ...financeRoutes,
 ]
 
@@ -93,16 +93,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // Check creatives access
-  if (to.meta.requiresCreativesAccess) {
-    const { canAccessCreatives } = await import('@/utils/routerGuards')
 
-    if (!(await canAccessCreatives())) {
-      console.log('Access denied to creatives - redirecting to creatives enquiries')
-      next('/creatives/enquiries')
-      return
-    }
-  }
 
   // Check finance access
   if (to.meta.requiresFinanceAccess) {
@@ -140,7 +131,7 @@ router.beforeEach(async (to, from, next) => {
 
     // Check if user has budget read permission
     const hasBudgetAccess = userPermissions?.includes('finance.budget.read') ||
-                           userPermissions?.includes('finance.budget.update')
+      userPermissions?.includes('finance.budget.update')
 
     if (!hasBudgetAccess) {
       console.log('Access denied to budget functionality - user lacks budget permissions')

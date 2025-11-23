@@ -78,8 +78,7 @@ const PERMISSIONS = {
   // HR_CREATE_POSITION: 'hr.create_position',
   // HR_MANAGE_ATTENDANCE: 'hr.manage_attendance',
 
-  // Creatives
-  CREATIVES_VIEW: 'creatives.view',
+
   // Future Creatives Permissions (commented out - not yet implemented)
   // CREATIVES_DESIGN_CREATE: 'creatives.design.create',
   // CREATIVES_DESIGN_UPDATE: 'creatives.design.update',
@@ -215,16 +214,7 @@ export async function canAccessClientService(): Promise<boolean> {
   return hasPermission(user, userPermissions, PERMISSIONS.CLIENT_READ)
 }
 
-export async function canAccessCreatives(): Promise<boolean> {
-  const { user, userPermissions } = await fetchUserData()
-  if (!user) return false
 
-  // Super Admin can access everything
-  if (user.roles?.includes('Super Admin')) return true
-
-  // Check creatives view permission
-  return hasPermission(user, userPermissions, PERMISSIONS.CREATIVES_VIEW)
-}
 
 export async function canAccessFinance(): Promise<boolean> {
   const { user, userPermissions } = await fetchUserData()

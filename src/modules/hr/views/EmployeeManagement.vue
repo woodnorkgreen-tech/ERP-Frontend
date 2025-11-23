@@ -119,9 +119,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Department
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Salary
-              </th>
+
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
               </th>
@@ -155,9 +153,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ employee.department?.name || 'No Department' }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                ${{ employee.salary.toLocaleString() }}
-              </td>
+
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="[
@@ -246,10 +242,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Department</label>
                 <p class="text-sm text-gray-900 dark:text-white">{{ selectedEmployee.department?.name || 'No Department' }}</p>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salary</label>
-                <p class="text-sm text-gray-900 dark:text-white">${{ selectedEmployee.salary.toLocaleString() }}</p>
-              </div>
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employment Type</label>
                 <p class="text-sm text-gray-900 dark:text-white">{{ selectedEmployee.employment_type.replace('-', ' ').toUpperCase() }}</p>
@@ -360,17 +353,7 @@
                       </option>
                     </select>
                   </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salary *</label>
-                    <input
-                      v-model.number="editFormData.salary"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      class="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                      required
-                    />
-                  </div>
+
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employment Type *</label>
                     <select
@@ -420,14 +403,7 @@
               <h3 class="text-lg font-medium text-gray-900 dark:text-white">Additional Information</h3>
 
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date of Birth</label>
-                    <input
-                      v-model="editFormData.date_of_birth"
-                      type="date"
-                      class="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    />
-                  </div>
+
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
                     <textarea
@@ -624,17 +600,7 @@
                   </option>
                 </select>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salary *</label>
-                <input
-                  v-model.number="newEmployee.salary"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                  required
-                />
-              </div>
+
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employment Type *</label>
                 <select
@@ -684,14 +650,7 @@
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Additional Information</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date of Birth</label>
-                <input
-                  v-model="newEmployee.date_of_birth"
-                  type="date"
-                  class="w-full px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                />
-              </div>
+
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
                 <textarea
@@ -791,13 +750,13 @@ const newEmployee = ref({
   phone: '',
   position: '',
   department_id: undefined as number | undefined,
-  salary: 0,
+
   employment_type: 'full-time' as const,
   status: 'active' as const,
   hire_date: new Date().toISOString().split('T')[0],
   manager_id: undefined as number | undefined,
   address: '',
-  date_of_birth: '',
+
   emergency_contact_name: '',
   emergency_contact_phone: ''
 })
@@ -899,13 +858,13 @@ const closeCreateModal = () => {
     phone: '',
     position: '',
     department_id: undefined,
-    salary: 0,
+
     employment_type: 'full-time',
     status: 'active',
     hire_date: new Date().toISOString().split('T')[0],
     manager_id: undefined,
     address: '',
-    date_of_birth: '',
+
     emergency_contact_name: '',
     emergency_contact_phone: ''
   }
@@ -919,10 +878,7 @@ const handleCreateEmployee = async () => {
     return
   }
 
-  if (newEmployee.value.salary <= 0) {
-    formError.value = 'Salary must be greater than 0'
-    return
-  }
+
 
   saving.value = true
   formError.value = ''
@@ -949,12 +905,12 @@ const handleCreateEmployee = async () => {
       position: newEmployee.value.position,
       department_id: newEmployee.value.department_id,
       hire_date: newEmployee.value.hire_date,
-      salary: newEmployee.value.salary,
+
       employment_type: newEmployee.value.employment_type,
       status: newEmployee.value.status,
       manager_id: newEmployee.value.manager_id || undefined,
       address: newEmployee.value.address || undefined,
-      date_of_birth: newEmployee.value.date_of_birth || undefined,
+
       emergency_contact: emergencyContact
     }
 
@@ -985,10 +941,7 @@ const handleUpdateEmployee = async () => {
     return
   }
 
-  if (editFormData.value.salary <= 0) {
-    editFormError.value = 'Salary must be greater than 0'
-    return
-  }
+
 
   updating.value = true
   editFormError.value = ''

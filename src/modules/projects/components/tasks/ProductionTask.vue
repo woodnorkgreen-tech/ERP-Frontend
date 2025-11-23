@@ -342,7 +342,7 @@
               Monitor and validate production quality across all categories
             </p>
           </div>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-3" v-if="!isReadOnly">
             <button
               @click="generateQualityCheckpoints"
               class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
@@ -350,6 +350,14 @@
               Regenerate Checkpoints
             </button>
             <button
+              @click="exportQualityReport"
+              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              Export Report
+            </button>
+          </div>
+          <div class="flex items-center space-x-3" v-else>
+             <button
               @click="exportQualityReport"
               class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
             >
@@ -596,6 +604,7 @@
               <option value="other">Other</option>
             </select>
             <button
+              v-if="!isReadOnly"
               @click="showAddIssueModal = true"
               class="add-issue-btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
             >
@@ -1229,6 +1238,7 @@
         </div>
 
         <button
+          v-if="!isReadOnly"
           @click="handleSubmit"
           :disabled="isSaving"
           :class="[
@@ -1266,6 +1276,8 @@ import type {
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the task is in read-only mode */
+  readonly?: boolean
 }
 
 /**
@@ -1283,6 +1295,8 @@ interface Emits {
 // Component setup
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
 
 // Tab navigation with enhanced functionality
 const activeTab = ref('production-elements')

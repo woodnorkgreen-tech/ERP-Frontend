@@ -230,6 +230,7 @@
               Start planning your transportation logistics by setting up vehicle assignments, routes, and timelines for this project.
             </p>
             <button
+              v-if="!isReadOnly"
               @click="showPlanningModal = true"
               class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors inline-flex items-center space-x-2"
             >
@@ -251,7 +252,7 @@
                 Current logistics plan for this project
               </p>
             </div>
-            <div class="flex space-x-3">
+            <div class="flex space-x-3" v-if="!isReadOnly">
               <button
                 @click="showPlanningModal = true"
                 class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
@@ -743,6 +744,7 @@
               <span>{{ teamDataState.isLoading ? 'Loading...' : 'Refresh' }}</span>
             </button>
             <button
+              v-if="!isReadOnly"
               @click="saveTeamConfirmation"
               :disabled="!hasTeamConfirmationChanges"
               class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-lg transition-colors"
@@ -1488,6 +1490,8 @@ import { useLogistics } from '../../composables/useLogistics'
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the task is in read-only mode */
+  readonly?: boolean
 }
 
 /**
@@ -1669,6 +1673,8 @@ interface ChecklistData {
 // Component setup
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
 
 // Initialize logistics composable
 const logistics = useLogistics()

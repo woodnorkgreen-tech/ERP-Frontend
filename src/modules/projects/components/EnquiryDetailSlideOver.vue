@@ -73,7 +73,7 @@
                     </svg>
                     <span>Call Client</span>
                   </button>
-                  <button @click="$emit('edit', enquiry)" class="px-3 py-1.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1">
+                  <button v-if="hasPrivilegedAccess" @click="$emit('edit', enquiry)" class="px-3 py-1.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -334,11 +334,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ProjectEnquiry } from '../types/enquiry'
+import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps<{
   show: boolean
   enquiry: ProjectEnquiry | null
 }>()
+
+const { user } = useAuth()
+
+const hasPrivilegedAccess = computed(() => {
+  return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer'].includes(role))
+})
 
 const emit = defineEmits<{
   close: []

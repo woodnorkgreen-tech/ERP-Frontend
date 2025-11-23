@@ -98,6 +98,22 @@ export interface EnquiryTask {
     id: number;
     name: string;
   };
+  assignedUsers?: {
+    id: number;
+    name: string;
+    pivot?: {
+      assigned_by: number;
+      assigned_at: string;
+    };
+  }[];
+  assigned_users?: {
+    id: number;
+    name: string;
+    pivot?: {
+      assigned_by: number;
+      assigned_at: string;
+    };
+  }[];
   // Backward compatibility fields
   assigned_at?: string;
   assigned_by?: {
@@ -109,6 +125,17 @@ export interface EnquiryTask {
     name: string;
   };
   assignmentHistory?: TaskAssignmentHistory[];
+  material_approval?: {
+    needs_approval: boolean;
+    approved_count: number;
+    total_count: number;
+    all_approved: boolean;
+    departments: {
+      design: boolean;
+      production: boolean;
+      finance: boolean;
+    };
+  };
 }
 
 export interface CreateProjectEnquiryData {

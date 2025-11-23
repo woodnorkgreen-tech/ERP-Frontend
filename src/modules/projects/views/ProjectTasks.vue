@@ -189,6 +189,28 @@
               </div>
             </div>
 
+            <!-- Material Approval Badge (for materials tasks only) -->
+            <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="px-6 py-3 bg-amber-50 dark:bg-amber-900/20 border-y border-amber-200 dark:border-amber-800">
+              <div class="flex items-center space-x-2 text-sm">
+                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-amber-800 dark:text-amber-300 font-medium">
+                  Pending Approval ({{ task.material_approval.approved_count }} of {{ task.material_approval.total_count }})
+                </span>
+              </div>
+              <div class="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                <span v-if="task.material_approval.departments.design" class="mr-2">✓ Design</span>
+                <span v-else class="mr-2 text-amber-500">⏳ Design</span>
+                
+                <span v-if="task.material_approval.departments.production" class="mr-2">✓ Production</span>
+                <span v-else class="mr-2 text-amber-500">⏳ Production</span>
+                
+                <span v-if="task.material_approval.departments.finance">✓ Finance</span>
+                <span v-else class="text-amber-500">⏳ Finance</span>
+              </div>
+            </div>
+
             <!-- Task Summary -->
             <div class="p-6">
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -274,6 +296,15 @@
                   <div v-else class="text-gray-500 dark:text-gray-400">No due date</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <!-- Material approval badge for table view -->
+                  <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex items-center space-x-1 text-xs">
+                    <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-amber-700 dark:text-amber-400 font-medium">
+                      Approval {{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }}
+                    </span>
+                  </div>
                   <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                     View Details
                   </button>

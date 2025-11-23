@@ -37,6 +37,7 @@
             View Logistics Log
           </button>
                     <button
+            v-if="canLogEnquiry"
             @click="showCreateModal = true"
             class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
@@ -176,38 +177,50 @@
                  </span>
                </td>
                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                 <button
-                   @click="editEnquiry(enquiry)"
-                   class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
-                 >
-                   Edit
-                 </button>
-                 <button
-                   @click="viewEnquiryDetails(enquiry)"
-                   class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
-                 >
-                   View
-                 </button>
-                 <button
-                   @click="openTaskAssignment(enquiry)"
-                   class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
-                 >
-                    <span>&rarrpl;</span>Assign Tasks
-                 </button>
+                  <button
+                    v-if="hasPrivilegedAccess"
+                    @click="editEnquiry(enquiry)"
+                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    @click="viewEnquiryDetails(enquiry)"
+                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
+                  >
+                    View
+                  </button>
+                  <button
+                    v-if="hasPrivilegedAccess"
+                    @click="openTaskAssignment(enquiry)"
+                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                  >
+                     <span>&rarrpl;</span>Assign Tasks
+                  </button>
                  <router-link
                    :to="`/projects/tasks?enquiry_id=${enquiry.id}`"
                    class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 mr-3"
                  >
                    Tasks&rarr;
                  </router-link>
-                 <button
-                   v-if="canConvertToProject(enquiry)"
-                   @click="convertToProject(enquiry.id)"
-                   class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
-                 >
-                   Convert to Project
-                 </button>
-               </td>
+                  <button
+                    v-if="canConvertToProject(enquiry)"
+                    @click="convertToProject(enquiry.id)"
+                    class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 mr-3"
+                  >
+                    Convert to Project
+                  </button>
+                  <button
+                    v-if="user?.roles?.includes('Super Admin')"
+                    @click="confirmDelete(enquiry)"
+                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                    title="Delete Enquiry"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </td>
              </tr>
 
            </template>
@@ -766,9 +779,17 @@ const emit = defineEmits<{
   }]
 }>()
 
-const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, convertToProject, canConvertToProject, newEnquiries, inProgressEnquiries, convertedEnquiries } = useProjectsEnquiries()
+const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, convertToProject, canConvertToProject, newEnquiries, inProgressEnquiries, convertedEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
+
+const hasPrivilegedAccess = computed(() => {
+  return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer'].includes(role))
+})
+
+const canLogEnquiry = computed(() => {
+  return user.value?.roles?.some(role => ['Super Admin', 'Client Service', 'Project Officer'].includes(role))
+})
 
 // Status Tabs
 const activeTab = ref('all')
@@ -935,10 +956,22 @@ const closeDetailSlideOver = () => {
 }
 
 const handleEditFromSlideOver = (enquiry: ProjectEnquiry) => {
-  closeDetailSlideOver()
-  setTimeout(() => {
-    editEnquiry(enquiry)
-  }, 300)
+  editEnquiry(enquiry)
+}
+
+const confirmDelete = async (enquiry: ProjectEnquiry) => {
+  if (!confirm(`Are you sure you want to delete the enquiry "${enquiry.title}"? This action cannot be undone.`)) {
+    return
+  }
+
+  try {
+    await deleteEnquiry(enquiry.id)
+    // Refresh the list after deletion
+    fetchEnquiries({ ...filters.value, page: pagination.value.current_page })
+  } catch (err) {
+    console.error('Failed to delete enquiry:', err)
+    alert('Failed to delete enquiry. Please try again.')
+  }
 }
 
 const handleConvertFromSlideOver = async (id: number) => {
@@ -1175,7 +1208,14 @@ const getStatusLabel = (status: string) => {
 
 const getUserTaskCount = (enquiry: ProjectEnquiry) => {
   if (!user.value || !enquiry.enquiryTasks) return 0
-  return enquiry.enquiryTasks.filter(task => task.assigned_to?.id === user.value!.id).length
+  return enquiry.enquiryTasks.filter(task => {
+    // Check legacy assignment
+    if (task.assigned_to?.id === user.value!.id) return true
+    // Check multi-user assignment (handle both camelCase and snake_case)
+    const assignedUsers = task.assignedUsers || task.assigned_users
+    if (assignedUsers?.some(u => u.id === user.value!.id)) return true
+    return false
+  }).length
 }
 
 const getLogisticsStatusColor = (status: string) => {

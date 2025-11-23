@@ -101,9 +101,9 @@ import MaterialsDataDisplay from './data-displays/MaterialsDataDisplay.vue'
 import BudgetDataDisplay from './data-displays/BudgetDataDisplay.vue'
 import DesignDataDisplay from './data-displays/DesignDataDisplay.vue'
 import HandoverDataDisplay from './data-displays/HandoverDataDisplay.vue'
-import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
+
 import ProcurementDataDisplay from './data-displays/ProcurementDataDisplay.vue'
-import ProductionDataDisplay from './data-displays/ProductionDataDisplay.vue'
+
 import ReportDataDisplay from './data-displays/ReportDataDisplay.vue'
 import SetdownDataDisplay from './data-displays/SetdownDataDisplay.vue'
 import SetupDataDisplay from './data-displays/SetupDataDisplay.vue'
@@ -129,9 +129,9 @@ const dataDisplayComponents = {
   'budget': BudgetDataDisplay,
   'design': DesignDataDisplay,
   'handover': HandoverDataDisplay,
-  'logistics': LogisticsDataDisplay,
+
   'procurement': ProcurementDataDisplay,
-  'production': ProductionDataDisplay,
+
   'report': ReportDataDisplay,
   'setdown': SetdownDataDisplay,
   'setup': SetupDataDisplay,
