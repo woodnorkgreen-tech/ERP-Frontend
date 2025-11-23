@@ -40,6 +40,50 @@
       </div>
     </div>
 
+    <!-- Budget Sync Warning Banner -->
+    <div v-if="isQuoteOutdated && showBudgetWarning" class="mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start space-x-3">
+          <svg class="w-5 h-5 text-orange-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div class="flex-1">
+            <h5 class="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
+              Budget Updated
+            </h5>
+            <p class="text-sm text-orange-700 dark:text-orange-300">
+              The budget has been modified since this quote was created. Your quote may contain outdated pricing or missing items.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 ml-4">
+          <button
+            @click="smartMergeBudget"
+            :disabled="isMerging"
+            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+          >
+            <svg v-if="isMerging" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            {{ isMerging ? 'Refreshing...' : 'Refresh from Budget' }}
+          </button>
+          <button
+            @click="showBudgetWarning = false"
+            class="p-2 text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors"
+            title="Dismiss"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Budget Import Status -->
     <div v-if="isImporting" class="mb-6">
       <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
@@ -111,102 +155,82 @@
             </div>
           </div>
 
-          <div v-if="quoteData.materials.length > 0" class="space-y-4">
-            <div v-for="element in quoteData.materials" :key="element.id" class="border border-gray-200 dark:border-gray-700 rounded-lg">
-              <!-- Element Header -->
-              <div
-                :class="[
-                  getElementHeaderClass(element.templateId),
-                  'px-4 py-3 flex items-center justify-between rounded-t-lg'
-                ]"
-              >
-                <div class="flex items-center space-x-3">
-                  <h6 class="text-sm font-semibold">{{ element.name }}</h6>
-                  <span class="text-xs opacity-75">
-                    {{ element.materials.length }} items
-                  </span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <span class="text-xs font-medium">
-                    Base: {{ formatCurrency(element.baseTotal) }} → Final: {{ formatCurrency(element.finalTotal) }}
-                  </span>
-                </div>
-              </div>
-          <!-- Materials Table -->
-          <div class="border-t border-gray-200 dark:border-gray-700">
-            <div class="p-4">
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Days</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
-                      <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final (KES)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <template v-for="element in quoteData.materials" :key="element.id">
-                      <!-- Element Header Row -->
-                      <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                        <td colspan="8" class="py-2 px-4 font-medium text-gray-900 dark:text-white">
-                          {{ element.name }}
-                        </td>
-                      </tr>
-
-                      <!-- Material Rows -->
-                      <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700">
-                        <td class="py-3 px-4 pl-8">
-                          <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-600 dark:text-gray-300">{{ material.description }}</span>
-                            <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
-                          </div>
-                        </td>
-                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
-                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.quantity }}</td>
-                        <td class="py-3 px-4">
-                          <input
-                            type="number"
-                            v-model.number="material.days"
-                            @input="updateIndividualMargin(material)"
-                            min="1"
-                            class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          >
-                        </td>
-                        <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.unitPrice) }}</td>
-                        <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(material.totalPrice) }}</td>
-                        <td class="py-3 px-4">
-                          <div class="flex items-center space-x-1">
-                            <input
-                              type="number"
-                              v-model.number="material.marginPercentage"
-                              @input="updateIndividualMargin(material)"
-                              class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            >
-                            <span class="text-gray-500 dark:text-gray-400">%</span>
-                          </div>
-                        </td>
-                        <td class="py-3 px-4 font-medium text-green-600 dark:text-green-400 text-right">
-                          {{ formatCurrency(material.finalPrice) }}
-                        </td>
-                      </tr>
-                    </template>
-                    <tr v-if="quoteData.materials.length === 0">
-                      <td colspan="8" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
-                        No materials imported from budget
+          <div v-if="quoteData.materials.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Days</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
+                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final (KES)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="element in quoteData.materials" :key="element.id">
+                    <!-- Element Header Row -->
+                    <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                      <td colspan="8" class="py-2 px-4">
+                        <div class="flex items-center justify-between">
+                          <span class="font-medium text-gray-900 dark:text-white">{{ element.name }}</span>
+                          <span class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ element.materials.length }} items | 
+                            Base: {{ formatCurrency(element.baseTotal) }} → 
+                            Final: {{ formatCurrency(element.finalTotal) }}
+                          </span>
+                        </div>
                       </td>
                     </tr>
-                  </tbody>
-                </table>
-              </div>
+
+                    <!-- Material Rows -->
+                    <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td class="py-3 px-4 pl-8">
+                        <div class="flex items-center space-x-2">
+                          <span class="text-sm text-gray-600 dark:text-gray-300">{{ material.description }}</span>
+                          <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                        </div>
+                      </td>
+                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
+                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.quantity }}</td>
+                      <td class="py-3 px-4">
+                        <input
+                          type="number"
+                          v-model.number="material.days"
+                          @input="updateIndividualMargin(material)"
+                          min="1"
+                          class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        >
+                      </td>
+                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(material.unitPrice) }}</td>
+                      <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(material.totalPrice) }}</td>
+                      <td class="py-3 px-4">
+                        <div class="flex items-center space-x-1">
+                          <input
+                            type="number"
+                            v-model.number="material.marginPercentage"
+                            @input="updateIndividualMargin(material)"
+                            class="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          >
+                          <span class="text-gray-500 dark:text-gray-400">%</span>
+                        </div>
+                      </td>
+                      <td class="py-3 px-4 font-medium text-green-600 dark:text-green-400 text-right">
+                        {{ formatCurrency(material.finalPrice) }}
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
             </div>
           </div>
-            </div>
+          <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400 italic border border-gray-200 dark:border-gray-700 rounded-lg">
+            No materials imported from budget
           </div>
+
         </div>
 
         <!-- Labour Tab -->
@@ -652,6 +676,23 @@ import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import QuoteViewer from './QuoteViewer.vue'
 
+// Global Constants
+const CONSTANTS = {
+  VAT_RATE: 16,
+  DEFAULT_DAYS: 1,
+  DEFAULT_MARGINS: {
+    MATERIALS: 20,
+    LABOUR: 0,
+    EXPENSES: 0,
+    LOGISTICS: 0
+  },
+  CURRENCY: {
+    CODE: 'KES',
+    LOCALE: 'en-KE',
+    DECIMALS: 0
+  }
+} as const
+
 /**
  * Props interface for the QuoteTask component
  */
@@ -882,6 +923,12 @@ interface QuoteData {
   projectInfo: ProjectInfo
   /** Whether budget data has been imported */
   budgetImported: boolean
+  /** When budget was imported to quote */
+  budgetImportedAt: Date | null
+  /** Budget's last update timestamp at import time */
+  budgetUpdatedAt: Date | null
+  /** Budget version identifier */
+  budgetVersion: string | null
   /** Quote materials */
   materials: QuoteMaterialElement[]
   /** Quote labour items */
@@ -892,6 +939,8 @@ interface QuoteData {
   logistics: QuoteLogisticsItem[]
   /** Margin settings */
   margins: MarginSettings
+  /** User's custom margin adjustments */
+  customMargins: Record<string, number>
   /** Discount amount in KES */
   discountAmount: number
   /** VAT percentage */
@@ -912,11 +961,19 @@ interface QuoteData {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// Type alias for timeout handle
+type TimeoutHandle = ReturnType<typeof setTimeout>
+
 // Reactive state
 const isImporting = ref(false)
+const isMerging = ref(false)
 const activeTab = ref('materials')
-const marginUpdateTimeout = ref<NodeJS.Timeout | null>(null)
+const marginUpdateTimeout = ref<TimeoutHandle | null>(null)
 const showQuoteViewer = ref(false)
+
+// Budget sync state
+const budgetStatus = ref<'checking' | 'up_to_date' | 'outdated' | 'no_budget'>('checking')
+const showBudgetWarning = ref(false)
 
 // Computed property to check if we have existing quote data
 const hasExistingQuoteData = computed(() => {
@@ -924,6 +981,11 @@ const hasExistingQuoteData = computed(() => {
          quoteData.labour.length > 0 ||
          quoteData.expenses.length > 0 ||
          quoteData.logistics.length > 0
+})
+
+// Computed property to check if quote is outdated
+const isQuoteOutdated = computed(() => {
+  return budgetStatus.value === 'outdated'
 })
 
 // Tab configuration
@@ -996,11 +1058,15 @@ const initializeTotals = (): QuoteTotals => {
 const quoteData = reactive<QuoteData>({
   projectInfo: initializeProjectInfo(),
   budgetImported: false,
+  budgetImportedAt: null,
+  budgetUpdatedAt: null,
+  budgetVersion: null,
   materials: [],
   labour: [],
   expenses: [],
   logistics: [],
   margins: initializeMargins(),
+  customMargins: {},
   discountAmount: 0,
   vatPercentage: 16,
   vatEnabled: true,
@@ -1027,67 +1093,59 @@ const formatDate = (dateString: string): string => {
   }
 }
 
-/**
- * Get quote status color classes
- */
-const getQuoteStatusColor = (status: QuoteData['status']): string => {
-  const colors = {
-    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-  }
-  return colors[status] || colors.draft
+// Status Color Mappings
+const QUOTE_STATUS_COLORS = {
+  draft: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  approved: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+} as const
+
+const TASK_STATUS_COLORS = {
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+} as const
+
+// Status Label Mappings
+const QUOTE_STATUS_LABELS = {
+  draft: 'Draft',
+  pending: 'Pending Approval',
+  approved: 'Approved',
+  rejected: 'Rejected'
+} as const
+
+const TASK_STATUS_LABELS = {
+  pending: 'Pending',
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  cancelled: 'Cancelled'
+} as const
+
+// Generic status helper factory
+function createStatusHelper<T extends string>(
+  map: Record<T, string>,
+  defaultKey: T
+) {
+  return (status: T): string => map[status] || map[defaultKey]
 }
 
-/**
- * Get quote status label
- */
-const getQuoteStatusLabel = (status: QuoteData['status']): string => {
-  const labels = {
-    draft: 'Draft',
-    pending: 'Pending Approval',
-    approved: 'Approved',
-    rejected: 'Rejected'
-  }
-  return labels[status] || 'Draft'
-}
-
-/**
- * Get task status color classes
- */
-const getStatusColor = (status: EnquiryTask['status']): string => {
-  const colors = {
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    'in-progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-  }
-  return colors[status] || colors['in-progress']
-}
-
-/**
- * Get task status label
- */
-const getStatusLabel = (status: EnquiryTask['status']): string => {
-  const labels = {
-    pending: 'Pending',
-    'in-progress': 'In Progress',
-    completed: 'Completed',
-    cancelled: 'Cancelled'
-  }
-  return labels[status] || 'In Progress'
-}
+// Typed status helpers
+const getQuoteStatusColor = createStatusHelper<QuoteData['status']>(QUOTE_STATUS_COLORS, 'draft')
+const getQuoteStatusLabel = createStatusHelper<QuoteData['status']>(QUOTE_STATUS_LABELS, 'draft')
+const getStatusColor = createStatusHelper<EnquiryTask['status']>(TASK_STATUS_COLORS, 'in_progress')
+const getStatusLabel = createStatusHelper<EnquiryTask['status']>(TASK_STATUS_LABELS, 'in_progress')
 
 /**
  * Format currency for display
  */
 const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-KE', {
+  return new Intl.NumberFormat(CONSTANTS.CURRENCY.LOCALE, {
     style: 'currency',
-    currency: 'KES',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    currency: CONSTANTS.CURRENCY.CODE,
+    minimumFractionDigits: CONSTANTS.CURRENCY.DECIMALS,
+    maximumFractionDigits: CONSTANTS.CURRENCY.DECIMALS
   }).format(amount)
 }
 
@@ -1187,7 +1245,7 @@ const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExp
   if ('totalPrice' in item) {
     // Material item
     // Ensure days is at least 1
-    if (!item.days || item.days < 1) item.days = 1
+    if (!item.days || item.days < 1) item.days = CONSTANTS.DEFAULT_DAYS
     
     // Calculate total price: Qty * Days * Unit Price
     item.totalPrice = item.quantity * item.days * item.unitPrice
@@ -1273,7 +1331,7 @@ const updateDiscount = () => {
 const toggleVAT = () => {
   quoteData.vatEnabled = !quoteData.vatEnabled
   // Ensure VAT percentage is always 16%
-  quoteData.vatPercentage = 16
+  quoteData.vatPercentage = CONSTANTS.VAT_RATE
   calculateAllTotals()
   quoteData.updatedAt = new Date()
 }
@@ -1305,19 +1363,20 @@ const closeQuoteViewer = () => {
 }
 
 
-
 /**
- * Auto-import budget data when component loads
+ * Fetch budget data from the backend API
  */
-const autoImportBudgetData = async () => {
-  // Skip if budget is already imported
-  if (quoteData.budgetImported) {
+const fetchBudgetData = async (options = { showLoading: false, skipIfExists: false }) => {
+  // Skip if budget is already imported and we want to skip
+  if (options.skipIfExists && quoteData.budgetImported) {
     return
   }
 
-  isImporting.value = true
+  if (options.showLoading) {
+    isImporting.value = true
+  }
+
   try {
-    // Real API call to import budget data
     const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/import-budget`)
 
     if (response.data.data) {
@@ -1333,43 +1392,21 @@ const autoImportBudgetData = async () => {
     // Check if it's a 404 (no budget data available yet) - this is expected
     if (error.response?.status === 404) {
       console.log('No budget data available yet - budget task needs to be completed first')
-      // Don't treat 404 as an error - it's expected when budget doesn't exist
       return
     }
-
+    
     // Check if it's a 409 (budget task not completed) - also expected
     if (error.response?.status === 409) {
-      console.log('Budget task not completed yet - cannot import data')
-      // Don't treat 409 as an error - it's expected when budget task is pending
+      console.log('Budget task not completed yet')
       return
     }
 
-    // Only log actual errors, not expected 404s or 409s
-    console.error('Failed to auto-import budget data:', error)
-  } finally {
-    isImporting.value = false
-  }
-}
-
-/**
- * Import budget data from the backend API
- */
-const importBudgetData = async () => {
-  try {
-    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/import-budget`)
-
-    if (response.data.data) {
-      // Update reactive data with imported budget data
-      Object.assign(quoteData, response.data.data)
-      calculateAllTotals()
-
-      console.log(`Budget data imported successfully! ${quoteData.materials.length} material elements, ${quoteData.labour.length} labour items, ${quoteData.expenses.length} expenses, ${quoteData.logistics.length} logistics items.`)
-    } else {
-      throw new Error('No data received from budget import')
-    }
-  } catch (error) {
     console.error('Failed to import budget data:', error)
     throw error
+  } finally {
+    if (options.showLoading) {
+      isImporting.value = false
+    }
   }
 }
 
@@ -1449,10 +1486,10 @@ const calculateAllTotals = () => {
   )
 
   // Calculate VAT (always 16% when enabled)
-  quoteData.vatPercentage = 16 // Ensure VAT is always 16%
-  quoteData.totals.vatPercentage = 16
+  quoteData.vatPercentage = CONSTANTS.VAT_RATE // Ensure VAT is always 16%
+  quoteData.totals.vatPercentage = CONSTANTS.VAT_RATE
   quoteData.totals.vatAmount = quoteData.vatEnabled ?
-    roundCurrency(quoteData.totals.totalAfterDiscount * 0.16) : 0
+    roundCurrency(quoteData.totals.totalAfterDiscount * (CONSTANTS.VAT_RATE / 100)) : 0
 
   // Final total including VAT
   quoteData.totals.grandTotal = roundCurrency(
@@ -1468,8 +1505,10 @@ const calculateAllTotals = () => {
 onMounted(async () => {
   await loadExistingQuote()
   if (!quoteData.budgetImported) {
-    await autoImportBudgetData()
+    await fetchBudgetData({ showLoading: true, skipIfExists: true })
   }
+  // Check if budget has been updated after quote was created
+  await checkBudgetStatus()
 })
 
 // Load existing quote data
@@ -1512,6 +1551,49 @@ const saveQuote = async () => {
   } catch (error) {
     console.error('Failed to save quote:', error)
     throw error
+  }
+}
+
+// Check budget status on load
+const checkBudgetStatus = async () => {
+  if (!props.task?.id || !quoteData.budgetImported) {
+    budgetStatus.value = 'no_budget'
+    return
+  }
+
+  try {
+    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote/budget-status`)
+    
+    budgetStatus.value = response.data.status
+    showBudgetWarning.value = response.data.status === 'outdated'
+    
+    console.log('Budget status checked:', response.data.status)
+  } catch (error) {
+    console.error('Failed to check budget status:', error)
+    budgetStatus.value = 'no_budget'
+  }
+}
+
+// Smart merge from budget
+const smartMergeBudget = async () => {
+  isMerging.value = true
+  try {
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/smart-merge`)
+    
+    if (response.data.data) {
+      Object.assign(quoteData, response.data.data)
+      calculateAllTotals()
+      
+      // Verify status with server to ensure UI is in sync
+      await checkBudgetStatus()
+      
+      console.log('Budget merged successfully!')
+    }
+  } catch (error) {
+    console.error('Failed to merge budget:', error)
+    throw error
+  } finally {
+    isMerging.value = false
   }
 }
 
