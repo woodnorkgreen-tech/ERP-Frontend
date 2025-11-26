@@ -201,7 +201,7 @@
                 </span>
               </div>
               <div class="mt-2 text-xs flex items-center gap-3">
-                <span v-if="task.material_approval.departments.design" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                <span v-if="task.material_approval.departments.design" class="flex items-center text-blue-600 dark:text-blue-400 font-medium">
                   <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   Design
                 </span>
@@ -210,7 +210,7 @@
                   Design
                 </span>
                 
-                <span v-if="task.material_approval.departments.production" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                <span v-if="task.material_approval.departments.production" class="flex items-center text-blue-600 dark:text-blue-400 font-medium">
                   <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   Production
                 </span>
@@ -219,7 +219,7 @@
                   Production
                 </span>
                 
-                <span v-if="task.material_approval.departments.finance" class="flex items-center text-emerald-600 dark:text-emerald-400 font-medium">
+                <span v-if="task.material_approval.departments.finance" class="flex items-center text-blue-600 dark:text-blue-400 font-medium">
                   <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   Finance
                 </span>
@@ -563,7 +563,7 @@ const getTaskTypeIcon = (type: string) => {
   const icons: Record<string, string> = {
     'site-survey': 'bg-blue-500',
     'design': 'bg-purple-500',
-    'materials': 'bg-emerald-600',
+    'materials': 'bg-orange-600',
     'budget': 'bg-yellow-500',
     'quote': 'bg-indigo-500',
     'event': 'bg-pink-500',

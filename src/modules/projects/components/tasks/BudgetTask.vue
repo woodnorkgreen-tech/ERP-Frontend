@@ -36,6 +36,81 @@
         </p>
       </div>
 
+      <!-- Preview Mode Banner -->
+      <div class="flex items-center space-x-4 mb-4" v-if="isPreviewingVersion">
+        <div class="flex-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <div>
+              <h5 class="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                Previewing: {{ previewingVersionLabel }}
+              </h5>
+              <p class="text-xs text-blue-600 dark:text-blue-300">
+                You are viewing a snapshot. Changes made here will not be saved unless you restore this version.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button @click="exitPreview"
+              class="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Exit Preview
+            </button>
+            <button 
+              @click="restoreFromPreview"
+              class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+            >
+              Restore This Version
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Material Update Warning Banner -->
+      <div class="flex items-center space-x-4 mb-6" v-if="materialsUpdateStatus.hasUpdate && !isPreviewingVersion">
+        <div class="flex-1 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 flex items-start space-x-3">
+          <svg class="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div class="flex-1">
+            <h5 class="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
+              Budget Updated
+            </h5>
+            <p class="text-sm text-orange-700 dark:text-orange-300">
+              The MATERIAL LIST has been modified since this BUDGET was created. Your BUDGET may contain outdated OR missing items.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 ml-4">
+          <button
+            @click="refreshFromMaterials"
+            :disabled="isRefreshing"
+            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+          >
+            <svg v-if="isRefreshing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            {{ isRefreshing ? 'Refreshing...' : 'Refresh from MATERIAL' }}
+          </button>
+          <button
+            @click="materialsUpdateStatus.hasUpdate = false"
+            class="p-2 text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors"
+            title="Dismiss"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
       <!-- Header with title -->
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
@@ -127,6 +202,29 @@
           ></div>
         </div>
         <p class="text-xs text-indigo-700 dark:text-indigo-300 mt-1">{{ progressState.message }}</p>
+      </div>
+
+      <!-- Version Management Buttons -->
+      <div class="flex items-center justify-end space-x-2 mb-4">
+        <CreateVersionButton
+          title="Budget"
+          type="budget"
+          @create="handleCreateVersion"
+        />
+        <button
+          @click="showVersionHistory = true"
+          class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Version History</span>
+        </button>
       </div>
 
       <!-- Tab Navigation -->
@@ -221,11 +319,26 @@
         </button>
       </div>
     </form>
+
+    <!-- Version History Modal -->
+    <VersionHistoryModal
+      :is-open="showVersionHistory"
+      :versions="budgetVersions"
+      :is-loading="versionsLoading"
+      :error="versionsError"
+      title="Budget"
+      type="budget"
+      @close="showVersionHistory = false"
+      @preview="handlePreviewVersion"
+      @restore="handleRestoreVersion"
+      @refresh="fetchVersions"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { useVersioning } from '@/composables/useVersioning'
 import { useBudgetState } from '../../composables/useBudgetState'
 import { useBudgetOperations } from '../../composables/useBudgetOperations'
 import { useBudgetValidation } from '../../composables/useBudgetValidation'
@@ -237,7 +350,10 @@ import BudgetExpensesTab from './BudgetExpensesTab.vue'
 import BudgetLogisticsTab from './BudgetLogisticsTab.vue'
 import BudgetSummaryTab from './BudgetSummaryTab.vue'
 import BudgetAdditionsTab from './BudgetAdditionsTab.vue'
+import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
+import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import type { EnquiryTask } from '../../types/enquiry'
+import api from '@/plugins/axios'
 
 
 interface Props {
@@ -288,6 +404,159 @@ const {
   handleSubmit, // Used in template form submission
 } = useBudgetOperations(state, props.task, emit)
 
+// Version Management
+const showVersionHistory = ref(false)
+const {
+  versions: budgetVersions,
+  isLoading: versionsLoading,
+  error: versionsError,
+  fetchVersions,
+  createVersion,
+  restoreVersion,
+} = useVersioning(computed(() => props.task.id), 'budget')
+
+// Preview Mode State
+const isPreviewingVersion = ref(false)
+const previewingVersionLabel = ref('')
+const previewingVersionId = ref<number | null>(null)
+const originalBudgetData = ref<any>(null)
+
+// Materials Update Status
+const materialsUpdateStatus = ref({
+  hasUpdate: false,
+  message: '',
+  materialsLastUpdated: null as string | null,
+  budgetLastImported: null as string | null
+})
+const isRefreshing = ref(false)
+
+// Check materials update status
+const checkMaterialsUpdateStatus = async () => {
+  try {
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/budget/check-materials-update`)
+    if (response.data?.data) {
+      materialsUpdateStatus.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Failed to check materials update status:', error)
+  }
+}
+
+// Refresh from materials (import)
+const refreshFromMaterials = async () => {
+  if (!confirm('This will replace your current budget materials with the latest approved materials. Continue?')) {
+    return
+  }
+  
+  try {
+    isRefreshing.value = true
+    // Force re-import even if materials already exist
+    await importMaterials(true)
+    
+    // Reload budget data to show the imported materials in the UI
+    await loadBudgetData()
+    
+    // After successful import, materials are now in sync - hide the warning banner
+    materialsUpdateStatus.value.hasUpdate = false
+    
+    // No need to re-check - we just imported, so we know they're in sync
+  } catch (error: any) {
+    alert(error.message || 'Failed to refresh from materials')
+  } finally {
+    isRefreshing.value = false
+  }
+}
+
+const handleCreateVersion = async (label: string | undefined) => {
+  try {
+    const response = await createVersion(label)
+    
+    // Show material version link info
+    if (response.data?.materials_version_id) {
+      alert(
+        `${response.message}\nLinked to Material Version ${response.data.materials_version_number || 'latest'}`
+      )
+    } else {
+      alert(response.message || 'Version created successfully')
+    }
+  } catch (error) {
+    console.error('Failed to create version:', error)
+    alert('Failed to create version. Please try again.')
+  }
+}
+
+const handleRestoreVersion = async (versionId: number) => {
+  try {
+    const response = await restoreVersion(versionId)
+    
+    // Show warnings
+    const warnings = response.warnings || (response.warning ? [response.warning] : [])
+    if (warnings.length > 0) {
+      alert('⚠️ Warnings:\n' + warnings.join('\n'))
+    }
+    
+    if (response.status_reset_to_draft) {
+      alert('✅ Version restored! Note: Budget status has been reset to draft.')
+    } else {
+      alert('✅ Version restored successfully!')
+    }
+    
+    // Reload budget data
+    await loadBudgetData()
+    showVersionHistory.value = false
+  } catch (error) {
+    console.error('Failed to restore version:', error)
+    alert('Failed to restore version. Please try again.')
+  }
+}
+
+// Preview Mode Handlers
+const handlePreviewVersion = async (version: any) => {
+  // Save original budget data
+  originalBudgetData.value = JSON.parse(JSON.stringify(state.formData))
+  
+  // Load version data into the form
+  if (version.data) {
+    Object.assign(state.formData, version.data)
+  }
+  
+  // Set preview mode
+  isPreviewingVersion.value = true
+  previewingVersionLabel.value = version.label
+  previewingVersionId.value = version.id
+}
+
+const exitPreview = async () => {
+  // Restore original data
+  if (originalBudgetData.value) {
+    Object.assign(state.formData, originalBudgetData.value)
+  } else {
+    // Fallback: reload from server
+    await loadBudgetData()
+  }
+  
+  // Exit preview mode
+  isPreviewingVersion.value = false
+  previewingVersionLabel.value = ''
+  previewingVersionId.value = null
+  originalBudgetData.value = null
+}
+
+const restoreFromPreview = async () => {
+  if (!previewingVersionId.value) return
+  
+  // Exit preview first
+  isPreviewingVersion.value = false
+  
+  // Then restore the version
+  await handleRestoreVersion(previewingVersionId.value)
+  
+  // Clean up
+  previewingVersionLabel.value = ''
+  previewingVersionId.value = null
+  originalBudgetData.value = null
+}
+
 // Remove the duplicate additions tab addition since it's already in useBudgetOperations
 
 // Watch for readonly changes to reload data when switching modes
@@ -302,6 +571,7 @@ watch(readonly, (newReadonly: boolean) => {
 // Initialize
 onMounted(() => {
   loadBudgetData()
+  checkMaterialsUpdateStatus()
 })
 </script>
 

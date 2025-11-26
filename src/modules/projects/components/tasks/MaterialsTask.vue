@@ -24,6 +24,39 @@
 
     <!-- Main Content -->
     <div v-else>
+      <!-- Preview Mode Banner -->
+      <div class="flex items-center space-x-4 mb-6" v-if="isPreviewingVersion">
+        <div class="flex-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <div>
+              <h5 class="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                Previewing: {{ previewingVersionLabel }}
+              </h5>
+              <p class="text-xs text-blue-600 dark:text-blue-300">
+                You are viewing a snapshot. Changes made here will not be saved unless you restore this version.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button  @click="exitPreview"
+              class="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Exit Preview
+            </button>
+            <button 
+              @click="restoreFromPreview"
+              class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+            >
+              Restore This Version
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Project Header Section -->
     <div class="mb-6">
       <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -77,6 +110,28 @@
             </svg>
             <span>{{ allElementsCollapsed ? 'Expand All' : 'Collapse All' }}</span>
           </button>
+
+          <!-- Version Management Buttons -->
+          <CreateVersionButton
+            title="Material"
+            type="materials"
+            @create="handleCreateVersion"
+          />
+          <button
+            @click="showVersionHistory = true"
+            class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>Version History</span>
+          </button>
+
           <button
             @click="openAddElementModal"
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
@@ -142,6 +197,18 @@
                 </svg>
                 <span>Edit</span>
               </button>
+              <button
+                @click.stop="confirmDeleteElement(element)"
+                class="text-xs text-red-600 dark:text-red-400 opacity-75 hover:opacity-100 transition-opacity flex items-center space-x-1"
+                :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to delete elements' : 'Delete Element'"
+                :disabled="task.status === 'completed' && !isEditMode"
+                :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+              >
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Delete</span>
+              </button>
               <!-- Collapse/Expand Icon -->
               <div class="text-xs opacity-75">
                 <svg
@@ -159,72 +226,70 @@
 
           <!-- Materials Table (collapsible) -->
           <div v-if="element.isIncluded && !isElementCollapsed(element.id)" class="border-t border-gray-200 dark:border-gray-700">
-            <div class="p-4">
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                  <thead>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300 w-8">Include</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Particulars</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Unit</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Quantity</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300 w-20">Supplementary</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="material in element.materials" :key="material.id" class="border-b border-gray-100 dark:border-gray-800">
-                      <td class="py-2">
-                        <input
-                          type="checkbox"
-                          v-model="material.isIncluded"
-                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 line-through'">
-                        {{ material.description }}
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
-                        {{ material.unitOfMeasurement }}
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
-                        <input
-                          v-if="material.isIncluded"
-                          type="number"
-                          v-model.number="material.quantity"
-                          step="0.1"
-                          min="0"
-                          class="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <span v-else>{{ material.quantity }}</span>
-                      </td>
-                      <td class="py-2 text-center">
-                        <div v-if="material.isAdditional" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                          </svg>
-                          <span class="font-medium">Supplementary</span>
-                        </div>
-                        <button
-                          v-else
-                          @click="openBudgetSelectionModal(material)"
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-900 dark:hover:text-amber-200 border border-gray-300 dark:border-gray-600 hover:border-amber-300 dark:hover:border-amber-700 transition-colors"
-                          :title="'Choose budget type - main or supplementary'"
-                        >
-                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                          </svg>
-                          <span>Add to Budget</span>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr v-if="element.materials.length === 0">
-                      <td colspan="5" class="py-4 text-center text-gray-500 dark:text-gray-400 italic">
-                        No materials defined for this element
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-8">Include</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Particulars</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">Supplementary</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tr v-for="material in element.materials" :key="material.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        v-model="material.isIncluded"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </td>
+                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 line-through'">
+                      {{ material.description }}
+                    </td>
+                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
+                      {{ material.unitOfMeasurement }}
+                    </td>
+                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
+                      <input
+                        v-if="material.isIncluded"
+                        type="number"
+                        v-model.number="material.quantity"
+                        step="0.1"
+                        min="0"
+                        class="w-20 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <span v-else>{{ material.quantity }}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-center">
+                      <div v-if="material.isAdditional" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span class="font-medium">Supplementary</span>
+                      </div>
+                      <button
+                        v-else
+                        @click="openBudgetSelectionModal(material)"
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-900 dark:hover:text-amber-200 border border-gray-300 dark:border-gray-600 hover:border-amber-300 dark:hover:border-amber-700 transition-colors"
+                        :title="'Choose budget type - main or supplementary'"
+                      >
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Add to Budget</span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr v-if="element.materials.length === 0">
+                    <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400 italic">
+                      No materials defined for this element
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -258,12 +323,12 @@
         </p>
 
         <!-- Overall Status Banner -->
-        <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <div class="flex items-center space-x-2">
-            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            <span class="text-sm font-medium text-green-800 dark:text-green-200">
+            <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
               ✓ All departments approved. Budget import enabled.
             </span>
           </div>
@@ -297,7 +362,7 @@
           />
           <ApprovalCard
             department="finance"
-            title="Finance"
+            title="Accounts / Costing"
             :approval-data="approvalStatus.finance"
             :can-approve="canApproveForDepartment('finance')"
             @approve="approveForDepartment('finance', $event)"
@@ -312,7 +377,7 @@
         <button
           @click="saveMaterialsList"
           :disabled="isSaving"
-          class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
         >
           <svg v-if="isSaving" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -399,7 +464,7 @@
             'px-4 py-2 text-white text-sm rounded-lg transition-colors flex items-center space-x-2',
             task.status === 'completed'
               ? 'bg-orange-500 hover:bg-orange-600'
-              : 'bg-green-500 hover:bg-green-600'
+              : 'bg-blue-500 hover:bg-blue-600'
           ]"
         >
           <svg v-if="task.status === 'completed'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,7 +476,7 @@
           <span>{{ task.status === 'completed' ? 'Reopen Task' : 'Mark Complete' }}</span>
         </button>
 
-        <div v-if="task.status === 'completed' && !isEditMode" class="flex items-center space-x-2 text-green-600 dark:text-green-400">
+        <div v-if="task.status === 'completed' && !isEditMode" class="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
@@ -431,7 +496,7 @@
           <div class="flex items-center space-x-3">
             <button
               @click="printMaterialsList"
-              class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
@@ -557,12 +622,12 @@
               </p>
 
               <!-- Overall Status Banner -->
-              <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                   </svg>
-                  <span class="text-sm font-medium text-green-800 dark:text-green-200">
+                  <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
                     ✓ All departments approved. Budget import enabled.
                   </span>
                 </div>
@@ -596,7 +661,7 @@
                 />
                 <ApprovalCard
                   department="finance"
-                  title="Finance"
+                  title="Accounts / Costing"
                   :approval-data="approvalStatus.finance"
                   :can-approve="canApproveForDepartment('finance')"
                   @approve="approveForDepartment('finance', $event)"
@@ -644,15 +709,33 @@
       @close="closeBudgetModal"
       @select-budget-type="handleBudgetTypeSelection"
     />
+
+    <!-- Version History Modal -->
+    <VersionHistoryModal
+      :is-open="showVersionHistory"
+      :versions="materialVersions"
+      :is-loading="versionsLoading"
+      :error="versionsError"
+      title="Material"
+      type="materials"
+      @close="showVersionHistory = false"
+      @preview="handlePreviewVersion"
+      @restore="handleRestoreVersion"
+      @refresh="fetchVersions"
+    />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
 import MaterialsModal from '../MaterialsModal.vue'
 import AddMaterialBudgetModal from '../AddMaterialBudgetModal.vue'
+import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
+import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import ApprovalCard from './materials/ApprovalCard.vue'
 import { MaterialsService } from '../../services/materialsService'
 import { BudgetAdditionService } from '../../services/budgetAdditionService'
@@ -865,6 +948,40 @@ const loadMaterialsData = async () => {
 }
 
 /**
+ * Confirm and delete an element
+ */
+const confirmDeleteElement = async (element: ProjectElement) => {
+  if (!confirm(`Are you sure you want to delete the element "${element.name}" and all its materials? This action cannot be undone.`)) {
+    return
+  }
+
+  try {
+    isLoading.value = true
+    error.value = null
+    
+    const response = await api.delete(`/api/projects/tasks/${props.task.id}/materials/elements/${element.id}`)
+    
+    // Reload data to reflect changes
+    await loadMaterialsData()
+
+    // If approvals were reset, reload approval status
+    if (response.data.approvals_reset) {
+      await loadApprovalStatus()
+      // Optional: Show a message that approvals were reset
+      console.log('Approvals have been reset due to element deletion')
+    }
+    
+    // Show success message (using console for now as per existing patterns, or could set a success state if available)
+    console.log('Element deleted successfully')
+  } catch (err: any) {
+    console.error('Failed to delete element:', err)
+    error.value = err.response?.data?.message || 'Failed to delete element'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+/**
  * Reactive materials data structure
  * Will be loaded from backend or initialized with project info only
  */
@@ -901,9 +1018,26 @@ const editingElement = ref<ProjectElement | null>(null)
 // View modal state
 const isViewModalOpen = ref(false)
 
-// Budget selection modal state
+// Budget sel selection modal state
 const isBudgetModalOpen = ref(false)
 const pendingMaterialForBudget = ref<MaterialItem | null>(null)
+
+// Version Management
+const showVersionHistory = ref(false)
+const {
+  versions: materialVersions,
+  isLoading: versionsLoading,
+  error: versionsError,
+  fetchVersions,
+  createVersion,
+  restoreVersion,
+} = useVersioning(computed(() => props.task.id), 'materials')
+
+// Preview Mode State
+const isPreviewingVersion = ref(false)
+const previewingVersionLabel = ref('')
+const previewingVersionId = ref<number | null>(null)
+const originalMaterialsData = ref<any>(null)
 
 // Collapsed state for elements (initialize with all elements collapsed)
 const collapsedElements = ref<Set<string>>(new Set())
@@ -965,29 +1099,33 @@ const loadApprovalStatus = async () => {
 
 // Check if current user can approve for a department
 const canApproveForDepartment = (department: 'design' | 'production' | 'finance'): boolean => {
-  // Get user roles from auth store or wherever they're stored
-  // For now, we'll use a simple check - you may need to adjust based on your auth system
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  const userRoles = (user?.roles || []).map((r: any) => r.name?.toLowerCase())
+  // Get user roles from useAuth composable
+  const { user } = useAuth()
   
-  // TEMPORARY: Test Mode to allow everyone to approve
-  const isTestMode = true 
-  if (isTestMode) {
-    console.log('Test Mode Enabled: Allowing approval for all departments')
-    return true
+  // Ensure user.value is available
+  if (!user.value) {
+    console.warn('User not found in auth store')
+    return false
   }
 
+  // Extract roles - handle both array of strings (from fetchUser) and array of objects (if structure differs)
+  const userRoles = (user.value.roles || []).map((r: any) => {
+    if (typeof r === 'string') return r.toLowerCase()
+    return r.name?.toLowerCase()
+  })
+  
   const roleMap: Record<string, string[]> = {
-    design: ['design_lead', 'creative_director', 'design manager', 'admin', 'superadmin', 'super-admin', 'super admin', 'design'],
-    production: ['production_manager', 'production manager', 'operations_manager', 'operations manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
-    finance: ['finance_manager', 'finance manager', 'cfo', 'admin', 'superadmin', 'super-admin', 'super admin', 'accounts/costing']
+    design: ['designer', 'design_lead', 'creative_director', 'design manager', 'admin', 'superadmin', 'super-admin', 'super admin', 'design'],
+    production: ['production', 'production_manager', 'production manager', 'operations_manager', 'operations manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
+    finance: ['accounts', 'costing', 'finance', 'finance_manager', 'finance manager', 'cfo', 'admin', 'superadmin', 'super-admin', 'super admin', 'accounts/costing']
   }
 
   console.log('Debug Roles:', { 
-    fullUserObject: user, // Log full object to see structure
+    userEmail: user.value.email,
     userRoles, 
     department, 
-    checkingFor: roleMap[department] 
+    checkingFor: roleMap[department],
+    hasPermission: (roleMap[department] || []).some(role => userRoles.includes(role.toLowerCase()))
   })
   
   const allowedRoles = roleMap[department] || []
@@ -1011,6 +1149,91 @@ onMounted(() => {
   loadMaterialsData()
   loadApprovalStatus()
 })
+
+// Version Management Handlers
+const handleCreateVersion = async (label: string | undefined) => {
+  try {
+    const response = await createVersion(label)
+    alert(response.message || 'Version created successfully')
+  } catch (error) {
+    console.error('Failed to create version:', error)
+    alert('Failed to create version. Please try again.')
+  }
+}
+
+const handleRestoreVersion = async (versionId: number) => {
+  try {
+    const response = await restoreVersion(versionId)
+    
+    // Show warnings if any
+    if (response.warning) {
+      alert(`⚠️ ${response.warning}`)
+    }
+    
+    if (response.approvals_reset) {
+      alert('✅ Version restored! Note: All approvals have been reset to draft.')
+    } else {
+      alert('✅ Version restored successfully!')
+    }
+    
+    // Reload materials data
+    await loadMaterialsData()
+    await loadApprovalStatus()
+    showVersionHistory.value = false
+  } catch (error) {
+    console.error('Failed to restore version:', error)
+    alert('Failed to restore version. Please try again.')
+  }
+}
+
+// Preview Mode Handlers
+const handlePreviewVersion = async (version: any) => {
+  // Save original data
+  originalMaterialsData.value = JSON.parse(JSON.stringify(materialsData))
+  
+  // Load version data into the view
+  if (version.data) {
+    Object.assign(materialsData, version.data)
+    initializeCollapsedState()
+  }
+  
+  // Set preview mode
+  isPreviewingVersion.value = true
+  previewingVersionLabel.value = version.label
+  previewingVersionId.value = version.id
+}
+
+const exitPreview = async () => {
+  // Restore original data
+  if (originalMaterialsData.value) {
+    Object.assign(materialsData, originalMaterialsData.value)
+    initializeCollapsedState()
+  } else {
+    // Fallback: reload from server
+    await loadMaterialsData()
+  }
+  
+  // Exit preview mode
+  isPreviewingVersion.value = false
+  previewingVersionLabel.value = ''
+  previewingVersionId.value = null
+  originalMaterialsData.value = null
+}
+
+const restoreFromPreview = async () => {
+  if (!previewingVersionId.value) return
+  
+  // Exit preview first
+  isPreviewingVersion.value = false
+  
+  // Then restore the version
+  await handleRestoreVersion(previewingVersionId.value)
+  
+  // Clean up
+  previewingVersionLabel.value = ''
+  previewingVersionId.value = null
+  originalMaterialsData.value = null
+}
 
 /**
  * Open the modal for adding a new element
@@ -1340,19 +1563,35 @@ const getIncludedMaterialsCount = (element: ProjectElement): number => {
 
 /**
  * Get CSS classes for element header based on template
+ * Uses vibrant gradient colors matching Procurement Task design
  * @param templateId - The template ID to get styling for
  * @returns CSS class string for element header styling
  */
 const getElementHeaderClass = (templateId: string): string => {
   const template = materialsData.availableElements.find(t => t.id === templateId)
-  const colorClasses: Record<string, string> = {
-    'green': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-    'blue': 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-    'purple': 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
-    'orange': 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
-    'teal': 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+  const elementName = template?.name?.toUpperCase() || ''
+  
+  // Dynamic color mapping based on element name (matching Procurement Task)
+  const elementColors: Record<string, string> = {
+    'STAGE': 'bg-gradient-to-r from-blue-600 to-blue-700 text-white',
+    'BACKDROP': 'bg-gradient-to-r from-purple-600 to-purple-700 text-white',
+    'LIGHTING': 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white',
+    'SOUND': 'bg-gradient-to-r from-orange-600 to-orange-700 text-white',
+    'FURNITURE': 'bg-gradient-to-r from-red-600 to-red-700 text-white',
+    'DECOR': 'bg-gradient-to-r from-pink-600 to-pink-700 text-white',
+    'SIGNAGE': 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white',
+    'BOOTH': 'bg-gradient-to-r from-cyan-600 to-cyan-700 text-white'
   }
-  return colorClasses[template?.color || 'green'] || colorClasses.green
+  
+  // Check if element name contains any of the keywords
+  for (const [key, color] of Object.entries(elementColors)) {
+    if (elementName.includes(key)) {
+      return color
+    }
+  }
+  
+  // Default gradient if no match found
+  return 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
 }
 
 /**
@@ -1364,7 +1603,7 @@ const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
     'pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     'in_progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    'completed': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   }
   return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
@@ -1406,7 +1645,7 @@ const getElementCategoryLabel = (category: string): string => {
  */
 const getElementCategoryClass = (category: string): string => {
   const classes: Record<string, string> = {
-    'production': 'bg-green-100 text-green-800',
+    'production': 'bg-teal-100 text-teal-800',
     'hire': 'bg-blue-100 text-blue-800',
     'outsourced': 'bg-orange-100 text-orange-800'
   }

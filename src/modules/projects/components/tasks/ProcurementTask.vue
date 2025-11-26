@@ -178,7 +178,7 @@
                       <td class="px-4 py-3 text-sm">
                         <span :class="[
                           'font-medium',
-                          material.purchaseQuantity > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'
+                          material.purchaseQuantity > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'
                         ]">
                           {{ material.purchaseQuantity }}
                         </span>
@@ -222,109 +222,6 @@
         </div>
       </div>
 
-      <!-- Budget Tab -->
-      <div v-if="activeTab === 'budget'">
-        <div class="space-y-6">
-          <!-- Budget Overview Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Materials Budget Card -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-blue-700 dark:text-blue-300">Materials Budget</h3>
-                <span class="text-2xl">💰</span>
-              </div>
-              <div class="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-2">
-                KES {{ (totalBudget || 0).toLocaleString() }}
-              </div>
-              <div class="text-sm text-blue-600 dark:text-blue-400">
-                {{ procurementData.procurementItems.length }} items
-              </div>
-            </div>
-
-            <!-- Budget Allocated Card -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-green-700 dark:text-green-300">Budget Allocated</h3>
-                <span class="text-2xl">📉</span>
-              </div>
-              <div class="text-3xl font-bold text-green-900 dark:text-green-100 mb-2">
-                KES {{ (totalSpent || 0).toLocaleString() }}
-              </div>
-              <div class="text-sm text-green-600 dark:text-green-400">
-                {{ totalBudget ? Math.round((totalSpent / totalBudget) * 100) : 0 }}% of budget
-              </div>
-            </div>
-
-            <!-- Budget Variance Card -->
-            <div :class="[
-              'p-6 rounded-xl border',
-              budgetVariance >= 0
-                ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-700'
-                : 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-700'
-            ]">
-              <div class="flex items-center justify-between mb-4">
-                <h3 :class="[
-                  'text-sm font-medium',
-                  budgetVariance >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'
-                ]">Budget Variance</h3>
-                <span class="text-2xl">{{ budgetVariance >= 0 ? '✅' : '⚠️' }}</span>
-              </div>
-              <div :class="[
-                'text-3xl font-bold mb-2',
-                budgetVariance >= 0 ? 'text-emerald-900 dark:text-emerald-100' : 'text-red-900 dark:text-red-100'
-              ]">
-                KES {{ Math.abs(budgetVariance || 0).toLocaleString() }}
-              </div>
-              <div :class="[
-                'text-sm',
-                budgetVariance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-              ]">
-                {{ budgetVariance >= 0 ? 'Under budget' : 'Over budget' }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Procurement Progress Dashboard -->
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-              <span class="mr-2">📊</span>
-              Procurement Progress Dashboard
-            </h4>
-
-            <!-- Overall Progress Bar -->
-            <div class="mb-6">
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Completion</span>
-                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ overallCompletionPercentage }}%</span>
-              </div>
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                <div
-                  class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                  :style="{ width: overallCompletionPercentage + '%' }"
-                ></div>
-              </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {{ completedItemsCount }} of {{ procurementData.procurementItems.length }} items completed
-              </div>
-            </div>
-
-            <!-- Status Breakdown -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div v-for="status in ['pending', 'ordered', 'received', 'cancelled']" :key="status"
-                   class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                  {{ getStatusCount(status) }}
-                </div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 capitalize mb-2">{{ status }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-500">
-                  {{ procurementData.procurementItems.length ? Math.round((getStatusCount(status) / procurementData.procurementItems.length) * 100) : 0 }}%
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Report Tab -->
       <div v-if="activeTab === 'report'" class="space-y-6">
         <!-- Export Options -->
@@ -339,7 +236,7 @@
           <div class="flex items-center space-x-3">
             <button
               @click="exportToExcel"
-              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <span>📊</span>
               <span>Export Excel</span>
@@ -358,12 +255,12 @@
       <!-- Save Status Messages -->
       <div v-if="saveSuccess || saveError || isSaving" class="mb-4">
         <!-- Success Message -->
-        <div v-if="saveSuccess" class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-          <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
+        <div v-if="saveSuccess" class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
             <span class="text-lg">✅</span>
             <div>
               <p class="text-sm font-medium">Procurement data saved successfully</p>
-              <p class="text-xs text-green-500 dark:text-green-300" v-if="lastSaveTime">
+              <p class="text-xs text-blue-500 dark:text-blue-300" v-if="lastSaveTime">
                 Last saved: {{ lastSaveTime.toLocaleTimeString() }}
               </p>
             </div>
@@ -399,7 +296,7 @@
           <button
             v-if="task.status !== 'completed' && task.status !== 'cancelled'"
             @click="updateStatus('completed')"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Complete Task
           </button>
@@ -428,7 +325,7 @@
                 ? 'bg-gray-400 text-white cursor-not-allowed'
                 : hasUnsavedChanges
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
             ]"
           >
             <span v-if="isSaving" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
@@ -462,9 +359,8 @@ const emit = defineEmits<{
 }>()
 
 // Tab management
-const activeTab = ref('budget')
+const activeTab = ref('items')
 const tabs = [
-  { id: 'budget', label: 'Budget Summary', icon: '📊' },
   { id: 'items', label: 'Procurement Progress', icon: '📦' },
   { id: 'report', label: 'Export Data', icon: '📄' }
 ]
@@ -545,11 +441,11 @@ const getElementHeaderClass = (elementName: string) => {
     'STAGE': 'bg-gradient-to-r from-blue-600 to-blue-700',
     'BACKDROP': 'bg-gradient-to-r from-purple-600 to-purple-700',
     'LIGHTING': 'bg-gradient-to-r from-yellow-600 to-yellow-700',
-    'SOUND': 'bg-gradient-to-r from-green-600 to-green-700',
+    'SOUND': 'bg-gradient-to-r from-teal-600 to-teal-700',
     'FURNITURE': 'bg-gradient-to-r from-red-600 to-red-700',
     'DECOR': 'bg-gradient-to-r from-pink-600 to-pink-700',
     'SIGNAGE': 'bg-gradient-to-r from-indigo-600 to-indigo-700',
-    'BOOTH': 'bg-gradient-to-r from-teal-600 to-teal-700'
+    'BOOTH': 'bg-gradient-to-r from-cyan-600 to-cyan-700'
   }
 
   // Safety check for undefined elementName
@@ -655,7 +551,7 @@ const getStatusCount = (status: string) => {
 
 const getStockStatusClass = (status: string) => {
   const classes: Record<string, string> = {
-    'in_stock': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
+    'in_stock': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
     'partial_stock': 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 text-amber-700 dark:text-amber-300',
     'out_of_stock': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300',
     'pending_check': 'border-gray-300 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300'
@@ -668,7 +564,7 @@ const getProcurementStatusClass = (status: string) => {
     'not_needed': 'border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-500',
     'pending': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
     'ordered': 'border-purple-300 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-600 text-purple-700 dark:text-purple-300',
-    'received': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
+    'received': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
     'cancelled': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300'
   }
   return classes[status] || classes['pending']

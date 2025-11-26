@@ -2,7 +2,7 @@
   <div class="task-renderer">
     <!-- Special handling for budget, design, quote, and quote_approval tasks - let them manage their own readonly/edit mode -->
     <component
-      v-if="task.type === 'budget' || task.type === 'design' || task.type === 'quote' || task.type === 'quote_approval' || task.type === 'production' || task.type === 'logistics'"
+      v-if="task.type === 'budget' || task.type === 'design' || task.type === 'quote' || task.type === 'quote_approval' || task.type === 'production' || task.type === 'logistics' || task.type === 'procurement'"
       :is="taskComponent"
       :task="task"
       :readonly="false"

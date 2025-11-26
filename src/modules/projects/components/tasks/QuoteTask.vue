@@ -65,7 +65,7 @@
             Exit Preview
           </button>
           <button 
-            @click="restoreVersion(versions.find(v => v.label === previewingVersionLabel)?.id!)"
+            @click="restoreFromPreview"
             class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
           >
             Restore This Version
@@ -76,59 +76,26 @@
 
 
     <!-- Versioning Controls (Always Visible) -->
-    <div class="mb-6 flex justify-end" v-if="hasExistingQuoteData || versions.length > 0">
-      <div class="relative">
-        <button 
-          @click="showVersionHistory = !showVersionHistory"
-          class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center"
-        >
-          <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Versions
-        </button>
-        
-        <!-- Version History Dropdown -->
-        <div v-if="showVersionHistory" class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-          <div class="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h6 class="text-xs font-semibold uppercase text-gray-500">History</h6>
-            <button @click="createVersion" :disabled="isSavingVersion" class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
-              <svg v-if="isSavingVersion" class="animate-spin mr-1 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ isSavingVersion ? 'Saving...' : '+ Save Snapshot' }}
-            </button>
-          </div>
-          <div class="max-h-64 overflow-y-auto">
-            <div v-if="versions.length === 0" class="p-4 text-center text-xs text-gray-500 italic">
-              No saved versions
-            </div>
-            <div v-else v-for="version in versions" :key="version.id" class="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0">
-              <div class="flex justify-between items-start mb-1">
-                <span class="font-medium text-sm">Version {{ version.version_number }}</span>
-                <span class="text-xs text-gray-500">{{ new Date(version.created_at).toLocaleDateString() }}</span>
-              </div>
-              <div class="text-xs text-gray-500 mb-2">{{ version.label }}</div>
-              <div class="flex space-x-2">
-                <button 
-                  @click="previewVersion(version)" 
-                  class="flex-1 px-2 py-1 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 text-xs rounded text-gray-700 dark:text-gray-300 transition-colors"
-                >
-                  View
-                </button>
-                <button 
-                  @click="restoreVersion(version.id)" 
-                  :disabled="isRestoringVersion"
-                  class="flex-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-xs rounded text-gray-700 dark:text-gray-300 transition-colors"
-                >
-                  Restore
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="mb-6 flex justify-end space-x-2" v-if="hasExistingQuoteData || quoteVersions.length > 0">
+      <CreateVersionButton
+        title="Quote"
+        type="quote"
+        @create="handleCreateVersion"
+      />
+      <button
+        @click="showVersionHistory = true"
+        class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>Version History</span>
+      </button>
     </div>
 
     <!-- Budget Sync Warning Banner -->
@@ -697,6 +664,20 @@
       @close="closeQuoteViewer"
     />
 
+    <!-- Version History Modal -->
+    <VersionHistoryModal
+      :is-open="showVersionHistory"
+      :versions="quoteVersions"
+      :is-loading="versionsLoading"
+      :error="versionsError"
+      title="Quote"
+      type="quote"
+      @close="showVersionHistory = false"
+      @preview="handlePreviewVersion"
+      @restore="handleRestoreVersion"
+      @refresh="fetchVersions"
+    />
+
     <!-- No Budget Data Message -->
     <div v-if="!quoteData.budgetImported && !isImporting" class="mb-6">
       <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
@@ -760,9 +741,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import QuoteViewer from './QuoteViewer.vue'
+import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
+import CreateVersionButton from '../shared/CreateVersionButton.vue'
 
 // Global Constants
 const CONSTANTS = {
@@ -1064,35 +1048,24 @@ const budgetStatus = ref<'checking' | 'up_to_date' | 'outdated' | 'no_budget'>('
 const showBudgetWarning = ref(false)
 
 // Versioning state
-interface QuoteVersion {
-  id: number
-  version_number: number
-  label: string
-  created_at: string
-  created_by_name: string
-}
-
-const versions = ref<QuoteVersion[]>([])
-const isSavingVersion = ref(false)
-const isRestoringVersion = ref(false)
 const showVersionHistory = ref(false)
 const isPreviewingVersion = ref(false)
 const previewingVersionLabel = ref('')
+const previewingVersionId = ref<number | null>(null)
 let originalQuoteData: any = null
 
-// Fetch versions
-const fetchVersions = async () => {
-  try {
-    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote/versions`)
-    versions.value = response.data.data
-  } catch (error) {
-    console.error('Failed to fetch versions:', error)
-  }
-}
+// Version Management using shared composable
+const {
+  versions: quoteVersions,
+  isLoading: versionsLoading,
+  error: versionsError,
+  fetchVersions,
+  createVersion,
+  restoreVersion: restoreVersionAPI,
+} = useVersioning(computed(() => props.task.id), 'quote')
 
-// Create version
-const createVersion = async () => {
-  isSavingVersion.value = true
+// Version handlers
+const handleCreateVersion = async (label: string | undefined) => {
   try {
     // First, save the current quote to ensure it exists in the database
     console.log('Saving quote before creating version...')
@@ -1102,44 +1075,35 @@ const createVersion = async () => {
     // Wait a moment for database transaction to complete
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    // Then create the version
-    console.log('Creating version snapshot...')
-    await axios.post(`/api/projects/tasks/${props.task.id}/quote/version`)
-    await fetchVersions()
-    alert('Version saved successfully!')
-  } catch (error: any) {
+    const response = await createVersion(label)
+    alert(response.message || 'Version created successfully')
+  } catch (error) {
     console.error('Failed to create version:', error)
-    console.error('Error response:', error.response?.data)
-    console.error('Error status:', error.response?.status)
-    alert(`Failed to create version: ${error.response?.data?.message || error.message}`)
-  } finally {
-    isSavingVersion.value = false
+    alert('Failed to create version. Please try again.')
   }
 }
 
-// Preview version
-const previewVersion = async (version: QuoteVersion) => {
+const handlePreviewVersion = async (version: any) => {
   try {
-    // Backup current data if not already previewing
+    // Backup current data  if not already previewing
     if (!isPreviewingVersion.value) {
       originalQuoteData = JSON.parse(JSON.stringify(quoteData))
     }
     
-    const response = await axios.get(`/api/projects/tasks/${props.task.id}/quote/version/${version.id}`)
-    const versionData = response.data.data.data // .data.data (api response) .data (version model json field)
-    
-    Object.assign(quoteData, versionData)
-    calculateAllTotals()
+    // Load version data
+    if (version.data) {
+      Object.assign(quoteData, version.data)
+      calculateAllTotals()
+    }
     
     isPreviewingVersion.value = true
     previewingVersionLabel.value = version.label
-    showVersionHistory.value = false
+    previewingVersionId.value = version.id
   } catch (error) {
     console.error('Failed to preview version:', error)
   }
 }
 
-// Exit preview
 const exitPreview = () => {
   if (originalQuoteData) {
     Object.assign(quoteData, originalQuoteData)
@@ -1148,24 +1112,41 @@ const exitPreview = () => {
   }
   isPreviewingVersion.value = false
   previewingVersionLabel.value = ''
+  previewingVersionId.value = null
 }
 
-// Restore version
-const restoreVersion = async (versionId: number) => {
+const restoreFromPreview = async () => {
+  if (!previewingVersionId.value) return
+  
+  // Exit preview first
+  isPreviewingVersion.value = false
+  
+  // Then restore the version
+  await handleRestoreVersion(previewingVersionId.value)
+  
+  // Clean up
+  previewingVersionLabel.value = ''
+  previewingVersionId.value = null
+  originalQuoteData = null
+}
+
+const handleRestoreVersion = async (versionId: number) => {
   if (!confirm('Are you sure you want to restore this version? Current changes will be lost unless you saved a version.')) return
   
-  isRestoringVersion.value = true
   try {
-    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote/restore/${versionId}`)
-    Object.assign(quoteData, response.data.data)
-    calculateAllTotals()
+    const response = await restoreVersionAPI(versionId)
+    
+    // The response contains the restored data - reload from API to get it
+    if (response.data) {
+      Object.assign(quoteData, response.data)
+      calculateAllTotals()
+    }
+    
     showVersionHistory.value = false
-    isPreviewingVersion.value = false // Exit preview mode if we restore
-    originalQuoteData = null
+    alert('✅ Version restored successfully!')
   } catch (error) {
     console.error('Failed to restore version:', error)
-  } finally {
-    isRestoringVersion.value = false
+    alert('Failed to restore version. Please try again.')
   }
 }
 
@@ -1197,7 +1178,7 @@ const tabs = [
 const initializeProjectInfo = (): ProjectInfo => {
   // Use default values - real data will be loaded from API
   return {
-    projectId: String(props.task.project_enquiry_id || 'WNG-11-2025-001'),
+    projectId: props.task.enquiry?.enquiry_number || String(props.task.id || 'N/A'),
     enquiryTitle: 'Project Title',
     clientName: 'Client Name',
     eventVenue: 'Venue TBC',

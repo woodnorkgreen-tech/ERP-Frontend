@@ -43,11 +43,8 @@ export function useBudgetOperations(state: any, task: any, emit: any) {
         state.materialsApprovalStatus = data.materialsApprovalStatus
       }
 
-      // If no materials, try to import (only if approved)
-      if (data.materials.length === 0 && state.materialsApprovalStatus?.all_approved) {
-        await importMaterials()
-      } else if (data.materials.length > 0) {
-        // Check for updates if materials exist
+      // Check for updates if materials exist
+      if (data.materials.length > 0) {
         await checkMaterialsUpdates()
       }
     } catch {
@@ -68,9 +65,6 @@ export function useBudgetOperations(state: any, task: any, emit: any) {
         status: 'draft',
         materialsImportInfo: undefined,
       }
-
-      // Try to import materials
-      await importMaterials()
     } finally {
       state.isLoading = false
     }

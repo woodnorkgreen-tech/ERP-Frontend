@@ -1194,6 +1194,22 @@
         </div>
       </div>
 
+      <!-- Logistics Log Tab -->
+      <div
+        v-show="activeTab === 'logistics-log'"
+        class="logistics-log-section tab-panel"
+        :id="`tab-panel-logistics-log`"
+        role="tabpanel"
+        :aria-labelledby="`tab-logistics-log`"
+        :class="{ 'animate-fade-in': activeTab === 'logistics-log' }"
+      >
+        <LogisticsDataDisplay
+          :task="task"
+          :task-data="logisticsData"
+          :enquiry-id="task.project_enquiry_id"
+        />
+      </div>
+
       <!-- Checklist Tab -->
       <div
         v-show="activeTab === 'checklist'"
@@ -1360,127 +1376,154 @@
         </div>
       </div>
     </div>
-    <!-- Add Custom Item Modal -->
-    <div v-if="itemsState.isAddCustomItemModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeAddCustomItemModal"></div>
+    <!-- Add Custom Item Modal using Teleport -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 z-[99999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <!-- Background overlay with transition -->
+          <Transition name="modal-bg">
+            <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="closeAddCustomItemModal"></div>
+          </Transition>
 
-        <!-- Modal panel -->
-        <div class="inline-block align-top bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:mt-20 sm:max-w-md w-full">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                  Add Custom Item
-                </h3>
-                <div class="mt-4 space-y-4">
-                  <!-- Item Name -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Item Name <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="customItemForm.name" 
-                      type="text" 
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="e.g., Stage Deck"
-                    />
-                  </div>
+          <!-- Modal container -->
+          <div class="flex min-h-screen items-center justify-center p-4">
+            <!-- Modal panel -->
+            <Transition name="modal-content">
+              <div v-if="isAddCustomItemModalOpen" class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full">
+                <!-- Close button -->
+                <button 
+                  @click="closeAddCustomItemModal"
+                  class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
 
-                  <!-- Quantity & Unit -->
-                  <div class="grid grid-cols-2 gap-4">
+                <!-- Modal header -->
+                <div class="px-6 pt-6 pb-4">
+                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">
+                    Add Custom Loading Item
+                  </h3>
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Add a custom item to the loading sheet
+                  </p>
+                </div>
+
+                <!-- Modal body -->
+                <div class="px-6 pb-6">
+                  <div class="space-y-4">
+                    <!-- Item Name -->
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Quantity <span class="text-red-500">*</span>
+                        Item Name <span class="text-red-500">*</span>
                       </label>
                       <input 
-                        v-model.number="customItemForm.quantity" 
-                        type="number" 
-                        min="1"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Unit <span class="text-red-500">*</span>
-                      </label>
-                      <input 
-                        v-model="customItemForm.unit" 
+                        v-model="customItemForm.name" 
                         type="text" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="pcs, kg, box"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g., Stage Deck"
                       />
                     </div>
-                  </div>
 
-                  <!-- Weight & Handling -->
-                  <div class="grid grid-cols-2 gap-4">
+                    <!-- Quantity & Unit -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Quantity <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                          v-model.number="customItemForm.quantity" 
+                          type="number" 
+                          min="1"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Unit <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                          v-model="customItemForm.unit" 
+                          type="text" 
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="pcs, kg, box"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Weight & Handling -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Weight (optional)
+                        </label>
+                        <input 
+                          v-model="customItemForm.weight" 
+                          type="text" 
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., 50kg"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Special Handling
+                        </label>
+                        <input 
+                          v-model="customItemForm.special_handling" 
+                          type="text" 
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., Fragile"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Description -->
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Weight (optional)
+                        Description (optional)
                       </label>
-                      <input 
-                        v-model="customItemForm.weight" 
-                        type="text" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., 50kg"
-                      />
+                      <textarea 
+                        v-model="customItemForm.description" 
+                        rows="3" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Additional details..."
+                      ></textarea>
                     </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Special Handling
-                      </label>
-                      <input 
-                        v-model="customItemForm.special_handling" 
-                        type="text" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Fragile"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Description -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Description (optional)
-                    </label>
-                    <textarea 
-                      v-model="customItemForm.description" 
-                      rows="3" 
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Additional details..."
-                    ></textarea>
                   </div>
                 </div>
+
+                <!-- Modal footer -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    @click="closeAddCustomItemModal"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    @click="addCustomTransportItem"
+                  >
+                    Add Item
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button 
-              type="button" 
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-              @click="addCustomTransportItem"
-            >
-              Add Item
-            </button>
-            <button 
-              type="button" 
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              @click="closeAddCustomItemModal"
-            >
-              Cancel
-            </button>
+            </Transition>
           </div>
         </div>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import type { EnquiryTask } from '../../types/enquiry'
+import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
+
+
 import { useTeams } from '../../composables/useTeams'
 import { useLogistics } from '../../composables/useLogistics'
 
@@ -2268,12 +2311,14 @@ const itemsState = reactive({
   importError: null as string | null,
   isImporting: false,
   searchQuery: '',
-  isAddCustomItemModalOpen: false, // Modal state
   editingItemId: null as number | null,
   editData: {} as Record<number, Partial<TransportItem>>,
   isSaving: {} as Record<number, boolean>,
   validationErrors: {} as Record<number, Record<string, string>>
 })
+
+// Standalone ref for modal visibility (better reactivity)
+const isAddCustomItemModalOpen = ref(false)
 
 // Custom Item Form State
 const customItemForm = reactive({
@@ -2444,6 +2489,12 @@ const importProductionElements = async () => {
     }
   } catch (error: any) {
     console.error('Failed to import production elements', error)
+    console.debug('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: error.config
+    })
 
     // Provide more specific error messages based on the error response
     let errorMessage = 'Failed to import production elements.'
@@ -2499,22 +2550,29 @@ const addCustomTransportItem = async () => {
     closeAddCustomItemModal()
 
     addFeedbackMessage('success', 'Item added successfully')
-  } catch (error) {
-    console.error('Failed to add item', error)
-    addFeedbackMessage('error', 'Failed to add item')
+  } catch (error: any) {
+    console.error('❌ Failed to add item', error)
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    })
+    addFeedbackMessage('error', `Failed to add item: ${error.response?.data?.message || error.message}`)
   }
 }
 
 // Modal Control Methods
 const openAddCustomItemModal = () => {
-  itemsState.isAddCustomItemModalOpen = true
+  console.log('🔵 Opening Add Custom Item Modal')
+  isAddCustomItemModalOpen.value = true
+  console.log('🔵 Modal state:', isAddCustomItemModalOpen.value)
 }
 
 const closeAddCustomItemModal = () => {
-  itemsState.isAddCustomItemModalOpen = false
-  // Optional: Reset form when closing without saving? 
-  // Usually better to keep state if user accidentally closes, but for "Add" it's often safer to clear.
-  // Let's clear it to avoid confusion next time.
+  console.log('🔴 Closing Add Custom Item Modal')
+  isAddCustomItemModalOpen.value = false
+  // Reset form when closing
   Object.assign(customItemForm, {
     name: '',
     quantity: 1,
@@ -2570,6 +2628,7 @@ const tabs = [
   { id: 'logistics-planning', label: 'Logistics Planning', description: 'Plan transportation details and routes' },
   { id: 'team-confirmation', label: 'Team Confirmation', description: 'Confirm team assignments from Teams Task' },
   { id: 'loading-sheet', label: 'Loading Sheet', description: 'Manage loading sheet items and production elements' },
+  { id: 'logistics-log', label: 'Logistics Log', description: 'Track vehicle movements and logistics activities' },
   { id: 'checklist', label: 'Checklist', description: 'Verify items, teams, and safety requirements' }
 ]
 
@@ -2891,6 +2950,45 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-bg-enter-active,
+.modal-bg-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-bg-enter-from,
+.modal-bg-leave-to {
+  opacity: 0;
+}
+
+.modal-content-enter-active {
+  transition: all 0.3s ease;
+}
+
+.modal-content-leave-active {
+  transition: all 0.2s ease;
+}
+
+.modal-content-enter-from {
+  opacity: 0;
+  transform: scale(0.95) translateY(-20px);
+}
+
+.modal-content-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
 /* Screen reader only class for accessibility announcements */

@@ -13,7 +13,7 @@ export const clientServiceRoutes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'client-service-dashboard',
-        component: () => import('../modules/clientservice/views/ClientServiceDashboard.vue'),
+        component: () => import('../modules/clientService/views/ClientServiceDashboard.vue'),
         meta: { title: 'Client Service Dashboard' }
       },
       {
@@ -25,7 +25,7 @@ export const clientServiceRoutes: RouteRecordRaw[] = [
       {
         path: 'enquiries',
         name: 'client-service-enquiries',
-        component: () => import('../modules/shared/views/ProjectEnquiries.vue'),
+        component: () => import('../modules/projects/views/ProjectsEnquiries.vue'),
         props: {
           department: 'client-service',
           pageTitle: 'Client Service Enquiries',

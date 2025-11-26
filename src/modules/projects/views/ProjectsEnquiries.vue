@@ -533,6 +533,14 @@
             <span>{{ showAddEntryForm ? 'Cancel' : 'Add New Entry' }}</span>
           </button>
 
+          <button
+            v-if="showAddEntryForm && logisticsEntryForm.id"
+            @click="resetLogisticsForm"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors ml-2"
+          >
+            Switch to Add New
+          </button>
+
           <!-- Status Filter -->
           <div class="flex items-center space-x-2">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status:</label>
@@ -551,13 +559,16 @@
 
         <!-- Add Entry Form -->
         <div v-if="showAddEntryForm" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Logistics Entry</h3>
-          <form @submit.prevent="addLogisticsEntry" class="space-y-4">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {{ logisticsEntryForm.id ? 'Edit Logistics Entry' : 'Add New Logistics Entry' }}
+          </h3>
+          <form @submit.prevent="saveLogisticsEntry" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name *</label>
                 <select
                   v-model="logisticsEntryForm.project_id"
+                  @change="handleProjectSelection"
                   required
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
@@ -596,6 +607,14 @@
                   v-model="logisticsEntryForm.departure"
                   type="datetime-local"
                   required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Setdown Time</label>
+                <input
+                  v-model="logisticsEntryForm.setdown_time"
+                  type="datetime-local"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
@@ -643,7 +662,7 @@
                 class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg transition-colors"
               >
                 <span v-if="savingLogisticsEntry" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                {{ savingLogisticsEntry ? 'Saving...' : 'Save Entry' }}
+                {{ savingLogisticsEntry ? 'Saving...' : (logisticsEntryForm.id ? 'Update Entry' : 'Save Entry') }}
               </button>
             </div>
           </form>
@@ -675,6 +694,7 @@
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Site</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loading Time</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Departure</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Setdown Time</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vehicle</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Officer</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
@@ -700,6 +720,9 @@
                     {{ formatDateTime(entry.departure) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ formatDateTime(entry.setdown_time) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ entry.vehicle_allocated }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -721,7 +744,19 @@
                     >
                       Close
                     </button>
-                    <span v-else class="text-gray-500 dark:text-gray-400">Closed</span>
+                    <button
+                      @click="editLogisticsEntry(entry)"
+                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      @click="deleteLogisticsEntry(entry.id)"
+                      class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                    <span v-if="entry.status !== 'open'" class="text-gray-500 dark:text-gray-400 ml-2">Closed</span>
                   </td>
                 </tr>
               </tbody>
@@ -818,6 +853,7 @@ interface LogisticsEntry {
   site: string
   loading_time: string
   departure: string
+  setdown_time: string
   vehicle_allocated: string
   project_officer_incharge: string
   remarks: string
@@ -838,9 +874,11 @@ const logisticsStatusFilter = ref('')
 // Logistics Entry Form
 const logisticsEntryForm = ref({
   project_id: null as number | null,
+  id: null as number | null,
   site: '',
   loading_time: '',
   departure: '',
+  setdown_time: '',
   vehicle_allocated: '',
   project_officer_incharge: '',
   remarks: ''
@@ -1024,32 +1062,100 @@ const fetchLogisticsEntries = async () => {
   }
 }
 
-const addLogisticsEntry = async () => {
+const handleProjectSelection = () => {
+  if (!logisticsEntryForm.value.project_id) return
+
+  const project = enquiries.value.find(e => e.id === logisticsEntryForm.value.project_id)
+  if (project) {
+    logisticsEntryForm.value.site = project.venue || ''
+    logisticsEntryForm.value.project_officer_incharge = project.project_officer?.name || ''
+  }
+}
+
+const resetLogisticsForm = () => {
+  logisticsEntryForm.value = {
+    id: null,
+    project_id: null,
+    site: '',
+    loading_time: '',
+    departure: '',
+    setdown_time: '',
+    vehicle_allocated: '',
+    project_officer_incharge: '',
+    remarks: ''
+  }
+}
+
+const saveLogisticsEntry = async () => {
   if (!logisticsEntryForm.value.project_id) return
 
   try {
     savingLogisticsEntry.value = true
 
-    const response = await api.post('/api/projects/logistics-log', logisticsEntryForm.value)
-    logisticsEntries.value.unshift(response.data.data)
+    const payload = {
+      ...logisticsEntryForm.value,
+      setdown_time: logisticsEntryForm.value.setdown_time || null
+    }
+
+    let response;
+    if (logisticsEntryForm.value.id) {
+      response = await api.put(`/api/projects/logistics-log/${logisticsEntryForm.value.id}`, payload)
+      // Update local entry
+      const index = logisticsEntries.value.findIndex(e => e.id === logisticsEntryForm.value.id)
+      if (index !== -1) {
+        logisticsEntries.value[index] = response.data.data
+      }
+    } else {
+      response = await api.post('/api/projects/logistics-log', payload)
+      logisticsEntries.value.unshift(response.data.data)
+    }
 
     // Reset form
-    logisticsEntryForm.value = {
-      project_id: null,
-      site: '',
-      loading_time: '',
-      departure: '',
-      vehicle_allocated: '',
-      project_officer_incharge: '',
-      remarks: ''
-    }
+    resetLogisticsForm()
 
     showAddEntryForm.value = false
   } catch (error: any) {
     console.error('Failed to add logistics entry:', error)
-    alert('Failed to add logistics entry: ' + (error.response?.data?.message || error.message || 'Unknown error'))
+    alert('Failed to save logistics entry: ' + (error.response?.data?.message || error.message || 'Unknown error'))
   } finally {
     savingLogisticsEntry.value = false
+  }
+}
+
+const editLogisticsEntry = (entry: LogisticsEntry) => {
+  // Format dates for datetime-local input
+  const formatDateTimeForInput = (dateString: string) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+      .toISOString()
+      .slice(0, 16)
+  }
+
+  logisticsEntryForm.value = {
+    id: entry.id,
+    project_id: entry.project_id,
+    site: entry.site,
+    loading_time: formatDateTimeForInput(entry.loading_time),
+    departure: formatDateTimeForInput(entry.departure),
+    setdown_time: formatDateTimeForInput(entry.setdown_time),
+    vehicle_allocated: entry.vehicle_allocated,
+    project_officer_incharge: entry.project_officer_incharge,
+    remarks: entry.remarks
+  }
+  showAddEntryForm.value = true
+}
+
+const deleteLogisticsEntry = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this logistics entry?')) return
+
+  try {
+    await api.delete(`/api/projects/logistics-log/${id}`)
+    logisticsEntries.value = logisticsEntries.value.filter(e => e.id !== id)
+    alert('Logistics entry deleted successfully')
+  } catch (error: any) {
+    console.error('Failed to delete logistics entry:', error)
+    alert('Failed to delete logistics entry: ' + (error.response?.data?.message || error.message || 'Unknown error'))
   }
 }
 
