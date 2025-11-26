@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
+import axios from '@/plugins/axios'
 import type { CreateDepartmentData, UpdateDepartmentData } from '../types/department'
 
 interface Props {
@@ -114,9 +115,13 @@ watch(formData, (newValue: CreateDepartmentData | UpdateDepartmentData) => {
 
 const fetchAvailableEmployees = async () => {
   try {
-    const response = await fetch('/api/hr/employees?status=active&per_page=1000')
-    const data = await response.json()
-    availableEmployees.value = data.data || []
+    const response = await axios.get('/api/hr/employees', {
+      params: {
+        status: 'active',
+        per_page: 1000
+      }
+    })
+    availableEmployees.value = response.data.data || []
   } catch (error) {
     console.error('Error fetching employees:', error)
     availableEmployees.value = []
