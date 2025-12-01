@@ -11,7 +11,7 @@ export interface ArchivalReportData {
     start_date?: string
     end_date?: string
     site_location?: string
-    // Section 2: Project Scope
+    // Section 2: Project Deliverables
     project_scope?: string
     // Section 3: Procurement
     materials_mrf_attached?: boolean

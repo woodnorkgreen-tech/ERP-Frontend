@@ -81,7 +81,7 @@
               v-model="formData.project_description"
               rows="3"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Brief description of the project scope and objectives"
+              placeholder="Brief description of the project deliverables and objectives"
             ></textarea>
           </div>
         </div>

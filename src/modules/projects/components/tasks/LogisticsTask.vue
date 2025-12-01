@@ -1032,146 +1032,194 @@
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[10%]">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="item in filteredTransportItems" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    
-                    <!-- Read Mode -->
-                    <template v-if="!isEditing(item.id)">
-                      <td class="px-6 py-4">
-                        <div class="flex items-start gap-3">
-                          <div class="flex-shrink-0 mt-1">
+                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:border-gray-700">
+                  <!-- Loop through grouped categories -->
+                  <template v-for="group in groupedTransportItems" :key="group.category">
+                    <!-- Category Header Row -->
+                    <tr class="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-600">
+                      <td colspan="5" class="px-4 py-3">
+                        <div class="flex items-center justify-between">
+                          <button 
+                            @click="toggleCategoryCollapse(group.category)"
+                            class="flex items-center gap-3 text-left hover:opacity-80 transition-opacity w-full"
+                          >
+                            <!-- Collapse/Expand Icon -->
+                            <svg 
+                              class="w-5 h-5 text-gray-600 dark:text-gray-300 transition-transform"
+                              :class="{ 'rotate-90': !isCategoryCollapsed(group.category) }"
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            
+                            <!-- Category Icon -->
                             <span 
-                              class="inline-block w-2.5 h-2.5 rounded-full" 
-                              :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
-                              :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
+                              class="w-3 h-3 rounded-full flex-shrink-0" 
+                              :class="group.isProduction ? 'bg-purple-500' : 'bg-blue-500'"
                             ></span>
-                          </div>
-                          <div>
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{{ item.description }}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
-                          {{ item.special_handling }}
-                        </span>
-                        <span v-else class="text-gray-400 text-xs">-</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end gap-2">
-                          <button 
-                            @click="startEditingItem(item)" 
-                            class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                            title="Edit"
-                          >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                          </button>
-                          <button 
-                            @click="removeTransportItem(item.id.toString())" 
-                            class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                            title="Delete"
-                          >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
+                            
+                            <!-- Category Name and Stats -->
+                            <div class="flex items-center gap-3 flex-1">
+                              <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+                                {{ group.displayName }}
+                              </h4>
+                              <span class="text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full">
+                                {{ group.items.length }} {{ group.items.length === 1 ? 'item' : 'items' }}
+                              </span>
+                              <span v-if="group.totalQuantity" class="text-xs text-gray-500 dark:text-gray-400">
+                                Total qty: {{ group.totalQuantity }}
+                              </span>
+                            </div>
                           </button>
                         </div>
                       </td>
-                    </template>
+                    </tr>
+                    
+                    <!-- Category Items -->
+                    <template v-if="!isCategoryCollapsed(group.category)">
+                      <tr v-for="item in group.items" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        
+                        <!-- Read Mode -->
+                        <template v-if="!isEditing(item.id)">
+                          <td class="px-6 py-4">
+                            <div class="flex items-start gap-3">
+                              <div class="flex-shrink-0 mt-1">
+                                <span 
+                                  class="inline-block w-2.5 h-2.5 rounded-full" 
+                                  :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
+                                  :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
+                                ></span>
+                              </div>
+                              <div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
+                                <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{{ item.description }}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap">
+                            <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+                              {{ item.special_handling }}
+                            </span>
+                            <span v-else class="text-gray-400 text-xs">-</span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end gap-2">
+                              <button 
+                                @click="startEditingItem(item)" 
+                                class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                title="Edit"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                              </button>
+                              <button 
+                                @click="removeTransportItem(item.id.toString())" 
+                                class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                                title="Delete"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </template>
 
-                    <!-- Edit Mode -->
-                    <template v-else>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
-                        <div class="space-y-2">
-                          <input 
-                            v-model="itemsState.editData[item.id].name"
-                            type="text"
-                            placeholder="Item Name"
-                            class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                            :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                          />
-                          <textarea 
-                            v-model="itemsState.editData[item.id].description"
-                            rows="1"
-                            placeholder="Description"
-                            class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                          ></textarea>
-                        </div>
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <div class="flex flex-col gap-1">
-                          <div class="flex items-center gap-1">
-                            <button 
-                              @click="adjustQuantity(item.id, -1)"
-                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                              type="button"
-                            >−</button>
+                        <!-- Edit Mode -->
+                        <template v-else>
+                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
+                            <div class="space-y-2">
+                              <input 
+                                v-model="itemsState.editData[item.id].name"
+                                type="text"
+                                placeholder="Item Name"
+                                class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                                :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                              />
+                              <textarea 
+                                v-model="itemsState.editData[item.id].description"
+                                rows="1"
+                                placeholder="Description"
+                                class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                              ></textarea>
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                            <div class="flex flex-col gap-1">
+                              <div class="flex items-center gap-1">
+                                <button 
+                                  @click="adjustQuantity(item.id, -1)"
+                                  class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                                  type="button"
+                                >−</button>
+                                <input 
+                                  v-model.number="itemsState.editData[item.id].quantity"
+                                  type="number"
+                                  min="1"
+                                  class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                                />
+                                <button 
+                                  @click="adjustQuantity(item.id, 1)"
+                                  class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                                  type="button"
+                                >+</button>
+                              </div>
+                              <input 
+                                v-model="itemsState.editData[item.id].unit"
+                                type="text"
+                                placeholder="Unit"
+                                class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                              />
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
                             <input 
-                              v-model.number="itemsState.editData[item.id].quantity"
-                              type="number"
-                              min="1"
-                              class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                              :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                              v-model="itemsState.editData[item.id].weight"
+                              type="text"
+                              placeholder="Weight"
+                              class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                             />
-                            <button 
-                              @click="adjustQuantity(item.id, 1)"
-                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                              type="button"
-                            >+</button>
-                          </div>
-                          <input 
-                            v-model="itemsState.editData[item.id].unit"
-                            type="text"
-                            placeholder="Unit"
-                            class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                            :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                          />
-                        </div>
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <input 
-                          v-model="itemsState.editData[item.id].weight"
-                          type="text"
-                          placeholder="Weight"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <input 
-                          v-model="itemsState.editData[item.id].special_handling"
-                          type="text"
-                          placeholder="Handling"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
-                        <div class="flex flex-col gap-2 items-end">
-                          <button 
-                            @click="saveEditedItem(item.id)"
-                            :disabled="itemsState.isSaving[item.id]"
-                            class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
-                          >
-                            {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
-                          </button>
-                          <button 
-                            @click="cancelEditingItem(item.id)"
-                            class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </td>
+                          </td>
+                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                            <input 
+                              v-model="itemsState.editData[item.id].special_handling"
+                              type="text"
+                              placeholder="Handling"
+                              class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            />
+                          </td>
+                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
+                            <div class="flex flex-col gap-2 items-end">
+                              <button 
+                                @click="saveEditedItem(item.id)"
+                                :disabled="itemsState.isSaving[item.id]"
+                                class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
+                              >
+                                {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
+                              </button>
+                              <button 
+                                @click="cancelEditingItem(item.id)"
+                                class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </template>
+                      </tr>
                     </template>
-                  </tr>
+                  </template>
                   
                   <!-- Empty State -->
                   <tr v-if="filteredTransportItems.length === 0">
@@ -1690,6 +1738,7 @@ interface TransportItem {
   quantity: number
   unit: string
   category: 'production' | 'custom'
+  element_category?: string  // Category for production items (e.g., "Banners", "Signage", "Furniture")
   weight?: string
   special_handling?: string
   source?: string
@@ -2472,6 +2521,91 @@ const filteredTransportItems = computed<TransportItem[]>(() => {
     (item.description || '').toLowerCase().includes(query)
   )
 })
+
+/**
+ * Group transport items by element category
+ */
+interface CategoryGroup {
+  category: string
+  displayName: string
+  items: TransportItem[]
+  totalQuantity: number
+  isProduction: boolean
+}
+
+const groupedTransportItems = computed<CategoryGroup[]>(() => {
+  const items = filteredTransportItems.value
+  const groups = new Map<string, TransportItem[]>()
+  
+  // Group items by category
+  items.forEach(item => {
+    let categoryKey: string
+    let displayName: string
+    
+    if (item.category === 'production' && item.element_category) {
+      // Production items grouped by element_category
+      categoryKey = item.element_category
+      displayName = item.element_category
+    } else if (item.category === 'production') {
+      // Production items without element_category
+      categoryKey = '_production_other'
+      displayName = 'Other Production Items'
+    } else {
+      // Custom items
+      categoryKey = '_custom'
+      displayName = 'Custom Items'
+    }
+    
+    if (!groups.has(categoryKey)) {
+      groups.set(categoryKey, [])
+    }
+    groups.get(categoryKey)!.push(item)
+  })
+  
+  // Convert to array and calculate totals
+  const result: CategoryGroup[] = []
+  groups.forEach((items, category) => {
+    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    const isProduction = category !== '_custom'
+    const displayName = category === '_custom' ? 'Custom Items' : 
+                       category === '_production_other' ? 'Other Production Items' :
+                       category
+    
+    result.push({
+      category,
+      displayName,
+      items,
+      totalQuantity,
+      isProduction
+    })
+  })
+  
+  // Sort: Production groups first (alphabetically), then custom items
+  result.sort((a, b) => {
+    if (a.category === '_custom' && b.category !== '_custom') return 1
+    if (a.category !== '_custom' && b.category === '_custom') return -1
+    return a.displayName.localeCompare(b.displayName)
+  })
+  
+  return result
+})
+
+/**
+ * Collapsed category sections state
+ */
+const collapsedCategories = ref<Set<string>>(new Set())
+
+const toggleCategoryCollapse = (category: string) => {
+  if (collapsedCategories.value.has(category)) {
+    collapsedCategories.value.delete(category)
+  } else {
+    collapsedCategories.value.add(category)
+  }
+}
+
+const isCategoryCollapsed = (category: string): boolean => {
+  return collapsedCategories.value.has(category)
+}
 
 /**
  * Import production elements from backend

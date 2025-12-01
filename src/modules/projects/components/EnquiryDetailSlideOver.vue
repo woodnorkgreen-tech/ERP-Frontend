@@ -134,7 +134,7 @@
                         <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.description || 'No description provided' }}</p>
                       </div>
                       <div v-if="enquiry.project_scope">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Scope</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Deliverables</p>
                         <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.project_scope }}</p>
                       </div>
                       <div class="grid grid-cols-3 gap-4">

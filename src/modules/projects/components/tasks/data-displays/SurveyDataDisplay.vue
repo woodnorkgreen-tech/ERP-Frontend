@@ -1069,6 +1069,102 @@
       </div>
     </div>
   </div>
+
+  <!-- Site Photos Section -->
+  <div v-show="activeTab === 'photos'" class="space-y-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+          <svg class="w-5 h-5 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span>Site Photos ({{ surveyPhotos.length }})</span>
+        </h3>
+      </div>
+
+      <!-- Photos Grid -->
+      <div v-if="surveyPhotos.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
+          v-for="photo in surveyPhotos"
+          :key="photo.id"
+          class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+          @click="viewPhoto(photo)"
+        >
+          <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+            <img
+              :src="getPhotoUrl(photo)"
+              :alt="photo.filename"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              @error="handleImageError($event, photo)"
+              @load="handleImageLoad(photo)"
+            />
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+              <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="p-3">
+            <h4 class="font-medium text-gray-900 dark:text-white truncate text-sm" :title="photo.filename">{{ photo.filename }}</h4>
+            <p v-if="photo.caption" class="mt-1 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{{ photo.caption }}</p>
+            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <div>{{ formatDate(photo.uploaded_at) }}</div>
+              <div>{{ formatFileSize(photo.size) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No photos</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No photos have been uploaded for this survey.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Modal -->
+  <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
+    <div v-if="photoPreviewModal.show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closePhotoModal">
+      <div class="fixed inset-0 bg-black bg-opacity-75" @click="closePhotoModal"></div>
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden" @click.stop>
+          <div v-if="photoPreviewModal.photo" class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex-1 min-w-0 mr-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ photoPreviewModal.photo.filename }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Site Photo • {{ formatFileSize(photoPreviewModal.photo.size) }} <span v-if="photoPreviewModal.photo.caption"> • {{ photoPreviewModal.photo.caption }}</span></p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button v-if="surveyPhotos.length > 1" @click.stop="previousPhoto" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Previous">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <button v-if="surveyPhotos.length > 1" @click.stop="nextPhoto" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Next">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+              <button @click="closePhotoModal" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="p-4 overflow-auto max-h-[calc(90vh-180px)]">
+            <div v-if="photoPreviewModal.photo" class="flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
+              <img :src="getPhotoUrl(photoPreviewModal.photo)" :alt="photoPreviewModal.photo.filename" class="max-w-full max-h-[70vh] object-contain" />
+            </div>
+          </div>
+          <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div><span class="font-medium text-gray-700 dark:text-gray-300">Photo:</span> <span class="ml-2 text-gray-600 dark:text-gray-400">{{ surveyPhotos.indexOf(photoPreviewModal.photo) + 1 }} of {{ surveyPhotos.length }}</span></div>
+              <div><span class="font-medium text-gray-700 dark:text-gray-300">Uploaded:</span> <span class="ml-2 text-gray-600 dark:text-gray-400">{{ formatDateTime(photoPreviewModal.photo.uploaded_at) }}</span></div>
+              <div v-if="photoPreviewModal.photo.caption" class="col-span-2"><span class="font-medium text-gray-700 dark:text-gray-300">Caption:</span> <p class="mt-1 text-gray-600 dark:text-gray-400">{{ photoPreviewModal.photo.caption }}</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -1116,7 +1212,8 @@ const tabs = [
   { key: 'access', label: 'Access & Logistics' },
   { key: 'requirements', label: 'Requirements & Preferences' },
   { key: 'safety', label: 'Safety & Timeline' },
-  { key: 'additional', label: 'Additional Information' }
+  { key: 'additional', label: 'Additional Information' },
+  { key: 'photos', label: 'Site Photos' }
 ]
 
 const isEditing = reactive({
@@ -1125,7 +1222,8 @@ const isEditing = reactive({
   access: false,
   requirements: false,
   safety: false,
-  additional: false
+  additional: false,
+  photos: false
 })
 
 const formData = ref<Record<string, unknown>>({ ...props.taskData })
@@ -1134,6 +1232,13 @@ const formData = ref<Record<string, unknown>>({ ...props.taskData })
 const isLoading = ref(false)
 const error = ref('')
 const successMessage = ref('')
+
+// Photo management
+const surveyPhotos = ref<any[]>([])
+const photoPreviewModal = ref<{ show: boolean; photo: any }>({
+  show: false,
+  photo: null
+})
 
 // Validation state
 interface ValidationErrors {
@@ -1529,12 +1634,126 @@ const downloadPDF = async () => {
       error.value = 'Survey not found. Please ensure the survey data exists.'
     } else if (errorObj.response?.status === 403) {
       error.value = 'You do not have permission to download this PDF.'
-    } else if (errorObj.response?.status === 500) {
-      error.value = 'Server error occurred while generating PDF. Please try again later.'
-    } else {
-      error.value = errorObj.message || 'Failed to download PDF. Please try again.'
+        error.value = errorObj.message || 'Failed to download PDF. Please try again.'
     }
   }
+}
+
+// Photo-related functions
+const fetchSurveyPhotos = async () => {
+  // Photos are stored directly in the survey data as survey_photos field
+  if (props.taskData?.survey_photos) {
+    surveyPhotos.value = Array.isArray(props.taskData.survey_photos)
+      ? props.taskData.survey_photos
+      : []
+  } else {
+    surveyPhotos.value = []
+  }
+
+  console.log('[DEBUG] SurveyDataDisplay - Loaded photos:', surveyPhotos.value.length)
+}
+
+const getPhotoUrl = (photo: any) => {
+  // If photo has a url field, use it directly
+  if (photo.url) {
+    // Check if it's already a full URL
+    if (photo.url.startsWith('http://') || photo.url.startsWith('https://')) {
+      return photo.url
+    }
+    // If it's a relative URL starting with /storage, construct full URL
+    if (photo.url.startsWith('/storage')) {
+      // Get the base URL from the API configuration
+      const baseURL = api.defaults.baseURL || window.location.origin
+      const cleanBaseURL = baseURL.replace('/api', '') // Remove /api if present
+      return `${cleanBaseURL}${photo.url}`
+    }
+    return photo.url
+  }
+  
+  // Fallback to path field
+  if (photo.path) {
+    const baseURL = api.defaults.baseURL || window.location.origin
+    const cleanBaseURL = baseURL.replace('/api', '')
+    return `${cleanBaseURL}/storage/${photo.path}`
+  }
+  
+  // Return a placeholder if no valid URL
+  return ''
+}
+
+const formatFileSize = (bytes: number) => {
+  if (!bytes || bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+}
+
+const viewPhoto = (photo: any) => {
+  photoPreviewModal.value.photo = photo
+  photoPreviewModal.value.show = true
+}
+
+const closePhotoModal = () => {
+  photoPreviewModal.value.show = false
+  photoPreviewModal.value.photo = null
+}
+
+const previousPhoto = () => {
+  if (!photoPreviewModal.value.photo) return
+  const currentIndex = surveyPhotos.value.indexOf(photoPreviewModal.value.photo)
+  if (currentIndex > 0) {
+    photoPreviewModal.value.photo = surveyPhotos.value[currentIndex - 1]
+  } else {
+    // Loop to last photo
+    photoPreviewModal.value.photo = surveyPhotos.value[surveyPhotos.value.length - 1]
+  }
+}
+
+const nextPhoto = () => {
+  if (!photoPreviewModal.value.photo) return
+  const currentIndex = surveyPhotos.value.indexOf(photoPreviewModal.value.photo)
+  if (currentIndex < surveyPhotos.value.length - 1) {
+    photoPreviewModal.value.photo = surveyPhotos.value[currentIndex + 1]
+  } else {
+    // Loop to first photo
+    photoPreviewModal.value.photo = surveyPhotos.value[0]
+  }
+}
+
+const handleImageError = (event: Event, photo: any) => {
+  const img = event.target as HTMLImageElement
+  console.error('[DEBUG] SurveyDataDisplay - Image failed to load:', {
+    photo: photo,
+    attemptedUrl: img.src,
+    constructedUrl: getPhotoUrl(photo),
+    photoData: {
+      url: photo.url,
+      path: photo.path,
+      filename: photo.filename
+    }
+  })
+  
+  // Set a placeholder or hide the image
+  img.style.display = 'none'
+  const parent = img.parentElement
+  if (parent) {
+    parent.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-gray-400">
+        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-xs">Image unavailable</p>
+      </div>
+    `
+  }
+}
+
+const handleImageLoad = (photo: any) => {
+  console.log('[DEBUG] SurveyDataDisplay - Image loaded successfully:', {
+    filename: photo.filename,
+    url: getPhotoUrl(photo)
+  })
 }
 
 onMounted(() => {
@@ -1552,7 +1771,16 @@ onMounted(() => {
       project_description: (props.taskData as Record<string, unknown>).project_description as string | undefined
     } : null
   })
+  
+  // Fetch survey photos
+  fetchSurveyPhotos()
 })
+
+// Watch for taskData changes to reload photos
+watch(() => props.taskData, () => {
+  fetchSurveyPhotos()
+}, { deep: true })
+
 </script>
 
 <style scoped>
