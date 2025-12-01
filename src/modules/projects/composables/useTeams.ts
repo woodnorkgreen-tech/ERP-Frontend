@@ -84,7 +84,7 @@ export function useTeams() {
     error.value = null
 
     try {
-      const response = await api.get(`/api/tasks/${taskId}/teams`)
+      const response = await api.get(`/api/projects/tasks/${taskId}/teams`)
       teamsTasks.value = response.data.data || []
       return teamsTasks.value
     } catch (err: unknown) {
@@ -111,7 +111,7 @@ export function useTeams() {
     error.value = null
 
     try {
-      const response = await api.get('/api/team-types')
+      const response = await api.get('/api/teams/types')
       teamTypes.value = response.data.data || []
       return teamTypes.value
     } catch (err: unknown) {
@@ -127,7 +127,7 @@ export function useTeams() {
     error.value = null
 
     try {
-      const response = await api.post(`/api/tasks/${taskId}/teams`, data)
+      const response = await api.post(`/api/projects/tasks/${taskId}/teams`, data)
       return response.data.data
     } catch (err: unknown) {
       error.value = getErrorMessage(err)
@@ -137,12 +137,12 @@ export function useTeams() {
     }
   }
 
-  const addTeamMember = async (teamTaskId: number, data: TeamMemberData): Promise<TeamMember> => {
+  const addTeamMember = async (taskId: number, teamTaskId: number, data: TeamMemberData): Promise<TeamMember> => {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.post(`/api/tasks/teams/${teamTaskId}/members`, data)
+      const response = await api.post(`/api/projects/tasks/${taskId}/teams/${teamTaskId}/members`, data)
       return response.data.data
     } catch (err: unknown) {
       error.value = getErrorMessage(err)
@@ -152,12 +152,12 @@ export function useTeams() {
     }
   }
 
-  const removeTeamMember = async (teamTaskId: number, memberId: number): Promise<void> => {
+  const removeTeamMember = async (taskId: number, teamTaskId: number, memberId: number): Promise<void> => {
     loading.value = true
     error.value = null
 
     try {
-      await api.delete(`/api/tasks/teams/${teamTaskId}/members/${memberId}`)
+      await api.delete(`/api/projects/tasks/${taskId}/teams/${teamTaskId}/members/${memberId}`)
     } catch (err: unknown) {
       error.value = getErrorMessage(err)
       throw err
@@ -171,7 +171,7 @@ export function useTeams() {
     error.value = null
 
     try {
-      await api.delete(`/api/tasks/${taskId}/teams/${teamTaskId}`)
+      await api.delete(`/api/projects/tasks/${taskId}/teams/${teamTaskId}`)
     } catch (err: unknown) {
       error.value = getErrorMessage(err)
       throw err

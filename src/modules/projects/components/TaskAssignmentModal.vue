@@ -244,9 +244,14 @@ const fetchAvailableUsers = async () => {
     console.log('🔍 [TaskAssignmentModal] Starting fetchAvailableUsers')
     console.log('🔍 [TaskAssignmentModal] Current auth token:', api.defaults.headers.common['Authorization'])
     console.log('🔍 [TaskAssignmentModal] API base URL:', api.defaults.baseURL)
-    console.log('🔍 [TaskAssignmentModal] Fetching users from /api/users')
+    console.log('🔍 [TaskAssignmentModal] Fetching all users from /api/users')
 
-    const response = await api.get('/api/users')
+    const response = await api.get('/api/users', {
+      params: {
+        per_page: 1000, // Fetch up to 1000 users (all users)
+        status: 'active' // Optional: only fetch active users
+      }
+    })
     console.log('✅ [TaskAssignmentModal] Users response status:', response.status)
     console.log('✅ [TaskAssignmentModal] Users response headers:', response.headers)
     console.log('✅ [TaskAssignmentModal] Users response data:', JSON.stringify(response.data, null, 2))

@@ -39,16 +39,31 @@
                 <span>Create New Type</span>
               </button>
             </div>
-            <select
-              v-model="elementForm.elementType"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              :class="{ 'border-red-500': errors.elementType }"
-            >
-              <option value="">Select Element Type</option>
-              <option v-for="type in availableElementTypes" :key="type.id" :value="type.name">
-                {{ type.displayName }}
-              </option>
-            </select>
+            <div class="relative">
+              <select
+                v-model="elementForm.elementType"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                :class="{ 'border-red-500': errors.elementType }"
+              >
+                <option value="">Select Element Type</option>
+                <option v-for="type in apiElementTypes" :key="type.id" :value="type.name">
+                  {{ type.display_name }}
+                </option>
+              </select>
+              
+              <!-- Delete button for selected custom type -->
+              <button
+                v-if="elementForm.elementType && isCustomType(elementForm.elementType)"
+                @click.stop="confirmDeleteElementType(elementForm.elementType)"
+                type="button"
+                class="absolute right-10 top-1/2 transform -translate-y-1/2 text-red-500 hover:text-red-700 transition-colors p-1"
+                title="Delete this element type"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
             <p v-if="errors.elementType" class="mt-1 text-sm text-red-600">{{ errors.elementType }}</p>
           </div>
 
@@ -341,7 +356,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useElementTypes, type ElementType as APIElementType } from '@/composables/useElementTypes'
 
 /**
  * Props interface for the MaterialsModal component
@@ -391,15 +407,7 @@ interface ElementForm {
   materials: MaterialForm[]
 }
 
-/**
- * Element type structure for standardized element types
- */
-interface ElementType {
-  id: string
-  name: string
-  displayName: string
-  category: string
-}
+
 
 /**
  * Project element structure (matching the main component)
@@ -439,21 +447,26 @@ interface MaterialItem {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Available element types (reactive so we can add new ones)
-const availableElementTypes = ref<ElementType[]>([
-  { id: 'stage', name: 'stage', displayName: 'Stage', category: 'structure' },
-  { id: 'backdrop', name: 'backdrop', displayName: 'Backdrop', category: 'decoration' },
-  { id: 'skirting', name: 'skirting', displayName: 'Stage Skirting', category: 'decoration' },
-  { id: 'entrance-arc', name: 'entrance-arc', displayName: 'Entrance Arc', category: 'decoration' },
-  { id: 'dance-floor', name: 'dance-floor', displayName: 'Dance Floor', category: 'flooring' },
-  { id: 'walkway', name: 'walkway', displayName: 'Walkway', category: 'flooring' },
-  { id: 'lighting', name: 'lighting', displayName: 'Lighting Setup', category: 'technical' },
-  { id: 'sound', name: 'sound', displayName: 'Sound System', category: 'technical' },
-  { id: 'seating', name: 'seating', displayName: 'Seating Arrangement', category: 'furniture' },
-  { id: 'tables', name: 'tables', displayName: 'Tables', category: 'furniture' },
-  { id: 'decor', name: 'decor', displayName: 'Decorative Elements', category: 'decoration' },
-  { id: 'signage', name: 'signage', displayName: 'Signage & Branding', category: 'branding' }
-])
+// Use element types composable
+const {
+  elementTypes: apiElementTypes,
+  isLoading: elementTypesLoading,
+  error: elementTypesError,
+  fetchElementTypes,
+  createElementType,
+  deleteElementType
+} = useElementTypes()
+
+
+
+// Load element types on mount
+onMounted(async () => {
+  try {
+    await fetchElementTypes()
+  } catch (error) {
+    console.error('Failed to load element types:', error)
+  }
+})
 
 // Form state
 const elementForm = reactive<ElementForm>({
@@ -597,11 +610,11 @@ const saveElement = () => {
   
   if (isEditMode.value && props.editElement) {
     // Update existing element
-    const selectedType = availableElementTypes.value.find(type => type.name === elementForm.elementType)
+    const selectedType = apiElementTypes.value.find(type => type.name === elementForm.elementType)
     const updatedElement: ProjectElement = {
       ...props.editElement,
       elementType: elementForm.elementType,
-      name: selectedType?.displayName || elementForm.elementType,
+      name: selectedType?.display_name || elementForm.elementType,
       category: elementForm.category as 'production' | 'hire' | 'outsourced',
       dimensions: { ...elementForm.dimensions },
       materials: elementForm.materials.map(material => ({
@@ -618,12 +631,12 @@ const saveElement = () => {
     emit('update-element', updatedElement)
   } else {
     // Create new element
-    const selectedType = availableElementTypes.value.find(type => type.name === elementForm.elementType)
+    const selectedType = apiElementTypes.value.find(type => type.name === elementForm.elementType)
     const newElement: ProjectElement = {
       id: `custom-${now.getTime()}`,
       templateId: `custom-${elementForm.elementType}`,
       elementType: elementForm.elementType,
-      name: selectedType?.displayName || elementForm.elementType,
+      name: selectedType?.display_name || elementForm.elementType,
       category: elementForm.category as 'production' | 'hire' | 'outsourced',
       dimensions: { ...elementForm.dimensions },
       isIncluded: true,
@@ -699,7 +712,7 @@ const validateNewElementType = (): boolean => {
   }
 
   // Check if type already exists
-  const existingType = availableElementTypes.value.find(type => 
+  const existingType = apiElementTypes.value.find(type => 
     type.name.toLowerCase() === newElementType.name.toLowerCase().replace(/\s+/g, '-')
   )
   if (existingType) {
@@ -711,27 +724,70 @@ const validateNewElementType = (): boolean => {
 }
 
 /**
- * Save new element type
+ * Save new element type to backend
  */
-const saveNewElementType = () => {
+const saveNewElementType = async () => {
   if (!validateNewElementType()) {
     return
   }
 
-  const newType: ElementType = {
-    id: `custom-${Date.now()}`,
-    name: newElementType.name.toLowerCase().replace(/\s+/g, '-'),
-    displayName: newElementType.name,
-    category: newElementType.category
+  try {
+    // Create element type via API
+    const slugName = newElementType.name.toLowerCase().replace(/\s+/g, '-')
+    const newType = await createElementType(slugName, newElementType.category, newElementType.name)
+    
+    // Select the new type in the main form
+    elementForm.elementType = newType.name
+    
+    closeAddElementTypeModal()
+  } catch (error) {
+    // Error handled by the composable, just log it here
+    console.error('Failed to save element type:', error)
+    // Optionally show error in modal
+    newElementTypeErrors.name = 'Failed to create element type. Please try again.'
+  }
+}
+
+/**
+ * Check if an element type is custom (not predefined)
+ */
+const isCustomType = (typeName: string): boolean => {
+  const type = apiElementTypes.value.find(t => t.name === typeName)
+  return type ? !type.is_predefined : false
+}
+
+/**
+ * Confirm and delete an element type
+ */
+const confirmDeleteElementType = async (typeName: string) => {
+  const type = apiElementTypes.value.find(t => t.name === typeName)
+  
+  if (!type) {
+    console.error('Element type not found')
+    return
   }
 
-  // Add to available types
-  availableElementTypes.value.push(newType)
-  
-  // Select the new type in the main form
-  elementForm.elementType = newType.name
-  
-  closeAddElementTypeModal()
+  if (type.is_predefined) {
+    alert('Cannot delete predefined element types')
+    return
+  }
+
+  if (!confirm(`Are you sure you want to delete the element type "${type.display_name}"?\n\nThis action cannot be undone. If this type is currently being used by any project elements, the deletion will fail.`)) {
+    return
+  }
+
+  try {
+    await deleteElementType(type.id)
+    
+    // Clear the selection if the deleted type was selected
+    if (elementForm.elementType === typeName) {
+      elementForm.elementType = ''
+    }
+  } catch (error: any) {
+    // Show user-friendly error message
+    const message = error.message || 'Failed to delete element type'
+    alert(message)
+  }
 }
 
 // Watch for edit element changes

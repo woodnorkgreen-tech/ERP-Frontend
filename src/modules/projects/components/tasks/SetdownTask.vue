@@ -1,648 +1,1691 @@
-<template>
-  <div class="setdown-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
 
-      <!-- Task Completion Toggle -->
-      <div class="flex items-center space-x-3">
-        <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
-        <div class="flex items-center space-x-2">
-          <span :class="task.status === 'completed' ? 'text-green-600' : 'text-gray-500'" class="text-sm font-medium">
-            {{ task.status === 'completed' ? 'Completed' : 'In Progress' }}
+<template>
+  <div class="setdown-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
+
+    <!-- Project Header Section -->
+    <div class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        Setdown Task - {{ task.title }}
+      </h4>
+
+      <!-- Project Information Display -->
+      <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Information</h5>
+          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full w-fit">
+            Setdown Task
           </span>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              v-model="isCompleted"
-              type="checkbox"
-              class="sr-only peer"
-              @change="toggleTaskCompletion"
-            />
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-          </label>
         </div>
+        <!-- Project Information Grid - Responsive layout -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Project Title -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Title</label>
+            <p class="text-sm text-gray-900 dark:text-white font-semibold mt-1 break-words">
+              <span v-if="projectInfo.enquiryTitle && projectInfo.enquiryTitle !== 'Untitled Project'">
+                {{ projectInfo.enquiryTitle }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                Untitled Project
+              </span>
+            </p>
+          </div>
+
+          <!-- Enquiry Number -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Enquiry Number</label>
+            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1 font-mono">
+              <span v-if="projectInfo.projectId && projectInfo.projectId !== 'N/A'">
+                {{ projectInfo.projectId }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                Not assigned
+              </span>
+            </p>
+          </div>
+
+          <!-- Client Name -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client Name</label>
+            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
+              <span v-if="projectInfo.clientName && projectInfo.clientName !== 'N/A'">
+                {{ projectInfo.clientName }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                Not specified
+              </span>
+            </p>
+          </div>
+
+          <!-- Event Venue -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Event Venue</label>
+            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
+              <span v-if="projectInfo.eventVenue && projectInfo.eventVenue !== 'TBC'">
+                {{ projectInfo.eventVenue }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                To be confirmed
+              </span>
+            </p>
+          </div>
+
+          <!-- Setup Date -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setup Date</label>
+            <p class="text-sm text-gray-900 dark:text-white mt-1">
+              <span v-if="formatDate(projectInfo.setupDate) !== 'TBC'" class="font-medium">
+                {{ formatDate(projectInfo.setupDate) }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                To be confirmed
+              </span>
+            </p>
+          </div>
+
+          <!-- Set Down Date -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setdown Date</label>
+            <p class="text-sm text-gray-900 dark:text-white mt-1">
+              <span v-if="formatDate(projectInfo.setDownDate) !== 'TBC'" class="font-medium">
+                {{ formatDate(projectInfo.setDownDate) }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                To be confirmed
+              </span>
+            </p>
+          </div>
+
+          <!-- Estimated Budget -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Estimated Budget</label>
+            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1">
+              <span v-if="projectInfo.estimatedBudget" class="text-green-600 dark:text-green-400">
+                KES {{ formatCurrency(projectInfo.estimatedBudget) }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                Not specified
+              </span>
+            </p>
+          </div>
+
+          <!-- Contact Person -->
+          <div class="project-info-card">
+            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contact Person</label>
+            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
+              <span v-if="projectInfo.contactPerson && projectInfo.contactPerson !== 'N/A'">
+                {{ projectInfo.contactPerson }}
+              </span>
+              <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                Not specified
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Messages -->
+    <div v-if="feedbackMessages.length > 0" class="mb-6 space-y-2">
+      <div
+        v-for="message in feedbackMessages"
+        :key="message.id"
+        :class="[
+          'flex items-center justify-between p-3 rounded-lg border text-sm',
+          {
+            'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200': message.type === 'success',
+            'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200': message.type === 'error',
+            'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200': message.type === 'warning',
+            'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200': message.type === 'info'
+          }
+        ]"
+      >
+        <div class="flex items-center space-x-2">
+          <!-- Success Icon -->
+          <svg v-if="message.type === 'success'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <!-- Error Icon -->
+          <svg v-else-if="message.type === 'error'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          <!-- Warning Icon -->
+          <svg v-else-if="message.type === 'warning'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <!-- Info Icon -->
+          <svg v-else class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>{{ message.message }}</span>
+        </div>
+        <button
+          @click="removeFeedbackMessage(message.id)"
+          class="text-current hover:opacity-70 transition-opacity p-1 rounded-md"
+          :aria-label="'Dismiss message'"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
     </div>
 
     <!-- Tab Navigation -->
     <div class="mb-6">
-      <nav class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+      <nav
+        class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto"
+        role="tablist"
+        aria-label="Setdown task navigation"
+      >
         <button
-          v-for="tab in tabs"
+          v-for="(tab, index) in tabs"
           :key="tab.id"
-          @click="activeTab = tab.id"
+          @click="setActiveTab(tab.id)"
+          @keydown="handleTabKeydown($event, index)"
           :class="[
-            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap min-w-0',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700',
             activeTab === tab.id
-              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm transform scale-105'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:scale-102'
           ]"
+          :aria-selected="activeTab === tab.id"
+          :aria-controls="`tab-panel-${tab.id}`"
+          :id="`tab-${tab.id}`"
+          role="tab"
+          :tabindex="activeTab === tab.id ? 0 : -1"
         >
-          <span class="mr-2">{{ tab.icon }}</span>
-          {{ tab.label }}
+          <span
+            class="mr-2 text-base transition-transform duration-200"
+            :class="{ 'scale-110': activeTab === tab.id }"
+          >
+            {{ tab.icon }}
+          </span>
+          <span class="truncate">{{ tab.label }}</span>
+          <!-- Tab indicator badges -->
+          <span
+            v-if="getTabBadgeCount(tab.id) > 0"
+            class="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200"
+            :class="getTabBadgeClass(tab.id)"
+          >
+            {{ getTabBadgeCount(tab.id) }}
+          </span>
         </button>
       </nav>
     </div>
 
-    <!-- Overview Tab -->
-    <div v-if="activeTab === 'overview'">
-      <!-- Event Summary -->
-      <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <h4 class="text-md font-medium mb-2 text-gray-900 dark:text-white">Event Summary</h4>
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div><strong>Event Date:</strong> {{ eventSummary.event_date }}</div>
-          <div><strong>Venue:</strong> {{ eventSummary.venue }}</div>
-          <div><strong>Setdown Start:</strong> {{ eventSummary.setdown_start }}</div>
-          <div><strong>Equipment Count:</strong> {{ equipmentList.length }} items</div>
+    <!-- Tab Content Container -->
+    <div class="tab-content-container">
+      <!-- Documentation Tab -->
+      <div
+        v-show="activeTab === 'documentation'"
+        class="documentation-section tab-panel"
+        :id="`tab-panel-documentation`"
+        role="tabpanel"
+        :aria-labelledby="`tab-documentation`"
+        :class="{ 'animate-fade-in': activeTab === 'documentation' }"
+      >
+        <!-- Documentation Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Documentation</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Upload photos and record setdown notes for documentation
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span v-if="backendLoading" class="text-xs text-blue-600 dark:text-blue-400 flex items-center">
+              <svg class="animate-spin h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </span>
+            <span v-else-if="lastSaved" class="text-xs text-gray-500 dark:text-gray-400">
+              Saved {{ lastSaved }}
+            </span>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Inventory Tab -->
-    <div v-if="activeTab === 'inventory'">
-      <!-- Equipment Inventory -->
-      <div class="mb-6">
-        <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Equipment Inventory & Condition</h4>
-
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Equipment</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Condition</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Damage</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Return Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Notes</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="(equipment, index) in equipmentList" :key="index">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ equipment.name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <select
-                    v-model="equipment.condition"
-                    class="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="excellent">Excellent</option>
-                    <option value="good">Good</option>
-                    <option value="fair">Fair</option>
-                    <option value="poor">Poor</option>
-                    <option value="damaged">Damaged</option>
-                  </select>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <input
-                    v-model="equipment.damage_description"
-                    type="text"
-                    placeholder="Describe damage"
-                    class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    :class="{ 'border-red-500': equipment.condition === 'damaged' }"
-                  />
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <select
-                    v-model="equipment.return_status"
-                    class="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="packed">Packed</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="returned">Returned</option>
-                    <option value="lost">Lost</option>
-                  </select>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  <input
-                    v-model="equipment.notes"
-                    type="text"
-                    placeholder="Notes"
-                    class="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Checklist Tab -->
-    <div v-if="activeTab === 'checklist'">
-      <!-- Setdown Checklist -->
-      <div class="mb-6">
-        <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Setdown Checklist</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div v-for="category in setdownChecklist" :key="category.id" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-            <h5 class="text-sm font-medium mb-3 text-gray-900 dark:text-white">{{ category.category }}</h5>
-
-            <div class="space-y-2">
-              <div v-for="item in category.items" :key="item.id" class="flex items-center">
-                <input
-                  :id="`setdown-${category.id}-${item.id}`"
-                  v-model="item.completed"
-                  type="checkbox"
-                  class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label :for="`setdown-${category.id}-${item.id}`" class="ml-2 block text-sm text-gray-900 dark:text-white">
-                  {{ item.label }}
-                </label>
+        <!-- Documentation Content -->
+        <div class="space-y-6">
+          <!-- Photo Upload Section -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">📸</span>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                  {{ backendSetdownData?.documentation.photos?.length || 0 }}
+                </span>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Maintenance Tab -->
-    <div v-if="activeTab === 'maintenance'">
-      <!-- Cleaning & Maintenance -->
-      <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Cleaning & Maintenance</h4>
+            <!-- Drag & Drop Upload Area -->
+            <div
+              @drop.prevent="handlePhotoDrop"
+              @dragover.prevent="isDragging = true"
+              @dragleave.prevent="isDragging = false"
+              :class="[
+                'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              ]"
+              @click="triggerPhotoUpload"
+            >
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <span class="font-medium text-blue-600 dark:text-blue-400">Click to upload</span> or drag and drop
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+            </div>
 
-          <div class="space-y-4">
-            <div v-for="task in cleaningTasks" :key="task.id" class="border border-gray-200 dark:border-gray-600 rounded p-3">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ task.task }}</span>
-                <input
-                  :id="`clean-${task.id}`"
-                  v-model="task.completed"
-                  type="checkbox"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
+            <!-- Hidden file input -->
+            <input
+              ref="photoInputRef"
+              type="file"
+              multiple
+              accept="image/*"
+              @change="handlePhotoSelect"
+              class="hidden"
+            />
+
+            <!-- Uploading Progress -->
+            <div v-if="uploadingCount > 0" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm text-blue-800 dark:text-blue-200">Uploading {{ uploadingCount }} photo{{ uploadingCount > 1 ? 's' : '' }}...</span>
               </div>
-              <textarea
-                v-model="task.notes"
-                rows="2"
-                class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Cleaning/maintenance notes..."
-              ></textarea>
             </div>
-          </div>
-        </div>
 
-        <div>
-          <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Storage & Transport</h4>
-
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Storage Location</label>
-              <select
-                v-model="setdownData.storage_location"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            <!-- Photo Grid -->
+            <div v-if="backendSetdownData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div
+                v-for="photo in backendSetdownData.documentation.photos"
+                :key="photo.id"
+                class="relative group"
               >
-                <option value="">Select storage location</option>
-                <option value="warehouse_a">Warehouse A</option>
-                <option value="warehouse_b">Warehouse B</option>
-                <option value="external_storage">External Storage</option>
-                <option value="client_storage">Client Storage</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Transport Method</label>
-              <select
-                v-model="setdownData.transport_method"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="">Select transport method</option>
-                <option value="company_truck">Company Truck</option>
-                <option value="rental_truck">Rental Truck</option>
-                <option value="courier">Courier Service</option>
-                <option value="client_transport">Client Transport</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return Date</label>
-              <input
-                v-model="setdownData.return_date"
-                type="date"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Transport Cost</label>
-              <input
-                v-model.number="setdownData.transport_cost"
-                type="number"
-                step="0.01"
-                min="0"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Documentation Tab -->
-    <div v-if="activeTab === 'documentation'">
-      <!-- Damage Assessment -->
-      <div class="mb-6" v-if="damagedEquipment.length > 0">
-        <h4 class="text-md font-medium mb-3 text-red-800 dark:text-red-200">Damage Assessment</h4>
-
-        <div class="space-y-3">
-          <div v-for="equipment in damagedEquipment" :key="equipment.name" class="border border-red-200 dark:border-red-700 rounded-lg p-4 bg-red-50 dark:bg-red-900/20">
-            <div class="flex justify-between items-start mb-2">
-              <span class="text-sm font-medium text-red-800 dark:text-red-200">{{ equipment.name }}</span>
-              <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Damaged</span>
-            </div>
-            <p class="text-sm text-red-700 dark:text-red-300 mb-2">{{ equipment.damage_description }}</p>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs text-red-700 dark:text-red-300">Repair Required</label>
-                <select
-                  v-model="equipment.repair_required"
-                  class="mt-1 block w-full px-2 py-1 text-sm border border-red-300 dark:border-red-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                <img
+                  :src="photo.url"
+                  :alt="photo.description || 'Setdown photo'"
+                  class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
+                  @click="openImageModal(photo)"
+                  @error="handleImageError"
+                />
+                
+                <!-- Delete button overlay -->
+                <button
+                  @click.stop="confirmDeletePhoto(photo.id)"
+                  class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg"
+                  title="Delete photo"
                 >
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="replace">Replace</option>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+
+                <!-- Photo info -->
+                <div class="mt-1.5">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty state with helpful message -->
+            <div v-else-if="!uploadingCount" class="mt-6 text-center py-8">
+              <p class="text-sm text-gray-500 dark:text-gray-400">No photos yet. Upload some to document your setdown!</p>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-2 mb-4">
+              <span class="text-xl">📝</span>
+              <h4 class="text-md font-medium text-gray-900 dark:text-white">Setdown Notes</h4>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Setdown Progress Notes
+                </label>
+                <textarea
+                  v-model="localNotes.setdownNotes"
+                  @blur="autoSaveNotes"
+                  rows="4"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                  placeholder="Record setdown progress, observations, and any issues encountered...
+                  
+Auto-saves when you click outside this box."
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Completion Notes
+                </label>
+                <textarea
+                  v-model="localNotes.completionNotes"
+                  @blur="autoSaveNotes"
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                  placeholder="Final completion notes and handover information...
+
+Auto-saves when you click outside this box."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues Tab -->
+      <div
+        v-show="activeTab === 'issues'"
+        class="issues-section tab-panel"
+        :id="`tab-panel-issues`"
+        role="tabpanel"
+        :aria-labelledby="`tab-issues`"
+        :class="{ 'animate-fade-in': activeTab === 'issues' }"
+      >
+        <!-- Issues Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Issues Tracking</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Track and manage setdown-related issues
+            </p>
+          </div>
+          <div class="flex space-x-3">
+            <button
+              v-if="!editModes.issues"
+              @click="editModes.issues = true"
+              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              v-if="editModes.issues"
+              @click="handleSaveIssues"
+              class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+            >
+              Save
+            </button>
+            <button
+              v-if="editModes.issues"
+              @click="editModes.issues = false"
+              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Issues Content -->
+        <div class="space-y-6">
+          <!-- Add Issue Form -->
+          <div v-if="editModes.issues" class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-2 mb-4">
+              <span class="text-xl">➕</span>
+              <h4 class="text-md font-medium text-gray-900 dark:text-white">Report New Issue</h4>
+            </div>
+
+            <form @submit.prevent="handleAddIssue" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Issue Title <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="newIssue.title"
+                    type="text"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                    placeholder="Brief issue description"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Category
+                  </label>
+                  <select
+                    v-model="newIssue.category"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                  >
+                    <option value="equipment">Equipment</option>
+                    <option value="venue">Venue</option>
+                    <option value="team">Team</option>
+                    <option value="safety">Safety</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Priority
+                </label>
+                <div class="flex space-x-4">
+                  <label class="flex items-center">
+                    <input v-model="newIssue.priority" type="radio" value="low" class="text-blue-600 focus:ring-blue-500" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Low</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input v-model="newIssue.priority" type="radio" value="medium" class="text-blue-600 focus:ring-blue-500" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Medium</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input v-model="newIssue.priority" type="radio" value="high" class="text-blue-600 focus:ring-blue-500" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">High</span>
+                  </label>
+                  <label class="flex items-center">
+                    <input v-model="newIssue.priority" type="radio" value="critical" class="text-blue-600 focus:ring-blue-500" />
+                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Critical</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Description <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                  v-model="newIssue.description"
+                  rows="3"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+                  placeholder="Detailed description of the issue..."
+                ></textarea>
+              </div>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  Add Issue
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Issues List -->
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">📋</span>
+                <h4 class="text-md font-medium text-gray-900 dark:text-white">Issues List</h4>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ backendSetdownData?.issues?.length || 0 }}</span>
+              </div>
+
+              <div class="flex space-x-2">
+                <select
+                  v-model="issuesFilter.status"
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="all">All Status</option>
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+
+                <select
+                  v-model="issuesFilter.priority"
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="all">All Priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-xs text-red-700 dark:text-red-300">Estimated Cost</label>
-                <input
-                  v-model.number="equipment.repair_cost"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="mt-1 block w-full px-2 py-1 text-sm border border-red-300 dark:border-red-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="0.00"
-                />
+            </div>
+
+            <div v-if="filteredIssues.length === 0" class="text-center py-8">
+              <div v-if="!backendSetdownData?.issues?.length" class="text-gray-500 dark:text-gray-400">
+                <div class="mb-4">
+                  <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No issues reported yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-4">
+                  Issues encountered during setdown will be tracked here.
+                </p>
+                <button
+                  v-if="editModes.issues"
+                  @click="() => { /* Scroll to add issue form */ }"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  Report First Issue
+                </button>
+              </div>
+              <div v-else class="text-gray-500 dark:text-gray-400">
+                No issues found matching the current filters.
+              </div>
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="issue in filteredIssues"
+                :key="issue.id"
+                class="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
+              >
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                      <h5 class="font-medium text-gray-900 dark:text-white">{{ issue.title }}</h5>
+                      <span :class="getPriorityClass(issue.priority)" class="px-2 py-0.5 text-xs rounded-full">
+                        {{ issue.priority }}
+                      </span>
+                      <span :class="getStatusClass(issue.status)" class="px-2 py-0.5 text-xs rounded-full">
+                        {{ issue.status.replace('_', ' ') }}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ issue.description }}</p>
+                    <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                      <span>{{ issue.category }}</span>
+                      <span>Reported: {{ formatDate(issue.reported_at) }}</span>
+                      <span v-if="issue.resolved_at">Resolved: {{ formatDate(issue.resolved_at) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex space-x-2 ml-4">
+                    <select
+                      v-model="issue.status"
+                      @change="handleUpdateIssueStatus(issue as SetdownIssue)"
+                      class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+
+                    <button
+                      @click="handleRemoveIssue(issue.id)"
+                      class="text-gray-400 hover:text-red-500 p-1 rounded"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="issue.status === 'resolved'" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Resolution Notes
+                  </label>
+                  <textarea
+                    v-model="issue.resolution"
+                    rows="2"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Describe how the issue was resolved..."
+                  ></textarea>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Documentation -->
-      <div class="mb-6">
-        <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Documentation & Photos</h4>
+    <!-- Task Status and Actions -->
+    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
+        <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
+          {{ getStatusLabel(task.status) }}
+        </span>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Setdown Photos</label>
-            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
-              <p class="text-sm text-gray-500 dark:text-gray-400">Upload before/after photos</p>
-              <input type="file" multiple accept="image/*" class="hidden" />
-              <button class="mt-2 px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600">
-                Upload Photos
-              </button>
-            </div>
-          </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+            @click="$emit('update-status', 'completed')"
+            class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Mark Complete</span>
+          </button>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Setdown Report</label>
-            <textarea
-              v-model="setdownData.setdown_report"
-              rows="4"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Detailed setdown report, issues encountered, special notes..."
-            ></textarea>
-          </div>
+          <button
+            v-if="task.status !== 'in_progress' && task.status !== 'completed' && task.status !== 'cancelled'"
+            @click="$emit('update-status', 'in_progress')"
+            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
+          >Set In Progress</button>
+
+          <button
+            v-if="task.status !== 'pending' && task.status !== 'completed' && task.status !== 'cancelled'"
+            @click="$emit('update-status', 'pending')"
+            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
+          >Set Pending</button>
+
+          <button
+            v-if="task.status !== 'cancelled' && task.status !== 'completed'"
+            @click="handleCancelTask"
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
+          >Cancel Task</button>
+        </div>
+
+        <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-sm font-medium">Task Completed</span>
         </div>
       </div>
     </div>
 
-    <!-- Completion Tab -->
-    <div v-if="activeTab === 'completion'">
-      <!-- Completion Sign-off -->
-      <div class="mb-6 p-4 border-2 border-green-200 dark:border-green-700 rounded-lg bg-green-50 dark:bg-green-900/20">
-        <h4 class="text-md font-medium mb-3 text-green-800 dark:text-green-200">Setdown Completion Sign-off</h4>
+    <!-- Image Modal -->
+    <div
+      v-if="imageModal.isOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+      @click="closeImageModal"
+    >
+      <div class="relative max-w-4xl max-h-full p-4">
+        <!-- Close button -->
+        <button
+          @click="closeImageModal"
+          class="absolute top-2 right-2 z-10 text-white hover:text-gray-300 transition-colors"
+        >
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-green-700 dark:text-green-300">Setdown Completed By</label>
-            <input
-              v-model="setdownData.completed_by"
-              type="text"
-              class="mt-1 block w-full px-3 py-2 border border-green-300 dark:border-green-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Your full name"
-            />
-          </div>
+        <!-- Image -->
+        <img
+          v-if="imageModal.currentImage"
+          :src="imageModal.currentImage.url"
+          :alt="imageModal.currentImage.description || 'Setdown photo'"
+          class="max-w-full max-h-full object-contain rounded-lg"
+          @click.stop
+        />
 
-          <div>
-            <label class="block text-sm font-medium text-green-700 dark:text-green-300">Completion Date & Time</label>
-            <input
-              v-model="setdownData.completion_datetime"
-              type="datetime-local"
-              class="mt-1 block w-full px-3 py-2 border border-green-300 dark:border-green-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <div class="mt-4 space-y-2">
-          <div class="flex items-center">
-            <input
-              id="inventory_complete"
-              v-model="setdownData.inventory_complete"
-              type="checkbox"
-              class="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-            />
-            <label for="inventory_complete" class="ml-2 block text-sm text-green-800 dark:text-green-200">
-              All equipment inventoried and accounted for
-            </label>
-          </div>
-
-          <div class="flex items-center">
-            <input
-              id="cleaning_complete"
-              v-model="setdownData.cleaning_complete"
-              type="checkbox"
-              class="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-            />
-            <label for="cleaning_complete" class="ml-2 block text-sm text-green-800 dark:text-green-200">
-              Cleaning and maintenance tasks completed
-            </label>
-          </div>
-
-          <div class="flex items-center">
-            <input
-              id="setdown_signoff"
-              v-model="setdownData.setdown_signoff"
-              type="checkbox"
-              class="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-            />
-            <label for="setdown_signoff" class="ml-2 block text-sm text-green-800 dark:text-green-200">
-              I confirm that setdown is complete and all equipment is ready for return/storage
-            </label>
-          </div>
+        <!-- Image info -->
+        <div v-if="imageModal.currentImage" class="mt-4 text-white text-center">
+          <p class="text-lg font-medium">{{ imageModal.currentImage.description || 'Setdown Photo' }}</p>
+          <p class="text-sm text-gray-300">{{ imageModal.currentImage.filename }}</p>
         </div>
       </div>
-    </div>
-
-    <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-      <div class="flex space-x-2">
-        <button
-          v-if="task.status === 'pending'"
-          @click="updateStatus('in_progress')"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          Start Setdown
-        </button>
-        <button
-          v-if="task.status === 'in_progress' && setdownData.setdown_signoff"
-          @click="updateStatus('completed')"
-          class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-        >
-          Complete Setdown
-        </button>
-      </div>
-      <button
-        @click="handleSubmit"
-        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-      >
-        Save Setdown Data
-      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
+import { useSetdown } from '../../composables/useSetdown'
+import { useAuth } from '@/composables/useAuth'
+import imageCompression from 'browser-image-compression'
 
-interface Equipment {
-  name: string
-  condition: string
-  damage_description: string
-  return_status: string
-  notes: string
-  repair_required?: string
-  repair_cost?: number
-}
-
-interface ChecklistItem {
-  id: string
-  label: string
-  completed: boolean
-}
-
-interface ChecklistCategory {
-  id: string
-  category: string
-  items: ChecklistItem[]
-}
-
-interface CleaningTask {
-  id: string
-  task: string
-  completed: boolean
-  notes: string
-}
-
+/**
+ * Props interface for the SetdownTask component
+ */
 interface Props {
+  /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
 }
 
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
+/**
+ * Events emitted by the SetdownTask component
+ */
+interface Emits {
+  /** Emitted when task status needs to be updated */
   'update-status': [status: EnquiryTask['status']]
-  'complete': []
-}>()
+}
 
-const activeTab = ref('overview')
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+/**
+ * Project information structure for the setdown task
+ */
+interface ProjectInfo {
+  /** Unique project identifier */
+  projectId: string
+  /** Title/name of the enquiry/project */
+  enquiryTitle: string
+  /** Name of the client for this project */
+  clientName: string
+  /** Venue where the event will take place */
+  eventVenue: string
+  /** Date when project setup begins (ISO date string) */
+  setupDate: string
+  /** Date when project set down occurs (ISO date string or "tbc") */
+  setDownDate: string
+  /** Estimated budget for the project */
+  estimatedBudget?: number
+  /** Contact person for the project */
+  contactPerson: string
+}
+
+/**
+ * User feedback message structure
+ */
+interface FeedbackMessage {
+  /** Unique identifier */
+  id: string
+  /** Message type */
+  type: 'success' | 'error' | 'warning' | 'info'
+  /** Message text */
+  message: string
+  /** Timestamp when created */
+  timestamp: Date
+  /** Auto-dismiss timeout */
+  timeout?: number
+}
+
+/**
+ * Photo record structure
+ */
+interface PhotoRecord {
+  id: number
+  file?: File
+  url: string
+  filename: string
+  original_filename: string
+  description?: string
+  uploaded_at: string
+  uploaded_by?: string
+}
+
+/**
+ * Documentation data structure
+ */
+interface DocumentationData {
+  photos: PhotoRecord[]
+  setdownNotes: string
+  completionNotes: string
+}
+
+/**
+ * Issue structure
+ */
+interface SetdownIssue {
+  id: number
+  title: string
+  description: string
+  category: 'equipment' | 'venue' | 'team' | 'safety' | 'other'
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'open' | 'in_progress' | 'resolved'
+  reported_by?: string
+  reported_at: string
+  assigned_to?: string
+  resolved_at?: string
+  resolution?: string
+  photos?: PhotoRecord[]
+}
+
+/**
+ * Main setdown task data structure
+ */
+interface SetdownTaskData {
+  /** Project information */
+  projectInfo: ProjectInfo
+  /** Documentation data */
+  documentation: DocumentationData
+  /** Issues data */
+  issues: SetdownIssue[]
+}
+
+// Initialize the setdown composable
+const {
+  setdownData: backendSetdownData,
+  loading: backendLoading,
+  error: backendError,
+  fetchSetdownData,
+  saveDocumentation: saveDocumentationBackend,
+  uploadPhoto: uploadPhotoBackend,
+  deletePhoto: deletePhotoBackend,
+  fetchIssues,
+  addIssue: addIssueBackend,
+  updateIssue: updateIssueBackend,
+  deleteIssue: deleteIssueBackend,
+  photosCount,
+  issuesCount,
+  openIssuesCount
+} = useSetdown()
+
+// Initialize auth composable for permission checking
+const { user } = useAuth()
+
+// Component setup
+const activeTab = ref('documentation')
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: '📋' },
-  { id: 'inventory', label: 'Inventory', icon: '📦' },
-  { id: 'checklist', label: 'Checklist', icon: '✅' },
-  { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
-  { id: 'documentation', label: 'Documentation', icon: '📄' },
-  { id: 'completion', label: 'Completion', icon: '🏁' }
+  { id: 'documentation', label: 'Documentation', icon: '📸', description: 'Upload photos and record setdown notes' },
+  { id: 'issues', label: 'Issues', icon: '🚨', description: 'Track and manage setdown-related issues' }
 ]
 
-const isCompleted = computed({
-  get: () => props.task.status === 'completed',
-  set: (value) => {
-    if (value && props.task.status !== 'completed') {
-      toggleTaskCompletion()
-    }
-  }
+/**
+ * User feedback messages
+ */
+const feedbackMessages = ref<FeedbackMessage[]>([])
+
+/**
+ * Project information loading/error state
+ */
+const projectInfoState = ref<{
+  hasErrors: boolean
+  errorMessage?: string
+  isLoading: boolean
+}>({
+  hasErrors: false,
+  isLoading: false
 })
 
-const toggleTaskCompletion = async () => {
+/**
+ * Add feedback message
+ */
+const addFeedbackMessage = (type: FeedbackMessage['type'], message: string, timeout = 5000) => {
+  const feedbackMessage: FeedbackMessage = {
+    id: `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    type,
+    message,
+    timestamp: new Date(),
+    timeout
+  }
+
+  feedbackMessages.value.push(feedbackMessage)
+
+  // Auto-remove message after timeout
+  if (timeout > 0) {
+    setTimeout(() => {
+      removeFeedbackMessage(feedbackMessage.id)
+    }, timeout)
+  }
+}
+
+/**
+ * Remove feedback message
+ */
+const removeFeedbackMessage = (messageId: string) => {
+  const index = feedbackMessages.value.findIndex(msg => msg.id === messageId)
+  if (index !== -1) {
+    feedbackMessages.value.splice(index, 1)
+  }
+}
+
+/**
+ * Project info extraction logic from task.enquiry data
+ * Handles graceful fallback for missing project information with error tracking
+ */
+const extractProjectInfo = (): ProjectInfo => {
   try {
-    const response = await fetch(`/api/projects/enquiry-tasks/${props.task.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+    projectInfoState.value.isLoading = true
+    projectInfoState.value.hasErrors = false
+
+    const enquiry = props.task?.enquiry
+
+    if (!enquiry) {
+      projectInfoState.value.hasErrors = true
+      projectInfoState.value.errorMessage = 'No project data available'
+      addFeedbackMessage('warning', 'Project information is not available. Some features may be limited.')
+    }
+
+    const projectInfo: ProjectInfo = {
+      projectId: enquiry?.enquiry_number || 'N/A',
+      enquiryTitle: enquiry?.title || 'Untitled Project',
+      clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
+      eventVenue: enquiry?.venue || 'TBC',
+      setupDate: enquiry?.expected_delivery_date || 'TBC',
+      setDownDate: 'TBC', // This would come from project data when available
+      estimatedBudget: enquiry?.estimated_budget,
+      contactPerson: enquiry?.contact_person || 'N/A'
+    }
+
+    // Check for critical missing information
+    const missingFields = []
+    if (projectInfo.projectId === 'N/A') missingFields.push('Project ID')
+    if (projectInfo.enquiryTitle === 'Untitled Project') missingFields.push('Project Title')
+    if (projectInfo.clientName === 'N/A') missingFields.push('Client Name')
+
+    if (missingFields.length > 0) {
+      projectInfoState.value.hasErrors = true
+      projectInfoState.value.errorMessage = `Missing project information: ${missingFields.join(', ')}`
+      addFeedbackMessage('warning', `Some project information is missing: ${missingFields.join(', ')}`)
+    }
+
+    return projectInfo
+  } catch (error) {
+    projectInfoState.value.hasErrors = true
+    projectInfoState.value.errorMessage = 'Failed to load project information'
+    addFeedbackMessage('error', 'Failed to load project information. Please refresh the page.')
+
+    // Return safe defaults
+    return {
+      projectId: 'ERROR',
+      enquiryTitle: 'Error Loading Project',
+      clientName: 'N/A',
+      eventVenue: 'TBC',
+      setupDate: 'TBC',
+      setDownDate: 'TBC',
+      contactPerson: 'N/A'
+    }
+  } finally {
+    projectInfoState.value.isLoading = false
+  }
+}
+
+/**
+ * Initialize setdown data with project info
+ */
+const initializeSetdownData = (): SetdownTaskData => {
+  try {
+    return {
+      projectInfo: extractProjectInfo(),
+      documentation: {
+        photos: [],
+        setdownNotes: '',
+        completionNotes: ''
       },
-      body: JSON.stringify({
-        status: 'completed'
-      })
-    })
-
-    if (response.ok) {
-      emit('update-status', 'completed')
-
-      // Show success notification
-      alert(`Task "${props.task.title}" has been marked as completed! All users have been notified.`)
-
-      // Refresh notifications (if notification system is available)
-      if (window.dispatchEvent) {
-        window.dispatchEvent(new CustomEvent('task-completed', {
-          detail: { task: props.task }
-        }))
-      }
-    } else {
-      throw new Error('Failed to update task status')
+      issues: []
     }
   } catch (error) {
-    console.error('Error updating task status:', error)
-    alert('Failed to mark task as completed. Please try again.')
+    console.error('Failed to initialize setdown data:', error)
+    addFeedbackMessage('error', 'Failed to initialize setdown management. Please refresh the page.')
+
+    // Return minimal safe structure
+    return {
+      projectInfo: {
+        projectId: 'ERROR',
+        enquiryTitle: 'Error Loading Project',
+        clientName: 'N/A',
+        eventVenue: 'TBC',
+        setupDate: 'TBC',
+        setDownDate: 'TBC',
+        contactPerson: 'N/A'
+      },
+      documentation: {
+        photos: [],
+        setdownNotes: '',
+        completionNotes: ''
+      },
+      issues: []
+    }
   }
 }
 
-const eventSummary = ref({
-  event_date: '2025-10-25',
-  venue: 'Grand Ballroom, Nairobi',
-  setdown_start: '11:00 PM'
+/**
+ * Main setdown data structure
+ */
+const setdownData = reactive<SetdownTaskData>(initializeSetdownData())
+
+/**
+ * New issue form data
+ */
+const newIssue = reactive({
+  title: '',
+  description: '',
+  category: 'equipment' as SetdownIssue['category'],
+  priority: 'medium' as SetdownIssue['priority']
 })
 
-const equipmentList = ref<Equipment[]>([
-  {
-    name: 'LED Display Panel A',
-    condition: 'good',
-    damage_description: '',
-    return_status: 'pending',
-    notes: ''
-  },
-  {
-    name: 'Sound System Main Unit',
-    condition: 'excellent',
-    damage_description: '',
-    return_status: 'pending',
-    notes: ''
-  },
-  {
-    name: 'Lighting Rig',
-    condition: 'fair',
-    damage_description: 'Minor scratches on casing',
-    return_status: 'pending',
-    notes: ''
-  },
-  {
-    name: 'Cable Management System',
-    condition: 'good',
-    damage_description: '',
-    return_status: 'pending',
-    notes: ''
-  }
-])
-
-const setdownChecklist = ref<ChecklistCategory[]>([
-  {
-    id: 'dismantling',
-    category: 'Dismantling',
-    items: [
-      { id: 'equipment_disconnect', label: 'All equipment safely disconnected', completed: false },
-      { id: 'cables_coiled', label: 'Cables properly coiled and secured', completed: false },
-      { id: 'components_sorted', label: 'Components sorted by type', completed: false },
-      { id: 'fragile_items', label: 'Fragile items identified and protected', completed: false }
-    ]
-  },
-  {
-    id: 'inventory',
-    category: 'Inventory',
-    items: [
-      { id: 'item_count', label: 'All items counted and verified', completed: false },
-      { id: 'serial_numbers', label: 'Serial numbers recorded', completed: false },
-      { id: 'missing_items', label: 'Missing items identified', completed: false },
-      { id: 'condition_assessment', label: 'Equipment condition assessed', completed: false }
-    ]
-  },
-  {
-    id: 'preparation',
-    category: 'Return Preparation',
-    items: [
-      { id: 'packaging', label: 'Equipment properly packaged', completed: false },
-      { id: 'labels_attached', label: 'Return labels attached', completed: false },
-      { id: 'documentation', label: 'Return documentation prepared', completed: false },
-      { id: 'transport_arranged', label: 'Transport arrangements made', completed: false }
-    ]
-  }
-])
-
-const cleaningTasks = ref<CleaningTask[]>([
-  { id: 'surface_cleaning', task: 'Surface cleaning and dusting', completed: false, notes: '' },
-  { id: 'cable_cleaning', task: 'Cable and connector cleaning', completed: false, notes: '' },
-  { id: 'component_check', task: 'Component functionality check', completed: false, notes: '' },
-  { id: 'preventive_maintenance', task: 'Preventive maintenance performed', completed: false, notes: '' }
-])
-
-const setdownData = ref({
-  storage_location: '',
-  transport_method: '',
-  return_date: '',
-  transport_cost: null as number | null,
-  setdown_report: '',
-  completed_by: '',
-  completion_datetime: '',
-  inventory_complete: false,
-  cleaning_complete: false,
-  setdown_signoff: false
+/**
+ * Issues filter state
+ */
+const issuesFilter = reactive({
+  status: 'all',
+  priority: 'all'
 })
 
-const damagedEquipment = computed(() => {
-  return equipmentList.value.filter(equipment => equipment.condition === 'damaged' || equipment.condition === 'poor')
+/**
+ * Local notes state for editing
+ */
+const localNotes = reactive({
+  setdownNotes: '',
+  completionNotes: ''
 })
 
-const updateStatus = (status: EnquiryTask['status']) => {
-  emit('update-status', status)
-  if (status === 'completed') {
-    emit('complete')
+/**
+ * Image modal state
+ */
+const imageModal = reactive({
+  isOpen: false,
+  currentImage: null as any
+})
+
+/**
+ * Edit mode states
+ */
+const editModes = reactive({
+  issues: false
+})
+
+/**
+ * Last saved timestamp
+ */
+const lastSaved = ref<string>('')
+
+/**
+ * Drag and drop state
+ */
+const isDragging = ref(false)
+const uploadingCount = ref(0)
+
+/**
+ * Photo input ref
+ */
+const photoInputRef = ref<HTMLInputElement | null>(null)
+
+// Tab navigation functions
+const setActiveTab = (tabId: string) => {
+  if (tabs.find(tab => tab.id === tabId)) {
+    activeTab.value = tabId
+
+    // Announce tab change for screen readers
+    announceTabChange(tabId)
   }
 }
 
-const handleSubmit = () => {
-  // Here you would typically save the setdown data
-  console.log('Setdown data:', {
-    equipmentList: equipmentList.value,
-    setdownChecklist: setdownChecklist.value,
-    cleaningTasks: cleaningTasks.value,
-    setdownData: setdownData.value
-  })
-  // For now, just mark as completed if not already
-  if (props.task.status !== 'completed') {
-    updateStatus('completed')
+const announceTabChange = (tabId: string) => {
+  const tab = tabs.find(t => t.id === tabId)
+  if (tab) {
+    // Create a temporary element for screen reader announcement
+    const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'polite')
+    announcement.setAttribute('aria-atomic', 'true')
+    announcement.className = 'sr-only'
+    announcement.textContent = `Switched to ${tab.label} tab. ${tab.description}`
+    document.body.appendChild(announcement)
+
+    // Remove after announcement
+    setTimeout(() => {
+      document.body.removeChild(announcement)
+    }, 1000)
   }
 }
 
-// Watch for task changes to reset data if needed
-watch(() => props.task.id, () => {
-  // Reset setdown data for new task
-  equipmentList.value.forEach(equipment => {
-    equipment.condition = 'good'
-    equipment.damage_description = ''
-    equipment.return_status = 'pending'
-    equipment.notes = ''
+// Enhanced keyboard navigation for tabs
+const handleTabKeydown = (event: KeyboardEvent, currentIndex: number) => {
+  let newIndex = currentIndex
+
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault()
+      newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1
+      break
+    case 'ArrowRight':
+      event.preventDefault()
+      newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0
+      break
+    case 'Home':
+      event.preventDefault()
+      newIndex = 0
+      break
+    case 'End':
+      event.preventDefault()
+      newIndex = tabs.length - 1
+      break
+    case 'Enter':
+    case ' ':
+      event.preventDefault()
+      setActiveTab(tabs[currentIndex].id)
+      return
+    default:
+      return
+  }
+
+  // Focus and activate the new tab
+  const newTab = tabs[newIndex]
+  setActiveTab(newTab.id)
+
+  // Focus the new tab button
+  const tabButton = document.getElementById(`tab-${newTab.id}`)
+  if (tabButton) {
+    tabButton.focus()
+  }
+}
+
+// Tab badge functionality
+const getTabBadgeCount = (tabId: string): number => {
+  if (!backendSetdownData.value) return 0
+
+  switch (tabId) {
+    case 'documentation':
+      return backendSetdownData.value.documentation.photos?.length || 0
+    case 'issues':
+      return backendSetdownData.value.issues?.filter((issue: any) => issue.status !== 'resolved').length || 0
+    default:
+      return 0
+  }
+}
+
+const getTabBadgeClass = (tabId: string): string => {
+  const count = getTabBadgeCount(tabId)
+  if (count === 0) return ''
+
+  // Different colors for different tab types
+  switch (tabId) {
+    case 'documentation':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'issues':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+/**
+ * Computed property for project info
+ */
+const projectInfo = computed(() => setdownData.projectInfo)
+
+/**
+ * Check if user can edit setdown data (Project Manager or Project Officer only)
+ */
+const canEditSetdown = computed(() => {
+  if (!user.value) return false
+  const roles = user.value.roles || []
+  return roles.some(role =>
+    role === 'Super Admin' ||
+    role === 'Project Manager' ||
+    role === 'Project Officer'
+  )
+})
+
+/**
+ * Filtered issues based on current filters
+ */
+const filteredIssues = computed(() => {
+  const issues = backendSetdownData.value?.issues || []
+  return issues.filter((issue: any) => {
+    const statusMatch = issuesFilter.status === 'all' || issue.status === issuesFilter.status
+    const priorityMatch = issuesFilter.priority === 'all' || issue.priority === issuesFilter.priority
+    return statusMatch && priorityMatch
   })
-  setdownChecklist.value.forEach(category => {
-    category.items.forEach(item => item.completed = false)
-  })
-  cleaningTasks.value.forEach(task => {
-    task.completed = false
-    task.notes = ''
-  })
-  setdownData.value = {
-    storage_location: '',
-    transport_method: '',
-    return_date: '',
-    transport_cost: null,
-    setdown_report: '',
-    completed_by: '',
-    completion_datetime: '',
-    inventory_complete: false,
-    cleaning_complete: false,
-    setdown_signoff: false
+})
+
+/**
+ * Handle photo file selection
+ */
+const handlePhotoSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (files) {
+    uploadingCount.value = files.length
+    
+    for (const file of Array.from(files)) {
+      try {
+        await handlePhotoUpload(file)
+      } catch (error) {
+        console.error('Failed to upload photo:', error)
+      }
+    }
+    
+    uploadingCount.value = 0
+  }
+  // Reset input
+  target.value = ''
+}
+
+/**
+ * Handle drag and drop photo upload
+ */
+const handlePhotoDrop = async (event: DragEvent) => {
+  isDragging.value = false
+  const files = event.dataTransfer?.files
+  
+  if (files) {
+    uploadingCount.value = files.length
+    
+    for (const file of Array.from(files)) {
+      if (file.type.startsWith('image/')) {
+        try {
+          await handlePhotoUpload(file)
+        } catch (error) {
+          console.error('Failed to upload photo:', error)
+        }
+      } else {
+        addFeedbackMessage('warning', `${file.name} is not an image file`)
+      }
+    }
+    
+    uploadingCount.value = 0
+  }
+}
+
+/**
+ * Handle photo upload using backend
+ */
+const handlePhotoUpload = async (file: File) => {
+  try {
+    console.log('SetdownTask: Uploading photo for task ID:', props.task.id)
+    const photo = await uploadPhotoBackend(props.task.id, file)
+    console.log('SetdownTask: Photo uploaded:', photo)
+    // Update local state by refetching data
+    await fetchSetdownData(props.task.id)
+    console.log('SetdownTask: Data refetched after upload:', backendSetdownData.value)
+    addFeedbackMessage('success', `Photo "${file.name}" uploaded successfully`)
+  } catch (error) {
+    console.error('Failed to upload photo:', error)
+    addFeedbackMessage('error', 'Failed to upload photo. Please try again.')
+  }
+}
+
+/**
+ * Confirm and delete a photo
+ */
+const confirmDeletePhoto = async (photoId: number) => {
+  if (confirm('Are you sure you want to delete this photo?')) {
+    try {
+      await deletePhotoBackend(props.task.id, photoId)
+      // Update local state by refetching data
+      await fetchSetdownData(props.task.id)
+      addFeedbackMessage('success', 'Photo deleted successfully')
+    } catch (error) {
+      console.error('Failed to delete photo:', error)
+      addFeedbackMessage('error', 'Failed to delete photo. Please try again.')
+    }
+  }
+}
+
+/**
+ * Remove a photo from documentation (Legacy method, kept if needed but confirmDeletePhoto is preferred)
+ */
+const handleRemovePhoto = async (photoId: number) => {
+  await confirmDeletePhoto(photoId)
+}
+
+/**
+ * Update photo description
+ */
+const updatePhotoDescription = async (photo: any) => {
+  // For now, just log. We can implement photo description updates later if needed
+  console.log('Photo description updated:', photo.id, photo.description)
+}
+
+/**
+ * Open image in full screen modal
+ */
+const openImageModal = (photo: any) => {
+  imageModal.currentImage = photo
+  imageModal.isOpen = true
+}
+
+/**
+ * Close image modal
+ */
+const closeImageModal = () => {
+  imageModal.isOpen = false
+  imageModal.currentImage = null
+}
+
+/**
+ * Trigger photo upload
+ */
+const triggerPhotoUpload = () => {
+  const photoInput = photoInputRef.value as HTMLInputElement
+  if (photoInput) {
+    photoInput.click()
+  }
+}
+
+/**
+ * Handle image loading error
+ */
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.error('Failed to load image:', img.src)
+  // Could set a fallback image here if needed
+  // img.src = '/path/to/fallback-image.png'
+}
+
+/**
+ * Auto-save notes
+ */
+const autoSaveNotes = async () => {
+  try {
+    await saveDocumentationBackend(props.task.id, {
+      setdown_notes: localNotes.setdownNotes,
+      completion_notes: localNotes.completionNotes
+    })
+
+    // Update backend data after successful save
+    if (backendSetdownData.value) {
+      backendSetdownData.value.documentation.setdown_notes = localNotes.setdownNotes
+      backendSetdownData.value.documentation.completion_notes = localNotes.completionNotes
+    }
+
+    lastSaved.value = new Date().toLocaleTimeString()
+  } catch (error) {
+    console.error('Failed to save documentation:', error)
+    addFeedbackMessage('error', 'Failed to save notes. Please try again.')
+  }
+}
+
+/**
+ * Add a new issue
+ */
+const handleAddIssue = async () => {
+  if (!newIssue.title.trim() || !newIssue.description.trim()) {
+    addFeedbackMessage('warning', 'Please provide both title and description for the issue')
+    return
+  }
+
+  try {
+    await addIssueBackend(props.task.id, {
+      title: newIssue.title.trim(),
+      description: newIssue.description.trim(),
+      category: newIssue.category,
+      priority: newIssue.priority
+    })
+
+    // Reset form
+    newIssue.title = ''
+    newIssue.description = ''
+    newIssue.category = 'equipment'
+    newIssue.priority = 'medium'
+
+    addFeedbackMessage('success', 'Issue reported successfully')
+  } catch (error) {
+    console.error('Failed to add issue:', error)
+    addFeedbackMessage('error', 'Failed to add issue. Please try again.')
+  }
+}
+
+/**
+ * Update issue status
+ */
+const handleUpdateIssueStatus = async (issue: SetdownIssue) => {
+  try {
+    await updateIssueBackend(props.task.id, issue.id, {
+      status: issue.status,
+      resolution: issue.resolution
+    })
+
+    // Update local state
+    if (issue.status === 'resolved' && !issue.resolved_at) {
+      issue.resolved_at = new Date().toISOString()
+    } else if (issue.status !== 'resolved') {
+      issue.resolved_at = undefined
+      issue.resolution = undefined
+    }
+
+    addFeedbackMessage('success', 'Issue status updated successfully')
+  } catch (error) {
+    console.error('Failed to update issue status:', error)
+    addFeedbackMessage('error', 'Failed to update issue status. Please try again.')
+  }
+}
+
+/**
+ * Remove an issue
+ */
+const handleRemoveIssue = async (issueId: number) => {
+  try {
+    await deleteIssueBackend(props.task.id, issueId)
+    // Update local state
+    const index = setdownData.issues.findIndex(i => i.id === issueId)
+    if (index >= 0) {
+      setdownData.issues.splice(index, 1)
+      addFeedbackMessage('info', 'Issue removed')
+    }
+  } catch (error) {
+    console.error('Failed to delete issue:', error)
+    addFeedbackMessage('error', 'Failed to delete issue. Please try again.')
+  }
+}
+
+/**
+ * Save issues data (for resolved issues with resolution notes)
+ */
+const handleSaveIssues = async () => {
+  try {
+    // Save any issues that have been updated
+    for (const issue of setdownData.issues) {
+      if (issue.status === 'resolved' && issue.resolution) {
+        await updateIssueBackend(props.task.id, issue.id, {
+          status: issue.status,
+          resolution: issue.resolution
+        })
+      }
+    }
+    addFeedbackMessage('success', 'Issues saved successfully')
+  } catch (error) {
+    console.error('Failed to save issues:', error)
+    addFeedbackMessage('error', 'Failed to save issues. Please try again.')
+  }
+}
+
+/**
+ * Get priority class for styling
+ */
+const getPriorityClass = (priority: string): string => {
+  const classes: Record<string, string> = {
+    'low': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+    'medium': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    'high': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+    'critical': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+  }
+  return classes[priority] || classes.medium
+}
+
+/**
+ * Get status class for styling
+ */
+const getStatusClass = (status: string): string => {
+  const classes: Record<string, string> = {
+    'open': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    'in_progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    'resolved': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+  }
+  return classes[status] || classes.open
+}
+
+/**
+ * Format date for display
+ */
+const formatDate = (dateString: string | Date): string => {
+  if (!dateString || dateString === 'TBC' || dateString === 'N/A') {
+    return 'TBC'
+  }
+
+  try {
+    const date = new Date(dateString)
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date string:', dateString)
+      return 'TBC'
+    }
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  } catch (error) {
+    console.warn('Error formatting date:', dateString, error)
+    return 'TBC'
+  }
+}
+
+/**
+ * Format currency for display
+ */
+const formatCurrency = (amount: number): string => {
+  try {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return '0'
+    }
+
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  } catch (error) {
+    console.warn('Error formatting currency:', amount, error)
+    return '0'
+  }
+}
+
+/**
+ * Get status color classes
+ */
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    case 'cancelled':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+/**
+ * Get status label
+ */
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'completed':
+      return 'Completed'
+    case 'in_progress':
+      return 'In Progress'
+    case 'pending':
+      return 'Pending'
+    case 'cancelled':
+      return 'Cancelled'
+    default:
+      return 'Unknown'
+  }
+}
+
+/**
+ * Watch for task prop changes and reinitialize if needed
+ */
+watch(
+  () => props.task,
+  (newTask) => {
+    try {
+      if (newTask && newTask.enquiry) {
+        // Reinitialize project info if task changes
+        const newProjectInfo = extractProjectInfo()
+        Object.assign(setdownData.projectInfo, newProjectInfo)
+      }
+    } catch (error) {
+      console.error('Error updating task data:', error)
+      addFeedbackMessage('error', 'Failed to update project information')
+    }
+  },
+  { deep: true }
+)
+
+/**
+ * Watch for backend data changes to ensure reactivity
+ */
+watch(
+  () => backendSetdownData.value,
+  (newData) => {
+    if (newData) {
+      // Update local data when backend data changes
+      setdownData.documentation = {
+        photos: newData.documentation.photos || [],
+        setdownNotes: newData.documentation.setdown_notes || '',
+        completionNotes: newData.documentation.completion_notes || ''
+      }
+      setdownData.issues = newData.issues || []
+    }
+  },
+  { deep: true, immediate: true }
+)
+
+/**
+ * Handle cancel task
+ */
+const handleCancelTask = () => {
+  if (confirm('Cancel this task? This action can be changed later.')) {
+    emit('update-status', 'cancelled')
+  }
+}
+
+/**
+ * Initialize component on mount
+ */
+onMounted(async () => {
+  try {
+    console.log('SetdownTask: Fetching data for task ID:', props.task.id)
+    // Fetch setdown data from backend
+    await fetchSetdownData(props.task.id)
+
+    console.log('SetdownTask: Data loaded:', backendSetdownData.value)
+    console.log('SetdownTask: Photos count:', backendSetdownData.value?.documentation.photos?.length || 0)
+
+    // Initialize local notes from backend data
+    if (backendSetdownData.value) {
+      localNotes.setdownNotes = backendSetdownData.value.documentation.setdown_notes || ''
+      localNotes.completionNotes = backendSetdownData.value.documentation.completion_notes || ''
+    }
+
+    console.log('SetdownTask component mounted and data loaded')
+  } catch (error) {
+    console.error('Failed to load setdown data on mount:', error)
+    addFeedbackMessage('error', 'Failed to load setdown data. Please refresh the page.')
   }
 })
 </script>
+
+<style scoped>
+@reference "tailwindcss";
+
+.project-info-card {
+  @apply p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600;
+}
+
+/* Tab panel animations */
+.tab-panel {
+  @apply transition-opacity duration-200;
+}
+
+.animate-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Screen reader only class for accessibility announcements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</style>

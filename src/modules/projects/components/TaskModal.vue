@@ -1,5 +1,5 @@
 <template>
-    <div v-if="show && task" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div v-if="show && task" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="closeModal">
       <div class="relative top-2 mx-auto p-5 border w-[95%] max-w-[1600px] shadow-lg rounded-md bg-white dark:bg-gray-800 max-h-[95vh] overflow-y-auto" @click.stop>
         <div class="mt-2">
   <!-- Compact Task Header -->
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { watch, onMounted, onUnmounted } from 'vue'
 import type { EnquiryTask } from '../types/enquiry'
 import TaskRenderer from './tasks/TaskRenderer.vue'
 
@@ -103,6 +103,22 @@ const emit = defineEmits<{
 const closeModal = () => {
   emit('close')
 }
+
+// Handle Escape key press to close modal
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && props.show) {
+    closeModal()
+  }
+}
+
+// Add/remove keyboard event listener
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 
 const handleStatusUpdate = (status: EnquiryTask['status']) => {
   emit('update-status', status)

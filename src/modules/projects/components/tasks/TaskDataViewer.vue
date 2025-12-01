@@ -232,6 +232,10 @@ const fetchTaskData = async () => {
         endpoint = `/api/projects/tasks/${props.task.id}/procurement`
         console.log('TaskDataViewer: Procurement task endpoint:', endpoint)
         break
+      case 'handover':
+        endpoint = `/api/projects/tasks/${props.task.id}/handover/survey`
+        console.log('TaskDataViewer: Handover task endpoint:', endpoint)
+        break
       case 'logistics':
         endpoint = `/api/projects/tasks/${props.task.id}/logistics`
         console.log('TaskDataViewer: Logistics task endpoint:', endpoint)

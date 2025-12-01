@@ -127,9 +127,9 @@
 
 
     <!-- Feedback Messages -->
-    <div v-if="feedback.messages.length > 0" class="mb-6 space-y-2">
+    <div v-if="feedbackMessages.length > 0" class="mb-6 space-y-2">
       <div
-        v-for="message in feedback.messages"
+        v-for="message in feedbackMessages"
         :key="message.id"
         :class="[
           'flex items-center justify-between p-3 rounded-lg border text-sm',
@@ -161,7 +161,7 @@
           <span>{{ message.message }}</span>
         </div>
         <button
-          @click="feedback.removeMessage(message.id)"
+          @click="removeFeedbackMessage(message.id)"
           class="text-current hover:opacity-70 transition-opacity p-1 rounded-md"
           :aria-label="'Dismiss message'"
         >
@@ -221,7 +221,7 @@
         <!-- Add Team Button -->
         <button
           v-if="canAssignTeams"
-          @click="addTeamModal.open()"
+          @click="showAddTeamModal = true"
           class="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +244,7 @@
         <!-- Add Team Button in Empty State -->
         <button
           v-if="canAssignTeams"
-          @click="addTeamModal.open()"
+          @click="showAddTeamModal = true"
           class="inline-flex items-center px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
         >
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +270,7 @@
             </div>
             <button
               v-if="canDeleteTeams"
-              @click="handleDeleteTeam(team.id)"
+              @click="deleteTeam(team.id)"
               class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
               :aria-label="'Delete team'"
             >
@@ -305,7 +305,7 @@
                 </div>
                 <button
                   v-if="canManageMembers"
-                  @click="handleRemoveMember(team.id, member.id)"
+                  @click="removeMember(team.id, member.id)"
                   class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
                   :aria-label="`Remove ${member.member_name}`"
                 >
@@ -329,10 +329,10 @@
                   type="text"
                   placeholder="Enter member name"
                   class="flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
-                  @keydown.enter="handleAddMember(team.id)"
+                  @keydown.enter="addMemberToTeam(team.id)"
                 />
                 <button
-                  @click="handleAddMember(team.id)"
+                  @click="addMemberToTeam(team.id)"
                   :disabled="!newMemberInputs[team.id]?.trim()"
                   class="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-1"
                 >
@@ -349,13 +349,13 @@
     </div>
 
     <!-- Add Team Modal -->
-    <div v-if="addTeamModal.isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div v-if="showAddTeamModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Team</h3>
             <button
-              @click="addTeamModal.close()"
+              @click="closeAddTeamModal"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,12 +364,12 @@
             </button>
           </div>
 
-          <form @submit.prevent="handleSubmitAddTeam" class="space-y-4">
+          <form @submit.prevent="submitAddTeam" class="space-y-4">
             <!-- Category Selection -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <select
-                v-model="newTeamForm.category"
+                v-model="newTeamModal.category"
                 class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
               >
                 <option value="">Select Category</option>
@@ -383,13 +383,13 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team Type</label>
               <select
-                v-model="newTeamForm.team_type_id"
-                :disabled="!newTeamForm.category"
+                v-model="newTeamModal.team_type_id"
+                :disabled="!newTeamModal.category"
                 class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
               >
                 <option value="">Select Team Type</option>
                 <option
-                  v-for="teamType in getAvailableTeamTypes(newTeamForm.category)"
+                  v-for="teamType in getAvailableTeamTypes(newTeamModal.category)"
                   :key="teamType.id"
                   :value="teamType.team_type_id"
                 >
@@ -402,7 +402,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date (Optional)</label>
               <input
-                v-model="newTeamForm.start_date"
+                v-model="newTeamModal.start_date"
                 type="date"
                 class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
               />
@@ -412,14 +412,14 @@
             <div class="flex justify-end space-x-3 pt-4">
               <button
                 type="button"
-                @click="addTeamModal.close()"
+                @click="closeAddTeamModal"
                 class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                :disabled="!newTeamForm.category || !newTeamForm.team_type_id"
+                :disabled="!newTeamModal.category || !newTeamModal.team_type_id"
                 class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors"
               >
                 Create Team
@@ -434,7 +434,7 @@
     <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center space-x-2">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
-        <span :class="getStatusColorClass(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
+        <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
           {{ getStatusLabel(task.status) }}
         </span>
       </div>
@@ -442,7 +442,7 @@
       <div class="flex flex-col sm:flex-row gap-3">
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled'"
-          @click="markTaskComplete"
+          @click="$emit('update-status', 'completed')"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -467,31 +467,11 @@ import type { EnquiryTask } from '../../types/enquiry'
 import { useTeams } from '../../composables/useTeams'
 import { usePermissions } from '@/modules/finance/petty-cash/composables/usePermissions'
 
-// Import new composables and utilities
-import { useModal } from '../../composables/useModal'
-import { useDataRefresh } from '../../composables/useDataRefresh'
-import { useFeedback } from '../../composables/useFeedback'
-import { useTeamOperations } from '../../composables/useTeamOperations'
-import type { Team } from '../../composables/useTeams'
-
-// Import constants
-import {
-  TEAM_CATEGORIES,
-  CATEGORY_ID_MAP,
-  TEAM_TABS,
-  TEAM_TYPES,
-  TEAM_TYPE_NAMES,
-  type TeamCategory
-} from '../../constants/teamConstants'
-
-// Import utilities
-import { getStatusColorClass, getStatusLabel } from '../../utils/statusHelpers'
-import { formatDate, formatCurrency } from '../../utils/dateHelpers'
-
 /**
  * Props interface for the TeamsTask component
  */
 interface Props {
+  /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
 }
 
@@ -499,96 +479,200 @@ interface Props {
  * Events emitted by the TeamsTask component
  */
 interface Emits {
+  /** Emitted when task status needs to be updated */
   'update-status': [status: EnquiryTask['status']]
 }
 
 /**
- * Project information structure
+ * Project information structure for the teams task
  */
 interface ProjectInfo {
+  /** Unique project identifier */
   projectId: string
+  /** Title/name of the enquiry/project */
   enquiryTitle: string
+  /** Name of the client for this project */
   clientName: string
+  /** Venue where the event will take place */
   eventVenue: string
+  /** Date when project setup begins (ISO date string) */
   setupDate: string
+  /** Date when project set down occurs (ISO date string or "tbc") */
   setDownDate: string
+  /** Estimated budget for the project */
   estimatedBudget?: number
+  /** Contact person for the project */
   contactPerson: string
 }
 
 /**
- * New team form structure
+ * New team modal form interface
  */
-interface NewTeamForm {
-  category: TeamCategory | ''
+interface NewTeamModalForm {
+  category: string
   team_type_id: number | null
   start_date: string
+}
+
+/**
+ * User feedback message structure
+ */
+interface FeedbackMessage {
+  /** Unique identifier */
+  id: string
+  /** Message type */
+  type: 'success' | 'error' | 'warning' | 'info'
+  /** Message text */
+  message: string
+  /** Timestamp when created */
+  timestamp: Date
+  /** Auto-dismiss timeout */
+  timeout?: number
 }
 
 // Component setup
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Composables
+// Teams API integration
 const teams = useTeams()
-const { hasRole } = usePermissions()
-const addTeamModal = useModal<NewTeamForm>()
-const dataRefresh = useDataRefresh()
-const feedback = useFeedback()
-const teamOps = useTeamOperations()
 
-// Local state
-const activeTab = ref<TeamCategory>(TEAM_CATEGORIES.WORKSHOP)
-const newMemberInputs = reactive<Record<number, string>>({})
-const newTeamForm = reactive<NewTeamForm>({
+// Permission service
+const { hasPermission, hasRole } = usePermissions()
+
+/**
+ * Active tab state
+ */
+const activeTab = ref<'workshop' | 'setup' | 'setdown'>('workshop')
+
+/**
+ * Modal state
+ */
+const showAddTeamModal = ref(false)
+
+/**
+ * New team modal form data
+ */
+const newTeamModal = reactive<NewTeamModalForm>({
   category: '',
   team_type_id: null,
   start_date: ''
 })
-const teamTabs = TEAM_TABS
 
 /**
- * Extract project information from task
+ * New member inputs for each team
  */
-const projectInfo = computed((): ProjectInfo => {
-  const enquiry = props.task?.enquiry
+const newMemberInputs = reactive<Record<number, string>>({})
 
-  return {
-    projectId: enquiry?.enquiry_number || 'N/A',
-    enquiryTitle: enquiry?.title || 'Untitled Project',
-    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
-    eventVenue: enquiry?.venue || 'TBC',
-    setupDate: enquiry?.expected_delivery_date || 'TBC',
-    setDownDate: 'TBC',
-    estimatedBudget: enquiry?.estimated_budget,
-    contactPerson: enquiry?.contact_person || 'N/A'
+/**
+ * User feedback messages
+ */
+const feedbackMessages = ref<FeedbackMessage[]>([])
+
+/**
+ * Project information loading/error state
+ */
+const projectInfoState = ref<{
+  hasErrors: boolean
+  errorMessage?: string
+  isLoading: boolean
+}>({
+  hasErrors: false,
+  isLoading: false
+})
+
+/**
+ * Team tabs configuration
+ */
+const teamTabs = [
+  { key: 'workshop', label: 'Workshop Teams' },
+  { key: 'setup', label: 'Setup Teams' },
+  { key: 'setdown', label: 'Setdown Teams' }
+] as const
+
+/**
+ * Project info extraction logic from task.enquiry data
+ * Handles graceful fallback for missing project information with error tracking
+ */
+const extractProjectInfo = (): ProjectInfo => {
+  try {
+    projectInfoState.value.isLoading = true
+    projectInfoState.value.hasErrors = false
+
+    const enquiry = props.task?.enquiry
+
+    if (!enquiry) {
+      projectInfoState.value.hasErrors = true
+      projectInfoState.value.errorMessage = 'No project data available'
+      addFeedbackMessage('warning', 'Project information is not available. Some features may be limited.')
+    }
+
+    const projectInfo: ProjectInfo = {
+      projectId: enquiry?.enquiry_number || 'N/A',
+      enquiryTitle: enquiry?.title || 'Untitled Project',
+      clientName: enquiry?.client?.full_name || enquiry?.client?.FullName || enquiry?.contact_person || 'N/A',
+      eventVenue: enquiry?.venue || 'TBC',
+      setupDate: enquiry?.expected_delivery_date || 'TBC',
+      setDownDate: 'TBC', // This would come from project data when available
+      estimatedBudget: enquiry?.estimated_budget,
+      contactPerson: enquiry?.contact_person || 'N/A'
+    }
+
+    // Check for critical missing information
+    const missingFields = []
+    if (projectInfo.projectId === 'N/A') missingFields.push('Project ID')
+    if (projectInfo.enquiryTitle === 'Untitled Project') missingFields.push('Project Title')
+    if (projectInfo.clientName === 'N/A') missingFields.push('Client Name')
+
+    if (missingFields.length > 0) {
+      projectInfoState.value.hasErrors = true
+      projectInfoState.value.errorMessage = `Missing project information: ${missingFields.join(', ')}`
+      addFeedbackMessage('warning', `Some project information is missing: ${missingFields.join(', ')}`)
+    }
+
+    return projectInfo
+  } catch (error) {
+    projectInfoState.value.hasErrors = true
+    projectInfoState.value.errorMessage = 'Failed to load project information'
+    addFeedbackMessage('error', 'Failed to load project information. Please refresh the page.')
+
+    // Return safe defaults
+    return {
+      projectId: 'ERROR',
+      enquiryTitle: 'Error Loading Project',
+      clientName: 'N/A',
+      eventVenue: 'TBC',
+      setupDate: 'TBC',
+      setDownDate: 'TBC',
+      contactPerson: 'N/A'
+    }
+  } finally {
+    projectInfoState.value.isLoading = false
+  }
+}
+
+/**
+ * Main teams data structure
+ */
+const projectInfo = computed(() => extractProjectInfo())
+
+/**
+ * Initialize data on component mount
+ */
+onMounted(async () => {
+  try {
+    // Load team categories and existing teams data
+    await teams.fetchTeamCategories()
+    await teams.fetchTeamsForTask(props.task.id)
+    addFeedbackMessage('success', 'Teams data loaded successfully')
+  } catch (error) {
+    console.error('Error loading teams data:', error)
+    addFeedbackMessage('error', 'Failed to load teams data. Please refresh the page.')
   }
 })
 
 /**
- * Permission checks
- */
-const canAssignTeams = computed(() => hasRole('manager') || hasRole('admin'))
-const canManageMembers = computed(() => hasRole('manager') || hasRole('admin'))
-const canDeleteTeams = computed(() => hasRole('manager') || hasRole('admin'))
-
-/**
- * Team statistics
- */
-const completedTeamsCount = computed(() =>
-  teams.completedTeams.value?.length || 0
-)
-
-const inProgressTeamsCount = computed(() =>
-  teams.inProgressTeams.value?.length || 0
-)
-
-const overdueTeamsCount = computed(() =>
-  teams.overdueTeams.value?.length || 0
-)
-
-/**
- * Get teams for active tab
+ * Get teams for the active tab
  */
 const getActiveTabTeams = () => {
   const teamsByCategory = teams.teamsByCategory.value
@@ -596,9 +680,9 @@ const getActiveTabTeams = () => {
 }
 
 /**
- * Get team count for specific tab
+ * Get team count for a specific tab
  */
-const getTabTeamCount = (tabKey: TeamCategory): number => {
+const getTabTeamCount = (tabKey: string): number => {
   const teamsByCategory = teams.teamsByCategory.value
   return teamsByCategory?.[tabKey]?.length || 0
 }
@@ -607,125 +691,401 @@ const getTabTeamCount = (tabKey: TeamCategory): number => {
  * Get active tab label
  */
 const getActiveTabLabel = (): string => {
-  const tab = TEAM_TABS.find(t => t.key === activeTab.value)
+  const tab = teamTabs.find(t => t.key === activeTab.value)
   return tab?.label || 'Teams'
 }
 
 /**
- * Get available team types for category
+ * Hardcoded team types for each category
  */
-const getAvailableTeamTypes = (category: TeamCategory | '') => {
-  if (!category) return []
-  return TEAM_TYPES[category] || []
+const hardcodedTeamTypes = {
+  workshop: [
+    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
+    { id: 2, team_type_id: 2, display_name: 'Technicians' },
+    { id: 3, team_type_id: 3, display_name: 'Painters' },
+    { id: 4, team_type_id: 4, display_name: 'Welders' },
+    { id: 5, team_type_id: 5, display_name: 'Electricians' },
+    { id: 6, team_type_id: 6, display_name: 'ICT' },
+    { id: 7, team_type_id: 7, display_name: 'Loading' },
+    { id: 8, team_type_id: 8, display_name: 'Offloading' },
+    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
+  ],
+  setup: [
+    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
+    { id: 2, team_type_id: 2, display_name: 'Technicians' },
+    { id: 3, team_type_id: 3, display_name: 'Painters' },
+    { id: 4, team_type_id: 4, display_name: 'Welders' },
+    { id: 5, team_type_id: 5, display_name: 'Electricians' },
+    { id: 6, team_type_id: 6, display_name: 'ICT' },
+    { id: 7, team_type_id: 7, display_name: 'Loading' },
+    { id: 8, team_type_id: 8, display_name: 'Offloading' },
+    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
+  ],
+  setdown: [
+    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
+    { id: 2, team_type_id: 2, display_name: 'Technicians' },
+    { id: 3, team_type_id: 3, display_name: 'Painters' },
+    { id: 4, team_type_id: 4, display_name: 'Welders' },
+    { id: 5, team_type_id: 5, display_name: 'Electricians' },
+    { id: 6, team_type_id: 6, display_name: 'ICT' },
+    { id: 7, team_type_id: 7, display_name: 'Loading' },
+    { id: 8, team_type_id: 8, display_name: 'Offloading' },
+    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
+  ]
 }
 
 /**
- * Get team type display name
+ * Get available team types for a category (using hardcoded data)
  */
-const getTeamTypeDisplayName = (team: Team): string => {
-  if (team.team_type?.display_name) {
-    return team.team_type.display_name
-  }
-  return TEAM_TYPE_NAMES[team.team_type_id] || 'Unknown Team'
+const getAvailableTeamTypes = (categoryId: string) => {
+  return hardcodedTeamTypes[categoryId as keyof typeof hardcodedTeamTypes] || []
 }
 
 /**
- * Handle add member
+ * Close add team modal
  */
-const handleAddMember = async (teamTaskId: number) => {
-  const memberName = newMemberInputs[teamTaskId]?.trim()
+const closeAddTeamModal = () => {
+  showAddTeamModal.value = false
+  // Reset form
+  newTeamModal.category = ''
+  newTeamModal.team_type_id = null
+  newTeamModal.start_date = ''
+}
 
-  if (!memberName) {
-    feedback.error('Please enter a member name')
+/**
+ * Submit add team form
+ */
+const submitAddTeam = async () => {
+  if (!newTeamModal.category || !newTeamModal.team_type_id) {
+    addFeedbackMessage('error', 'Please select a category and team type')
     return
   }
 
-  await teamOps.addMemberOptimistic(props.task.id, teamTaskId, memberName)
+  try {
+    // Map category to proper category_id
+    const categoryMap = {
+      workshop: 1,
+      setup: 2,
+      setdown: 3
+    }
 
-  // Clear input on success
-  if (!teamOps.isLoading.value[`add-member-${teamTaskId}`]) {
-    newMemberInputs[teamTaskId] = ''
+    const newTeam = await teams.createTeamTask(props.task.id, {
+      category_id: categoryMap[newTeamModal.category as keyof typeof categoryMap],
+      team_type_id: newTeamModal.team_type_id,
+      required_members: 1, // Default to 1, members added individually
+      start_date: newTeamModal.start_date || undefined,
+      priority: 'medium'
+    })
+
+    // Try to refresh teams data to show the newly created team
+    try {
+      await teams.fetchTeamsForTask(props.task.id)
+      addFeedbackMessage('success', `Team added to ${newTeamModal.category} category`)
+      closeAddTeamModal()
+    } catch (refreshError) {
+      console.warn('Failed to refresh teams data after team creation:', refreshError)
+      addFeedbackMessage('success', `Team added to ${newTeamModal.category} category (UI may not update immediately)`)
+      closeAddTeamModal()
+      // Optionally trigger a manual refresh after a short delay
+      setTimeout(async () => {
+        try {
+          await teams.fetchTeamsForTask(props.task.id)
+        } catch (retryError) {
+          console.error('Retry refresh also failed:', retryError)
+        }
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Error adding team:', error)
+    addFeedbackMessage('error', 'Failed to add team. Please try again.')
   }
 }
 
 /**
- * Handle remove member
+ * Add member to a specific team
  */
-const handleRemoveMember = async (teamTaskId: number, memberId: number) => {
-  await teamOps.removeMemberOptimistic(props.task.id, teamTaskId, memberId)
+const addMemberToTeam = async (teamTaskId: number) => {
+  const memberName = newMemberInputs[teamTaskId]?.trim()
+
+  if (!memberName) {
+    addFeedbackMessage('error', 'Please enter a member name')
+    return
+  }
+
+  try {
+    await teams.addTeamMember(props.task.id, teamTaskId, {
+      member_name: memberName
+    })
+
+    // Clear input immediately
+    newMemberInputs[teamTaskId] = ''
+
+    // Try to refresh teams data to show the newly added member
+    try {
+      await teams.fetchTeamsForTask(props.task.id)
+      addFeedbackMessage('success', 'Member added successfully')
+    } catch (refreshError) {
+      console.warn('Failed to refresh teams data after member addition:', refreshError)
+      addFeedbackMessage('success', 'Member added successfully (UI may not update immediately)')
+      // Optionally trigger a manual refresh after a short delay
+      setTimeout(async () => {
+        try {
+          await teams.fetchTeamsForTask(props.task.id)
+        } catch (retryError) {
+          console.error('Retry refresh also failed:', retryError)
+        }
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Error adding member:', error)
+    addFeedbackMessage('error', 'Failed to add member. Please try again.')
+  }
 }
 
 /**
- * Handle delete team
+ * Remove member from a specific team
  */
-const handleDeleteTeam = async (teamTaskId: number) => {
+const removeMember = async (teamTaskId: number, memberId: number) => {
+  try {
+    await teams.removeTeamMember(props.task.id, teamTaskId, memberId)
+
+    // Try to refresh teams data to show the updated member list
+    try {
+      await teams.fetchTeamsForTask(props.task.id)
+      addFeedbackMessage('success', 'Member removed successfully')
+    } catch (refreshError) {
+      console.warn('Failed to refresh teams data after member removal:', refreshError)
+      addFeedbackMessage('success', 'Member removed successfully (UI may not update immediately)')
+      // Optionally trigger a manual refresh after a short delay
+      setTimeout(async () => {
+        try {
+          await teams.fetchTeamsForTask(props.task.id)
+        } catch (retryError) {
+          console.error('Retry refresh also failed:', retryError)
+        }
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Error removing member:', error)
+    addFeedbackMessage('error', 'Failed to remove member. Please try again.')
+  }
+}
+
+/**
+ * Delete a team
+ */
+const deleteTeam = async (teamTaskId: number) => {
   if (!confirm('Are you sure you want to delete this team?')) {
     return
   }
 
-  await teamOps.deleteTeamOptimistic(props.task.id, teamTaskId)
-}
-
-/**
- * Handle submit add team
- */
-const handleSubmitAddTeam = async () => {
-  if (!newTeamForm.category || !newTeamForm.team_type_id) {
-    feedback.error('Please select a category and team type')
-    return
-  }
-
-  const teamData = {
-    category_id: CATEGORY_ID_MAP[newTeamForm.category],
-    team_type_id: newTeamForm.team_type_id,
-    required_members: 1,
-    start_date: newTeamForm.start_date || undefined,
-    priority: 'medium'
-  }
-
-  await teamOps.createTeamOptimistic(props.task.id, teamData)
-
-  // Close modal and reset form on success
-  if (!teamOps.isLoading.value['create-team']) {
-    addTeamModal.close()
-    newTeamForm.category = ''
-    newTeamForm.team_type_id = null
-    newTeamForm.start_date = ''
-  }
-}
-
-/**
- * Mark task as complete
- */
-const markTaskComplete = () => emit('update-status', 'completed')
-
-/**
- * Initialize data on mount
- */
-onMounted(async () => {
   try {
-    await dataRefresh.queueRefresh('teams-initial', async () => {
-      await teams.fetchTeamCategories()
+    await teams.deleteTeamTask(props.task.id, teamTaskId)
+
+    // Try to refresh teams data to remove the deleted team
+    try {
       await teams.fetchTeamsForTask(props.task.id)
-    })
-    feedback.success('Teams data loaded successfully')
+      addFeedbackMessage('success', 'Team deleted successfully')
+    } catch (refreshError) {
+      console.warn('Failed to refresh teams data after team deletion:', refreshError)
+      addFeedbackMessage('success', 'Team deleted successfully (UI may not update immediately)')
+      // Optionally trigger a manual refresh after a short delay
+      setTimeout(async () => {
+        try {
+          await teams.fetchTeamsForTask(props.task.id)
+        } catch (retryError) {
+          console.error('Retry refresh also failed:', retryError)
+        }
+      }, 2000)
+    }
   } catch (error) {
-    console.error('Error loading teams data:', error)
-    feedback.error('Failed to load teams data')
+    console.error('Error deleting team:', error)
+    addFeedbackMessage('error', 'Failed to delete team. Please try again.')
   }
-})
+}
 
 /**
- * Watch for task changes
+ * Add feedback message
+ */
+const addFeedbackMessage = (type: FeedbackMessage['type'], message: string, timeout = 5000) => {
+  const feedbackMessage: FeedbackMessage = {
+    id: `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    type,
+    message,
+    timestamp: new Date(),
+    timeout
+  }
+
+  feedbackMessages.value.push(feedbackMessage)
+
+  // Auto-remove message after timeout
+  if (timeout > 0) {
+    setTimeout(() => {
+      removeFeedbackMessage(feedbackMessage.id)
+    }, timeout)
+  }
+}
+
+/**
+ * Remove feedback message
+ */
+const removeFeedbackMessage = (messageId: string) => {
+  const index = feedbackMessages.value.findIndex(msg => msg.id === messageId)
+  if (index !== -1) {
+    feedbackMessages.value.splice(index, 1)
+  }
+}
+
+/**
+ * Format date for display with enhanced error handling
+ */
+const formatDate = (dateString: string): string => {
+  if (!dateString || dateString === 'TBC' || dateString === 'N/A') {
+    return 'TBC'
+  }
+
+  try {
+    const date = new Date(dateString)
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date string:', dateString)
+      return 'TBC'
+    }
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  } catch (error) {
+    console.warn('Error formatting date:', dateString, error)
+    return 'TBC'
+  }
+}
+
+/**
+ * Format currency for display with error handling
+ */
+const formatCurrency = (amount: number): string => {
+  try {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+      return '0'
+    }
+
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  } catch (error) {
+    console.warn('Error formatting currency:', amount, error)
+    return '0'
+  }
+}
+
+/**
+ * Get status color classes
+ */
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'completed':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    case 'in_progress':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    case 'cancelled':
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+/**
+ * Get status color classes for teams
+ */
+const getStatusColorClass = (status: string): string => {
+  return getStatusColor(status)
+}
+
+/**
+ * Get status label
+ */
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'completed':
+      return 'Completed'
+    case 'in_progress':
+      return 'In Progress'
+    case 'pending':
+      return 'Pending'
+    case 'cancelled':
+      return 'Cancelled'
+    case 'assigned':
+      return 'Assigned'
+    default:
+      return 'Unknown'
+  }
+}
+
+/**
+ * Permission computed properties
+ */
+const canAssignTeams = computed(() =>
+  hasRole('manager') || hasRole('admin') // Simplified for now - using existing roles
+)
+
+const canManageMembers = computed(() =>
+  hasRole('manager') || hasRole('admin')
+)
+
+const canDeleteTeams = computed(() =>
+  hasRole('manager') || hasRole('admin')
+)
+
+/**
+ * Get team type display name with fallback to hardcoded names
+ */
+const getTeamTypeDisplayName = (team: any): string => {
+  // First try to get from team.team_type.display_name (API returns team_type, not teamType)
+  if (team.team_type?.display_name) {
+    return team.team_type.display_name
+  }
+
+  // Fallback to hardcoded names based on team_type_id
+  const hardcodedNames: Record<number, string> = {
+    1: 'Pasting Team',
+    2: 'Technicians',
+    3: 'Painters',
+    4: 'Welders',
+    5: 'Electricians',
+    6: 'ICT',
+    7: 'Loading',
+    8: 'Offloading',
+    9: 'Carpenters'
+  }
+
+  return hardcodedNames[team.team_type_id] || 'Unknown Team'
+}
+
+/**
+ * Watch for task prop changes and reinitialize if needed
  */
 watch(
-  () => props.task.id,
-  (newTaskId) => {
-    if (newTaskId) {
-      dataRefresh.queueRefresh('teams-task-change', () =>
-        teams.fetchTeamsForTask(newTaskId)
-      )
+  () => props.task,
+  (newTask) => {
+    try {
+      if (newTask && newTask.id !== (props.task?.id)) {
+        // Fetch teams for the new task
+        teams.fetchTeamsForTask(newTask.id).catch(error => {
+          console.error('Error updating teams data for new task:', error)
+        })
+      }
+    } catch (error) {
+      console.error('Error updating task data:', error)
+      addFeedbackMessage('error', 'Failed to update teams data')
     }
-  }
+  },
+  { deep: true }
 )
 </script>

@@ -191,15 +191,24 @@
           <!-- File Upload Section -->
           <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
             <div class="text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-              <div class="mt-4">
-                <label for="file-upload" class="cursor-pointer">
-                  <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Click to upload design assets</span>
-                  <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept=".jpeg,.png,.gif,.webp,.pdf,.ai,.psd,.sketch,.fig,.xd" @change="handleFileUpload" />
-                </label>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF, WebP, PDF, AI, PSD, Sketch, Figma, XD up to 50MB each</p>
+              <div v-if="isCompressing" class="py-4">
+                <svg class="animate-spin h-8 w-8 mx-auto text-purple-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-sm font-medium text-purple-600">Compressing images...</p>
+              </div>
+              <div v-else>
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <div class="mt-4">
+                  <label for="file-upload" class="cursor-pointer">
+                    <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Click to upload design assets</span>
+                    <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept=".jpeg,.png,.gif,.webp,.pdf,.ai,.psd,.sketch,.fig,.xd" @change="handleFileUpload" />
+                  </label>
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF, WebP, PDF, AI, PSD, Sketch, Figma, XD up to 50MB each</p>
+                </div>
               </div>
             </div>
           </div>
@@ -721,6 +730,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import api from '@/plugins/axios'
 import type { EnquiryTask } from '../../types/enquiry'
 import type { DesignAsset, AssetCategory } from './design/types/design'
+import imageCompression from 'browser-image-compression'
 
 interface Props {
   task: EnquiryTask
@@ -758,6 +768,7 @@ const error = ref('')
 const successMessage = ref('')
 const isLoadingExistingData = ref(false)
 const isUploading = ref(false)
+const isCompressing = ref(false)
 const uploadProgress = ref(0)
 
 // Computed properties
@@ -919,20 +930,22 @@ const updateStatus = (status: EnquiryTask['status']) => {
   }
 }
 
-const handleFileUpload = (event: Event) => {
+const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const files = target.files
   if (files) {
+    isCompressing.value = true
     // Validate file types and sizes
     const validFiles: File[] = []
     const maxSize = 50 * 1024 * 1024 // 50MB
 
     for (let i = 0; i < files.length; i++) {
-      const file = files[i]
+      let file = files[i]
 
       // Check file size
       if (file.size > maxSize) {
         error.value = `File "${file.name}" is too large. Maximum size is 50MB.`
+        isCompressing.value = false
         return
       }
 
@@ -945,7 +958,23 @@ const handleFileUpload = (event: Event) => {
 
       if (!isValidType) {
         error.value = `File "${file.name}" has an unsupported format.`
+        isCompressing.value = false
         return
+      }
+
+      // Compress if image
+      if (file.type.startsWith('image/')) {
+         const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+         }
+         try {
+            const compressedBlob = await imageCompression(file, options)
+            file = new File([compressedBlob], file.name, { type: file.type })
+         } catch (e) {
+            console.warn('Compression failed', e)
+         }
       }
 
       validFiles.push(file)
@@ -956,6 +985,7 @@ const handleFileUpload = (event: Event) => {
 
     // Clear any previous errors
     error.value = ''
+    isCompressing.value = false
   }
 }
 

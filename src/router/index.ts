@@ -19,6 +19,14 @@ const routes: RouteRecordRaw[] = [
   ...clientServiceRoutes,
 
   ...financeRoutes,
+
+  // Public Routes
+  {
+    path: '/handover/:token',
+    name: 'client-handover',
+    component: () => import('../views/public/ClientHandoverView.vue'),
+    meta: { requiresAuth: false }
+  }
 ]
 
 const router = createRouter({

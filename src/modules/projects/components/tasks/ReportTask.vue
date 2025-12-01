@@ -95,15 +95,6 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Brief Description of Deliverables, Scale, and Key Components</label>
           <textarea v-model="formData.project_scope" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Describe the project scope, deliverables, and key components..."></textarea>
         </div>
-
-        <div class="flex justify-end">
-          <button @click="handleAutoPopulate" :disabled="loading" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Auto-Fill from Previous Tasks</span>
-          </button>
-        </div>
       </div>
 
       <!-- Tab 2: Procurement & Fabrication -->
@@ -882,7 +873,7 @@ onMounted(async () => {
 const loadArchivalReport = async () => {
   try {
     const report = await getReport(props.task.id)
-    if (report) {
+    if (report && report.id) {
       Object.assign(formData, report)
       // Map backend data to existing UI fields
       if (report.recommendations_action_points) {
@@ -891,9 +882,14 @@ const loadArchivalReport = async () => {
       if (report.archive_reference) {
         reportData.value.archive_reference = report.archive_reference
       }
+    } else {
+      // No existing report, auto-populate from project enquiry
+      await handleAutoPopulate()
     }
   } catch (err) {
     console.error('Failed to load archival report:', err)
+    // Even if loading fails, try to autopopulate
+    await handleAutoPopulate()
   }
 }
 
@@ -950,8 +946,11 @@ const handleAutoPopulate = async () => {
   errorMessage.value = ''
   successMessage.value = ''
   
+  console.log('Attempting to auto-populate archival report...')
+  
   try {
     const data = await autoPopulate(props.task.id)
+    console.log('Auto-populate data received:', data)
     Object.assign(formData, data)
     successMessage.value = 'Data auto-filled from previous tasks!'
     
@@ -959,6 +958,7 @@ const handleAutoPopulate = async () => {
       successMessage.value = ''
     }, 3000)
   } catch (err: any) {
+    console.error('Auto-populate failed:', err)
     errorMessage.value = error.value || 'Failed to auto-populate data'
   }
 }

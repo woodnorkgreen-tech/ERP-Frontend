@@ -71,7 +71,7 @@ export function useTeamOperations(): UseTeamOperationsReturn {
 
     try {
       // Make API call
-      const realMember = await teams.addTeamMember(teamTaskId, {
+      const realMember = await teams.addTeamMember(taskId, teamTaskId, {
         member_name: memberName
       })
 
@@ -123,7 +123,7 @@ export function useTeamOperations(): UseTeamOperationsReturn {
 
     try {
       // Make API call
-      await teams.removeTeamMember(teamTaskId, memberId)
+      await teams.removeTeamMember(taskId, teamTaskId, memberId)
 
       feedback.success('Member removed successfully')
 

@@ -279,6 +279,23 @@ export function useLogistics() {
     }
   }
 
+  const assignTeam = async (taskId: number, teamTaskId: number): Promise<LogisticsTaskData> => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.put(`/api/projects/tasks/${taskId}/logistics/assign-team`, {
+        team_task_id: teamTaskId
+      })
+      return response.data.data
+    } catch (err: any) {
+      error.value = getErrorMessage(err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     loading,
     error,
@@ -286,6 +303,7 @@ export function useLogistics() {
     saveLogisticsPlanning,
     getDrivers,
     updateTeamConfirmation,
+    assignTeam,
     getTransportItems,
     addTransportItem,
     updateTransportItem,

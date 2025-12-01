@@ -1028,6 +1028,7 @@ import { ref, computed, watch } from 'vue'
 import api from '@/plugins/axios'
 import type { EnquiryTask } from '../../types/enquiry'
 import TaskDataViewer from './TaskDataViewer.vue'
+import imageCompression from 'browser-image-compression'
 
 interface Props {
   task: EnquiryTask
@@ -1432,8 +1433,9 @@ const createPreviews = async (files: File[]) => {
       continue
     }
     
-    if (file.size > 10 * 1024 * 1024) {
-      error.value = `File too large: ${file.name}. Maximum size is 10MB.`
+    // Initial size check (warn if huge, but try to compress)
+    if (file.size > 20 * 1024 * 1024) {
+      error.value = `File too large: ${file.name}. Maximum size is 20MB.`
       continue
     }
     
@@ -1441,16 +1443,31 @@ const createPreviews = async (files: File[]) => {
       error.value = 'Maximum 20 photos allowed per survey.'
       return
     }
+
+    // Compress file
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    }
+    
+    let processedFile = file
+    try {
+      const compressedBlob = await imageCompression(file, options)
+      processedFile = new File([compressedBlob], file.name, { type: file.type })
+    } catch (e) {
+      console.warn('Compression failed, using original', e)
+    }
     
     // Create preview using FileReader
     const reader = new FileReader()
     reader.onload = (e) => {
       photoPreviews.value.push({
-        file: file,
+        file: processedFile,
         dataUrl: e.target?.result as string
       })
     }
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(processedFile)
   }
 }
 

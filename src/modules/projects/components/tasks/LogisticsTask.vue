@@ -940,7 +940,7 @@
                   <span class="text-green-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Team Members</span>
                 </div>
-                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ logisticsData.team_confirmation.setup_teams_confirmed ? '7' : '0' }}</div>
+                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getSelectedTeamTypes('setup').reduce((sum, team) => sum + team.members.length, 0) }}</div>
                 <div class="text-xs text-gray-600 dark:text-gray-400">Total team members</div>
               </div>
 
@@ -1522,7 +1522,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
-
+import api from '@/plugins/axios'
 
 import { useTeams } from '../../composables/useTeams'
 import { useLogistics } from '../../composables/useLogistics'
@@ -2200,20 +2200,30 @@ const findTeamsTaskForProject = async (): Promise<{id: number, title: string} | 
     // Get the project enquiry ID from the current task
     const enquiryId = props.task.project_enquiry_id
 
-    // Find the teams task for this project
-    const teamsTask = await new Promise<{id: number, title: string} | null>((resolve) => {
-      // This is a simplified approach - in a real app you'd make an API call
-      // For now, we'll assume the teams task has type 'teams' and same enquiry_id
-      const mockTeamsTask = {
-        id: 10, // Based on our database inspection, task ID 10 is the teams task
-        title: 'Teams Management'
-      }
-      resolve(mockTeamsTask)
-    })
+    if (!enquiryId) {
+      console.warn('No enquiry ID found for current task')
+      return null
+    }
 
-    return teamsTask
+    // Make API call to fetch all tasks for this enquiry
+    const response = await api.get(`/api/projects/enquiries/${enquiryId}/tasks`)
+    
+    // Find the teams task (task with type 'teams')
+    const tasks = response.data.data || response.data
+    const teamsTask = tasks.find((task: any) => task.type === 'teams')
+
+    if (!teamsTask) {
+      console.warn(`No teams task found for enquiry ${enquiryId}`)
+      return null
+    }
+
+    return {
+      id: teamsTask.id,
+      title: teamsTask.title || 'Teams Management'
+    }
   } catch (error) {
     console.error('Failed to find teams task:', error)
+    addFeedbackMessage('warning', 'Could not find teams task. Make sure a Teams task exists for this project.')
     return null
   }
 }
