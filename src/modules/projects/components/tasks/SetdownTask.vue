@@ -252,13 +252,13 @@
         <!-- Documentation Content -->
         <div class="space-y-6">
           <!-- Photo Upload Section -->
-          <div>
+          <div v-if="!readonly">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📸</span>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
                 <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                  {{ backendSetdownData?.documentation.photos?.length || 0 }}
+                  {{ displayData?.documentation.photos?.length || 0 }}
                 </span>
               </div>
             </div>
@@ -307,9 +307,9 @@
             </div>
 
             <!-- Photo Grid -->
-            <div v-if="backendSetdownData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div v-if="displayData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               <div
-                v-for="photo in backendSetdownData.documentation.photos"
+                v-for="photo in displayData.documentation.photos"
                 :key="photo.id"
                 class="relative group"
               >
@@ -323,6 +323,7 @@
                 
                 <!-- Delete button overlay -->
                 <button
+                  v-if="!readonly"
                   @click.stop="confirmDeletePhoto(photo.id)"
                   class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg"
                   title="Delete photo"
@@ -347,6 +348,43 @@
             </div>
           </div>
 
+          <!-- Readonly Photo Grid (when readonly is true) -->
+          <div v-else>
+             <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">📸</span>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                  {{ displayData?.documentation?.photos?.length || 0 }}
+                </span>
+              </div>
+            </div>
+
+            <div v-if="displayData?.documentation?.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div
+                v-for="photo in displayData.documentation.photos"
+                :key="photo.id"
+                class="relative group"
+              >
+                <img
+                  :src="photo.url"
+                  :alt="photo.description || 'Setdown photo'"
+                  class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
+                  @click="openImageModal(photo)"
+                  @error="handleImageError"
+                />
+                <div class="mt-1.5">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div v-else class="mt-6 text-center py-8">
+              <p class="text-sm text-gray-500 dark:text-gray-400">No photos uploaded.</p>
+            </div>
+          </div>
+
           <!-- Notes Section -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-2 mb-4">
@@ -360,14 +398,13 @@
                   Setdown Progress Notes
                 </label>
                 <textarea
-                  v-model="localNotes.setdownNotes"
-                  @blur="autoSaveNotes"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="Record setdown progress, observations, and any issues encountered...
-                  
-Auto-saves when you click outside this box."
-                ></textarea>
+                v-model="localNotes.setdownNotes"
+                @blur="autoSaveNotes"
+                rows="4"
+                :readonly="readonly"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                :placeholder="readonly ? 'No notes recorded.' : 'Record setdown progress, observations, and any issues encountered...\n\nAuto-saves when you click outside this box.'"
+              ></textarea>
               </div>
 
               <div>
@@ -375,14 +412,13 @@ Auto-saves when you click outside this box."
                   Completion Notes
                 </label>
                 <textarea
-                  v-model="localNotes.completionNotes"
-                  @blur="autoSaveNotes"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="Final completion notes and handover information...
-
-Auto-saves when you click outside this box."
-                ></textarea>
+                v-model="localNotes.completionNotes"
+                @blur="autoSaveNotes"
+                rows="3"
+                :readonly="readonly"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                :placeholder="readonly ? 'No notes recorded.' : 'Final completion notes and handover information...\n\nAuto-saves when you click outside this box.'"
+              ></textarea>
               </div>
             </div>
           </div>
@@ -408,7 +444,7 @@ Auto-saves when you click outside this box."
           </div>
           <div class="flex space-x-3">
             <button
-              v-if="!editModes.issues"
+              v-if="!editModes.issues && !readonly"
               @click="editModes.issues = true"
               class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
             >
@@ -526,7 +562,7 @@ Auto-saves when you click outside this box."
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📋</span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Issues List</h4>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ backendSetdownData?.issues?.length || 0 }}</span>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ displayData?.issues?.length || 0 }}</span>
               </div>
 
               <div class="flex space-x-2">
@@ -554,7 +590,7 @@ Auto-saves when you click outside this box."
             </div>
 
             <div v-if="filteredIssues.length === 0" class="text-center py-8">
-              <div v-if="!backendSetdownData?.issues?.length" class="text-gray-500 dark:text-gray-400">
+              <div v-if="!displayData?.issues?.length" class="text-gray-500 dark:text-gray-400">
                 <div class="mb-4">
                   <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6"></path>
@@ -614,6 +650,7 @@ Auto-saves when you click outside this box."
                     </select>
 
                     <button
+                      v-if="!readonly"
                       @click="handleRemoveIssue(issue.id)"
                       class="text-gray-400 hover:text-red-500 p-1 rounded"
                     >
@@ -643,7 +680,7 @@ Auto-saves when you click outside this box."
     </div>
 
     <!-- Task Status and Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div v-if="!readonly" class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center space-x-2">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
         <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
@@ -741,6 +778,10 @@ import imageCompression from 'browser-image-compression'
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the component is in read-only mode */
+  readonly?: boolean
+  /** Initial data to populate the component (avoids fetching) */
+  initialData?: any
 }
 
 /**
@@ -751,7 +792,10 @@ interface Emits {
   'update-status': [status: EnquiryTask['status']]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+  initialData: null
+})
 const emit = defineEmits<Emits>()
 
 /**
@@ -1076,6 +1120,7 @@ const lastSaved = ref<string>('')
 
 /**
  * Drag and drop state
+```
  */
 const isDragging = ref(false)
 const uploadingCount = ref(0)
@@ -1084,6 +1129,17 @@ const uploadingCount = ref(0)
  * Photo input ref
  */
 const photoInputRef = ref<HTMLInputElement | null>(null)
+
+/**
+ * Display data - computed property that returns initialData if provided, otherwise backendSetdownData
+ * This allows the component to work in both readonly mode (with initialData) and normal mode (fetching data)
+ */
+const displayData = computed(() => {
+  if (props.initialData) {
+    return props.initialData
+  }
+  return backendSetdownData.value
+})
 
 // Tab navigation functions
 const setActiveTab = (tabId: string) => {
@@ -1205,7 +1261,7 @@ const canEditSetdown = computed(() => {
  * Filtered issues based on current filters
  */
 const filteredIssues = computed(() => {
-  const issues = backendSetdownData.value?.issues || []
+  const issues = displayData.value?.issues || []
   return issues.filter((issue: any) => {
     const statusMatch = issuesFilter.status === 'all' || issue.status === issuesFilter.status
     const priorityMatch = issuesFilter.priority === 'all' || issue.priority === issuesFilter.priority

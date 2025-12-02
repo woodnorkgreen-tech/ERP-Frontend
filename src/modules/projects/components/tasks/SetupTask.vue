@@ -250,21 +250,20 @@
             v-model="localNotes.setupNotes"
             @blur="autoSaveNotes"
             rows="6"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none"
-            placeholder="Record setup progress, observations, and any issues encountered...
-
-Auto-saves when you click outside this box."
+            :readonly="readonly"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+            :placeholder="readonly ? 'No notes recorded.' : 'Record setup progress, observations, and any issues encountered...\n\nAuto-saves when you click outside this box.'"
           ></textarea>
         </div>
 
         <!-- Photo Upload Section -->
-        <div>
+        <div v-if="!readonly">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center space-x-2">
               <span class="text-xl">📸</span>
               <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
               <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                {{ backendSetupData?.documentation.photos?.length || 0 }}
+                {{ displayData?.documentation.photos?.length || 0 }}
               </span>
             </div>
           </div>
@@ -313,9 +312,9 @@ Auto-saves when you click outside this box."
           </div>
 
           <!-- Photo Grid -->
-          <div v-if="backendSetupData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div v-if="displayData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             <div
-              v-for="photo in backendSetupData.documentation.photos"
+              v-for="photo in displayData.documentation.photos"
               :key="photo.id"
               class="relative group"
             >
@@ -329,6 +328,7 @@ Auto-saves when you click outside this box."
               
               <!-- Delete button overlay -->
               <button
+                v-if="!readonly"
                 @click.stop="confirmDeletePhoto(photo.id)"
                 class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg"
                 title="Delete photo"
@@ -352,6 +352,43 @@ Auto-saves when you click outside this box."
             <p class="text-sm text-gray-500 dark:text-gray-400">No photos yet. Upload some to document your setup!</p>
           </div>
         </div>
+
+        <!-- Readonly Photo Grid (when readonly is true) -->
+        <div v-else>
+           <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <span class="text-xl">📸</span>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
+              <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                {{ displayData?.documentation?.photos?.length || 0 }}
+              </span>
+            </div>
+          </div>
+
+          <div v-if="displayData?.documentation?.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div
+              v-for="photo in displayData.documentation.photos"
+              :key="photo.id"
+              class="relative group"
+            >
+              <img
+                :src="photo.url"
+                :alt="photo.description || 'Setup photo'"
+                class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
+                @click="openImageModal(photo)"
+                @error="handleImageError"
+              />
+              <div class="mt-1.5">
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div v-else class="mt-6 text-center py-8">
+            <p class="text-sm text-gray-500 dark:text-gray-400">No photos uploaded.</p>
+          </div>
+        </div>
       </div>
 
       <!-- Issues Tab -->
@@ -373,7 +410,7 @@ Auto-saves when you click outside this box."
           </div>
           <div class="flex space-x-3">
             <button
-              v-if="!editModes.issues"
+              v-if="!editModes.issues && !readonly"
               @click="editModes.issues = true"
               class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
             >
@@ -491,7 +528,7 @@ Auto-saves when you click outside this box."
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📋</span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Issues List</h4>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ backendSetupData?.issues?.length || 0 }}</span>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ displayData?.issues?.length || 0 }}</span>
               </div>
 
               <div class="flex space-x-2">
@@ -519,7 +556,7 @@ Auto-saves when you click outside this box."
             </div>
 
             <div v-if="filteredIssues.length === 0" class="text-center py-8">
-              <div v-if="!backendSetupData?.issues?.length" class="text-gray-500 dark:text-gray-400">
+              <div v-if="!displayData?.issues?.length" class="text-gray-500 dark:text-gray-400">
                 <div class="mb-4">
                   <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6"></path>
@@ -579,6 +616,7 @@ Auto-saves when you click outside this box."
                     </select>
 
                     <button
+                      v-if="!readonly"
                       @click="handleRemoveIssue(issue.id.toString())"
                       class="text-gray-400 hover:text-red-500 p-1 rounded"
                     >
@@ -608,7 +646,7 @@ Auto-saves when you click outside this box."
     </div>
 
     <!-- Task Status and Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div v-if="!readonly" class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center space-x-2">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
         <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
@@ -705,6 +743,10 @@ import imageCompression from 'browser-image-compression'
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the component is in read-only mode */
+  readonly?: boolean
+  /** Initial data to populate the component (avoids fetching) */
+  initialData?: any
 }
 
 /**
@@ -715,7 +757,10 @@ interface Emits {
   'update-status': [status: EnquiryTask['status']]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+  initialData: null
+})
 const emit = defineEmits<Emits>()
 
 /**
@@ -1056,6 +1101,17 @@ const editModes = reactive({
  */
 const photoInputRef = ref<HTMLInputElement | null>(null)
 
+/**
+ * Display data - computed property that returns initialData if provided, otherwise backendSetupData
+ * This allows the component to work in both readonly mode (with initialData) and normal mode (fetching data)
+ */
+const displayData = computed(() => {
+  if (props.initialData) {
+    return props.initialData
+  }
+  return backendSetupData.value
+})
+
 // Tab navigation functions
 const setActiveTab = (tabId: string) => {
   if (tabs.find(tab => tab.id === tabId)) {
@@ -1161,7 +1217,7 @@ const projectInfo = computed(() => setupData.projectInfo)
  * Filtered issues based on current filters
  */
 const filteredIssues = computed(() => {
-  const issues = backendSetupData.value?.issues || []
+  const issues = displayData.value?.issues || []
   return issues.filter((issue: any) => {
     const statusMatch = issuesFilter.status === 'all' || issue.status === issuesFilter.status
     const priorityMatch = issuesFilter.priority === 'all' || issue.priority === issuesFilter.priority
@@ -1621,25 +1677,66 @@ const handleCancelTask = () => {
 }
 
 /**
- * Initialize component on mount
+ * Initialize data
  */
 onMounted(async () => {
-  try {
-    // Fetch setup data from backend
+  // If initial data is provided, use it instead of fetching
+  if (props.initialData) {
+    // Populate backendSetupData directly if possible, or manually set local state
+    // Since useSetup composable manages backendSetupData, we might need to update it
+    // However, backendSetupData is readonly from useSetup. 
+    // We need to check if useSetup allows setting data or if we need to bypass it.
+    
+    // Actually, useSetup returns refs that we can't easily override if they are readonly.
+    // But wait, backendSetupData is likely a ref from the composable.
+    // Let's check useSetup implementation. If it exposes a way to set data, good.
+    // If not, we might need to rely on the fact that we are in readonly mode and
+    // just use props.initialData for display where appropriate.
+    
+    // For now, let's assume we can't easily inject into useSetup's state without modifying it.
+    // Instead, we should update our local state to reflect initialData.
+    
+    // Update project info
+    projectInfoState.value.isLoading = false
+    
+    // Update local notes
+    if (props.initialData.documentation) {
+      localNotes.setupNotes = props.initialData.documentation.setup_notes || ''
+      localNotes.completionNotes = props.initialData.documentation.completion_notes || ''
+    }
+    
+    // For photos and issues, the template uses backendSetupData.
+    // We need to make sure backendSetupData reflects props.initialData.
+    // Since we can't write to backendSetupData (it's likely a readonly ref from useSetup),
+    // we might need to modify useSetup or shadow the data.
+    
+    // A better approach: The template should use a computed property that merges/selects
+    // between backendSetupData and props.initialData.
+  } else {
+    // Fetch data if not provided
     await fetchSetupData(props.task.id)
-
-    // Initialize local notes from backend data
-    if (backendSetupData.value) {
+    
+    // Initialize local notes from fetched data
+    if (backendSetupData.value?.documentation) {
       localNotes.setupNotes = backendSetupData.value.documentation.setup_notes || ''
       localNotes.completionNotes = backendSetupData.value.documentation.completion_notes || ''
     }
-
-    console.log('SetupTask component mounted and data loaded')
-  } catch (error) {
-    console.error('Failed to load setup data on mount:', error)
-    addFeedbackMessage('error', 'Failed to load setup data. Please refresh the page.')
   }
 })
+
+// Watch for backend data changes to update local notes (only if not readonly/initialData)
+watch(() => backendSetupData.value, (newData) => {
+  if (newData?.documentation && !props.initialData) {
+    // Only update if we don't have local changes? 
+    // Or just initial load.
+    if (!localNotes.setupNotes) {
+      localNotes.setupNotes = newData.documentation.setup_notes || ''
+    }
+    if (!localNotes.completionNotes) {
+      localNotes.completionNotes = newData.documentation.completion_notes || ''
+    }
+  }
+}, { deep: true })
 </script>
 
 <style scoped>

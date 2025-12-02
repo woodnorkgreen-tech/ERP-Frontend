@@ -240,6 +240,14 @@ const fetchTaskData = async () => {
         endpoint = `/api/projects/tasks/${props.task.id}/logistics`
         console.log('TaskDataViewer: Logistics task endpoint:', endpoint)
         break
+      case 'setup':
+        endpoint = `/api/projects/tasks/${props.task.id}/setup`
+        console.log('TaskDataViewer: Setup task endpoint:', endpoint)
+        break
+      case 'setdown':
+        endpoint = `/api/projects/tasks/${props.task.id}/setdown`
+        console.log('TaskDataViewer: Setdown task endpoint:', endpoint)
+        break
       // Add more task types here
       default:
         console.warn('TaskDataViewer: No specific endpoint for task type:', taskKey, '- will use default display')
@@ -277,6 +285,10 @@ const fetchTaskData = async () => {
       if (taskKey === 'quote' && response.data.data) {
         taskData.value = response.data.data
         console.log('TaskDataViewer: Set taskData to quote data object:', taskData.value)
+      } else if ((taskKey === 'setup' || taskKey === 'setdown' || taskKey === 'logistics' || taskKey === 'handover') && response.data.data) {
+        // For setup, setdown, logistics, and handover tasks, extract data from response wrapper
+        taskData.value = response.data.data
+        console.log('TaskDataViewer: Set taskData to extracted data object for', taskKey, ':', taskData.value)
       } else {
         taskData.value = response.data
         console.log('TaskDataViewer: Set taskData to object:', taskData.value)
