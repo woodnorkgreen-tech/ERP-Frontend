@@ -148,6 +148,8 @@ const editableComponents = {
   'design': () => import('./DesignTask.vue'),
   'materials': () => import('./MaterialsTask.vue'),
   'budget': () => import('./BudgetTask.vue'),
+  'teams': () => import('./TeamsTask.vue'),
+  'logistics': () => import('./LogisticsTask.vue'),
   // Add more task types here as needed
 }
 

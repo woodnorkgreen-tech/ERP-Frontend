@@ -588,7 +588,12 @@ const showAddTeamModal = ref(false)
  * Computed readonly state - readonly if prop is true OR (task is completed AND not in edit mode)
  */
 const isReadonly = computed(() => {
-  return props.readonly || (props.task.status === 'completed' && !isEditMode.value)
+  // If readonly prop is explicitly set (from TaskDataViewer or parent), use that
+  if (props.readonly !== undefined) {
+    return props.readonly
+  }
+  // Otherwise, check if task is completed and not in local edit mode
+  return props.task.status === 'completed' && !isEditMode.value
 })
 
 /**
