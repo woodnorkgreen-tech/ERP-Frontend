@@ -24,4 +24,32 @@ export const mainRoutes: RouteRecordRaw[] = [
     component: AccessDenied,
     meta: { title: 'Access Denied' }
   },
+  // Universal Task System Routes
+  {
+    path: '/universal-tasks',
+    component: () => import('../layouts/MainLayout.vue'),
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'universal-tasks',
+        component: () => import('../modules/universal-task/views/TaskListView.vue'),
+        meta: { title: 'Universal Tasks' }
+      },
+      {
+        path: 'analytics',
+        name: 'universal-tasks-analytics',
+        component: () => import('../modules/universal-task/views/TaskAnalyticsView.vue'),
+        meta: { title: 'Task Analytics' }
+      },
+      {
+        path: ':id',
+        name: 'universal-task-detail',
+        component: () => import('../modules/universal-task/views/TaskDetailView.vue'),
+        meta: { title: 'Task Details' }
+      }
+    ]
+  },
 ]
