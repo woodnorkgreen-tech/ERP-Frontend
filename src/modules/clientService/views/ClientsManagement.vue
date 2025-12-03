@@ -161,6 +161,16 @@
                 >
                   {{ client.isActive ? 'Deactivate' : 'Activate' }}
                 </button>
+                <button
+                  v-if="canDeleteClients"
+                  @click="handleDeleteClick(client)"
+                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                  title="Delete Client"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -388,6 +398,42 @@
       </div>
     </div>
 
+    <!-- Delete Confirmation Dialog -->
+    <div v-if="showDeleteDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="flex-shrink-0">
+            <svg class="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3l-6.928-12c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Delete Client</h2>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mb-2">
+          Are you sure you want to permanently delete this client?
+        </p>
+        <p class="text-sm text-red-600 dark:text-red-400 mb-6">
+          <strong>{{ clientToDelete?.FullName }}</strong> - This action cannot be undone!
+        </p>
+        <div class="flex justify-end space-x-3">
+          <button
+            @click="showDeleteDialog = false; clientToDelete = null"
+            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmDelete"
+            :disabled="deleting"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span v-if="deleting" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+            {{ deleting ? 'Deleting...' : 'Delete Client' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- View Client Details Modal -->
     <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -535,11 +581,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import type { Client, CreateClientData, UpdateClientData } from '../types/client'
 import { useClients } from '../composables/useClients'
+import { useAuth } from '@/composables/useAuth'
 
-const { clients, loading, error, fetchClients, createClient, updateClient, toggleClientStatus, fetchClient } = useClients()
+const { clients, loading, error, fetchClients, createClient, updateClient, toggleClientStatus, fetchClient, deleteClient } = useClients()
+const { user } = useAuth()
 const filters = ref({ search: '', status: '', company: '' })
 const showCreateModal = ref(false)
 const editingClient = ref<Client | null>(null)
@@ -553,6 +601,17 @@ const clientToToggle = ref<Client | null>(null)
 const showViewModal = ref(false)
 const viewingClient = ref<Client | null>(null)
 const viewLoading = ref(false)
+const showDeleteDialog = ref(false)
+const clientToDelete = ref<Client | null>(null)
+const deleting = ref(false)
+
+// Check if user has permission to delete clients
+const canDeleteClients = computed(() => {
+  const userRoles = user.value?.roles || []
+  return userRoles.includes('Super Admin') || 
+         userRoles.includes('Admin') || 
+         userRoles.includes('Client Service')
+})
 
 const sortClients = (key: string) => {
   if (sortKey.value === key) {
@@ -642,6 +701,27 @@ const confirmToggle = async () => {
   } finally {
     showConfirmDialog.value = false
     clientToToggle.value = null
+  }
+}
+
+const handleDeleteClick = (client: Client) => {
+  clientToDelete.value = client
+  showDeleteDialog.value = true
+}
+
+const confirmDelete = async () => {
+  if (!clientToDelete.value) return
+  deleting.value = true
+  try {
+    await deleteClient(clientToDelete.value.id)
+    await fetchClients()
+  } catch (err) {
+    console.error('Error deleting client:', err)
+    formError.value = 'Failed to delete client. Please try again.'
+  } finally {
+    deleting.value = false
+    showDeleteDialog.value = false
+    clientToDelete.value = null
   }
 }
 

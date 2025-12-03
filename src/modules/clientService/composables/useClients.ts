@@ -271,18 +271,22 @@ export function useClients() {
     loading.value = true
     error.value = null
 
+    if (!localStorage.getItem('auth_token')) {
+      error.value = "Authentication required. Please log in.";
+      loading.value = false;
+      throw new Error("Authentication required. Please log in.");
+    }
+
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await api.delete(`/api/clientservice/clients/${id}`)
 
+      // Remove from local state after successful deletion
       const index = clients.value.findIndex(client => client.id === id)
-      if (index === -1) {
-        throw new Error('Client not found')
+      if (index !== -1) {
+        clients.value.splice(index, 1)
       }
-
-      clients.value.splice(index, 1)
-    } catch (err) {
-      error.value = 'Failed to delete client'
+    } catch (err: any) {
+      error.value = getErrorMessage(err)
       throw err
     } finally {
       loading.value = false
