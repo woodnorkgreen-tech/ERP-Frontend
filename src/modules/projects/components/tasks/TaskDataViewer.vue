@@ -108,6 +108,7 @@ import ProcurementDataDisplay from './data-displays/ProcurementDataDisplay.vue'
 import ReportDataDisplay from './data-displays/ReportDataDisplay.vue'
 import SetdownDataDisplay from './data-displays/SetdownDataDisplay.vue'
 import SetupDataDisplay from './data-displays/SetupDataDisplay.vue'
+import TeamsDataDisplay from './data-displays/TeamsDataDisplay.vue'
 import DefaultDataDisplay from './data-displays/DefaultDataDisplay.vue'
 
 interface Props {
@@ -137,6 +138,7 @@ const dataDisplayComponents = {
   'report': ReportDataDisplay,
   'setdown': SetdownDataDisplay,
   'setup': SetupDataDisplay,
+  'teams': TeamsDataDisplay,
   // Add more task types here as needed
 }
 
@@ -243,6 +245,10 @@ const fetchTaskData = async () => {
       case 'setup':
         endpoint = `/api/projects/tasks/${props.task.id}/setup`
         console.log('TaskDataViewer: Setup task endpoint:', endpoint)
+        break
+      case 'teams':
+        endpoint = `/api/projects/tasks/${props.task.id}/teams`
+        console.log('TaskDataViewer: Teams task endpoint:', endpoint)
         break
       case 'setdown':
         endpoint = `/api/projects/tasks/${props.task.id}/setdown`

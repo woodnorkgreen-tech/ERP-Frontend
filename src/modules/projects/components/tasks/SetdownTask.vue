@@ -425,6 +425,97 @@
         </div>
       </div>
 
+      <!-- Checklist Tab -->
+      <div
+        v-show="activeTab === 'checklist'"
+        class="checklist-section tab-panel"
+        :id="`tab-panel-checklist`"
+        role="tabpanel"
+        :aria-labelledby="`tab-checklist`"
+        :class="{ 'animate-fade-in': activeTab === 'checklist' }"
+      >
+        <!-- Checklist Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Set Down Checklist</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Event setdown checklist and progress tracking
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div v-if="checklistData" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <h5 class="font-medium text-blue-800 dark:text-blue-200">Overall Progress</h5>
+            <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
+              {{ checklistData.completed_count }} / {{ checklistData.total_count }} items completed
+            </span>
+          </div>
+          <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+            <div 
+              class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+              :style="{ width: checklistData.completion_percentage + '%' }"
+            ></div>
+          </div>
+          <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+            {{ Number(checklistData.completion_percentage).toFixed(0) }}% complete
+          </p>
+        </div>
+
+        <!-- Checklist Loading State -->
+        <div v-if="checklistLoading" class="text-center py-8">
+          <svg class="animate-spin h-8 w-8 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading checklist...</p>
+        </div>
+
+        <!-- Checklist Categories -->
+        <div v-else-if="checklistData" class="space-y-6">
+          <div v-for="category in checklistData.checklist_data" :key="category.category" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <!-- Category Header -->
+            <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3">
+              <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                {{ category.category }}
+              </h4>
+            </div>
+
+            <!-- Category Items -->
+            <div class="p-4 space-y-3 bg-white dark:bg-gray-800">
+              <label
+                v-for="item in category.items"
+                :key="item.id"
+                class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  v-model="item.completed"
+                  @change="handleChecklistItemChange(item.id, item.completed)"
+                  :disabled="readonly"
+                  class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
+                />
+                <span 
+                  class="text-sm flex-1"
+                  :class="item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'"
+                >
+                  {{ item.text }}
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty/Error State -->
+        <div v-else class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+          </svg>
+          <p class="text-gray-500 dark:text-gray-400">No checklist available</p>
+        </div>
+      </div>
+
       <!-- Issues Tab -->
       <div
         v-show="activeTab === 'issues'"
@@ -770,6 +861,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import { useSetdown } from '../../composables/useSetdown'
 import { useAuth } from '@/composables/useAuth'
+import api from '@/plugins/axios'
 import imageCompression from 'browser-image-compression'
 
 /**
@@ -915,6 +1007,7 @@ const activeTab = ref('documentation')
 
 const tabs = [
   { id: 'documentation', label: 'Documentation', icon: '📸', description: 'Upload photos and record setdown notes' },
+  { id: 'checklist', label: 'Checklist', icon: '✅', description: 'Event setdown checklist and progress tracking' },
   { id: 'issues', label: 'Issues', icon: '🚨', description: 'Track and manage setdown-related issues' }
 ]
 
@@ -1124,6 +1217,12 @@ const lastSaved = ref<string>('')
  */
 const isDragging = ref(false)
 const uploadingCount = ref(0)
+
+/**
+ * Checklist state
+ */
+const checklistData = ref<any>(null)
+const checklistLoading = ref(false)
 
 /**
  * Photo input ref
@@ -1522,6 +1621,47 @@ const handleSaveIssues = async () => {
 }
 
 /**
+ * Fetch checklist data
+ */
+const fetchChecklist = async () => {
+  try {
+    checklistLoading.value = true
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/setdown/checklist`)
+    checklistData.value = response.data.data
+  } catch (error) {
+    console.error('Failed to load checklist:', error)
+    addFeedbackMessage('error', 'Failed to load checklist data')
+  } finally {
+    checklistLoading.value = false
+  }
+}
+
+/**
+ * Handle checklist item change
+ */
+const handleChecklistItemChange = async (itemId: number, completed: boolean) => {
+  try {
+    const response = await api.patch(
+      `/api/projects/tasks/${props.task.id}/setdown/checklist/items/${itemId}`,
+      { completed }
+    )
+   
+    // Update local checklist data
+    if (response.data.data) {
+      checklistData.value = response.data.data
+    }
+    
+    addFeedbackMessage('success', 'Checklist updated')
+  } catch (error) {
+    console.error('Failed to update checklist item:', error)
+    addFeedbackMessage('error', 'Failed to update checklist')
+    
+    // Reload checklist to restore correct state
+    await fetchChecklist()
+  }
+}
+
+/**
  * Get priority class for styling
  */
 const getPriorityClass = (priority: string): string => {
@@ -1685,6 +1825,9 @@ onMounted(async () => {
     console.log('SetdownTask: Fetching data for task ID:', props.task.id)
     // Fetch setdown data from backend
     await fetchSetdownData(props.task.id)
+    
+    // Fetch checklist data
+    await fetchChecklist()
 
     console.log('SetdownTask: Data loaded:', backendSetdownData.value)
     console.log('SetdownTask: Photos count:', backendSetdownData.value?.documentation.photos?.length || 0)
