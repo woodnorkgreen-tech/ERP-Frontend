@@ -234,7 +234,6 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Particulars</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">Supplementary</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -263,28 +262,10 @@
                       />
                       <span v-else>{{ material.quantity }}</span>
                     </td>
-                    <td class="px-4 py-3 text-sm text-center">
-                      <div v-if="material.isAdditional" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        <span class="font-medium">Supplementary</span>
-                      </div>
-                      <button
-                        v-else
-                        @click="openBudgetSelectionModal(material)"
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-amber-50 hover:text-amber-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-900 dark:hover:text-amber-200 border border-gray-300 dark:border-gray-600 hover:border-amber-300 dark:hover:border-amber-700 transition-colors"
-                        :title="'Choose budget type - main or supplementary'"
-                      >
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        <span>Add to Budget</span>
-                      </button>
-                    </td>
+
                   </tr>
                   <tr v-if="element.materials.length === 0">
-                    <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400 italic">
+                    <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400 italic">
                       No materials defined for this element
                     </td>
                   </tr>
@@ -576,7 +557,6 @@
                       <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Particulars</th>
                       <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Unit</th>
                       <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Quantity</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Supplementary</th>
                       <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Notes</th>
                     </tr>
                   </thead>
@@ -585,19 +565,10 @@
                       <td class="py-3 px-4 text-gray-900 dark:text-white print:text-black">{{ material.description }}</td>
                       <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black">{{ material.unitOfMeasurement }}</td>
                       <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black font-medium">{{ material.quantity }}</td>
-                      <td class="py-3 px-4 text-center print:text-black">
-                        <span v-if="material.isAdditional" class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800 print:bg-amber-100 print:text-amber-800 border border-amber-300 print:border-amber-400">
-                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                          </svg>
-                          Supplementary
-                        </span>
-                        <span v-else class="text-gray-400">-</span>
-                      </td>
                       <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black">{{ material.notes || '-' }}</td>
                     </tr>
                     <tr v-if="getIncludedMaterials(element).length === 0">
-                      <td colspan="5" class="py-4 text-center text-gray-500 dark:text-gray-400 print:text-gray-600 italic">
+                      <td colspan="4" class="py-4 text-center text-gray-500 dark:text-gray-400 print:text-gray-600 italic">
                         No materials included for this element
                       </td>
                     </tr>
@@ -703,12 +674,7 @@
       @update-element="updateElement"
     />
 
-    <!-- Budget Selection Modal -->
-    <AddMaterialBudgetModal
-      :is-open="isBudgetModalOpen"
-      @close="closeBudgetModal"
-      @select-budget-type="handleBudgetTypeSelection"
-    />
+
 
     <!-- Version History Modal -->
     <VersionHistoryModal
@@ -733,13 +699,10 @@ import { useAuth } from '@/composables/useAuth'
 import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
 import MaterialsModal from '../MaterialsModal.vue'
-import AddMaterialBudgetModal from '../AddMaterialBudgetModal.vue'
 import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
 import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import ApprovalCard from './materials/ApprovalCard.vue'
 import { MaterialsService } from '../../services/materialsService'
-import { BudgetAdditionService } from '../../services/budgetAdditionService'
-import type { BudgetType } from '../../types/budget'
 import api from '@/plugins/axios'
 
 /**
@@ -859,10 +822,6 @@ interface MaterialItem {
   quantity: number
   /** Whether this material is included in the current project */
   isIncluded: boolean
-  /** Whether this material is marked as an additional (for budget additions) */
-  isAdditional?: boolean
-  /** Budget type for this material (main or supplementary) */
-  budgetType?: BudgetType
   /** Optional additional notes about the material */
   notes?: string
   /** Timestamp when the material was created */
@@ -1017,10 +976,6 @@ const editingElement = ref<ProjectElement | null>(null)
 
 // View modal state
 const isViewModalOpen = ref(false)
-
-// Budget sel selection modal state
-const isBudgetModalOpen = ref(false)
-const pendingMaterialForBudget = ref<MaterialItem | null>(null)
 
 // Version Management
 const showVersionHistory = ref(false)
@@ -1442,55 +1397,6 @@ const viewMaterialsList = () => {
  */
 const closeViewModal = () => {
   isViewModalOpen.value = false
-}
-
-/**
- * Open budget selection modal for a material
- */
-const openBudgetSelectionModal = (material: MaterialItem) => {
-  pendingMaterialForBudget.value = material
-  isBudgetModalOpen.value = true
-}
-
-/**
- * Close budget selection modal
- */
-const closeBudgetModal = () => {
-  isBudgetModalOpen.value = false
-  pendingMaterialForBudget.value = null
-}
-
-/**
- * Handle budget type selection
- */
-const handleBudgetTypeSelection = async (budgetType: BudgetType) => {
-  const material = pendingMaterialForBudget.value
-  if (material) {
-    try {
-      // Create a budget addition in the database instead of just setting flags
-      await BudgetAdditionService.createFromMaterial(props.task.id, material, budgetType)
-
-      // Update the local material state to reflect the change
-      if (budgetType === 'supplementary') {
-        material.isAdditional = true
-        material.budgetType = 'supplementary'
-      } else {
-        material.isAdditional = false
-        material.budgetType = 'main'
-      }
-
-      // Auto-save after selection to persist local changes
-      await saveMaterialsList()
-
-      // Show success message
-      console.log(`Material successfully added to ${budgetType} budget`)
-    } catch (error: any) {
-      console.error('Failed to create budget addition:', error)
-      // Handle error - could show a toast notification here
-      error.value = error.response?.data?.message || 'Failed to add material to budget'
-    }
-  }
-  closeBudgetModal()
 }
 
 /**

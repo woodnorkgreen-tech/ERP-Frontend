@@ -88,12 +88,12 @@
 
         <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
           <span>📝</span>
-          <span>Section 2: Project Scope Summary</span>
+          <span>Section 2: Project Deliverables Summary</span>
         </h4>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Brief Description of Deliverables, Scale, and Key Components</label>
-          <textarea v-model="formData.project_scope" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Describe the project scope, deliverables, and key components..."></textarea>
+          <textarea v-model="formData.project_scope" rows="4" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Describe the project deliverables and key components..."></textarea>
         </div>
       </div>
 

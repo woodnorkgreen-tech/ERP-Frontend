@@ -42,7 +42,7 @@
                   Add to Main Budget
                 </h4>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Include this material in the primary project budget. This is the standard option for materials that are part of the original project scope.
+                  Include this material in the primary project budget. This is the standard option for materials that are part of the original project deliverables.
                 </p>
                 <div class="mt-2 flex items-center text-xs text-green-600 dark:text-green-400">
                   <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

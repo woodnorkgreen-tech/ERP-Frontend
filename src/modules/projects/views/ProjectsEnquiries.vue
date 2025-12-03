@@ -312,20 +312,15 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Description *</label>
-              <textarea
-                v-model="enquiryFormData.description"
-                required
-                rows="3"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              ></textarea>
-            </div>
-
-            <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Scope</label>
               <textarea
                 v-model="enquiryFormData.project_scope"
-                rows="2"
+                @keydown.enter.stop
+                rows="4"
+                placeholder="Enter project scope in point format, e.g.:
+- Item 1
+- Item 2
+- Item 3"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               ></textarea>
             </div>

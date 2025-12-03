@@ -41,6 +41,8 @@ export interface TransportItem {
   quantity: number
   unit: string
   category: 'production' | 'custom'
+  main_category?: 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS'
+  element_category?: string
   weight?: string
   special_handling?: string
   source?: string

@@ -1,6 +1,22 @@
 <template>
-  <div class="teams-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
-    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
+  <!-- Use TaskDataViewer for readonly/completed tasks -->
+  <TaskDataViewer v-if="isReadonly" :task="task" @edit="isEditMode = true" />
+
+  <!-- Editable Teams Task View -->
+  <div v-else class="teams-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
+      <button
+        v-if="isEditMode"
+        @click="isEditMode = false"
+        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>Exit Edit Mode</span>
+      </button>
+    </div>
 
     <!-- Project Information Section -->
     <div class="mb-6">
@@ -220,7 +236,7 @@
 
         <!-- Add Team Button -->
         <button
-          v-if="canAssignTeams"
+          v-if="canAssignTeams && !isReadonly"
           @click="showAddTeamModal = true"
           class="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-2"
         >
@@ -243,7 +259,7 @@
 
         <!-- Add Team Button in Empty State -->
         <button
-          v-if="canAssignTeams"
+          v-if="canAssignTeams && !isReadonly"
           @click="showAddTeamModal = true"
           class="inline-flex items-center px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
         >
@@ -269,7 +285,7 @@
               </span>
             </div>
             <button
-              v-if="canDeleteTeams"
+              v-if="canDeleteTeams && !isReadonly"
               @click="deleteTeam(team.id)"
               class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
               :aria-label="'Delete team'"
@@ -304,7 +320,7 @@
                   <span class="text-sm text-gray-900 dark:text-white font-medium">{{ member.member_name }}</span>
                 </div>
                 <button
-                  v-if="canManageMembers"
+                  v-if="canManageMembers && !isReadonly"
                   @click="removeMember(team.id, member.id)"
                   class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
                   :aria-label="`Remove ${member.member_name}`"
@@ -322,7 +338,7 @@
             </div>
 
             <!-- Add Member Form -->
-            <div v-if="canManageMembers" class="pt-2 border-t border-gray-200 dark:border-gray-600">
+            <div v-if="canManageMembers && !isReadonly" class="pt-2 border-t border-gray-200 dark:border-gray-600">
               <div class="flex gap-2">
                 <input
                   v-model="newMemberInputs[team.id]"
@@ -441,7 +457,7 @@
 
       <div class="flex flex-col sm:flex-row gap-3">
         <button
-          v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+          v-if="task.status !== 'completed' && task.status !== 'cancelled' && !isReadonly"
           @click="$emit('update-status', 'completed')"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
         >
@@ -457,6 +473,14 @@
           </svg>
           <span class="text-sm font-medium">Task Completed</span>
         </div>
+
+        <!-- Readonly Indicator -->\n        <div v-if="isReadonly && task.status !== 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-blue-600 dark:text-blue-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span class="text-sm font-medium">Readonly Mode</span>
+        </div>
       </div>
     </div>
   </div>
@@ -466,6 +490,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import { useTeams } from '../../composables/useTeams'
 import { usePermissions } from '@/modules/finance/petty-cash/composables/usePermissions'
+import TaskDataViewer from './TaskDataViewer.vue'
 
 /**
  * Props interface for the TeamsTask component
@@ -473,6 +498,8 @@ import { usePermissions } from '@/modules/finance/petty-cash/composables/usePerm
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Optional readonly mode - if not provided, will be determined by task status */
+  readonly?: boolean
 }
 
 /**
@@ -531,7 +558,9 @@ interface FeedbackMessage {
 }
 
 // Component setup
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false
+})
 const emit = defineEmits<Emits>()
 
 // Teams API integration
@@ -546,9 +575,26 @@ const { hasPermission, hasRole } = usePermissions()
 const activeTab = ref<'workshop' | 'setup' | 'setdown'>('workshop')
 
 /**
+ * Edit mode state - allows editing even when task is completed
+ */
+const isEditMode = ref(false)
+
+/**
  * Modal state
  */
 const showAddTeamModal = ref(false)
+
+/**
+ * Computed readonly state - readonly if prop is true OR (task is completed AND not in edit mode)
+ */
+const isReadonly = computed(() => {
+  // If readonly prop is explicitly set (from TaskDataViewer or parent), use that
+  if (props.readonly !== undefined) {
+    return props.readonly
+  }
+  // Otherwise, check if task is completed and not in local edit mode
+  return props.task.status === 'completed' && !isEditMode.value
+})
 
 /**
  * New team modal form data
@@ -610,7 +656,7 @@ const extractProjectInfo = (): ProjectInfo => {
     const projectInfo: ProjectInfo = {
       projectId: enquiry?.enquiry_number || 'N/A',
       enquiryTitle: enquiry?.title || 'Untitled Project',
-      clientName: enquiry?.client?.full_name || enquiry?.client?.FullName || enquiry?.contact_person || 'N/A',
+      clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
       eventVenue: enquiry?.venue || 'TBC',
       setupDate: enquiry?.expected_delivery_date || 'TBC',
       setDownDate: 'TBC', // This would come from project data when available

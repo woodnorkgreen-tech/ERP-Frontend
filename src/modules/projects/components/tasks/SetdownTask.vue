@@ -252,13 +252,13 @@
         <!-- Documentation Content -->
         <div class="space-y-6">
           <!-- Photo Upload Section -->
-          <div>
+          <div v-if="!readonly">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📸</span>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
                 <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
-                  {{ backendSetdownData?.documentation.photos?.length || 0 }}
+                  {{ displayData?.documentation.photos?.length || 0 }}
                 </span>
               </div>
             </div>
@@ -307,9 +307,9 @@
             </div>
 
             <!-- Photo Grid -->
-            <div v-if="backendSetdownData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div v-if="displayData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               <div
-                v-for="photo in backendSetdownData.documentation.photos"
+                v-for="photo in displayData.documentation.photos"
                 :key="photo.id"
                 class="relative group"
               >
@@ -323,6 +323,7 @@
                 
                 <!-- Delete button overlay -->
                 <button
+                  v-if="!readonly"
                   @click.stop="confirmDeletePhoto(photo.id)"
                   class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg"
                   title="Delete photo"
@@ -347,6 +348,43 @@
             </div>
           </div>
 
+          <!-- Readonly Photo Grid (when readonly is true) -->
+          <div v-else>
+             <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">📸</span>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                  {{ displayData?.documentation?.photos?.length || 0 }}
+                </span>
+              </div>
+            </div>
+
+            <div v-if="displayData?.documentation?.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div
+                v-for="photo in displayData.documentation.photos"
+                :key="photo.id"
+                class="relative group"
+              >
+                <img
+                  :src="photo.url"
+                  :alt="photo.description || 'Setdown photo'"
+                  class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
+                  @click="openImageModal(photo)"
+                  @error="handleImageError"
+                />
+                <div class="mt-1.5">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div v-else class="mt-6 text-center py-8">
+              <p class="text-sm text-gray-500 dark:text-gray-400">No photos uploaded.</p>
+            </div>
+          </div>
+
           <!-- Notes Section -->
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-2 mb-4">
@@ -360,14 +398,13 @@
                   Setdown Progress Notes
                 </label>
                 <textarea
-                  v-model="localNotes.setdownNotes"
-                  @blur="autoSaveNotes"
-                  rows="4"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="Record setdown progress, observations, and any issues encountered...
-                  
-Auto-saves when you click outside this box."
-                ></textarea>
+                v-model="localNotes.setdownNotes"
+                @blur="autoSaveNotes"
+                rows="4"
+                :readonly="readonly"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                :placeholder="readonly ? 'No notes recorded.' : 'Record setdown progress, observations, and any issues encountered...\n\nAuto-saves when you click outside this box.'"
+              ></textarea>
               </div>
 
               <div>
@@ -375,17 +412,107 @@ Auto-saves when you click outside this box."
                   Completion Notes
                 </label>
                 <textarea
-                  v-model="localNotes.completionNotes"
-                  @blur="autoSaveNotes"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="Final completion notes and handover information...
-
-Auto-saves when you click outside this box."
-                ></textarea>
+                v-model="localNotes.completionNotes"
+                @blur="autoSaveNotes"
+                rows="3"
+                :readonly="readonly"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                :placeholder="readonly ? 'No notes recorded.' : 'Final completion notes and handover information...\n\nAuto-saves when you click outside this box.'"
+              ></textarea>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Checklist Tab -->
+      <div
+        v-show="activeTab === 'checklist'"
+        class="checklist-section tab-panel"
+        :id="`tab-panel-checklist`"
+        role="tabpanel"
+        :aria-labelledby="`tab-checklist`"
+        :class="{ 'animate-fade-in': activeTab === 'checklist' }"
+      >
+        <!-- Checklist Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Set Down Checklist</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Event setdown checklist and progress tracking
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div v-if="checklistData" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <h5 class="font-medium text-blue-800 dark:text-blue-200">Overall Progress</h5>
+            <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
+              {{ checklistData.completed_count }} / {{ checklistData.total_count }} items completed
+            </span>
+          </div>
+          <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+            <div 
+              class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+              :style="{ width: checklistData.completion_percentage + '%' }"
+            ></div>
+          </div>
+          <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+            {{ Number(checklistData.completion_percentage).toFixed(0) }}% complete
+          </p>
+        </div>
+
+        <!-- Checklist Loading State -->
+        <div v-if="checklistLoading" class="text-center py-8">
+          <svg class="animate-spin h-8 w-8 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading checklist...</p>
+        </div>
+
+        <!-- Checklist Categories -->
+        <div v-else-if="checklistData" class="space-y-6">
+          <div v-for="category in checklistData.checklist_data" :key="category.category" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <!-- Category Header -->
+            <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3">
+              <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                {{ category.category }}
+              </h4>
+            </div>
+
+            <!-- Category Items -->
+            <div class="p-4 space-y-3 bg-white dark:bg-gray-800">
+              <label
+                v-for="item in category.items"
+                :key="item.id"
+                class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  v-model="item.completed"
+                  @change="handleChecklistItemChange(item.id, item.completed)"
+                  :disabled="readonly"
+                  class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
+                />
+                <span 
+                  class="text-sm flex-1"
+                  :class="item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'"
+                >
+                  {{ item.text }}
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty/Error State -->
+        <div v-else class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+          </svg>
+          <p class="text-gray-500 dark:text-gray-400">No checklist available</p>
         </div>
       </div>
 
@@ -408,7 +535,7 @@ Auto-saves when you click outside this box."
           </div>
           <div class="flex space-x-3">
             <button
-              v-if="!editModes.issues"
+              v-if="!editModes.issues && !readonly"
               @click="editModes.issues = true"
               class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
             >
@@ -526,7 +653,7 @@ Auto-saves when you click outside this box."
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📋</span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Issues List</h4>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ backendSetdownData?.issues?.length || 0 }}</span>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ displayData?.issues?.length || 0 }}</span>
               </div>
 
               <div class="flex space-x-2">
@@ -554,7 +681,7 @@ Auto-saves when you click outside this box."
             </div>
 
             <div v-if="filteredIssues.length === 0" class="text-center py-8">
-              <div v-if="!backendSetdownData?.issues?.length" class="text-gray-500 dark:text-gray-400">
+              <div v-if="!displayData?.issues?.length" class="text-gray-500 dark:text-gray-400">
                 <div class="mb-4">
                   <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6"></path>
@@ -614,6 +741,7 @@ Auto-saves when you click outside this box."
                     </select>
 
                     <button
+                      v-if="!readonly"
                       @click="handleRemoveIssue(issue.id)"
                       class="text-gray-400 hover:text-red-500 p-1 rounded"
                     >
@@ -643,7 +771,7 @@ Auto-saves when you click outside this box."
     </div>
 
     <!-- Task Status and Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div v-if="!readonly" class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex items-center space-x-2">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
         <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
@@ -733,6 +861,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import { useSetdown } from '../../composables/useSetdown'
 import { useAuth } from '@/composables/useAuth'
+import api from '@/plugins/axios'
 import imageCompression from 'browser-image-compression'
 
 /**
@@ -741,6 +870,10 @@ import imageCompression from 'browser-image-compression'
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the component is in read-only mode */
+  readonly?: boolean
+  /** Initial data to populate the component (avoids fetching) */
+  initialData?: any
 }
 
 /**
@@ -751,7 +884,10 @@ interface Emits {
   'update-status': [status: EnquiryTask['status']]
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+  initialData: null
+})
 const emit = defineEmits<Emits>()
 
 /**
@@ -871,6 +1007,7 @@ const activeTab = ref('documentation')
 
 const tabs = [
   { id: 'documentation', label: 'Documentation', icon: '📸', description: 'Upload photos and record setdown notes' },
+  { id: 'checklist', label: 'Checklist', icon: '✅', description: 'Event setdown checklist and progress tracking' },
   { id: 'issues', label: 'Issues', icon: '🚨', description: 'Track and manage setdown-related issues' }
 ]
 
@@ -1076,14 +1213,32 @@ const lastSaved = ref<string>('')
 
 /**
  * Drag and drop state
+```
  */
 const isDragging = ref(false)
 const uploadingCount = ref(0)
 
 /**
+ * Checklist state
+ */
+const checklistData = ref<any>(null)
+const checklistLoading = ref(false)
+
+/**
  * Photo input ref
  */
 const photoInputRef = ref<HTMLInputElement | null>(null)
+
+/**
+ * Display data - computed property that returns initialData if provided, otherwise backendSetdownData
+ * This allows the component to work in both readonly mode (with initialData) and normal mode (fetching data)
+ */
+const displayData = computed(() => {
+  if (props.initialData) {
+    return props.initialData
+  }
+  return backendSetdownData.value
+})
 
 // Tab navigation functions
 const setActiveTab = (tabId: string) => {
@@ -1205,7 +1360,7 @@ const canEditSetdown = computed(() => {
  * Filtered issues based on current filters
  */
 const filteredIssues = computed(() => {
-  const issues = backendSetdownData.value?.issues || []
+  const issues = displayData.value?.issues || []
   return issues.filter((issue: any) => {
     const statusMatch = issuesFilter.status === 'all' || issue.status === issuesFilter.status
     const priorityMatch = issuesFilter.priority === 'all' || issue.priority === issuesFilter.priority
@@ -1466,6 +1621,47 @@ const handleSaveIssues = async () => {
 }
 
 /**
+ * Fetch checklist data
+ */
+const fetchChecklist = async () => {
+  try {
+    checklistLoading.value = true
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/setdown/checklist`)
+    checklistData.value = response.data.data
+  } catch (error) {
+    console.error('Failed to load checklist:', error)
+    addFeedbackMessage('error', 'Failed to load checklist data')
+  } finally {
+    checklistLoading.value = false
+  }
+}
+
+/**
+ * Handle checklist item change
+ */
+const handleChecklistItemChange = async (itemId: number, completed: boolean) => {
+  try {
+    const response = await api.patch(
+      `/api/projects/tasks/${props.task.id}/setdown/checklist/items/${itemId}`,
+      { completed }
+    )
+   
+    // Update local checklist data
+    if (response.data.data) {
+      checklistData.value = response.data.data
+    }
+    
+    addFeedbackMessage('success', 'Checklist updated')
+  } catch (error) {
+    console.error('Failed to update checklist item:', error)
+    addFeedbackMessage('error', 'Failed to update checklist')
+    
+    // Reload checklist to restore correct state
+    await fetchChecklist()
+  }
+}
+
+/**
  * Get priority class for styling
  */
 const getPriorityClass = (priority: string): string => {
@@ -1629,6 +1825,9 @@ onMounted(async () => {
     console.log('SetdownTask: Fetching data for task ID:', props.task.id)
     // Fetch setdown data from backend
     await fetchSetdownData(props.task.id)
+    
+    // Fetch checklist data
+    await fetchChecklist()
 
     console.log('SetdownTask: Data loaded:', backendSetdownData.value)
     console.log('SetdownTask: Photos count:', backendSetdownData.value?.documentation.photos?.length || 0)

@@ -66,13 +66,7 @@
         :readonly="true"
       />
 
-      <!-- Additions Tab - Readonly -->
-      <BudgetAdditionsTab
-        v-show="activeTab === 'additions'"
-        :task="task"
-        :budget-data="state.formData"
-        :readonly="true"
-      />
+
 
       <!-- No action buttons in readonly display -->
     </div>
@@ -87,7 +81,6 @@ import BudgetLabourTab from '../BudgetLabourTab.vue'
 import BudgetExpensesTab from '../BudgetExpensesTab.vue'
 import BudgetLogisticsTab from '../BudgetLogisticsTab.vue'
 import BudgetSummaryTab from '../BudgetSummaryTab.vue'
-import BudgetAdditionsTab from '../BudgetAdditionsTab.vue'
 import type { EnquiryTask } from '../../../types/enquiry'
 import type { BudgetData } from '../../../services/budgetService'
 

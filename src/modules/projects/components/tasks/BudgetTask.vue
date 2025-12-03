@@ -293,12 +293,7 @@
           :grand-total="grandTotal"
         />
 
-        <!-- Budget Additions Tab -->
-        <BudgetAdditionsTab
-          v-show="activeTab === 'additions'"
-          :task="task"
-          :budget-data="state.formData"
-        />
+
 
       <!-- Action Buttons -->
       <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -349,7 +344,6 @@ import BudgetLabourTab from './BudgetLabourTab.vue'
 import BudgetExpensesTab from './BudgetExpensesTab.vue'
 import BudgetLogisticsTab from './BudgetLogisticsTab.vue'
 import BudgetSummaryTab from './BudgetSummaryTab.vue'
-import BudgetAdditionsTab from './BudgetAdditionsTab.vue'
 import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
 import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import type { EnquiryTask } from '../../types/enquiry'
