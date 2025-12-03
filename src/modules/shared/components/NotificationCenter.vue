@@ -150,6 +150,14 @@ const {
 const showPanel = ref(false)
 const pollingInterval = ref<number | null>(null)
 
+// Event handlers
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.notification-center')) {
+    showPanel.value = false
+  }
+}
+
 // Computed properties
 const hasUnreadNotifications = computed(() => {
   return unreadCount.value > 0
@@ -288,22 +296,15 @@ onMounted(async () => {
   }, 30000)
 
   // Listen for clicks outside to close panel
-  const handleClickOutside = (event: Event) => {
-    const target = event.target as HTMLElement
-    if (!target.closest('.notification-center')) {
-      showPanel.value = false
-    }
-  }
-
   document.addEventListener('click', handleClickOutside)
+})
 
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-    // Clear polling interval
-    if (pollingInterval.value) {
-      clearInterval(pollingInterval.value)
-    }
-  })
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  // Clear polling interval
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+  }
 })
 </script>
 

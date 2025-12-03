@@ -67,6 +67,18 @@
               </transition>
             </button>
 
+            <!-- Tasks Navigation -->
+            <router-link
+              to="/universal-tasks"
+              class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              title="Universal Task System"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+              <span class="hidden lg:inline">Tasks</span>
+            </router-link>
+
             <!-- Notification Center -->
             <NotificationCenter ref="notificationCenter" />
 
@@ -114,6 +126,9 @@
       <!-- Notification Popup -->
       <NotificationPopup ref="notificationPopup" />
 
+      <!-- Toast Notifications -->
+      <ToastContainer />
+
       <!-- Main Content Area -->
       <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 scroll-smooth custom-scrollbar">
         <div class="max-w-8xl mx-auto w-full">
@@ -134,6 +149,7 @@ import { useRouter, useRoute } from 'vue-router'
 import DynamicSidebar from '../components/DynamicSidebar.vue'
 import NotificationCenter from '../modules/shared/components/NotificationCenter.vue'
 import NotificationPopup from '../modules/shared/components/NotificationPopup.vue'
+import ToastContainer from '../modules/universal-task/components/ToastContainer.vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouteGuard } from '../composables/useRouteGuard'
 import { useTheme } from '../composables/useTheme'
