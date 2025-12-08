@@ -27,7 +27,7 @@ class TaskApiService {
 
   constructor() {
     this.client = axios.create({
-      baseURL: '/api/universal-tasks',
+     baseURL: '/universal-tasks', 
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
