@@ -2,11 +2,27 @@ import { ref, readonly } from 'vue'
 import type { Employee, EmployeeFilters, CreateEmployeeData, UpdateEmployeeData } from '../types/employee'
 import { useApi } from '../../admin/shared/composables/useApi'
 
+interface PaginationMeta {
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+  from: number
+  to: number
+}
 
 export function useEmployees() {
   const employees = ref<Employee[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pagination = ref<PaginationMeta>({
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0,
+    from: 0,
+    to: 0
+  })
   const { get, post, put, delete: deleteApi } = useApi()
 
   const fetchEmployees = async (filters?: EmployeeFilters) => {
@@ -25,18 +41,49 @@ export function useEmployees() {
       if (filters?.page) params.page = filters.page
       if (filters?.per_page) params.per_page = filters.per_page
 
-      const response = await get('/api/hr/employees', params)
-      const responseData = response.data
+      const responseData = await get('/api/hr/employees', params) // useApi.get() already returns response.data
+
 
       // Handle both paginated response {data: [...], meta: ...} and direct array response [...]
       if (Array.isArray(responseData)) {
-        // Direct array response
+        // Direct array response (no pagination)
         employees.value = responseData as Employee[]
-      } else if (responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray((responseData as {data: unknown[]}).data)) {
+        pagination.value = {
+          current_page: 1,
+          last_page: 1,
+          per_page: responseData.length,
+          total: responseData.length,
+          from: 1,
+          to: responseData.length
+        }
+      } else if (responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray((responseData as { data: unknown[] }).data)) {
         // Paginated response
-        employees.value = (responseData as {data: Employee[]}).data || []
+        const paginatedData = responseData as { data: Employee[], meta?: PaginationMeta, current_page?: number, last_page?: number, per_page?: number, total?: number, from?: number, to?: number }
+        employees.value = paginatedData.data || []
+
+        // Extract pagination metadata (support both Laravel pagination formats)
+        if (paginatedData.meta) {
+          pagination.value = paginatedData.meta
+        } else {
+          pagination.value = {
+            current_page: paginatedData.current_page || 1,
+            last_page: paginatedData.last_page || 1,
+            per_page: paginatedData.per_page || 15,
+            total: paginatedData.total || 0,
+            from: paginatedData.from || 0,
+            to: paginatedData.to || 0
+          }
+        }
       } else {
         employees.value = []
+        pagination.value = {
+          current_page: 1,
+          last_page: 1,
+          per_page: 15,
+          total: 0,
+          from: 0,
+          to: 0
+        }
       }
     } catch (err) {
       error.value = 'Failed to fetch employees'
@@ -55,7 +102,7 @@ export function useEmployees() {
 
       // Handle both direct object response and wrapped response
       const newEmployee = (responseData && typeof responseData === 'object' && 'data' in responseData)
-        ? (responseData as {data: Employee}).data
+        ? (responseData as { data: Employee }).data
         : responseData as Employee
       employees.value = [newEmployee, ...employees.value]
       return newEmployee
@@ -76,7 +123,7 @@ export function useEmployees() {
 
       // Handle both direct object response and wrapped response
       const updatedEmployee = (responseData && typeof responseData === 'object' && 'data' in responseData)
-        ? (responseData as {data: Employee}).data
+        ? (responseData as { data: Employee }).data
         : responseData as Employee
       const index = employees.value.findIndex(e => e.id === id)
       if (index !== -1) {
@@ -109,6 +156,7 @@ export function useEmployees() {
     employees: readonly(employees),
     loading: readonly(loading),
     error: readonly(error),
+    pagination: readonly(pagination),
     fetchEmployees,
     createEmployee,
     updateEmployee,

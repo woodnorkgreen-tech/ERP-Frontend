@@ -203,6 +203,11 @@
                         <option value="Kgs">Kilograms (Kgs)</option>
                         <option value="Sets">Sets</option>
                         <option value="Rolls">Rolls</option>
+                        <option value="Boxes">Boxes</option>
+                        <option value="Cans">Cans</option>
+                        <option value="Bags">Bags</option>
+                        <option value="Packets">Packets</option>
+                        <option value="Cartons">Cartons</option>
                       </select>
                       <p v-if="errors[`materials.${index}.unit`]" class="mt-1 text-xs text-red-600">
                         {{ errors[`materials.${index}.unit`] }}

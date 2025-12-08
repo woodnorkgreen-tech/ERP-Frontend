@@ -716,8 +716,10 @@ const openFile = (url: string) => {
 onMounted(() => {
   fetchSurvey(props.task.id).then(survey => {
     if (survey?.access_token) {
+      // Use the correct base URL with /erp path
       const baseUrl = window.location.origin
-      clientLink.value = `${baseUrl}/handover/${survey.access_token}`
+      const basePath = import.meta.env.BASE_URL || '/erp/'
+      clientLink.value = `${baseUrl}${basePath}handover/${survey.access_token}`
     }
   })
 })
@@ -725,8 +727,10 @@ onMounted(() => {
 const generateLink = async () => {
   try {
     const token = await generateToken(props.task.id)
+    // Use the correct base URL with /erp path
     const baseUrl = window.location.origin
-    clientLink.value = `${baseUrl}/handover/${token}`
+    const basePath = import.meta.env.BASE_URL || '/erp/'
+    clientLink.value = `${baseUrl}${basePath}handover/${token}`
   } catch (err) {
     console.error('Failed to generate link:', err)
   }
