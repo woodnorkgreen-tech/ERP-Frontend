@@ -584,7 +584,7 @@
           <!-- Set down -->
           <div>
             <label for="set_down_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Project Deadline
+              Set Down Date
             </label>
             <input
               id="set_down_date"
