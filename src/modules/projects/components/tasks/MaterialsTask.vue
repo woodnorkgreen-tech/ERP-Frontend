@@ -132,6 +132,42 @@
             <span>Version History</span>
           </button>
 
+          <!-- Download Excel Template Button -->
+          <button
+            @click="downloadExcelTemplate"
+            class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+            :title="'Download Excel template for bulk materials upload'"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <span>Download Template</span>
+          </button>
+
+          <!-- Upload Excel Button -->
+          <button
+            @click="showExcelUploadModal = true"
+            class="px-3 py-1 text-xs bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+            :title="'Upload filled Excel template to import materials'"
+            :disabled="task.status === 'completed' && !isEditMode"
+            :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+              />
+            </svg>
+            <span>Upload Excel</span>
+          </button>
+
           <button
             @click="openAddElementModal"
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
@@ -689,6 +725,14 @@
       @restore="handleRestoreVersion"
       @refresh="fetchVersions"
     />
+
+    <!-- Excel Upload Modal -->
+    <ExcelUploadModal
+      :is-open="showExcelUploadModal"
+      :task-id="props.task.id"
+      @close="showExcelUploadModal = false"
+      @success="handleExcelUploadSuccess"
+    />
     </div>
   </div>
 </template>
@@ -702,6 +746,7 @@ import MaterialsModal from '../MaterialsModal.vue'
 import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
 import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import ApprovalCard from './materials/ApprovalCard.vue'
+import ExcelUploadModal from './materials/ExcelUploadModal.vue'
 import { MaterialsService } from '../../services/materialsService'
 import api from '@/plugins/axios'
 
@@ -858,7 +903,10 @@ const COMMON_UNITS = [
   { value: 'Ltrs', label: 'Liters (Ltrs)' },
   { value: 'Mtrs', label: 'Meters (Mtrs)' },
   { value: 'sqm', label: 'Square Meters (sqm)' },
-  { value: 'custom', label: 'Custom Unit' }
+  { value: 'custom', label: 'Custom Unit' },
+  { value: 'Pks', label: 'Packets (Pks)' },
+  { value: 'Kgs', label: 'Kilograms (Kgs)' },
+  
 ]
 
 // Component setup
@@ -993,6 +1041,9 @@ const isPreviewingVersion = ref(false)
 const previewingVersionLabel = ref('')
 const previewingVersionId = ref<number | null>(null)
 const originalMaterialsData = ref<any>(null)
+
+// Excel Upload Modal State
+const showExcelUploadModal = ref(false)
 
 // Collapsed state for elements (initialize with all elements collapsed)
 const collapsedElements = ref<Set<string>>(new Set())
@@ -1556,6 +1607,64 @@ const getElementCategoryClass = (category: string): string => {
     'outsourced': 'bg-orange-100 text-orange-800'
   }
   return classes[category] || 'bg-gray-100 text-gray-800'
+}
+
+/**
+ * Download Excel template for materials upload
+ * Triggers download of a pre-formatted Excel file with instructions and sample data
+ */
+const downloadExcelTemplate = async () => {
+  try {
+    const response = await api.get(
+      `/api/projects/tasks/${props.task.id}/materials/template/download`,
+      {
+        responseType: 'blob' // Important for file downloads
+      }
+    )
+    
+    // Create blob link to download
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    
+    // Extract filename from response headers or use default
+    const contentDisposition = response.headers['content-disposition']
+    let filename = `Materials_Template_${props.task.enquiry?.enquiry_number || 'TASK' + props.task.id}_${new Date().toISOString().split('T')[0]}.xlsx`
+    
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/)
+      if (filenameMatch) {
+        filename = filenameMatch[1]
+      }
+    }
+    
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+    
+    console.log('Excel template downloaded successfully')
+  } catch (err: any) {
+    console.error('Failed to download Excel template:', err)
+    error.value = err.response?.data?.message || 'Failed to download template. Please try again.'
+  }
+}
+
+/**
+ * Handle successful Excel upload
+ * For now, just show a success message. Phase 3 will implement actual import.
+ */
+const handleExcelUploadSuccess = async (previewData: any) => {
+  console.log('Excel upload preview data:', previewData)
+  
+  // Phase 3 will implement the actual import logic
+  // For now, just show a success notification
+  const stats = previewData.stats
+  console.log(`Excel validated: ${stats.total_elements} elements, ${stats.total_materials} materials`)
+  
+  // TODO Phase 3: Call backend to confirm import and save to database
+  // await saveMaterialsList()
 }
 
 /**

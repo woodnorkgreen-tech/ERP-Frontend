@@ -52,4 +52,11 @@ export const mainRoutes: RouteRecordRaw[] = [
       }
     ]
   },
+  // Catch-all dashboard route - redirect to HR dashboard as fallback
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    redirect: '/hr',
+    meta: { requiresAuth: true }
+  }
 ]

@@ -1000,23 +1000,20 @@ const applyFilters = () => {
 
 const fetchDepartments = async () => {
   try {
-    console.log('Fetching departments...')
-    const response = await get('/api/hr/departments')
-    console.log('Departments response:', response)
-    console.log('Departments data received:', response.data)
+    const responseData = await get('/api/hr/departments')
 
     // Handle different response structures
     let departmentsArray: Array<{id: number, name: string}> = []
 
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+    if (responseData && typeof responseData === 'object' && 'data' in responseData) {
       // Paginated response
-      const responseData = response.data as { data: Array<{id: number, name: string}>, meta: Record<string, unknown> }
-      departmentsArray = responseData.data
-    } else if (Array.isArray(response.data)) {
+      const paginatedResponse = responseData as { data: Array<{id: number, name: string}>, meta: Record<string, unknown> }
+      departmentsArray = paginatedResponse.data
+    } else if (Array.isArray(responseData)) {
       // Direct array response
-      departmentsArray = response.data as Array<{id: number, name: string}>
+      departmentsArray = responseData as Array<{id: number, name: string}>
     } else {
-      console.warn('Unexpected departments response structure:', response.data)
+      console.warn('Unexpected departments response structure:', responseData)
       availableDepartments.value = []
       return
     }
@@ -1025,7 +1022,6 @@ const fetchDepartments = async () => {
       id: dept.id,
       name: dept.name
     }))
-    console.log('Available departments set:', availableDepartments.value)
   } catch (error) {
     console.error('Error fetching departments:', error)
     // Show user-friendly error message
@@ -1038,17 +1034,16 @@ const fetchDepartments = async () => {
 
 const fetchAvailableEmployees = async () => {
   try {
-    const response = await get('/api/hr/employees')
-    const responseData = response.data
+    const responseData = await get('/api/hr/employees')
 
     // Handle both paginated response {data: [...], meta: ...} and direct array response [...]
     let employeesArray: Array<{id: number, first_name: string, last_name: string, position: string}> = []
 
     if (Array.isArray(responseData)) {
-      // Direct array response
+      // Direct array response (new format)
       employeesArray = responseData as Array<{id: number, first_name: string, last_name: string, position: string}>
     } else if (responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray((responseData as {data: unknown[]}).data)) {
-      // Paginated response
+      // Paginated response (old format)
       employeesArray = (responseData as {data: Array<{id: number, first_name: string, last_name: string, position: string}>}).data
     } else {
       console.warn('Unexpected response structure for employees:', responseData)
@@ -1073,15 +1068,10 @@ const formatDate = (dateString: string) => {
 }
 
 onMounted(async () => {
-  console.log('EmployeeManagement component mounted')
   try {
     await fetchEmployees()
-    console.log('Employees fetched successfully')
     await fetchDepartments()
-    console.log('Departments fetched successfully')
     await fetchAvailableEmployees()
-    console.log('Available employees fetched successfully')
-    console.log('Component initialization complete')
   } catch (error) {
     console.error('Error during component initialization:', error)
   }

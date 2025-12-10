@@ -667,11 +667,11 @@ const getElementCategoryLabel = (category: string): string => {
  */
 const getElementCategoryClass = (category: string): string => {
   const classes: Record<string, string> = {
-    'production': 'bg-green-100 text-green-800',
-    'hire': 'bg-blue-100 text-blue-800',
-    'outsourced': 'bg-orange-100 text-orange-800'
+    'production': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+    'hire': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+    'outsourced': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'
   }
-  return classes[category] || 'bg-gray-100 text-gray-800'
+  return classes[category] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
 }
 
 /**
@@ -790,13 +790,14 @@ const getIncludedMaterialsCount = (element: ProjectElement): number => {
 const getElementHeaderClass = (templateId: string): string => {
   const template = materialsData.availableElements.find(t => t.id === templateId)
   const colorClasses: Record<string, string> = {
-    'green': 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-    'blue': 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
     'purple': 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
-    'orange': 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+    'indigo': 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200',
+    'blue': 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
     'teal': 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+    'orange': 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+    'gray': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
   }
-  return colorClasses[template?.color || 'green'] || colorClasses.green
+  return colorClasses[template?.color || 'gray'] || colorClasses.gray
 }
 
 /**

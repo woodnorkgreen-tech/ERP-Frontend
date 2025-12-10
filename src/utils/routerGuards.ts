@@ -199,6 +199,9 @@ export async function canAccessProjects(): Promise<boolean> {
   // Super Admin can access everything
   if (user.roles?.includes('Super Admin')) return true
 
+  // HR role has access to projects
+  if (user.roles?.includes('HR')) return true
+
   // Check project read permission
   return hasPermission(user, userPermissions, PERMISSIONS.PROJECT_READ)
 }

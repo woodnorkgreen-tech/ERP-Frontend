@@ -353,11 +353,13 @@ export function useRouteGuard() {
         { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: '🏢' }
       )
     }
-    // HR gets HR routes
+    // HR gets HR routes + Projects access
     else if (userRoles.includes('HR')) {
       routes.push(
         { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: '👥' },
-        { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: '👷' }
+        { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: '👷' },
+        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: '📈' },
+        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: '📝' }
       )
     }
     // Department users get department routes
