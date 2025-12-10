@@ -814,7 +814,7 @@ const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
 
 const hasPrivilegedAccess = computed(() => {
-  return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer'].includes(role))
+  return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
 })
 
 const canLogEnquiry = computed(() => {

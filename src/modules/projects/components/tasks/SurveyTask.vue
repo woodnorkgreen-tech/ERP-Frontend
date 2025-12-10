@@ -1,6 +1,6 @@
 <template>
   <div class="survey-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-    <!-- Editable section - only show when not readonly (not completed) -->
+    <!-- Header and tabs - only visible when NOT readonly -->
     <div v-if="!readonly">
       <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
@@ -46,12 +46,13 @@
       </div>
     </div>
 
-    <!-- Use TaskDataViewer for completed tasks -->
+    <!-- Use TaskDataViewer for completed tasks (readonly mode) -->
     <TaskDataViewer
       v-if="readonly"
       :task="task"
     />
 
+    <!-- Form content (when not readonly) -->
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Loading State -->
       <div v-if="isLoadingExistingData" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -683,21 +684,44 @@
 
       <!-- Photos Tab -->
       <div v-show="activeTab === 'photos'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-        <div class="flex items-center space-x-2 mb-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900 flex items-center justify-center">
-            <svg class="w-4 h-4 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900 flex items-center justify-center">
+              <svg class="w-4 h-4 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Site Photos</h3>
+            <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+              {{ surveyPhotos.length }}
+            </span>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Site Photos</h3>
+          
+          <!-- Edit Toggle Buttons (only shown when readonly) -->
+          <div v-if="readonly" class="flex space-x-2">
+            <button
+              v-if="!isEditingPhotos"
+              @click="isEditingPhotos = true"
+              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              v-if="isEditingPhotos"
+              @click="isEditingPhotos = false"
+              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Done Editing
+            </button>
+          </div>
         </div>
 
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Upload photos from the site survey (max 20 photos, 10MB each)
+          {{ (readonly && !isEditingPhotos) ? 'Site survey photos' : 'Upload photos from the site survey (max 20 photos, 10MB each)' }}
         </p>
 
-        <!-- Upload Area -->
-        <div class="mb-6">
+        <!-- Upload Area (shown when not readonly OR when editing) -->
+        <div v-if="!readonly || isEditingPhotos" class="mb-6">
           <label
             class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600 transition-colors"
             @dragover.prevent
@@ -723,8 +747,8 @@
           </label>
         </div>
 
-        <!-- Photo Previews (before upload) -->
-        <div v-if="photoPreviews.length > 0" class="mb-6">
+        <!-- Photo Previews (before upload) - hidden in readonly mode -->
+        <div v-if="(!readonly || isEditingPhotos) && photoPreviews.length > 0" class="mb-6">
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Selected Photos ({{ photoPreviews.length }})
@@ -770,8 +794,8 @@
           </div>
         </div>
 
-        <!-- Upload Progress -->
-        <div v-if="uploadingPhotos.length > 0" class="mb-4 space-y-2">
+        <!-- Upload Progress - hidden in readonly mode -->
+        <div v-if="(!readonly || isEditingPhotos) && uploadingPhotos.length > 0" class="mb-4 space-y-2">
           <div v-for="upload in uploadingPhotos" :key="upload.name" class="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
             <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -811,8 +835,9 @@
                   </svg>
                 </button>
 
-                <!-- Delete Button -->
+                <!-- Delete Button (shown when not readonly OR when editing) -->
                 <button
+                  v-if="!readonly || isEditingPhotos"
                   type="button"
                   @click.stop="deletePhotoConfirm(photo.id)"
                   class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
@@ -834,7 +859,8 @@
                 v-model="photo.caption"
                 type="text"
                 placeholder="Add caption..."
-                class="mt-2 w-full text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                :readonly="readonly && !isEditingPhotos"
+                class="mt-2 w-full text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800"
                 @click.stop
                 @blur="updatePhotoCaption(photo)"
               />
@@ -1101,6 +1127,9 @@ const photoPreviewModal = ref<{ show: boolean; photo: any }>({
   show: false,
   photo: null
 })
+
+// Edit mode for photos when readonly
+const isEditingPhotos = ref(false)
 
 
 const tabs = [
