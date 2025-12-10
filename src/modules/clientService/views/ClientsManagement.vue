@@ -242,12 +242,28 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lead Source *</label>
-              <input
+              <select
                 v-model="clientFormData.LeadSource"
-                type="text"
                 required
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
+              >
+                <option value="">Select Lead Source</option>
+                <option value="Website">Website</option>
+                <option value="Google Search">Google Search</option>
+                <option value="Google Ads">Google Ads</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Instagram">Instagram</option>
+                <option value="TikTok">TikTok</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Referral">Referral</option>
+                <option value="Returning Client">Returning Client</option>
+                <option value="Walk-in">Walk-in</option>
+                <option value="Sales Team">Sales Team</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Event / Activation">Event / Activation</option>
+                <option value="Print Media">Print Media</option>
+                <option value="Others">Others (specify)</option>
+              </select>
             </div>
           </div>
 

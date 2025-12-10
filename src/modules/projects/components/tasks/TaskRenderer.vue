@@ -1,11 +1,11 @@
 <template>
   <div class="task-renderer">
-    <!-- Special handling for budget, design, quote, and quote_approval tasks - let them manage their own readonly/edit mode -->
+    <!-- Special handling for tasks that manage their own readonly/edit mode (show component even when completed) -->
     <component
-      v-if="task.type === 'budget' || task.type === 'design' || task.type === 'quote' || task.type === 'quote_approval' || task.type === 'production' || task.type === 'logistics' || task.type === 'procurement'"
+      v-if="shouldUseDirectComponent(task.type)"
       :is="taskComponent"
       :task="task"
-      :readonly="false"
+      :readonly="task.status === 'completed'"
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
@@ -57,8 +57,21 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
-  'save-design-data': [data: any[]]
+  'save-design-data': [data: any[]
+]
 }>()
+
+// Helper function to determine if task should use direct component instead of TaskDataViewer
+const shouldUseDirectComponent = (taskType?: string) => {
+  if (!taskType) return false
+  
+  const specialTypes = [
+    'budget', 'design', 'quote', 'quote_approval', 'production', 
+    'logistics', 'procurement', 'site-survey', 'survey', 'site survey'
+  ]
+  
+  return specialTypes.includes(taskType.toLowerCase())
+}
 
 const taskComponent = computed(() => {
   // Debug - always log what component is selected for what task type

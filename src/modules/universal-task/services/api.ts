@@ -27,7 +27,7 @@ class TaskApiService {
 
   constructor() {
     this.client = axios.create({
-     baseURL: '/universal-tasks', 
+      baseURL: '/api/universal-tasks',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -80,12 +80,12 @@ class TaskApiService {
 
     const meta = paginator
       ? {
-          pagination: {
-            page: paginator.current_page ?? paginator.currentPage ?? 1,
-            per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
-            total: paginator.total ?? items.length ?? 0
-          }
+        pagination: {
+          page: paginator.current_page ?? paginator.currentPage ?? 1,
+          per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
+          total: paginator.total ?? items.length ?? 0
         }
+      }
       : undefined;
 
     return {

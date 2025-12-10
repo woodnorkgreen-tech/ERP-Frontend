@@ -1080,6 +1080,16 @@
           </svg>
           <span>Site Photos ({{ surveyPhotos.length }})</span>
         </h3>
+        
+        <!-- Edit Toggle Button (triggers full edit mode) -->
+        <div class="flex space-x-2">
+          <button
+            @click="$emit('edit-mode')"
+            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Edit Survey
+          </button>
+        </div>
       </div>
 
       <!-- Photos Grid -->
@@ -1500,6 +1510,12 @@ const saveEdit = async (tab: keyof typeof isEditing) => {
     const surveyId = props.taskData.id as number
     const payload = {
       ...formData.value,
+      // Ensure attendees is properly formatted as an array
+      attendees: Array.isArray(formData.value.attendees)
+        ? formData.value.attendees
+        : formData.value.attendees
+          ? String(formData.value.attendees).split('\n').filter(item => item.trim())
+          : [],
       // Ensure action_items is properly formatted as an array
       action_items: Array.isArray(formData.value.action_items)
         ? formData.value.action_items
