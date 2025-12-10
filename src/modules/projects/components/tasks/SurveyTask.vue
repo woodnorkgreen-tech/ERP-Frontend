@@ -569,27 +569,27 @@
             ></textarea>
           </div>
 
-          <!-- Project Start Date -->
+          <!-- Set up date -->
           <div>
-            <label for="project_start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Project Start Date
+            <label for="set_up_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Set Up Date
             </label>
             <input
-              id="project_start_date"
-              v-model="formData.project_start_date"
+              id="set_up_date"
+              v-model="formData.set_up_date"
               type="datetime-local"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
-          <!-- Project Deadline -->
+          <!-- Set down -->
           <div>
-            <label for="project_deadline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label for="set_down_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Project Deadline
             </label>
             <input
-              id="project_deadline"
-              v-model="formData.project_deadline"
+              id="set_down_date"
+              v-model="formData.set_down_date"
               type="datetime-local"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
             />
@@ -1100,8 +1100,8 @@ const formData = ref({
   safety_conditions: '',
   potential_hazards: '',
   safety_requirements: '',
-  project_start_date: '',
-  project_deadline: '',
+  set_up_date: '',
+  set_down_date: '',
   additional_notes: '',
   special_requests: '',
   action_items: [] as string[],
@@ -1326,8 +1326,8 @@ const loadSurveyData = async () => {
         safety_conditions: existingData.safety_conditions || '',
         potential_hazards: existingData.potential_hazards || '',
         safety_requirements: existingData.safety_requirements || '',
-        project_start_date: existingData.project_start_date || '',
-        project_deadline: existingData.project_deadline || '',
+        set_up_date: existingData.set_up_date || '',
+        set_down_date: existingData.set_down_date || '',
         additional_notes: existingData.additional_notes || '',
         special_requests: existingData.special_requests || '',
         action_items: Array.isArray(existingData.action_items) ? existingData.action_items : [],
@@ -1376,8 +1376,8 @@ const loadSurveyData = async () => {
         safety_conditions: '',
         potential_hazards: '',
         safety_requirements: '',
-        project_start_date: '',
-        project_deadline: '',
+        set_up_date: '',
+        set_down_date: '',
         additional_notes: '',
         special_requests: '',
         action_items: [],
@@ -1421,8 +1421,8 @@ const loadSurveyData = async () => {
       safety_conditions: '',
       potential_hazards: '',
       safety_requirements: '',
-      project_start_date: '',
-      project_deadline: '',
+      set_up_date: '',
+      set_down_date: '',
       additional_notes: '',
       special_requests: '',
       action_items: [],
