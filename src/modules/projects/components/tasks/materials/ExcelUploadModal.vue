@@ -303,10 +303,77 @@ const resetUpload = () => {
   errorMessage.value = ''
 }
 
-const confirmImport = () => {
-  // This will be implemented in Phase 3
-  emit('success', previewData.value)
-  closeModal()
+const confirmImport = async () => {
+  if (!previewData.value || !hasNoErrors.value) {
+    return
+  }
+  
+  isImporting.value = true
+  errorMessage.value = ''
+  
+  try {
+    // Transform preview data to match saveMaterials API format
+    const projectElements = elements.value.map((element: any) => ({
+      id: element.id,
+      elementType: element.type,
+      name: element.name,
+      category: element.category,
+      dimensions: element.dimensions || { width: 0, length: 0, height: 0 },
+      isIncluded: true,
+      materials: element.particulars.map((particular: any) => ({
+        description: particular.description,
+        unitOfMeasurement: particular.unit,
+        quantity: particular.quantity,
+        isIncluded: particular.included,
+        notes: particular.notes || ''
+      })),
+      notes: element.notes || ''
+    }))
+    
+    console.log('[DEBUG] Transformed projectElements:', projectElements)
+    console.log('[DEBUG] Sending to API:', `/api/projects/tasks/${props.taskId}/materials`)
+    
+    // Build request payload with required projectInfo
+    const payload = {
+      projectInfo: {
+        // Use basic project info - approval status will be initialized by backend
+        projectId: props.taskId.toString(),
+        enquiryTitle: 'Material Import',
+        clientName: '',
+        eventVenue: '',
+        setupDate: '',
+        setDownDate: ''
+      },
+      projectElements
+    }
+    
+    console.log('[DEBUG] Full payload:', payload)
+    
+    // Call saveMaterials API
+    const response = await api.post(
+      `/api/projects/tasks/${props.taskId}/materials`,
+      payload
+    )
+    
+    // Success!
+    emit('success', response.data)
+    closeModal()
+  } catch (error: any) {
+    console.error('Import failed:', error)
+    console.error('Error response:', error.response?.data)
+    console.error('Error status:', error.response?.status)
+    console.error('Validation errors:', error.response?.data?.errors)
+    
+    // Show detailed validation errors if available
+    if (error.response?.data?.errors) {
+      const validationErrors = Object.values(error.response.data.errors).flat().join(', ')
+      errorMessage.value = `Validation failed: ${validationErrors}`
+    } else {
+      errorMessage.value = error.response?.data?.message || 'Failed to import materials. Please try again.'
+    }
+  } finally {
+    isImporting.value = false
+  }
 }
 
 const closeModal = () => {

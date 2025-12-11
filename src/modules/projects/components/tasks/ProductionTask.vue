@@ -465,6 +465,35 @@
 
             <!-- Checkpoint Details (Expandable) -->
             <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="checkpoint-details bg-gray-50 dark:bg-gray-700 p-4 border-t border-gray-200 dark:border-gray-600">
+              <!-- Checklist Items -->
+              <div v-if="checkpoint.checklist" class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Checklist Items
+                </label>
+                <div class="space-y-2">
+                  <div
+                    v-for="item in checkpoint.checklist"
+                    :key="item.id"
+                    class="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      :id="`${checkpoint.id}-${item.id}`"
+                      v-model="item.checked"
+                      @change="updateChecklistItem(checkpoint.id, item.id, item.checked)"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <label
+                      :for="`${checkpoint.id}-${item.id}`"
+                      class="flex-1 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                      :class="{ 'line-through text-gray-500 dark:text-gray-500': item.checked }"
+                    >
+                      {{ item.label }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <!-- Notes Section -->
               <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1676,6 +1705,32 @@ const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
   }
 }
 
+const updateChecklistItem = (checkpointId: string, itemId: string, checked: boolean) => {
+  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  if (checkpoint && checkpoint.checklist) {
+    const item = checkpoint.checklist.find(i => i.id === itemId)
+    if (item) {
+      item.checked = checked
+      
+      // Update quality score based on checklist completion
+      const totalItems = checkpoint.checklist.length
+      const checkedItems = checkpoint.checklist.filter(i => i.checked).length
+      checkpoint.qualityScore = Math.round((checkedItems / totalItems) * 100)
+      
+      // Auto-update status based on completion
+      if (checkedItems === totalItems) {
+        checkpoint.status = 'passed'
+        checkpoint.checkedAt = new Date()
+      } else if (checkedItems > 0) {
+        checkpoint.status = 'in_progress'
+      }
+      
+      checkpoint.updatedAt = new Date()
+      // Auto-save would be triggered here
+    }
+  }
+}
+
 const updateQualityScore = (checkpointId: string, score?: number) => {
   const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
   if (checkpoint) {
@@ -1748,26 +1803,144 @@ const duplicateCheckpoint = (checkpointId: string) => {
 }
 
 const generateQualityCheckpoints = async () => {
-  const elements = productionData.value.productionElements
-  if (elements.length === 0) {
-    console.warn('No production elements available to generate quality checkpoints')
-    return
-  }
+  // Generate static quality control checklist
+  const staticCheckpoints = [
+    // 1. Event Details
+    {
+      id: 'qc-event-details',
+      categoryName: '1. Event Details',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'high' as const,
+      elementCount: 6,
+      checklist: [
+        { id: 'project_name_confirmed', label: 'Project Name confirmed', checked: false },
+        { id: 'project_code_confirmed', label: 'Project Code/Ref confirmed', checked: false },
+        { id: 'client_name_confirmed', label: 'Client Name confirmed', checked: false },
+        { id: 'production_dates_confirmed', label: 'Production dates confirmed', checked: false },
+        { id: 'venue_confirmed', label: 'Venue confirmed', checked: false },
+        { id: 'project_officer_confirmed', label: 'Assigned Project Officer confirmed', checked: false }
+      ]
+    },
 
-  try {
-    const taskId = props.task.id.toString()
-    const response = await api.post(`/api/projects/tasks/${taskId}/production/generate-checkpoints`, {
-      production_elements: elements
-    })
+    // 2. Job Brief Intake
+    {
+      id: 'qc-job-brief',
+      categoryName: '2. Job Brief Intake',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'high' as const,
+      elementCount: 3,
+      checklist: [
+        { id: 'job_sheet_reviewed', label: 'Review job sheet from Design Department', checked: false },
+        { id: 'materials_quantities_confirmed', label: 'Confirm materials, quantities, and deadline', checked: false },
+        { id: 'clarifying_questions_asked', label: 'Ask clarifying questions if needed', checked: false }
+      ]
+    },
 
-    if (response.data.success) {
-      productionData.value.qualityControl = response.data.data
-      console.log(`Generated ${response.data.data.length} quality control checkpoints`)
-      triggerAutoSave()
+    // 3. Material Preparation
+    {
+      id: 'qc-material-prep',
+      categoryName: '3. Material Preparation',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'high' as const,
+      elementCount: 3,
+      checklist: [
+        { id: 'inventory_checked', label: 'Check inventory for required materials', checked: false },
+        { id: 'materials_cut_prepared', label: 'Cut/print/prepare materials as specified', checked: false },
+        { id: 'material_quality_inspected', label: 'Inspect for material quality (no defects/damage)', checked: false }
+      ]
+    },
+
+    // 4. Fabrication
+    {
+      id: 'qc-fabrication',
+      categoryName: '4. Fabrication',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'high' as const,
+      elementCount: 4,
+      checklist: [
+        { id: 'quality_standards_tested', label: 'Test ply timbers/melamine (PSC, primers, etc.)', checked: false },
+        { id: 'materials_post_fabrication_tested', label: 'Test materials where fabrics fall tops', checked: false },
+        { id: 'production_per_specs', label: 'Execute production to PVC, acrylic specs', checked: false },
+        { id: 'safety_standards_observed', label: 'Observe safety standards', checked: false }
+      ]
+    },
+
+    // 5. Assembly
+    {
+      id: 'qc-assembly',
+      categoryName: '5. Assembly',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'medium' as const,
+      elementCount: 3,
+      checklist: [
+        { id: 'dry_fit_before_assembly', label: 'Dry-fit components before final assembly', checked: false },
+        { id: 'correct_fasteners_used', label: 'Use correct fasteners, adhesives, finish', checked: false },
+        { id: 'dimensions_confirmed', label: 'Confirm dimensions and alignments', checked: false }
+      ]
+    },
+
+    // 6. Quality Control (QC)
+    {
+      id: 'qc-quality-control',
+      categoryName: '6. Quality Control (QC)',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'high' as const,
+      elementCount: 3,
+      checklist: [
+        { id: 'scratches_colors_inspected', label: 'Inspect for scratches, incorrect colors, uneven cuts', checked: false },
+        { id: 'final_piece_matches_design', label: 'Confirm final piece matches design', checked: false },
+        { id: 'defects_logged', label: 'Log defects, repairs, or reworks done', checked: false }
+      ]
+    },
+
+    // 7. Packaging & Handover
+    {
+      id: 'qc-packaging',
+      categoryName: '7. Packaging & Handover',
+      status: 'pending' as const,
+      qualityScore: 0,
+      checkedBy: '',
+      checkedAt: null,
+      notes: '',
+      priority: 'medium' as const,
+      elementCount: 4,
+      checklist: [
+        { id: 'items_cleaned', label: 'Clean and finish all items', checked: false },
+        { id: 'packed_with_protection', label: 'Pack with appropriate protection', checked: false },
+        { id: 'labeled_moved_to_storage', label: 'Label and move to storage/delivery area', checked: false },
+        { id: 'job_status_updated', label: 'Update job status on tracker/system', checked: false }
+      ]
     }
-  } catch (error: any) {
-    console.error('Failed to generate quality checkpoints:', error)
-  }
+  ]
+
+  // Set the static checkpoints
+  productionData.value.qualityControl = staticCheckpoints
+  console.log(`Generated ${staticCheckpoints.length} static quality control checkpoints`)
+  triggerAutoSave()
 }
 
 const exportQualityReport = () => {

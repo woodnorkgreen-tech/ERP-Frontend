@@ -1653,18 +1653,20 @@ const downloadExcelTemplate = async () => {
 
 /**
  * Handle successful Excel upload
- * For now, just show a success message. Phase 3 will implement actual import.
+ * Reloads materials data from backend after import
  */
-const handleExcelUploadSuccess = async (previewData: any) => {
-  console.log('Excel upload preview data:', previewData)
+const handleExcelUploadSuccess = async (result: any) => {
+  console.log('Excel import successful:', result)
   
-  // Phase 3 will implement the actual import logic
-  // For now, just show a success notification
-  const stats = previewData.stats
-  console.log(`Excel validated: ${stats.total_elements} elements, ${stats.total_materials} materials`)
+  // Show success message
+  showExcelUploadModal.value = false
   
-  // TODO Phase 3: Call backend to confirm import and save to database
-  // await saveMaterialsList()
+  // Reload materials data to reflect the imported items
+  await loadMaterialsData()
+  await loadApprovalStatus()
+  
+  // Show success notification
+  alert('✅ Materials imported successfully!')
 }
 
 /**

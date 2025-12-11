@@ -235,6 +235,32 @@
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 Click to view and manage task details
               </p>
+              
+              <!-- Quick Assign Section -->
+              <div class="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700" @click.stop>
+                <div class="flex items-center gap-2">
+                  <select
+                    @change="quickAssignTask(task, $event)"
+                    class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:border-blue-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    @click.stop
+                  >
+                    <option value="">{{ task.assigned_to ? '✓ ' + task.assigned_to.name : 'Quick Assign...' }}</option>
+                    <option v-for="user in availableUsers" :key="user.id" :value="user.id">
+                      {{ user.name }}
+                    </option>
+                  </select>
+                  <button
+                    @click.stop="openAdvancedAssign(task)"
+                    class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-1 text-sm"
+                    title="Advanced Assignment"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
               <div class="flex items-center justify-between">
                 <div class="text-xs text-gray-500 dark:text-gray-400">
                   Last updated: {{ formatDate(task.updated_at || task.created_at) }}
@@ -314,9 +340,9 @@
                   </div>
                   <div v-else class="text-gray-500 dark:text-gray-400">No due date</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" @click.stop>
                   <!-- Material approval badge for table view -->
-                  <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex items-center space-x-1 text-xs">
+                  <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex items-center space-x-1 text-xs mb-2">
                     <svg class="w-3 h-3 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                     </svg>
@@ -324,7 +350,31 @@
                       Approval {{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }}
                     </span>
                   </div>
-                  <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
+                  
+                  <!-- Quick Assign + Advanced Assign -->
+                  <div class="flex items-center gap-2 mb-2">
+                    <select
+                      @change="quickAssignTask(task, $event)"
+                      class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      @click.stop
+                    >
+                      <option value="">{{ task.assigned_to ? '✓ ' + task.assigned_to.name : 'Assign...' }}</option>
+                      <option v-for="user in availableUsers" :key="user.id" :value="user.id">
+                        {{ user.name }}
+                      </option>
+                    </select>
+                    <button
+                      @click.stop="openAdvancedAssign(task)"
+                      class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs"
+                      title="Advanced"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <button @click="openTaskModal(task)" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-xs">
                     View Details
                   </button>
                 </td>
@@ -338,8 +388,8 @@
     <!-- Task Assignment Modal -->
     <TaskAssignmentModal
       :show="showTaskAssignmentModal"
-      :enquiry-id="0"
-      :enquiry="undefined"
+      :enquiry-id="selectedTask?.enquiry?.id || selectedTask?.project_enquiry_id || 0"
+      :enquiry="selectedTask?.enquiry"
       @close="closeTaskAssignmentModal"
       @task-assigned="handleTaskAssigned"
     />
@@ -383,6 +433,75 @@ const showTaskModal = ref(false)
 const selectedTask = ref<EnquiryTask | null>(null)
 const viewMode = ref<'grid' | 'table'>('grid')
 const showAllTasks = ref(false)
+const availableUsers = ref<Array<{ id: number; name: string; department?: string }>>([])
+
+// Fetch available users for quick assign
+const fetchAvailableUsers = async () => {
+  try {
+    const response = await api.get('/api/users', {
+      params: { per_page: 1000, status: 'active' }
+    })
+    
+    console.log('[DEBUG] Users API Response:', response.data)
+    
+    // Extract users array from response
+    const users = response.data.data || response.data || []
+    
+    // Map to ensure correct structure (id, name, department)
+    availableUsers.value = users.map((user: any) => ({
+      id: user.id,
+      name: user.name || user.username || `User ${user.id}`,
+      department: user.department?.name || user.department_name || undefined
+    }))
+    
+    console.log('[DEBUG] Mapped available users:', availableUsers.value.length, 'users')
+    console.log('[DEBUG] First user:', availableUsers.value[0])
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    availableUsers.value = []
+  }
+}
+
+// Quick assign function
+const quickAssignTask = async (task: EnquiryTask, event: Event) => {
+  const select = event.target as HTMLSelectElement
+  const userId = parseInt(select.value)
+  
+  if (!userId) return
+  
+  try {
+    const response = await api.post(`/api/projects/enquiry-tasks/${task.id}/assign`, {
+      assigned_user_id: userId,
+      priority: task.priority || 'medium'
+    })
+    
+    // Update task in local state
+    const taskIndex = enquiryTasks.value.findIndex(t => t.id === task.id)
+    if (taskIndex > -1) {
+      enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], ...response.data.data }
+    }
+    
+    // Reset select
+    select.value = ''
+    
+    // Show success message
+    console.log(`Task "${task.title}" assigned to user ${userId}`)
+  } catch (error) {
+    console.error('Error assigning task:', error)
+    select.value = '' // Reset on error
+  }
+}
+
+// Open advanced assignment modal
+const openAdvancedAssign = (task: EnquiryTask) => {
+  selectedTask.value = task
+  showTaskAssignmentModal.value = true
+}
+
+const closeTaskAssignmentModal = () => {
+  showTaskAssignmentModal.value = false
+  selectedTask.value = null
+}
 
 // Event listener for global task-completed events (used by BudgetTask)
 const handleGlobalTaskCompleted = (event: CustomEvent) => {
@@ -587,6 +706,9 @@ onMounted(async () => {
   // Add global event listener for task-completed events
   window.addEventListener('task-completed', handleGlobalTaskCompleted as EventListener)
 
+  // Fetch available users for quick assign dropdowns
+  await fetchAvailableUsers()
+
   // Check if enquiry_id is provided in query params
   const enquiryIdParam = route.query.enquiry_id as string
   if (enquiryIdParam) {
@@ -606,7 +728,7 @@ onMounted(async () => {
     // First try to fetch all tasks for this enquiry (without user filter)
     try {
       await fetchAllTasks({
-        enquiry_id: enquiryId.value,
+        enquiry_id:enquiryId.value,
         assigned_user_id: undefined // Get all tasks for this enquiry
       })
       if (enquiryTasks.value.length > 0) {
