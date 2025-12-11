@@ -116,6 +116,7 @@
               <input
                 v-model="assignmentData[activeTask.id].due_date"
                 type="date"
+                :min="new Date().toISOString().split('T')[0]"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
@@ -165,6 +166,14 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Success Message -->
+      <div v-if="successMessage" class="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span>{{ successMessage }}</span>
       </div>
 
       <!-- Modal Actions -->
@@ -222,6 +231,7 @@ const assignmentData = reactive<Record<number, AssignmentFormData>>({})
 const assigningTask = ref<number | null>(null)
 const loadingUsers = ref(false)
 const activeTab = ref<number | null>(null)
+const successMessage = ref<string>('')
 
 const activeTask = computed(() => enquiryTasks.value.find(task => task.id === activeTab.value))
 
@@ -312,6 +322,10 @@ const assignTask = async (task: EnquiryTask) => {
     console.log('[DEBUG] TaskAssignmentModal assignTaskApi returned:', updatedTask)
     console.log('[DEBUG] TaskAssignmentModal updatedTask assignmentHistory:', updatedTask.assignmentHistory)
 
+    // Show success message
+    const assignedUser = availableUsers.value.find(u => u.id === data.assigned_user_id)
+    successMessage.value = `Task "${task.title}" successfully assigned to ${assignedUser?.name || 'user'}!`
+    
     emit('taskAssigned', updatedTask)
 
     // Reset form
@@ -322,8 +336,15 @@ const assignTask = async (task: EnquiryTask) => {
       notes: '',
     }
     console.log('[DEBUG] TaskAssignmentModal form reset for task:', task.id)
+    
+    // Auto-close after 2 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+      emit('close')
+    }, 2000)
   } catch (err) {
     console.error('[DEBUG] TaskAssignmentModal assignTask error:', err)
+    successMessage.value = ''
   } finally {
     assigningTask.value = null
     console.log('[DEBUG] TaskAssignmentModal assignTask completed for task:', task.id)
@@ -357,11 +378,17 @@ const getStatusLabel = (status: string) => {
 
 watch(() => props.show, async (newShow) => {
   console.log('🔍 [TaskAssignmentModal] Modal visibility changed:', newShow)
-  if (newShow && props.enquiryId) {
+  console.log('🔍 [TaskAssignmentModal] enquiryId:', props.enquiryId)
+  
+  if (newShow && props.enquiryId && props.enquiryId > 0) {
     console.log('🔍 [TaskAssignmentModal] Fetching enquiry tasks for ID:', props.enquiryId)
     await fetchEnquiryTasks(props.enquiryId)
     initializeAssignmentData()
     activeTab.value = enquiryTasks.value[0]?.id || null
+  } else if (newShow && !props.enquiryId) {
+    // If no enquiry ID, we might be opening from a single task
+    // The parent should handle passing the task's enquiry properly
+    console.warn('🔍 [TaskAssignmentModal] Opened without enquiryId - tasks may not load')
   }
 })
 
