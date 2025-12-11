@@ -234,12 +234,9 @@ const closePreview = () => {
 }
 
 const getFileUrl = (asset: Record<string, unknown>) => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL
   const filePath = asset.file_path as string
-  if (filePath) {
-    // Use the backend URL since that's where the storage link is created
-    return `http://localhost:8000/storage/${filePath}`
-  }
-  return ''
+  return `${baseUrl}/api/storage/${filePath}`
 }
 </script>
 

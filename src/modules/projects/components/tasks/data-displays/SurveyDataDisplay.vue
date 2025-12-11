@@ -3,17 +3,12 @@
     <!-- Tab Navigation -->
     <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
       <nav class="flex space-x-8" aria-label="Survey Data Tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          @click="activeTab = tab.key"
-          :class="[
-            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-            activeTab === tab.key
-              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-          ]"
-        >
+        <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key" :class="[
+          'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
+          activeTab === tab.key
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+        ]">
           {{ tab.label }}
         </button>
       </nav>
@@ -25,30 +20,29 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
             <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>Basic Information</span>
           </h3>
           <div class="flex space-x-2">
-            <button
-              @click="downloadPDF"
+            <button @click="downloadPDF"
               class="inline-flex items-center px-3 py-1.5 border border-red-300 dark:border-red-600 rounded-md text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900 hover:bg-red-100 dark:hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              title="Download PDF Report"
-            >
+              title="Download PDF Report">
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               PDF
             </button>
-            <button
-              @click="toggleEdit('basic')"
-              class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <button @click="toggleEdit('basic')"
+              class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               <svg v-if="!isEditing.basic" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               {{ isEditing.basic ? 'Cancel Edit' : 'Edit' }}
             </button>
@@ -56,217 +50,188 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Site Visit Date <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.site_visit_date"
-               type="date"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.site_visit_date === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.site_visit_date === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-             />
-             <div v-if="isEditing.basic && validationErrors.site_visit_date && validationErrors.site_visit_date.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.site_visit_date[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ formatDate(taskData.site_visit_date) || 'Not specified' }}
-             </div>
-           </div>
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Location <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.location"
-               type="text"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.location === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.location === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-               placeholder="Enter location"
-             />
-             <div v-if="isEditing.basic && validationErrors.location && validationErrors.location.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.location[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ taskData.location || 'Not specified' }}
-             </div>
-           </div>
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Client Name <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.client_name"
-               type="text"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.client_name === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.client_name === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-               placeholder="Enter client name"
-             />
-             <div v-if="isEditing.basic && validationErrors.client_name && validationErrors.client_name.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.client_name[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ taskData.client_name || 'Not specified' }}
-             </div>
-           </div>
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Contact Person <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.client_contact_person"
-               type="text"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.client_contact_person === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.client_contact_person === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-               placeholder="Enter contact person"
-             />
-             <div v-if="isEditing.basic && validationErrors.client_contact_person && validationErrors.client_contact_person.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.client_contact_person[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ taskData.client_contact_person || 'Not specified' }}
-             </div>
-           </div>
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Phone Number <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.client_phone"
-               type="tel"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.client_phone === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.client_phone === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-               placeholder="Enter phone number"
-             />
-             <div v-if="isEditing.basic && validationErrors.client_phone && validationErrors.client_phone.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.client_phone[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ taskData.client_phone || 'Not specified' }}
-             </div>
-           </div>
-           <div>
-             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-               Email Address <span class="text-red-500">*</span>
-             </label>
-             <input
-               v-if="isEditing.basic"
-               v-model="formData.client_email"
-               type="email"
-               :class="[
-                 'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                 fieldValidationState.client_email === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                 fieldValidationState.client_email === 'valid' ? 'border-green-500 dark:border-green-400' :
-                 'border-gray-300 dark:border-gray-600'
-               ]"
-               placeholder="Enter email address"
-             />
-             <div v-if="isEditing.basic && validationErrors.client_email && validationErrors.client_email.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-               {{ validationErrors.client_email[0] }}
-             </div>
-             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-               {{ taskData.client_email || 'Not specified' }}
-             </div>
-           </div>
-         </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Site Visit Date <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.site_visit_date" type="date" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.site_visit_date === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.site_visit_date === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" />
+            <div
+              v-if="isEditing.basic && validationErrors.site_visit_date && validationErrors.site_visit_date.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.site_visit_date[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ formatDate(taskData.site_visit_date) || 'Not specified' }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Location <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.location" type="text" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.location === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.location === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter location" />
+            <div v-if="isEditing.basic && validationErrors.location && validationErrors.location.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.location[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ taskData.location || 'Not specified' }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Client Name <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.client_name" type="text" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.client_name === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.client_name === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter client name" />
+            <div v-if="isEditing.basic && validationErrors.client_name && validationErrors.client_name.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.client_name[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ taskData.client_name || 'Not specified' }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Contact Person <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.client_contact_person" type="text" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.client_contact_person === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.client_contact_person === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter contact person" />
+            <div
+              v-if="isEditing.basic && validationErrors.client_contact_person && validationErrors.client_contact_person.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.client_contact_person[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ taskData.client_contact_person || 'Not specified' }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Phone Number <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.client_phone" type="tel" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.client_phone === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.client_phone === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter phone number" />
+            <div v-if="isEditing.basic && validationErrors.client_phone && validationErrors.client_phone.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.client_phone[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ taskData.client_phone || 'Not specified' }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Email Address <span class="text-red-500">*</span>
+            </label>
+            <input v-if="isEditing.basic" v-model="formData.client_email" type="email" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.client_email === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.client_email === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter email address" />
+            <div v-if="isEditing.basic && validationErrors.client_email && validationErrors.client_email.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.client_email[0] }}
+            </div>
+            <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+              {{ taskData.client_email || 'Not specified' }}
+            </div>
+          </div>
+        </div>
 
-         <!-- Error Display -->
-         <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-           <div class="flex items-center space-x-2">
-             <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-             </svg>
-             <span class="text-sm font-medium text-red-800 dark:text-red-200">Error</span>
-           </div>
-           <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ error }}</p>
-         </div>
+        <!-- Error Display -->
+        <div v-if="error"
+          class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <span class="text-sm font-medium text-red-800 dark:text-red-200">Error</span>
+          </div>
+          <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ error }}</p>
+        </div>
 
-         <!-- Success Display -->
-         <div v-if="successMessage" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-           <div class="flex items-center space-x-2">
-             <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-             </svg>
-             <span class="text-sm font-medium text-green-800 dark:text-green-200">Success</span>
-           </div>
-           <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
-         </div>
+        <!-- Success Display -->
+        <div v-if="successMessage"
+          class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-sm font-medium text-green-800 dark:text-green-200">Success</span>
+          </div>
+          <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
+        </div>
 
-         <div class="mt-6">
-           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-             Attendees
-           </label>
-           <textarea
-             v-if="isEditing.basic"
-             v-model="formData.attendees"
-             rows="3"
-             :class="[
-               'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-               fieldValidationState.attendees === 'invalid' ? 'border-red-500 dark:border-red-400' :
-               fieldValidationState.attendees === 'valid' ? 'border-green-500 dark:border-green-400' :
-               'border-gray-300 dark:border-gray-600'
-             ]"
-             placeholder="Enter attendees (one per line)"
-           ></textarea>
-           <div v-if="isEditing.basic && validationErrors.attendees && validationErrors.attendees.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-             {{ validationErrors.attendees[0] }}
-           </div>
-           <div v-else class="text-sm text-gray-900 dark:text-white">
-             <ul v-if="Array.isArray(formatList(taskData.attendees)) && formatList(taskData.attendees).length > 0" class="list-disc list-inside space-y-1">
-               <li v-for="item in formatList(taskData.attendees)" :key="item">{{ item }}</li>
-             </ul>
-             <span v-else class="text-gray-500 dark:text-gray-400">No items specified</span>
-           </div>
-         </div>
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Attendees
+          </label>
+          <textarea v-if="isEditing.basic" v-model="formData.attendees" rows="3" :class="[
+            'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            fieldValidationState.attendees === 'invalid' ? 'border-red-500 dark:border-red-400' :
+              fieldValidationState.attendees === 'valid' ? 'border-green-500 dark:border-green-400' :
+                'border-gray-300 dark:border-gray-600'
+          ]" placeholder="Enter attendees (one per line)"></textarea>
+          <div v-if="isEditing.basic && validationErrors.attendees && validationErrors.attendees.length > 0"
+            class="mt-1 text-sm text-red-600 dark:text-red-400">
+            {{ validationErrors.attendees[0] }}
+          </div>
+          <div v-else class="text-sm text-gray-900 dark:text-white">
+            <ul v-if="Array.isArray(formatList(taskData.attendees)) && formatList(taskData.attendees).length > 0"
+              class="list-disc list-inside space-y-1">
+              <li v-for="item in formatList(taskData.attendees)" :key="item">{{ item }}</li>
+            </ul>
+            <span v-else class="text-gray-500 dark:text-gray-400">No items specified</span>
+          </div>
+        </div>
 
-         <div v-if="isEditing.basic" class="mt-6 flex justify-end space-x-3">
-           <button
-             @click="cancelEdit('basic')"
-             :disabled="isLoading"
-             class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-           >
-             Cancel
-           </button>
-           <button
-             @click="saveEdit('basic')"
-             :disabled="isLoading"
-             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-           >
-             <span v-if="isLoading" class="inline-flex items-center">
-               <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-               </svg>
-               Saving...
-             </span>
-             <span v-else>Save Changes</span>
-           </button>
-         </div>
+        <div v-if="isEditing.basic" class="mt-6 flex justify-end space-x-3">
+          <button @click="cancelEdit('basic')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            Cancel
+          </button>
+          <button @click="saveEdit('basic')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span v-if="isLoading" class="inline-flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              Saving...
+            </span>
+            <span v-else>Save Changes</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -275,20 +240,22 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
             <span>Site Assessment</span>
           </h3>
-          <button
-            @click="toggleEdit('assessment')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg v-if="!isEditing.assessment" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          <button @click="toggleEdit('assessment')"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg v-if="!isEditing.assessment" class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             {{ isEditing.assessment ? 'Cancel Edit' : 'Edit' }}
           </button>
@@ -299,22 +266,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Project Description <span class="text-red-500">*</span>
             </label>
-            <textarea
-              v-if="isEditing.assessment"
-              v-model="formData.project_description"
-              rows="4"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.project_description === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <textarea v-if="isEditing.assessment" v-model="formData.project_description" rows="4" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.project_description === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.project_description === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter project description"
-            ></textarea>
-            <div v-if="isEditing.assessment && validationErrors.project_description && validationErrors.project_description.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter project description"></textarea>
+            <div
+              v-if="isEditing.assessment && validationErrors.project_description && validationErrors.project_description.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.project_description[0] }}
             </div>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.project_description || 'Not specified' }}
             </div>
           </div>
@@ -324,22 +288,18 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Objectives <span class="text-red-500">*</span>
               </label>
-              <textarea
-                v-if="isEditing.assessment"
-                v-model="formData.objectives"
-                rows="3"
-                :class="[
-                  'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                  fieldValidationState.objectives === 'invalid' ? 'border-red-500 dark:border-red-400' :
+              <textarea v-if="isEditing.assessment" v-model="formData.objectives" rows="3" :class="[
+                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                fieldValidationState.objectives === 'invalid' ? 'border-red-500 dark:border-red-400' :
                   fieldValidationState.objectives === 'valid' ? 'border-green-500 dark:border-green-400' :
-                  'border-gray-300 dark:border-gray-600'
-                ]"
-                placeholder="Enter objectives"
-              ></textarea>
-              <div v-if="isEditing.assessment && validationErrors.objectives && validationErrors.objectives.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                    'border-gray-300 dark:border-gray-600'
+              ]" placeholder="Enter objectives"></textarea>
+              <div v-if="isEditing.assessment && validationErrors.objectives && validationErrors.objectives.length > 0"
+                class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ validationErrors.objectives[0] }}
               </div>
-              <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                 {{ taskData.objectives || 'Not specified' }}
               </div>
             </div>
@@ -347,22 +307,19 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Current Site Condition <span class="text-red-500">*</span>
               </label>
-              <textarea
-                v-if="isEditing.assessment"
-                v-model="formData.current_condition"
-                rows="3"
-                :class="[
-                  'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                  fieldValidationState.current_condition === 'invalid' ? 'border-red-500 dark:border-red-400' :
+              <textarea v-if="isEditing.assessment" v-model="formData.current_condition" rows="3" :class="[
+                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                fieldValidationState.current_condition === 'invalid' ? 'border-red-500 dark:border-red-400' :
                   fieldValidationState.current_condition === 'valid' ? 'border-green-500 dark:border-green-400' :
-                  'border-gray-300 dark:border-gray-600'
-                ]"
-                placeholder="Enter current site condition"
-              ></textarea>
-              <div v-if="isEditing.assessment && validationErrors.current_condition && validationErrors.current_condition.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                    'border-gray-300 dark:border-gray-600'
+              ]" placeholder="Enter current site condition"></textarea>
+              <div
+                v-if="isEditing.assessment && validationErrors.current_condition && validationErrors.current_condition.length > 0"
+                class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ validationErrors.current_condition[0] }}
               </div>
-              <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                 {{ taskData.current_condition || 'Not specified' }}
               </div>
             </div>
@@ -370,14 +327,11 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Existing Branding
               </label>
-              <textarea
-                v-if="isEditing.assessment"
-                v-model="formData.existing_branding"
-                rows="3"
+              <textarea v-if="isEditing.assessment" v-model="formData.existing_branding" rows="3"
                 class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter existing branding"
-              ></textarea>
-              <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                placeholder="Enter existing branding"></textarea>
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                 {{ taskData.existing_branding || 'Not specified' }}
               </div>
             </div>
@@ -385,14 +339,11 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Site Measurements
               </label>
-              <textarea
-                v-if="isEditing.assessment"
-                v-model="formData.site_measurements"
-                rows="3"
+              <textarea v-if="isEditing.assessment" v-model="formData.site_measurements" rows="3"
                 class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter site measurements"
-              ></textarea>
-              <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                placeholder="Enter site measurements"></textarea>
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                 {{ taskData.site_measurements || 'Not specified' }}
               </div>
             </div>
@@ -400,14 +351,11 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Room/Area Size
               </label>
-              <input
-                v-if="isEditing.assessment"
-                v-model="formData.room_size"
-                type="text"
+              <input v-if="isEditing.assessment" v-model="formData.room_size" type="text"
                 class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter room/area size"
-              />
-              <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
+                placeholder="Enter room/area size" />
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
                 {{ taskData.room_size || 'Not specified' }}
               </div>
             </div>
@@ -415,36 +363,30 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Site Constraints
               </label>
-              <textarea
-                v-if="isEditing.assessment"
-                v-model="formData.constraints"
-                rows="3"
+              <textarea v-if="isEditing.assessment" v-model="formData.constraints" rows="3"
                 class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter site constraints"
-              ></textarea>
-              <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                placeholder="Enter site constraints"></textarea>
+              <div v-else
+                class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                 {{ taskData.constraints || 'Not specified' }}
               </div>
             </div>
           </div>
 
           <div v-if="isEditing.assessment" class="mt-6 flex justify-end space-x-3">
-            <button
-              @click="cancelEdit('assessment')"
-              :disabled="isLoading"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button @click="cancelEdit('assessment')" :disabled="isLoading"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
               Cancel
             </button>
-            <button
-              @click="saveEdit('assessment')"
-              :disabled="isLoading"
-              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button @click="saveEdit('assessment')" :disabled="isLoading"
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
               <span v-if="isLoading" class="inline-flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 Saving...
               </span>
@@ -460,20 +402,20 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             <span>Access & Logistics</span>
           </h3>
-          <button
-            @click="toggleEdit('access')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
+          <button @click="toggleEdit('access')"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <svg v-if="!isEditing.access" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             {{ isEditing.access ? 'Cancel Edit' : 'Edit' }}
           </button>
@@ -484,22 +426,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Access Logistics <span class="text-red-500">*</span>
             </label>
-            <textarea
-              v-if="isEditing.access"
-              v-model="formData.access_logistics"
-              rows="3"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.access_logistics === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <textarea v-if="isEditing.access" v-model="formData.access_logistics" rows="3" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.access_logistics === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.access_logistics === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter access logistics"
-            ></textarea>
-            <div v-if="isEditing.access && validationErrors.access_logistics && validationErrors.access_logistics.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter access logistics"></textarea>
+            <div
+              v-if="isEditing.access && validationErrors.access_logistics && validationErrors.access_logistics.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.access_logistics[0] }}
             </div>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.access_logistics || 'Not specified' }}
             </div>
           </div>
@@ -507,14 +446,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Parking Availability
             </label>
-            <textarea
-              v-if="isEditing.access"
-              v-model="formData.parking_availability"
-              rows="3"
+            <textarea v-if="isEditing.access" v-model="formData.parking_availability" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter parking availability"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter parking availability"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.parking_availability || 'Not specified' }}
             </div>
           </div>
@@ -522,14 +458,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Size & Accessibility
             </label>
-            <textarea
-              v-if="isEditing.access"
-              v-model="formData.size_accessibility"
-              rows="3"
+            <textarea v-if="isEditing.access" v-model="formData.size_accessibility" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter size & accessibility"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter size & accessibility"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.size_accessibility || 'Not specified' }}
             </div>
           </div>
@@ -537,13 +470,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Lifts/Elevators
             </label>
-            <input
-              v-if="isEditing.access"
-              v-model="formData.lifts"
-              type="text"
+            <input v-if="isEditing.access" v-model="formData.lifts" type="text"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter lifts/elevators"
-            />
+              placeholder="Enter lifts/elevators" />
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
               {{ taskData.lifts || 'Not specified' }}
             </div>
@@ -552,13 +481,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Door Sizes
             </label>
-            <input
-              v-if="isEditing.access"
-              v-model="formData.door_sizes"
-              type="text"
+            <input v-if="isEditing.access" v-model="formData.door_sizes" type="text"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter door sizes"
-            />
+              placeholder="Enter door sizes" />
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
               {{ taskData.door_sizes || 'Not specified' }}
             </div>
@@ -567,36 +492,30 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Loading Areas
             </label>
-            <textarea
-              v-if="isEditing.access"
-              v-model="formData.loading_areas"
-              rows="3"
+            <textarea v-if="isEditing.access" v-model="formData.loading_areas" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter loading areas"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter loading areas"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.loading_areas || 'Not specified' }}
             </div>
           </div>
         </div>
 
         <div v-if="isEditing.access" class="mt-6 flex justify-end space-x-3">
-          <button
-            @click="cancelEdit('access')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="cancelEdit('access')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Cancel
           </button>
-          <button
-            @click="saveEdit('access')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="saveEdit('access')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="isLoading" class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Saving...
             </span>
@@ -611,20 +530,22 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
             <span>Requirements & Preferences</span>
           </h3>
-          <button
-            @click="toggleEdit('requirements')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg v-if="!isEditing.requirements" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          <button @click="toggleEdit('requirements')"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg v-if="!isEditing.requirements" class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             {{ isEditing.requirements ? 'Cancel Edit' : 'Edit' }}
           </button>
@@ -635,14 +556,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Branding Preferences
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.branding_preferences"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.branding_preferences" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter branding preferences"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter branding preferences"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.branding_preferences || 'Not specified' }}
             </div>
           </div>
@@ -650,14 +568,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Material Preferences
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.material_preferences"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.material_preferences" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter material preferences"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter material preferences"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.material_preferences || 'Not specified' }}
             </div>
           </div>
@@ -665,13 +580,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Color Scheme
             </label>
-            <input
-              v-if="isEditing.requirements"
-              v-model="formData.color_scheme"
-              type="text"
+            <input v-if="isEditing.requirements" v-model="formData.color_scheme" type="text"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter color scheme"
-            />
+              placeholder="Enter color scheme" />
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
               {{ taskData.color_scheme || 'Not specified' }}
             </div>
@@ -680,14 +591,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Brand Guidelines
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.brand_guidelines"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.brand_guidelines" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter brand guidelines"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter brand guidelines"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.brand_guidelines || 'Not specified' }}
             </div>
           </div>
@@ -695,14 +603,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Special Instructions
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.special_instructions"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.special_instructions" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter special instructions"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter special instructions"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.special_instructions || 'Not specified' }}
             </div>
           </div>
@@ -710,14 +615,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Electrical Requirements
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.electrical_outlets"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.electrical_outlets" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter electrical requirements"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter electrical requirements"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.electrical_outlets || 'Not specified' }}
             </div>
           </div>
@@ -725,36 +627,30 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Food & Refreshment
             </label>
-            <textarea
-              v-if="isEditing.requirements"
-              v-model="formData.food_refreshment"
-              rows="3"
+            <textarea v-if="isEditing.requirements" v-model="formData.food_refreshment" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter food & refreshment"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter food & refreshment"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.food_refreshment || 'Not specified' }}
             </div>
           </div>
         </div>
 
         <div v-if="isEditing.requirements" class="mt-6 flex justify-end space-x-3">
-          <button
-            @click="cancelEdit('requirements')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="cancelEdit('requirements')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Cancel
           </button>
-          <button
-            @click="saveEdit('requirements')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="saveEdit('requirements')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="isLoading" class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Saving...
             </span>
@@ -770,19 +666,19 @@
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
             <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
             <span>Safety & Timeline</span>
           </h3>
-          <button
-            @click="toggleEdit('safety')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
+          <button @click="toggleEdit('safety')"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <svg v-if="!isEditing.safety" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             {{ isEditing.safety ? 'Cancel Edit' : 'Edit' }}
           </button>
@@ -793,22 +689,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Safety Conditions <span class="text-red-500">*</span>
             </label>
-            <textarea
-              v-if="isEditing.safety"
-              v-model="formData.safety_conditions"
-              rows="3"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.safety_conditions === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <textarea v-if="isEditing.safety" v-model="formData.safety_conditions" rows="3" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.safety_conditions === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.safety_conditions === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter safety conditions"
-            ></textarea>
-            <div v-if="isEditing.safety && validationErrors.safety_conditions && validationErrors.safety_conditions.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter safety conditions"></textarea>
+            <div
+              v-if="isEditing.safety && validationErrors.safety_conditions && validationErrors.safety_conditions.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.safety_conditions[0] }}
             </div>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.safety_conditions || 'Not specified' }}
             </div>
           </div>
@@ -816,14 +709,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Potential Hazards
             </label>
-            <textarea
-              v-if="isEditing.safety"
-              v-model="formData.potential_hazards"
-              rows="3"
+            <textarea v-if="isEditing.safety" v-model="formData.potential_hazards" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter potential hazards"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter potential hazards"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.potential_hazards || 'Not specified' }}
             </div>
           </div>
@@ -831,63 +721,53 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Safety Requirements <span class="text-red-500">*</span>
             </label>
-            <textarea
-              v-if="isEditing.safety"
-              v-model="formData.safety_requirements"
-              rows="3"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.safety_requirements === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <textarea v-if="isEditing.safety" v-model="formData.safety_requirements" rows="3" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.safety_requirements === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.safety_requirements === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter safety requirements"
-            ></textarea>
-            <div v-if="isEditing.safety && validationErrors.safety_requirements && validationErrors.safety_requirements.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter safety requirements"></textarea>
+            <div
+              v-if="isEditing.safety && validationErrors.safety_requirements && validationErrors.safety_requirements.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.safety_requirements[0] }}
             </div>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.safety_requirements || 'Not specified' }}
             </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Project Start Date <span class="text-red-500">*</span>
+              Set Up Date <span class="text-red-500">*</span>
             </label>
-            <input
-              v-if="isEditing.safety"
-              v-model="formData.project_start_date"
-              type="datetime-local"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.project_start_date === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                fieldValidationState.project_start_date === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-            />
-            <div v-if="isEditing.safety && validationErrors.project_start_date && validationErrors.project_start_date.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
-              {{ validationErrors.project_start_date[0] }}
+            <input v-if="isEditing.safety" v-model="formData.set_up_date" type="datetime-local" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.set_up_date === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.set_up_date === 'valid' ? 'border-green-500 dark:border-green-400' :
+                  'border-gray-300 dark:border-gray-600'
+            ]" />
+            <div v-if="isEditing.safety && validationErrors.set_up_date && validationErrors.set_up_date.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
+              {{ validationErrors.set_up_date[0] }}
             </div>
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-              {{ formatDateTime(taskData.project_start_date) || 'Not specified' }}
+              {{ formatDateTime(taskData.set_up_date) || 'Not specified' }}
             </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Project Deadline <span class="text-red-500">*</span>
+              Set Down Date <span class="text-red-500">*</span>
             </label>
-            <input
-              v-if="isEditing.safety"
-              v-model="formData.project_deadline"
-              type="datetime-local"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.project_deadline === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <input v-if="isEditing.safety" v-model="formData.project_deadline" type="datetime-local" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.project_deadline === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.project_deadline === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-            />
-            <div v-if="isEditing.safety && validationErrors.project_deadline && validationErrors.project_deadline.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" />
+            <div
+              v-if="isEditing.safety && validationErrors.project_deadline && validationErrors.project_deadline.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.project_deadline[0] }}
             </div>
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
@@ -898,36 +778,30 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Key Milestones
             </label>
-            <textarea
-              v-if="isEditing.safety"
-              v-model="formData.milestones"
-              rows="3"
+            <textarea v-if="isEditing.safety" v-model="formData.milestones" rows="3"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter key milestones"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter key milestones"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.milestones || 'Not specified' }}
             </div>
           </div>
         </div>
 
         <div v-if="isEditing.safety" class="mt-6 flex justify-end space-x-3">
-          <button
-            @click="cancelEdit('safety')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="cancelEdit('safety')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Cancel
           </button>
-          <button
-            @click="saveEdit('safety')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="saveEdit('safety')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="isLoading" class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Saving...
             </span>
@@ -942,20 +816,22 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
-            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span>Additional Information</span>
           </h3>
-          <button
-            @click="toggleEdit('additional')"
-            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg v-if="!isEditing.additional" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          <button @click="toggleEdit('additional')"
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg v-if="!isEditing.additional" class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             <svg v-else class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             {{ isEditing.additional ? 'Cancel Edit' : 'Edit' }}
           </button>
@@ -966,14 +842,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Additional Notes
             </label>
-            <textarea
-              v-if="isEditing.additional"
-              v-model="formData.additional_notes"
-              rows="4"
+            <textarea v-if="isEditing.additional" v-model="formData.additional_notes" rows="4"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter additional notes"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter additional notes"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.additional_notes || 'Not specified' }}
             </div>
           </div>
@@ -981,14 +854,11 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Special Requests
             </label>
-            <textarea
-              v-if="isEditing.additional"
-              v-model="formData.special_requests"
-              rows="4"
+            <textarea v-if="isEditing.additional" v-model="formData.special_requests" rows="4"
               class="w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter special requests"
-            ></textarea>
-            <div v-else class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+              placeholder="Enter special requests"></textarea>
+            <div v-else
+              class="text-sm text-gray-900 dark:text-white whitespace-pre-wrap bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               {{ taskData.special_requests || 'Not specified' }}
             </div>
           </div>
@@ -996,19 +866,14 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Prepared By <span class="text-red-500">*</span>
             </label>
-            <input
-              v-if="isEditing.additional"
-              v-model="formData.prepared_by"
-              type="text"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.prepared_by === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <input v-if="isEditing.additional" v-model="formData.prepared_by" type="text" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.prepared_by === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.prepared_by === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter prepared by"
-            />
-            <div v-if="isEditing.additional && validationErrors.prepared_by && validationErrors.prepared_by.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter prepared by" />
+            <div v-if="isEditing.additional && validationErrors.prepared_by && validationErrors.prepared_by.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.prepared_by[0] }}
             </div>
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
@@ -1019,23 +884,21 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Action Items
             </label>
-            <textarea
-              v-if="isEditing.additional"
-              v-model="formData.action_items"
-              rows="4"
-              :class="[
-                'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-                fieldValidationState.action_items === 'invalid' ? 'border-red-500 dark:border-red-400' :
+            <textarea v-if="isEditing.additional" v-model="formData.action_items" rows="4" :class="[
+              'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              fieldValidationState.action_items === 'invalid' ? 'border-red-500 dark:border-red-400' :
                 fieldValidationState.action_items === 'valid' ? 'border-green-500 dark:border-green-400' :
-                'border-gray-300 dark:border-gray-600'
-              ]"
-              placeholder="Enter action items (one per line)"
-            ></textarea>
-            <div v-if="isEditing.additional && validationErrors.action_items && validationErrors.action_items.length > 0" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                  'border-gray-300 dark:border-gray-600'
+            ]" placeholder="Enter action items (one per line)"></textarea>
+            <div
+              v-if="isEditing.additional && validationErrors.action_items && validationErrors.action_items.length > 0"
+              class="mt-1 text-sm text-red-600 dark:text-red-400">
               {{ validationErrors.action_items[0] }}
             </div>
             <div v-else class="text-sm text-gray-900 dark:text-white">
-              <ul v-if="Array.isArray(formatList(taskData.action_items)) && formatList(taskData.action_items).length > 0" class="list-disc list-inside space-y-1">
+              <ul
+                v-if="Array.isArray(formatList(taskData.action_items)) && formatList(taskData.action_items).length > 0"
+                class="list-disc list-inside space-y-1">
                 <li v-for="item in formatList(taskData.action_items)" :key="item">{{ item }}</li>
               </ul>
               <span v-else class="text-gray-500 dark:text-gray-400">No items specified</span>
@@ -1044,22 +907,19 @@
         </div>
 
         <div v-if="isEditing.additional" class="mt-6 flex justify-end space-x-3">
-          <button
-            @click="cancelEdit('additional')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="cancelEdit('additional')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Cancel
           </button>
-          <button
-            @click="saveEdit('additional')"
-            :disabled="isLoading"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button @click="saveEdit('additional')" :disabled="isLoading"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="isLoading" class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Saving...
             </span>
@@ -1076,17 +936,16 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
           <svg class="w-5 h-5 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <span>Site Photos ({{ surveyPhotos.length }})</span>
         </h3>
-        
+
         <!-- Edit Toggle Button (triggers full edit mode) -->
         <div class="flex space-x-2">
-          <button
-            @click="$emit('edit-mode')"
-            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
+          <button @click="$emit('edit-mode')"
+            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             Edit Survey
           </button>
         </div>
@@ -1094,30 +953,29 @@
 
       <!-- Photos Grid -->
       <div v-if="surveyPhotos.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div
-          v-for="photo in surveyPhotos"
-          :key="photo.id"
+        <div v-for="photo in surveyPhotos" :key="photo.id"
           class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
-          @click="viewPhoto(photo)"
-        >
+          @click="viewPhoto(photo)">
           <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
-            <img
-              :src="getPhotoUrl(photo)"
-              :alt="photo.filename"
+            <img :src="getPhotoUrl(photo)" :alt="photo.filename"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              @error="handleImageError($event, photo)"
-              @load="handleImageLoad(photo)"
-            />
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
-              <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              @error="handleImageError($event, photo)" @load="handleImageLoad(photo)" />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+              <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </div>
           </div>
           <div class="p-3">
-            <h4 class="font-medium text-gray-900 dark:text-white truncate text-sm" :title="photo.filename">{{ photo.filename }}</h4>
-            <p v-if="photo.caption" class="mt-1 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{{ photo.caption }}</p>
+            <h4 class="font-medium text-gray-900 dark:text-white truncate text-sm" :title="photo.filename">{{
+              photo.filename }}</h4>
+            <p v-if="photo.caption" class="mt-1 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{{ photo.caption
+              }}</p>
             <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
               <div>{{ formatDate(photo.uploaded_at) }}</div>
               <div>{{ formatFileSize(photo.size) }}</div>
@@ -1128,7 +986,8 @@
 
       <div v-else class="text-center py-12">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No photos</h3>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No photos have been uploaded for this survey.</p>
@@ -1137,38 +996,67 @@
   </div>
 
   <!-- Photo Modal -->
-  <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
+  <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0"
+    enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100"
+    leave-to-class="opacity-0">
     <div v-if="photoPreviewModal.show" class="fixed inset-0 z-50 overflow-y-auto" @click.self="closePhotoModal">
       <div class="fixed inset-0 bg-black bg-opacity-75" @click="closePhotoModal"></div>
       <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden" @click.stop>
-          <div v-if="photoPreviewModal.photo" class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div
+          class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+          @click.stop>
+          <div v-if="photoPreviewModal.photo"
+            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex-1 min-w-0 mr-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{ photoPreviewModal.photo.filename }}</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Site Photo • {{ formatFileSize(photoPreviewModal.photo.size) }} <span v-if="photoPreviewModal.photo.caption"> • {{ photoPreviewModal.photo.caption }}</span></p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{
+                photoPreviewModal.photo.filename }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Site Photo • {{
+                formatFileSize(photoPreviewModal.photo.size) }} <span v-if="photoPreviewModal.photo.caption"> • {{
+                  photoPreviewModal.photo.caption }}</span></p>
             </div>
             <div class="flex items-center space-x-2">
-              <button v-if="surveyPhotos.length > 1" @click.stop="previousPhoto" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Previous">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              <button v-if="surveyPhotos.length > 1" @click.stop="previousPhoto"
+                class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                title="Previous">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-              <button v-if="surveyPhotos.length > 1" @click.stop="nextPhoto" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Next">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <button v-if="surveyPhotos.length > 1" @click.stop="nextPhoto"
+                class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                title="Next">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </button>
-              <button @click="closePhotoModal" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" title="Close">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              <button @click="closePhotoModal"
+                class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
           <div class="p-4 overflow-auto max-h-[calc(90vh-180px)]">
-            <div v-if="photoPreviewModal.photo" class="flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
-              <img :src="getPhotoUrl(photoPreviewModal.photo)" :alt="photoPreviewModal.photo.filename" class="max-w-full max-h-[70vh] object-contain" />
+            <div v-if="photoPreviewModal.photo"
+              class="flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
+              <img :src="getPhotoUrl(photoPreviewModal.photo)" :alt="photoPreviewModal.photo.filename"
+                class="max-w-full max-h-[70vh] object-contain" />
             </div>
           </div>
           <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
             <div class="grid grid-cols-2 gap-4 text-sm">
-              <div><span class="font-medium text-gray-700 dark:text-gray-300">Photo:</span> <span class="ml-2 text-gray-600 dark:text-gray-400">{{ surveyPhotos.indexOf(photoPreviewModal.photo) + 1 }} of {{ surveyPhotos.length }}</span></div>
-              <div><span class="font-medium text-gray-700 dark:text-gray-300">Uploaded:</span> <span class="ml-2 text-gray-600 dark:text-gray-400">{{ formatDateTime(photoPreviewModal.photo.uploaded_at) }}</span></div>
-              <div v-if="photoPreviewModal.photo.caption" class="col-span-2"><span class="font-medium text-gray-700 dark:text-gray-300">Caption:</span> <p class="mt-1 text-gray-600 dark:text-gray-400">{{ photoPreviewModal.photo.caption }}</p></div>
+              <div><span class="font-medium text-gray-700 dark:text-gray-300">Photo:</span> <span
+                  class="ml-2 text-gray-600 dark:text-gray-400">{{ surveyPhotos.indexOf(photoPreviewModal.photo) + 1 }}
+                  of {{ surveyPhotos.length }}</span></div>
+              <div><span class="font-medium text-gray-700 dark:text-gray-300">Uploaded:</span> <span
+                  class="ml-2 text-gray-600 dark:text-gray-400">{{ formatDateTime(photoPreviewModal.photo.uploaded_at)
+                  }}</span></div>
+              <div v-if="photoPreviewModal.photo.caption" class="col-span-2"><span
+                  class="font-medium text-gray-700 dark:text-gray-300">Caption:</span>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">{{ photoPreviewModal.photo.caption }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1290,8 +1178,8 @@ const validationRules = {
   safety_conditions: { required: true, type: 'string', minLength: 10 },
   potential_hazards: { required: false, type: 'string' },
   safety_requirements: { required: true, type: 'string', minLength: 10 },
-  project_start_date: { required: true, type: 'datetime-local' },
-  project_deadline: { required: true, type: 'datetime-local' },
+  set_up_date: { required: true, type: 'datetime-local' },
+  set_down_date: { required: true, type: 'datetime-local' },
   milestones: { required: false, type: 'string' },
   additional_notes: { required: false, type: 'string' },
   special_requests: { required: false, type: 'string' },
@@ -1393,7 +1281,7 @@ const validateForm = (tab: string): boolean => {
 
   // Cross-field validation for dates
   if (tab === 'safety') {
-    const startDate = formData.value.project_start_date as string
+    const startDate = formData.value.set_up_date as string
     const deadline = formData.value.project_deadline as string
 
     if (startDate && deadline) {
@@ -1401,20 +1289,20 @@ const validateForm = (tab: string): boolean => {
       const end = new Date(deadline)
 
       if (start >= end) {
-        validationErrors.project_start_date = ['Start date must be before deadline']
+        validationErrors.set_up_date = ['Start date must be before deadline']
         validationErrors.project_deadline = ['Deadline must be after start date']
-        fieldValidationState.project_start_date = 'invalid'
+        fieldValidationState.set_up_date = 'invalid'
         fieldValidationState.project_deadline = 'invalid'
         isValid = false
       } else {
         // Clear date validation errors if dates are valid
-        if (validationErrors.project_start_date?.includes('Start date must be before deadline')) {
-          validationErrors.project_start_date = validationErrors.project_start_date.filter(err => err !== 'Start date must be before deadline')
+        if (validationErrors.set_up_date?.includes('Start date must be before deadline')) {
+          validationErrors.set_up_date = validationErrors.set_up_date.filter(err => err !== 'Start date must be before deadline')
         }
         if (validationErrors.project_deadline?.includes('Deadline must be after start date')) {
           validationErrors.project_deadline = validationErrors.project_deadline.filter(err => err !== 'Deadline must be after start date')
         }
-        if (validationErrors.project_start_date.length === 0) fieldValidationState.project_start_date = 'valid'
+        if (validationErrors.set_up_date.length === 0) fieldValidationState.set_up_date = 'valid'
         if (validationErrors.project_deadline.length === 0) fieldValidationState.project_deadline = 'valid'
       }
     }
@@ -1429,7 +1317,7 @@ const getTabFields = (tab: string): string[] => {
     assessment: ['project_description', 'objectives', 'current_condition', 'existing_branding', 'site_measurements', 'room_size', 'constraints'],
     access: ['access_logistics', 'parking_availability', 'size_accessibility', 'lifts', 'door_sizes', 'loading_areas'],
     requirements: ['branding_preferences', 'material_preferences', 'color_scheme', 'brand_guidelines', 'special_instructions', 'electrical_outlets', 'food_refreshment'],
-    safety: ['safety_conditions', 'potential_hazards', 'safety_requirements', 'project_start_date', 'project_deadline', 'milestones'],
+    safety: ['safety_conditions', 'potential_hazards', 'safety_requirements', 'set_up_date', 'project_deadline', 'milestones'],
     additional: ['additional_notes', 'special_requests', 'prepared_by', 'action_items']
   }
   return tabFieldMap[tab as keyof typeof tabFieldMap] || []
@@ -1443,8 +1331,8 @@ Object.keys(validationRules).forEach(field => {
     fieldValidationState[field] = errors.length > 0 ? 'invalid' : errors.length === 0 && newValue ? 'valid' : 'pending'
 
     // Special handling for date cross-validation
-    if (field === 'project_start_date' || field === 'project_deadline') {
-      const startDate = formData.value.project_start_date as string
+    if (field === 'set_up_date' || field === 'project_deadline') {
+      const startDate = formData.value.set_up_date as string
       const deadline = formData.value.project_deadline as string
 
       if (startDate && deadline) {
@@ -1452,19 +1340,19 @@ Object.keys(validationRules).forEach(field => {
         const end = new Date(deadline)
 
         if (start >= end) {
-          validationErrors.project_start_date = ['Start date must be before deadline']
+          validationErrors.set_up_date = ['Start date must be before deadline']
           validationErrors.project_deadline = ['Deadline must be after start date']
-          fieldValidationState.project_start_date = 'invalid'
+          fieldValidationState.set_up_date = 'invalid'
           fieldValidationState.project_deadline = 'invalid'
         } else {
           // Clear date validation errors
-          if (validationErrors.project_start_date?.includes('Start date must be before deadline')) {
-            validationErrors.project_start_date = validationErrors.project_start_date.filter(err => err !== 'Start date must be before deadline')
+          if (validationErrors.set_up_date?.includes('Start date must be before deadline')) {
+            validationErrors.set_up_date = validationErrors.set_up_date.filter(err => err !== 'Start date must be before deadline')
           }
           if (validationErrors.project_deadline?.includes('Deadline must be after start date')) {
             validationErrors.project_deadline = validationErrors.project_deadline.filter(err => err !== 'Deadline must be after start date')
           }
-          if (validationErrors.project_start_date.length === 0) fieldValidationState.project_start_date = 'valid'
+          if (validationErrors.set_up_date.length === 0) fieldValidationState.set_up_date = 'valid'
           if (validationErrors.project_deadline.length === 0) fieldValidationState.project_deadline = 'valid'
         }
       }
@@ -1650,7 +1538,7 @@ const downloadPDF = async () => {
       error.value = 'Survey not found. Please ensure the survey data exists.'
     } else if (errorObj.response?.status === 403) {
       error.value = 'You do not have permission to download this PDF.'
-        error.value = errorObj.message || 'Failed to download PDF. Please try again.'
+      error.value = errorObj.message || 'Failed to download PDF. Please try again.'
     }
   }
 }
@@ -1685,14 +1573,14 @@ const getPhotoUrl = (photo: any) => {
     }
     return photo.url
   }
-  
+
   // Fallback to path field
   if (photo.path) {
     const baseURL = api.defaults.baseURL || window.location.origin
     const cleanBaseURL = baseURL.replace('/api', '')
     return `${cleanBaseURL}/storage/${photo.path}`
   }
-  
+
   // Return a placeholder if no valid URL
   return ''
 }
@@ -1749,7 +1637,7 @@ const handleImageError = (event: Event, photo: any) => {
       filename: photo.filename
     }
   })
-  
+
   // Set a placeholder or hide the image
   img.style.display = 'none'
   const parent = img.parentElement
@@ -1787,7 +1675,7 @@ onMounted(() => {
       project_description: (props.taskData as Record<string, unknown>).project_description as string | undefined
     } : null
   })
-  
+
   // Fetch survey photos
   fetchSurveyPhotos()
 })

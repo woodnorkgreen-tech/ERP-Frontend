@@ -802,25 +802,9 @@ const formatFileSize = (bytes: number): string => {
 }
 
 const getAssetUrl = (asset: DesignAsset): string => {
-  // Priority 1: Use file_url from backend (added via $appends in model)
-  if ((asset as any).file_url) {
-    return (asset as any).file_url
-  }
-  
-  // Priority 2: Use url property if available
-  if (asset.url) {
-    return asset.url
-  }
-  
-  // Priority 3: Construct URL from file_path
+  const baseUrl = import.meta.env.VITE_API_BASE_URL
   const filePath = (asset as any).file_path || ''
-  if (filePath) {
-    // Remove 'public/' prefix if it exists and add '/storage/'
-    const cleanPath = filePath.replace(/^public\//, '')
-    return `/storage/${cleanPath}`
-  }
-  
-  return ''
+  return `${baseUrl}/api/storage/${filePath}`
 }
 
 const isImageAsset = (asset: DesignAsset): boolean => {
