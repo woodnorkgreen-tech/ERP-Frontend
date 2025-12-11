@@ -313,8 +313,8 @@
                 :key="photo.id"
                 class="relative group"
               >
-                <img
-                  :src="photo.url"
+               <img
+  :src="photo.url.startsWith('http') ? photo.url : 'https://www.woodnorkgreen.co.ke/system/api' + photo.url"
                   :alt="photo.description || 'Setdown photo'"
                   class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
                   @click="openImageModal(photo)"
@@ -840,7 +840,7 @@
         <!-- Image -->
         <img
           v-if="imageModal.currentImage"
-          :src="imageModal.currentImage.url"
+         :src="imageModal.currentImage.url.startsWith('http') ? imageModal.currentImage.url : 'https://www.woodnorkgreen.co.ke/system/api' + imageModal.currentImage.url"
           :alt="imageModal.currentImage.description || 'Setdown photo'"
           class="max-w-full max-h-full object-contain rounded-lg"
           @click.stop

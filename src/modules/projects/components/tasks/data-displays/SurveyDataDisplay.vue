@@ -1558,33 +1558,32 @@ const fetchSurveyPhotos = async () => {
 }
 
 const getPhotoUrl = (photo: any) => {
-  // If photo has a url field, use it directly
+  if (!photo) return ''
+  
+  // Use the same pattern as DesignTask.vue
+  const baseUrl = import.meta.env.VITE_API_BASE_URL
+  
+  // Check if photo has a file_path field
+  if (photo.file_path) {
+    return `${baseUrl}/api/storage/${photo.file_path}`
+  }
+  
+  // Fallback to url field if file_path doesn't exist
   if (photo.url) {
-    // Check if it's already a full URL
+    // If it's already a full URL, use it
     if (photo.url.startsWith('http://') || photo.url.startsWith('https://')) {
       return photo.url
     }
-    // If it's a relative URL starting with /storage, construct full URL
+    // If it's a relative path starting with /storage
     if (photo.url.startsWith('/storage')) {
-      // Get the base URL from the API configuration
-      const baseURL = api.defaults.baseURL || window.location.origin
-      const cleanBaseURL = baseURL.replace('/api', '') // Remove /api if present
-      return `${cleanBaseURL}${photo.url}`
+      return `${baseUrl}${photo.url}`
     }
     return photo.url
   }
-
-  // Fallback to path field
-  if (photo.path) {
-    const baseURL = api.defaults.baseURL || window.location.origin
-    const cleanBaseURL = baseURL.replace('/api', '')
-    return `${cleanBaseURL}/storage/${photo.path}`
-  }
-
+  
   // Return a placeholder if no valid URL
   return ''
 }
-
 const formatFileSize = (bytes: number) => {
   if (!bytes || bytes === 0) return '0 Bytes'
   const k = 1024
