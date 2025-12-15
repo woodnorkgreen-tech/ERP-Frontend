@@ -83,7 +83,7 @@
             <NotificationCenter ref="notificationCenter" />
 
             <!-- User Profile Dropdown -->
-            <div class="relative" v-if="user">
+            <div ref="profileMenuRef" class="relative" v-if="user">
               <button 
                 @click="toggleProfileMenu"
                 class="flex items-center gap-3 focus:outline-none p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import DynamicSidebar from '../components/DynamicSidebar.vue'
 import NotificationCenter from '../modules/shared/components/NotificationCenter.vue'
@@ -191,28 +191,35 @@ const sidebarCollapsed = ref(false)
 const notificationCenter = ref()
 const notificationPopup = ref()
 const profileMenuOpen = ref(false)
+const profileMenuRef = ref<HTMLElement | null>(null)
 
-const toggleProfileMenu = () => {
+const toggleProfileMenu = (event: Event) => {
+  event.stopPropagation()
   profileMenuOpen.value = !profileMenuOpen.value
 }
 
 // Close profile menu when clicking outside
+const handleClickOutside = (event: Event) => {
+  if (!profileMenuOpen.value) return
+  
+  const target = event.target as HTMLElement
+  const profileContainer = profileMenuRef.value
+  
+  // If click is outside the profile container, close the menu
+  if (profileContainer && !profileContainer.contains(target)) {
+    profileMenuOpen.value = false
+  }
+}
+
 onMounted(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as HTMLElement
-    const profileMenu = document.querySelector('.relative > button')
-    const dropdown = document.querySelector('.relative > div[v-if]')
-    
-    if (profileMenuOpen.value && profileMenu && !profileMenu.contains(target) && dropdown && !dropdown.contains(target)) {
-      profileMenuOpen.value = false
-    }
-  }
-  
-  document.addEventListener('click', handleClickOutside)
-  
-  return () => {
-    document.removeEventListener('click', handleClickOutside)
-  }
+  // Listen for both click and touchstart for mobile devices
+  document.addEventListener('click', handleClickOutside, true)
+  document.addEventListener('touchstart', handleClickOutside, true)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside, true)
+  document.removeEventListener('touchstart', handleClickOutside, true)
 })
 
 const navigationItems = computed(() => {
