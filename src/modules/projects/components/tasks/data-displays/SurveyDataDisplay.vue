@@ -1558,34 +1558,39 @@ const fetchSurveyPhotos = async () => {
 }
 
 const getPhotoUrl = (photo: any) => {
-  if (!photo) return ''
+  if (!photo) return '';
   
-  const baseUrl = import.meta.env.VITE_API_BASE_URL
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   
-  // Check if photo has a file_path field
+  // If photo has a file_path field
   if (photo.file_path) {
-    return `${baseUrl}/api/storage/${photo.file_path}`
+    return `${baseUrl}/api/storage/${photo.file_path}`;
   }
   
   // Use URL if available
   if (photo.url) {
     // If it's already a full URL, use it
     if (photo.url.startsWith('http://') || photo.url.startsWith('https://')) {
-      return photo.url
+      return photo.url;
     }
-    // If it starts with /storage, add /api before it
+    // If it's a relative URL starting with /system/storage, convert to /api/storage
+    if (photo.url.startsWith('/system/storage')) {
+      return `${baseUrl}/api${photo.url.replace('/system', '')}`;
+    }
+    // If it's a relative URL starting with /storage, add /api before it
     if (photo.url.startsWith('/storage')) {
-      return `${baseUrl}/api${photo.url}`
+      return `${baseUrl}/api${photo.url}`;
     }
-    return photo.url
+    // For any other relative URL, prepend base URL
+    return `${baseUrl}${photo.url}`;
   }
   
   // Construct from path
   if (photo.path) {
-    return `${baseUrl}/api/storage/${photo.path}`
+    return `${baseUrl}/api/storage/${photo.path}`;
   }
   
-  return ''
+  return '';
 }
 const formatFileSize = (bytes: number) => {
   if (!bytes || bytes === 0) return '0 Bytes'
