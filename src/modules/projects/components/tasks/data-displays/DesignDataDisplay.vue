@@ -237,7 +237,7 @@ const getFileUrl = (asset: Record<string, unknown>) => {
   const filePath = asset.file_path as string
   const baseUrl = import.meta.env.VITE_API_BASE_URL
   // Use relative path - Vite proxy handles /storage in dev, works directly in production
-  return `${baseUrl}/api/storage/${filePath}`
+  return asset.file_url as string || ''
 }
 </script>
 

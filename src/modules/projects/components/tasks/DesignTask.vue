@@ -849,7 +849,7 @@ const formatFileSize = (bytes: number): string => {
 const getAssetUrl = (asset: DesignAsset): string => {
   const filePath = (asset as any).file_path || ''
   // Use relative path - Vite proxy handles /storage in dev, works directly in production
-  return `/storage/${filePath}`
+  return (asset as any).file_url || ''
 }
 
 const isImageAsset = (asset: DesignAsset): boolean => {
