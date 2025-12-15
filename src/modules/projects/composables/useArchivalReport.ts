@@ -60,9 +60,22 @@ export interface ArchivalReportData {
     items_condition_returned?: string
     site_clearance_status?: string
     outstanding_items?: string
+    // Record Management
+    archive_reference?: string
+    archive_location?: string
+    retention_period?: string
     // Section 8: Attachments
     attachments?: any[]
     attachment_urls?: any[]
+    // Checklist
+    checklist_ppt?: boolean
+    checklist_cutlist?: boolean
+    checklist_site_survey_form?: boolean
+    checklist_project_budget_file?: boolean
+    checklist_material_list?: boolean
+    checklist_qc_checklist?: boolean
+    checklist_setup_setdown?: boolean
+    checklist_client_feedback?: boolean
     // Section 9: Signatures
     project_officer_signature?: string
     project_officer_sign_date?: string
@@ -210,6 +223,30 @@ export function useArchivalReport() {
         }
     }
 
+    const downloadPdf = async (taskId: number, reportId: number): Promise<void> => {
+        loading.value = true
+        error.value = null
+
+        try {
+            const response = await api.get(`/api/projects/tasks/${taskId}/archival/${reportId}/pdf`, {
+                responseType: 'blob'
+            })
+            // Create download link
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `archival-report-${reportId}.pdf`)
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Failed to download PDF'
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         error,
@@ -220,5 +257,6 @@ export function useArchivalReport() {
         deleteAttachment,
         autoPopulate,
         changeStatus,
+        downloadPdf,
     }
 }

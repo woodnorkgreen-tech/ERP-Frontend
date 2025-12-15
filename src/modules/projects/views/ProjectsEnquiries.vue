@@ -614,14 +614,37 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle Allocated</label>
-                <input
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle Allocated *</label>
+                <select
                   v-model="logisticsEntryForm.vehicle_allocated"
-                  type="text"
                   required
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="e.g., Truck ABC-123"
-                />
+                >
+                  <option value="">Select a vehicle</option>
+                  <option v-for="vehicle in vehicleOptions" :key="vehicle" :value="vehicle">
+                    {{ vehicle }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Driver *</label>
+                <select
+                  v-model="logisticsEntryForm.driver"
+                  required
+                  :disabled="loadingDrivers"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
+                >
+                  <option value="">{{ loadingDrivers ? 'Loading drivers...' : 'Select a driver' }}</option>
+                  <option v-for="driver in logisticsDrivers" :key="driver.id" :value="driver.name">
+                    {{ driver.name }}
+                  </option>
+                </select>
+                <div v-if="loadingDrivers" class="text-xs text-gray-500 mt-1">
+                  Loading logistics drivers...
+                </div>
+                <div v-else-if="logisticsDrivers.length === 0" class="text-xs text-amber-600 mt-1">
+                  No logistics drivers found
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Officer Incharge</label>
@@ -691,6 +714,7 @@
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Departure</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Setdown Time</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vehicle</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Driver</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Officer</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Remarks</th>
@@ -719,6 +743,9 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ entry.vehicle_allocated }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    {{ entry.driver || 'N/A' }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {{ entry.project_officer_incharge }}
@@ -850,6 +877,7 @@ interface LogisticsEntry {
   departure: string
   setdown_time: string
   vehicle_allocated: string
+  driver: string
   project_officer_incharge: string
   remarks: string
   status: 'open' | 'completed' | 'closed'
@@ -875,9 +903,17 @@ const logisticsEntryForm = ref({
   departure: '',
   setdown_time: '',
   vehicle_allocated: '',
+  driver: '',
   project_officer_incharge: '',
   remarks: ''
 })
+
+// Vehicle options
+const vehicleOptions = ['KDR 843B', 'KCT 082T', 'KBU 006M', 'KDS 198E']
+
+// Logistics Drivers
+const logisticsDrivers = ref<Array<{id: number, name: string, email: string}>>([]);
+const loadingDrivers = ref(false)
 
 
 // Modal Tabs
@@ -1076,6 +1112,7 @@ const resetLogisticsForm = () => {
     departure: '',
     setdown_time: '',
     vehicle_allocated: '',
+    driver: '',
     project_officer_incharge: '',
     remarks: ''
   }
@@ -1135,6 +1172,7 @@ const editLogisticsEntry = (entry: LogisticsEntry) => {
     departure: formatDateTimeForInput(entry.departure),
     setdown_time: formatDateTimeForInput(entry.setdown_time),
     vehicle_allocated: entry.vehicle_allocated,
+    driver: entry.driver || '',
     project_officer_incharge: entry.project_officer_incharge,
     remarks: entry.remarks
   }
@@ -1397,9 +1435,29 @@ const fetchAvailableProjectOfficers = async () => {
   }
 }
 
+const fetchLogisticsDrivers = async () => {
+  loadingDrivers.value = true
+  try {
+    const response = await api.get('/api/users', {
+      params: {
+        role_name: 'Logistics',
+        per_page: 1000,
+        status: 'active'
+      }
+    })
+    logisticsDrivers.value = response.data.data || []
+  } catch (error) {
+    console.error('Failed to fetch logistics drivers:', error)
+    logisticsDrivers.value = []
+  } finally {
+    loadingDrivers.value = false
+  }
+}
+
 onMounted(async () => {
   await fetchEnquiries()
   await fetchClients()
   await fetchAvailableProjectOfficers()
+  await fetchLogisticsDrivers()
 })
 </script>

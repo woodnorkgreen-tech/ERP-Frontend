@@ -166,12 +166,30 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Setup Team Assigned</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Setup Team Assigned
+                <button
+                  type="button"
+                  @click="autoFillSetupTeam"
+                  class="ml-2 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                >
+                  Auto-fill from Teams
+                </button>
+              </label>
               <input v-model="formData.setup_team_assigned" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Setup team members" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Branding Team Assigned</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Branding Team Assigned
+                <button
+                  type="button"
+                  @click="autoFillBrandingTeam"
+                  class="ml-2 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                >
+                  Auto-fill from Teams
+                </button>
+              </label>
               <input v-model="formData.branding_team_assigned" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Branding team members" />
             </div>
           </div>
@@ -377,6 +395,14 @@
         <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
           <span>✅</span>
           <span>Section 6: Client Handover</span>
+          <button
+            type="button"
+            @click="autoFillHandoverData"
+            class="ml-2 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline flex items-center"
+          >
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            Auto-fill from Handover Task
+          </button>
         </h4>
 
         <!-- Basic Handover Info -->
@@ -598,8 +624,49 @@
           <span>Section 8: Attachments</span>
         </h4>
 
-        <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-          <p class="text-sm">File upload functionality will be added in next update...</p>
+        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 uppercase tracking-wide">Documentation Checklist</h5>
+          <div class="space-y-3">
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_ppt" type="checkbox" id="check-ppt" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-ppt" class="text-sm text-gray-700 dark:text-gray-300 uppercase">PPT</label>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_cutlist" type="checkbox" id="check-cutlist" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-cutlist" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Cutlist (If Any)</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_site_survey_form" type="checkbox" id="check-survey" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-survey" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Site Survey Form</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_project_budget_file" type="checkbox" id="check-budget" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-budget" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Project Budget File</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_material_list" type="checkbox" id="check-materials" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-materials" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Material Requisition Form (MRF) / Material List</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_qc_checklist" type="checkbox" id="check-qc" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-qc" class="text-sm text-gray-700 dark:text-gray-300 uppercase">QC Checklist</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_setup_setdown" type="checkbox" id="check-setup" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-setup" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Setup & Set-Down Checklist</label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input v-model="formData.checklist_client_feedback" type="checkbox" id="check-feedback" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="check-feedback" class="text-sm text-gray-700 dark:text-gray-300 uppercase">Client Feedback / QR Code</label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -657,19 +724,32 @@
           Complete Report
         </button>
       </div>
-      <button
-        @click="handleSubmit"
-        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-      >
-        Save Report Data
-      </button>
+      <div class="flex space-x-2">
+        <button
+          v-if="formData.id"
+          @click="handleDownloadPdf"
+          class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center"
+          :disabled="loading"
+        >
+          <span class="mr-2">📄</span> Download PDF
+        </button>
+        <button
+          @click="handleSubmit"
+          class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+          :disabled="loading"
+        >
+          {{ loading ? 'Saving...' : 'Save Report Data' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, reactive } from 'vue'
+import api from '@/plugins/axios'
 import { useArchivalReport, type ArchivalReportData } from '../../composables/useArchivalReport'
+import { useHandover } from '../../composables/useHandover'
 import type { EnquiryTask } from '../../types/enquiry'
 
 interface ReportSection {
@@ -709,7 +789,7 @@ const emit = defineEmits<{
   'complete': []
 }>()
 
-const { loading, error, getReport, createReport, updateReport, autoPopulate } = useArchivalReport()
+const { loading, error, getReport, createReport, updateReport, autoPopulate, downloadPdf } = useArchivalReport()
 
 const activeTab = ref('project-info')
 const successMessage = ref('')
@@ -740,6 +820,192 @@ const isCompleted = computed({
     }
   }
 })
+
+const fetchProjectTeams = async () => {
+  try {
+    // 1. Get all tasks for this enquiry to find the Teams task
+    const enquiryId = props.task.project_enquiry_id || props.task.enquiry?.id
+    if (!enquiryId) {
+      alert('Could not identify project enquiry ID')
+      return null
+    }
+
+    const tasksResponse = await api.get(`/api/projects/enquiries/${enquiryId}/tasks`)
+    const tasks = tasksResponse.data.data || []
+    
+    // Find the Teams task (assuming type 'teams' or similar)
+    const teamsTask = tasks.find((t: any) => t.type === 'teams')
+    
+    if (!teamsTask) {
+      alert('No Teams task found for this project')
+      return null
+    }
+
+    // 2. Fetch teams for the found Teams task
+    const teamsResponse = await api.get(`/api/projects/tasks/${teamsTask.id}/teams`)
+    return teamsResponse.data.data || []
+  } catch (error) {
+    console.error('Error fetching teams:', error)
+    alert('Failed to fetch teams data')
+    return null
+  }
+}
+
+const autoFillSetupTeam = async () => {
+  const teams = await fetchProjectTeams()
+  if (!teams) return
+
+  // Filter for Setup category (category_id 2 or based on key)
+  // We check for 'setup' in category key or display name
+  const setupTeams = teams.filter((t: any) => 
+    t.category?.category_key === 'setup' || 
+    t.category?.display_name?.toLowerCase().includes('setup') ||
+    t.category_id === 2
+  )
+
+  if (setupTeams.length === 0) {
+    alert('No setup teams found')
+    return
+  }
+
+  // Get all members from these teams
+  const allMembers = setupTeams.flatMap((t: any) => t.members || [])
+    .map((m: any) => m.member_name)
+    .filter(Boolean)
+
+  // Remove duplicates
+  const uniqueMembers = [...new Set(allMembers)]
+  
+  if (uniqueMembers.length > 0) {
+    formData.setup_team_assigned = uniqueMembers.join(', ')
+    // Remove alert to be less intrusive, or keep it for status
+    // alert(`Autofilled ${uniqueMembers.length} setup team members`)
+  } else {
+    alert('Setup teams have no members assigned')
+  }
+}
+
+const autoFillBrandingTeam = async () => {
+  const teams = await fetchProjectTeams()
+  if (!teams) return
+
+  // Find specifically the "Pasting Team" within Setup category
+  // team_type_id 1 is Pasting Team
+  const pastingTeam = teams.find((t: any) => 
+    (t.team_type_id === 1 || t.team_type?.display_name?.toLowerCase().includes('pasting')) &&
+    (t.category?.category_key === 'setup' || t.category_id === 2)
+  )
+
+  if (!pastingTeam) {
+    alert('No Pasting/Branding team found in Setup category')
+    return
+  }
+
+  const members = (pastingTeam.members || [])
+    .map((m: any) => m.member_name)
+    .filter(Boolean)
+  
+  if (members.length > 0) {
+    formData.branding_team_assigned = members.join(', ')
+  } else {
+    alert('Branding/Pasting team has no members assigned')
+  }
+}
+
+const { fetchSurvey, surveyData } = useHandover()
+
+const autoFillHandoverData = async () => {
+  try {
+    // 1. Find the Handover task
+    const enquiryId = props.task.project_enquiry_id || props.task.enquiry?.id
+    if (!enquiryId) return
+
+    const tasksResponse = await api.get(`/api/projects/enquiries/${enquiryId}/tasks`)
+    const tasks = tasksResponse.data.data || []
+    const handoverTask = tasks.find((t: any) => t.type === 'handover')
+
+    if (!handoverTask) {
+      alert('No Handover task found for this project')
+      return
+    }
+
+    // 2. Fetch survey data
+    const survey = await fetchSurvey(handoverTask.id)
+    if (!survey || !survey.responses) {
+      alert('No survey data available yet')
+      return
+    }
+    
+    // 3. Map responses to form fields
+    const r = survey.responses // Shortcut
+    
+    // Handover Date
+    if (survey.feedback_received_at) {
+        formData.handover_date = survey.feedback_received_at.split('T')[0]
+    } else if (survey.submitted_at) {
+        formData.handover_date = survey.submitted_at.split('T')[0]
+    }
+
+    // Ratings & General
+    if (r.overall_rating) formData.client_rating = r.overall_rating.toString()
+    if (r.respondent_info) formData.client_remarks = r.respondent_info
+    else if (survey.evidence_notes) formData.client_remarks = survey.evidence_notes
+    
+    // Quality of Work
+    if (r.finishing?.rating) formData.print_clarity_rating = mapRating(r.finishing.rating)
+    if (r.attention_to_detail?.rating) formData.printworks_accuracy_rating = mapRating(r.attention_to_detail.rating)
+    if (r.installation_precision?.remarks) formData.installation_precision_comments = r.installation_precision.remarks
+    
+    // Efficiency
+    if (r.work_efficiency?.rating) {
+        formData.setup_speed_flow = mapRating(r.work_efficiency.rating)
+        if (r.work_efficiency.rating >= 4) formData.delivered_on_schedule = true
+    }
+    if (r.team_professionalism?.rating) formData.team_coordination = mapRating(r.team_professionalism.rating)
+    if (r.work_efficiency?.remarks) formData.efficiency_remarks = r.work_efficiency.remarks
+
+    // Communication
+    if (r.communication_effectiveness?.rating) {
+        formData.client_kept_informed = r.communication_effectiveness.rating >= 4
+        formData.communication_comments = r.communication_effectiveness.remarks
+    }
+    if (r.overall_rating) {
+        formData.client_satisfaction = r.overall_rating >= 4 ? 'satisfied' : (r.overall_rating <= 2 ? 'unsatisfied' : 'n/a')
+    }
+
+    // Deliverables & Logistics
+    if (r.delivered_on_time !== undefined) formData.delivered_on_schedule = r.delivered_on_time
+    if (r.delivery_condition?.rating) formData.delivery_condition = mapRating(r.delivery_condition.rating)
+    if (r.delivery_condition?.remarks) formData.delivery_notes = r.delivery_condition.remarks
+    // Fix: issue_resolution is object with rating/remarks
+    if (r.issue_resolution?.rating && r.issue_resolution.rating <= 3) formData.delivery_issues = true
+
+    // Professionalism
+    if (r.team_professionalism?.rating) formData.team_professionalism = mapRating(r.team_professionalism.rating)
+    if (r.execution_confidence?.rating) formData.client_confidence = r.execution_confidence.rating >= 4
+    if (r.team_professionalism?.remarks) formData.professionalism_feedback = r.team_professionalism.remarks
+    
+    // Recommendations
+    const recs = []
+    if (r.improvement_suggestions) recs.push(r.improvement_suggestions)
+    if (r.additional_comments) recs.push(r.additional_comments)
+    formData.recommendations_action_points = recs.join('\n\n')
+
+    alert('Client Handover data autofilled successfully!')
+    
+  } catch (error) {
+    console.error('Autofill error:', error)
+    alert('Failed to autofill handover data')
+  }
+}
+
+// Helper to map 1-5 rating to string values used in select options
+const mapRating = (val: number): string => {
+    if (val >= 4) return 'good' // 4-5
+    if (val === 3) return 'fair' // 3
+    if (val <= 2) return 'poor' // 1-2
+    return ''
+}
 
 const toggleTaskCompletion = async () => {
   try {
@@ -874,6 +1140,19 @@ const loadArchivalReport = async () => {
   try {
     const report = await getReport(props.task.id)
     if (report && report.id) {
+      // Format dates for input type="date"
+      const dateFields = [
+        'start_date', 'end_date', 'production_start_date', 
+        'handover_date', 'setdown_date', 
+        'project_officer_sign_date', 'reviewer_sign_date'
+      ]
+      
+      dateFields.forEach(field => {
+        if ((report as any)[field]) {
+          (report as any)[field] = (report as any)[field].split('T')[0]
+        }
+      })
+
       Object.assign(formData, report)
       // Map backend data to existing UI fields
       if (report.recommendations_action_points) {
@@ -942,6 +1221,18 @@ const handleSubmit = async () => {
   }
 }
 
+const handleDownloadPdf = async () => {
+  if (!formData.id) return
+  
+  try {
+    await downloadPdf(props.task.id, formData.id)
+    successMessage.value = 'PDF downloaded successfully!'
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err) {
+    errorMessage.value = 'Failed to download PDF'
+  }
+}
+
 const handleAutoPopulate = async () => {
   errorMessage.value = ''
   successMessage.value = ''
@@ -1000,6 +1291,49 @@ const removeItemPlacement = (index: number) => {
     formData.item_placements.splice(index, 1)
   }
 }
+
+// Watch for active tab to autofill signature
+watch(activeTab, async (newTab) => {
+  if (newTab === 'signatures') {
+    if (!formData.project_officer_signature) {
+      // 1. Try to get from props directly
+      let poName = props.task.enquiry?.project_officer?.name
+
+      // 2. If name is missing but we have an ID, fetch it
+      if (!poName) {
+        const poId = props.task.enquiry?.project_officer_id || props.task.enquiry?.assigned_po
+        
+        if (poId) {
+            try {
+                // Try fetching from project officers endpoint
+                const response = await api.get('/api/project-officers')
+                const officers = response.data.data || []
+                const officer = officers.find((u: any) => u.id === Number(poId))
+                if (officer) {
+                    poName = officer.name
+                } else {
+                    // Fallback to generic users endpoint if not found
+                    const usersResponse = await api.get('/api/users')
+                    const users = usersResponse.data.data || []
+                    const user = users.find((u: any) => u.id === Number(poId))
+                    if (user) poName = user.name
+                }
+            } catch (e) {
+                console.error('Failed to fetch project officer name', e)
+            }
+        }
+      }
+      
+      if (poName) {
+        formData.project_officer_signature = poName
+        // Also set today's date if empty
+        if (!formData.project_officer_sign_date) {
+            formData.project_officer_sign_date = new Date().toISOString().split('T')[0]
+        }
+      }
+    }
+  }
+})
 
 // Watch for task changes to reset data if needed
 watch(() => props.task.id, async () => {

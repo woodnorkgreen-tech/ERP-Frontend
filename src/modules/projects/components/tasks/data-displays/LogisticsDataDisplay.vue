@@ -53,6 +53,7 @@
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Site</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Loading Time</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Departure</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Setdown Time</th>
@@ -68,6 +69,9 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ entry.vehicle_allocated }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {{ entry.driver || 'N/A' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ formatDate(entry.loading_time) }}
@@ -105,7 +109,7 @@
               </td>
             </tr>
             <tr v-if="logs.length === 0">
-              <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+              <td colspan="9" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -209,6 +213,17 @@
                       v-model="form.vehicle_allocated"
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                       placeholder="Enter vehicle details"
+                    />
+                  </div>
+
+                  <!-- Driver -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Driver</label>
+                    <input
+                      type="text"
+                      v-model="form.driver"
+                      class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                      placeholder="Enter driver name"
                     />
                   </div>
 
@@ -388,6 +403,7 @@ const selectedEntry = ref<any>(null)
 const form = ref({
   site: '',
   vehicle_allocated: '',
+  driver: '',
   project_officer_incharge: '',
   loading_time: '',
   departure: '',
@@ -432,6 +448,7 @@ const openAddModal = () => {
   form.value = {
     site: '',
     vehicle_allocated: '',
+    driver: '',
     project_officer_incharge: '',
     loading_time: '',
     departure: '',
@@ -458,6 +475,7 @@ const editEntry = (entry: any) => {
   form.value = {
     site: entry.site,
     vehicle_allocated: entry.vehicle_allocated,
+    driver: entry.driver || '',
     project_officer_incharge: entry.project_officer_incharge,
     loading_time: formatDateTimeForInput(entry.loading_time),
     departure: formatDateTimeForInput(entry.departure),
