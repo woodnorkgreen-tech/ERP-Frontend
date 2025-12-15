@@ -1,6 +1,6 @@
-
 <template>
-  <div class="setdown-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+  <div
+    class="setdown-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
     <!-- Project Header Section -->
@@ -13,7 +13,8 @@
       <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
           <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Information</h5>
-          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full w-fit">
+          <span
+            class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full w-fit">
             Setdown Task
           </span>
         </div>
@@ -128,43 +129,42 @@
 
     <!-- Feedback Messages -->
     <div v-if="feedbackMessages.length > 0" class="mb-6 space-y-2">
-      <div
-        v-for="message in feedbackMessages"
-        :key="message.id"
-        :class="[
-          'flex items-center justify-between p-3 rounded-lg border text-sm',
-          {
-            'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200': message.type === 'success',
-            'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200': message.type === 'error',
-            'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200': message.type === 'warning',
-            'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200': message.type === 'info'
-          }
-        ]"
-      >
+      <div v-for="message in feedbackMessages" :key="message.id" :class="[
+        'flex items-center justify-between p-3 rounded-lg border text-sm',
+        {
+          'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200': message.type === 'success',
+          'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200': message.type === 'error',
+          'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200': message.type === 'warning',
+          'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200': message.type === 'info'
+        }
+      ]">
         <div class="flex items-center space-x-2">
           <!-- Success Icon -->
-          <svg v-if="message.type === 'success'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-if="message.type === 'success'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
           <!-- Error Icon -->
-          <svg v-else-if="message.type === 'error'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-else-if="message.type === 'error'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
           <!-- Warning Icon -->
-          <svg v-else-if="message.type === 'warning'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          <svg v-else-if="message.type === 'warning'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+            </path>
           </svg>
           <!-- Info Icon -->
           <svg v-else class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span>{{ message.message }}</span>
         </div>
-        <button
-          @click="removeFeedbackMessage(message.id)"
-          class="text-current hover:opacity-70 transition-opacity p-1 rounded-md"
-          :aria-label="'Dismiss message'"
-        >
+        <button @click="removeFeedbackMessage(message.id)"
+          class="text-current hover:opacity-70 transition-opacity p-1 rounded-md" :aria-label="'Dismiss message'">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -174,42 +174,25 @@
 
     <!-- Tab Navigation -->
     <div class="mb-6">
-      <nav
-        class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto"
-        role="tablist"
-        aria-label="Setdown task navigation"
-      >
-        <button
-          v-for="(tab, index) in tabs"
-          :key="tab.id"
-          @click="setActiveTab(tab.id)"
-          @keydown="handleTabKeydown($event, index)"
-          :class="[
+      <nav class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto" role="tablist"
+        aria-label="Setdown task navigation">
+        <button v-for="(tab, index) in tabs" :key="tab.id" @click="setActiveTab(tab.id)"
+          @keydown="handleTabKeydown($event, index)" :class="[
             'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap min-w-0',
             'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700',
             activeTab === tab.id
               ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm transform scale-105'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:scale-102'
-          ]"
-          :aria-selected="activeTab === tab.id"
-          :aria-controls="`tab-panel-${tab.id}`"
-          :id="`tab-${tab.id}`"
-          role="tab"
-          :tabindex="activeTab === tab.id ? 0 : -1"
-        >
-          <span
-            class="mr-2 text-base transition-transform duration-200"
-            :class="{ 'scale-110': activeTab === tab.id }"
-          >
+          ]" :aria-selected="activeTab === tab.id" :aria-controls="`tab-panel-${tab.id}`" :id="`tab-${tab.id}`"
+          role="tab" :tabindex="activeTab === tab.id ? 0 : -1">
+          <span class="mr-2 text-base transition-transform duration-200" :class="{ 'scale-110': activeTab === tab.id }">
             {{ tab.icon }}
           </span>
           <span class="truncate">{{ tab.label }}</span>
           <!-- Tab indicator badges -->
-          <span
-            v-if="getTabBadgeCount(tab.id) > 0"
+          <span v-if="getTabBadgeCount(tab.id) > 0"
             class="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200"
-            :class="getTabBadgeClass(tab.id)"
-          >
+            :class="getTabBadgeClass(tab.id)">
             {{ getTabBadgeCount(tab.id) }}
           </span>
         </button>
@@ -219,14 +202,9 @@
     <!-- Tab Content Container -->
     <div class="tab-content-container">
       <!-- Documentation Tab -->
-      <div
-        v-show="activeTab === 'documentation'"
-        class="documentation-section tab-panel"
-        :id="`tab-panel-documentation`"
-        role="tabpanel"
-        :aria-labelledby="`tab-documentation`"
-        :class="{ 'animate-fade-in': activeTab === 'documentation' }"
-      >
+      <div v-show="activeTab === 'documentation'" class="documentation-section tab-panel"
+        :id="`tab-panel-documentation`" role="tabpanel" :aria-labelledby="`tab-documentation`"
+        :class="{ 'animate-fade-in': activeTab === 'documentation' }">
         <!-- Documentation Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
@@ -239,7 +217,9 @@
             <span v-if="backendLoading" class="text-xs text-blue-600 dark:text-blue-400 flex items-center">
               <svg class="animate-spin h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
               Saving...
             </span>
@@ -257,27 +237,25 @@
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📸</span>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                <span
+                  class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
                   {{ displayData?.documentation.photos?.length || 0 }}
                 </span>
               </div>
             </div>
 
             <!-- Drag & Drop Upload Area -->
-            <div
-              @drop.prevent="handlePhotoDrop"
-              @dragover.prevent="isDragging = true"
-              @dragleave.prevent="isDragging = false"
-              :class="[
+            <div @drop.prevent="handlePhotoDrop" @dragover.prevent="isDragging = true"
+              @dragleave.prevent="isDragging = false" :class="[
                 'border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer',
-                isDragging 
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                isDragging
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-              ]"
-              @click="triggerPhotoUpload"
-            >
+              ]" @click="triggerPhotoUpload">
               <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                </path>
               </svg>
               <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 <span class="font-medium text-blue-600 dark:text-blue-400">Click to upload</span> or drag and drop
@@ -286,50 +264,41 @@
             </div>
 
             <!-- Hidden file input -->
-            <input
-              ref="photoInputRef"
-              type="file"
-              multiple
-              accept="image/*"
-              @change="handlePhotoSelect"
-              class="hidden"
-            />
+            <input ref="photoInputRef" type="file" multiple accept="image/*" @change="handlePhotoSelect"
+              class="hidden" />
 
             <!-- Uploading Progress -->
-            <div v-if="uploadingCount > 0" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div v-if="uploadingCount > 0"
+              class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div class="flex items-center space-x-3">
                 <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
-                <span class="text-sm text-blue-800 dark:text-blue-200">Uploading {{ uploadingCount }} photo{{ uploadingCount > 1 ? 's' : '' }}...</span>
+                <span class="text-sm text-blue-800 dark:text-blue-200">Uploading {{ uploadingCount }} photo{{
+                  uploadingCount > 1 ? 's' : '' }}...</span>
               </div>
             </div>
 
             <!-- Photo Grid -->
-            <div v-if="displayData?.documentation.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              <div
-                v-for="photo in displayData.documentation.photos"
-                :key="photo.id"
-                class="relative group"
-              >
-               <img
-  :src="photo.url.startsWith('http') ? photo.url : 'https://www.woodnorkgreen.co.ke/system/api' + photo.url"
+            <div v-if="displayData?.documentation.photos?.length"
+              class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div v-for="photo in displayData.documentation.photos" :key="photo.id" class="relative group">
+                <img
+                :src="photo.url"
                   :alt="photo.description || 'Setdown photo'"
                   class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
-                  @click="openImageModal(photo)"
-                  @error="handleImageError"
-                />
-                
+                  @click="openImageModal(photo)" @error="handleImageError" />
+
                 <!-- Delete button overlay -->
-                <button
-                  v-if="!readonly"
-                  @click.stop="confirmDeletePhoto(photo.id)"
+                <button v-if="!readonly" @click.stop="confirmDeletePhoto(photo.id)"
                   class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg"
-                  title="Delete photo"
-                >
+                  title="Delete photo">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                   </svg>
                 </button>
 
@@ -344,35 +313,32 @@
 
             <!-- Empty state with helpful message -->
             <div v-else-if="!uploadingCount" class="mt-6 text-center py-8">
-              <p class="text-sm text-gray-500 dark:text-gray-400">No photos yet. Upload some to document your setdown!</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">No photos yet. Upload some to document your setdown!
+              </p>
             </div>
           </div>
 
           <!-- Readonly Photo Grid (when readonly is true) -->
           <div v-else>
-             <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📸</span>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Photos</h3>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
+                <span
+                  class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">
                   {{ displayData?.documentation?.photos?.length || 0 }}
                 </span>
               </div>
             </div>
 
-            <div v-if="displayData?.documentation?.photos?.length" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              <div
-                v-for="photo in displayData.documentation.photos"
-                :key="photo.id"
-                class="relative group"
-              >
-                <img
-                  :src="photo.url"
-                  :alt="photo.description || 'Setdown photo'"
+            <div v-if="displayData?.documentation?.photos?.length"
+              class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div v-for="photo in displayData.documentation.photos" :key="photo.id" class="relative group">
+                <img 
+                :src="photo.url" 
+                :alt="photo.description || 'Setdown photo'"
                   class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
-                  @click="openImageModal(photo)"
-                  @error="handleImageError"
-                />
+                  @click="openImageModal(photo)" @error="handleImageError" />
                 <div class="mt-1.5">
                   <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
@@ -397,28 +363,18 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Setdown Progress Notes
                 </label>
-                <textarea
-                v-model="localNotes.setdownNotes"
-                @blur="autoSaveNotes"
-                rows="4"
-                :readonly="readonly"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
-                :placeholder="readonly ? 'No notes recorded.' : 'Record setdown progress, observations, and any issues encountered...\n\nAuto-saves when you click outside this box.'"
-              ></textarea>
+                <textarea v-model="localNotes.setdownNotes" @blur="autoSaveNotes" rows="4" :readonly="readonly"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  :placeholder="readonly ? 'No notes recorded.' : 'Record setdown progress, observations, and any issues encountered...\n\nAuto-saves when you click outside this box.'"></textarea>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Completion Notes
                 </label>
-                <textarea
-                v-model="localNotes.completionNotes"
-                @blur="autoSaveNotes"
-                rows="3"
-                :readonly="readonly"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
-                :placeholder="readonly ? 'No notes recorded.' : 'Final completion notes and handover information...\n\nAuto-saves when you click outside this box.'"
-              ></textarea>
+                <textarea v-model="localNotes.completionNotes" @blur="autoSaveNotes" rows="3" :readonly="readonly"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors resize-none disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  :placeholder="readonly ? 'No notes recorded.' : 'Final completion notes and handover information...\n\nAuto-saves when you click outside this box.'"></textarea>
               </div>
             </div>
           </div>
@@ -426,14 +382,8 @@
       </div>
 
       <!-- Checklist Tab -->
-      <div
-        v-show="activeTab === 'checklist'"
-        class="checklist-section tab-panel"
-        :id="`tab-panel-checklist`"
-        role="tabpanel"
-        :aria-labelledby="`tab-checklist`"
-        :class="{ 'animate-fade-in': activeTab === 'checklist' }"
-      >
+      <div v-show="activeTab === 'checklist'" class="checklist-section tab-panel" :id="`tab-panel-checklist`"
+        role="tabpanel" :aria-labelledby="`tab-checklist`" :class="{ 'animate-fade-in': activeTab === 'checklist' }">
         <!-- Checklist Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div>
@@ -445,7 +395,8 @@
         </div>
 
         <!-- Progress Overview -->
-        <div v-if="checklistData" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div v-if="checklistData"
+          class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
           <div class="flex items-center justify-between mb-2">
             <h5 class="font-medium text-blue-800 dark:text-blue-200">Overall Progress</h5>
             <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
@@ -453,10 +404,8 @@
             </span>
           </div>
           <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
-            <div 
-              class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
-              :style="{ width: checklistData.completion_percentage + '%' }"
-            ></div>
+            <div class="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+              :style="{ width: checklistData.completion_percentage + '%' }"></div>
           </div>
           <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
             {{ Number(checklistData.completion_percentage).toFixed(0) }}% complete
@@ -467,14 +416,17 @@
         <div v-if="checklistLoading" class="text-center py-8">
           <svg class="animate-spin h-8 w-8 mx-auto text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
           </svg>
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading checklist...</p>
         </div>
 
         <!-- Checklist Categories -->
         <div v-else-if="checklistData" class="space-y-6">
-          <div v-for="category in checklistData.checklist_data" :key="category.category" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div v-for="category in checklistData.checklist_data" :key="category.category"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <!-- Category Header -->
             <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3">
               <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -484,22 +436,13 @@
 
             <!-- Category Items -->
             <div class="p-4 space-y-3 bg-white dark:bg-gray-800">
-              <label
-                v-for="item in category.items"
-                :key="item.id"
-                class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  v-model="item.completed"
-                  @change="handleChecklistItemChange(item.id, item.completed)"
-                  :disabled="readonly"
-                  class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50"
-                />
-                <span 
-                  class="text-sm flex-1"
-                  :class="item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'"
-                >
+              <label v-for="item in category.items" :key="item.id"
+                class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded transition-colors">
+                <input type="checkbox" v-model="item.completed"
+                  @change="handleChecklistItemChange(item.id, item.completed)" :disabled="readonly"
+                  class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50" />
+                <span class="text-sm flex-1"
+                  :class="item.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'">
                   {{ item.text }}
                 </span>
               </label>
@@ -510,21 +453,17 @@
         <!-- Empty/Error State -->
         <div v-else class="text-center py-12">
           <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+            </path>
           </svg>
           <p class="text-gray-500 dark:text-gray-400">No checklist available</p>
         </div>
       </div>
 
       <!-- Issues Tab -->
-      <div
-        v-show="activeTab === 'issues'"
-        class="issues-section tab-panel"
-        :id="`tab-panel-issues`"
-        role="tabpanel"
-        :aria-labelledby="`tab-issues`"
-        :class="{ 'animate-fade-in': activeTab === 'issues' }"
-      >
+      <div v-show="activeTab === 'issues'" class="issues-section tab-panel" :id="`tab-panel-issues`" role="tabpanel"
+        :aria-labelledby="`tab-issues`" :class="{ 'animate-fade-in': activeTab === 'issues' }">
         <!-- Issues Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
@@ -534,25 +473,16 @@
             </p>
           </div>
           <div class="flex space-x-3">
-            <button
-              v-if="!editModes.issues && !readonly"
-              @click="editModes.issues = true"
-              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
-            >
+            <button v-if="!editModes.issues && !readonly" @click="editModes.issues = true"
+              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
               Edit
             </button>
-            <button
-              v-if="editModes.issues"
-              @click="handleSaveIssues"
-              class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
-            >
+            <button v-if="editModes.issues" @click="handleSaveIssues"
+              class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
               Save
             </button>
-            <button
-              v-if="editModes.issues"
-              @click="editModes.issues = false"
-              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
-            >
+            <button v-if="editModes.issues" @click="editModes.issues = false"
+              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
               Cancel
             </button>
           </div>
@@ -561,7 +491,8 @@
         <!-- Issues Content -->
         <div class="space-y-6">
           <!-- Add Issue Form -->
-          <div v-if="editModes.issues" class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div v-if="editModes.issues"
+            class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-2 mb-4">
               <span class="text-xl">➕</span>
               <h4 class="text-md font-medium text-gray-900 dark:text-white">Report New Issue</h4>
@@ -573,23 +504,17 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Issue Title <span class="text-red-500">*</span>
                   </label>
-                  <input
-                    v-model="newIssue.title"
-                    type="text"
-                    required
+                  <input v-model="newIssue.title" type="text" required
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                    placeholder="Brief issue description"
-                  />
+                    placeholder="Brief issue description" />
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category
                   </label>
-                  <select
-                    v-model="newIssue.category"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  >
+                  <select v-model="newIssue.category"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors">
                     <option value="equipment">Equipment</option>
                     <option value="venue">Venue</option>
                     <option value="team">Team</option>
@@ -605,19 +530,23 @@
                 </label>
                 <div class="flex space-x-4">
                   <label class="flex items-center">
-                    <input v-model="newIssue.priority" type="radio" value="low" class="text-blue-600 focus:ring-blue-500" />
+                    <input v-model="newIssue.priority" type="radio" value="low"
+                      class="text-blue-600 focus:ring-blue-500" />
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Low</span>
                   </label>
                   <label class="flex items-center">
-                    <input v-model="newIssue.priority" type="radio" value="medium" class="text-blue-600 focus:ring-blue-500" />
+                    <input v-model="newIssue.priority" type="radio" value="medium"
+                      class="text-blue-600 focus:ring-blue-500" />
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Medium</span>
                   </label>
                   <label class="flex items-center">
-                    <input v-model="newIssue.priority" type="radio" value="high" class="text-blue-600 focus:ring-blue-500" />
+                    <input v-model="newIssue.priority" type="radio" value="high"
+                      class="text-blue-600 focus:ring-blue-500" />
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">High</span>
                   </label>
                   <label class="flex items-center">
-                    <input v-model="newIssue.priority" type="radio" value="critical" class="text-blue-600 focus:ring-blue-500" />
+                    <input v-model="newIssue.priority" type="radio" value="critical"
+                      class="text-blue-600 focus:ring-blue-500" />
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Critical</span>
                   </label>
                 </div>
@@ -627,20 +556,14 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Description <span class="text-red-500">*</span>
                 </label>
-                <textarea
-                  v-model="newIssue.description"
-                  rows="3"
-                  required
+                <textarea v-model="newIssue.description" rows="3" required
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="Detailed description of the issue..."
-                ></textarea>
+                  placeholder="Detailed description of the issue..."></textarea>
               </div>
 
               <div class="flex justify-end">
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
+                <button type="submit"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
                   Add Issue
                 </button>
               </div>
@@ -653,24 +576,22 @@
               <div class="flex items-center space-x-2">
                 <span class="text-xl">📋</span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Issues List</h4>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ displayData?.issues?.length || 0 }}</span>
+                <span
+                  class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{
+                    displayData?.issues?.length || 0 }}</span>
               </div>
 
               <div class="flex space-x-2">
-                <select
-                  v-model="issuesFilter.status"
-                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
+                <select v-model="issuesFilter.status"
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option value="all">All Status</option>
                   <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
                   <option value="resolved">Resolved</option>
                 </select>
 
-                <select
-                  v-model="issuesFilter.priority"
-                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
+                <select v-model="issuesFilter.priority"
+                  class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option value="all">All Priority</option>
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -684,18 +605,17 @@
               <div v-if="!displayData?.issues?.length" class="text-gray-500 dark:text-gray-400">
                 <div class="mb-4">
                   <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9.172 16.172a4 4 0 015.656 0L12 20.343l-2.828-2.828a4 4 0 015.656-5.657zm5.656 0L12 20.343l2.828 2.828a4 4 0 01-5.656-5.657zM21 12h-6a4 4 0 00-4 4v8a4 4 0 004 4h6m-6-8h6m6 0v8a4 4 0 01-4 4h-6">
+                    </path>
                   </svg>
                 </div>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No issues reported yet</h3>
                 <p class="text-gray-500 dark:text-gray-400 mb-4">
                   Issues encountered during setdown will be tracked here.
                 </p>
-                <button
-                  v-if="editModes.issues"
-                  @click="() => { /* Scroll to add issue form */ }"
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
+                <button v-if="editModes.issues" @click="() => { /* Scroll to add issue form */ }"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
                   Report First Issue
                 </button>
               </div>
@@ -705,11 +625,8 @@
             </div>
 
             <div v-else class="space-y-4">
-              <div
-                v-for="issue in filteredIssues"
-                :key="issue.id"
-                class="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
-              >
+              <div v-for="issue in filteredIssues" :key="issue.id"
+                class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex-1">
                     <div class="flex items-center space-x-2 mb-1">
@@ -730,23 +647,18 @@
                   </div>
 
                   <div class="flex space-x-2 ml-4">
-                    <select
-                      v-model="issue.status"
-                      @change="handleUpdateIssueStatus(issue as SetdownIssue)"
-                      class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
+                    <select v-model="issue.status" @change="handleUpdateIssueStatus(issue as SetdownIssue)"
+                      class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                       <option value="open">Open</option>
                       <option value="in_progress">In Progress</option>
                       <option value="resolved">Resolved</option>
                     </select>
 
-                    <button
-                      v-if="!readonly"
-                      @click="handleRemoveIssue(issue.id)"
-                      class="text-gray-400 hover:text-red-500 p-1 rounded"
-                    >
+                    <button v-if="!readonly" @click="handleRemoveIssue(issue.id)"
+                      class="text-gray-400 hover:text-red-500 p-1 rounded">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                       </svg>
                     </button>
                   </div>
@@ -756,12 +668,9 @@
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Resolution Notes
                   </label>
-                  <textarea
-                    v-model="issue.resolution"
-                    rows="2"
+                  <textarea v-model="issue.resolution" rows="2"
                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Describe how the issue was resolved..."
-                  ></textarea>
+                    placeholder="Describe how the issue was resolved..."></textarea>
                 </div>
               </div>
             </div>
@@ -781,39 +690,35 @@
 
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="flex flex-wrap gap-2">
-          <button
-            v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+          <button v-if="task.status !== 'completed' && task.status !== 'cancelled'"
             @click="$emit('update-status', 'completed')"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
-          >
+            class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
             <span>Mark Complete</span>
           </button>
 
-          <button
-            v-if="task.status !== 'in_progress' && task.status !== 'completed' && task.status !== 'cancelled'"
+          <button v-if="task.status !== 'in_progress' && task.status !== 'completed' && task.status !== 'cancelled'"
             @click="$emit('update-status', 'in_progress')"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
-          >Set In Progress</button>
+            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm">Set
+            In Progress</button>
 
-          <button
-            v-if="task.status !== 'pending' && task.status !== 'completed' && task.status !== 'cancelled'"
+          <button v-if="task.status !== 'pending' && task.status !== 'completed' && task.status !== 'cancelled'"
             @click="$emit('update-status', 'pending')"
-            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
-          >Set Pending</button>
+            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm">Set
+            Pending</button>
 
-          <button
-            v-if="task.status !== 'cancelled' && task.status !== 'completed'"
-            @click="handleCancelTask"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
-          >Cancel Task</button>
+          <button v-if="task.status !== 'cancelled' && task.status !== 'completed'" @click="handleCancelTask"
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm">Cancel
+            Task</button>
         </div>
 
-        <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
+        <div v-if="task.status === 'completed'"
+          class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span class="text-sm font-medium">Task Completed</span>
         </div>
@@ -821,30 +726,22 @@
     </div>
 
     <!-- Image Modal -->
-    <div
-      v-if="imageModal.isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
-      @click="closeImageModal"
-    >
+    <div v-if="imageModal.isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+      @click="closeImageModal">
       <div class="relative max-w-4xl max-h-full p-4">
         <!-- Close button -->
-        <button
-          @click="closeImageModal"
-          class="absolute top-2 right-2 z-10 text-white hover:text-gray-300 transition-colors"
-        >
+        <button @click="closeImageModal"
+          class="absolute top-2 right-2 z-10 text-white hover:text-gray-300 transition-colors">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
 
         <!-- Image -->
-        <img
-          v-if="imageModal.currentImage"
-         :src="imageModal.currentImage.url.startsWith('http') ? imageModal.currentImage.url : 'https://www.woodnorkgreen.co.ke/system/api' + imageModal.currentImage.url"
+        <img v-if="imageModal.currentImage"
+         :src="imageModal.currentImage.url"
           :alt="imageModal.currentImage.description || 'Setdown photo'"
-          class="max-w-full max-h-full object-contain rounded-lg"
-          @click.stop
-        />
+          class="max-w-full max-h-full object-contain rounded-lg" @click.stop />
 
         <!-- Image info -->
         <div v-if="imageModal.currentImage" class="mt-4 text-white text-center">
@@ -1376,7 +1273,7 @@ const handlePhotoSelect = async (event: Event) => {
   const files = target.files
   if (files) {
     uploadingCount.value = files.length
-    
+
     for (const file of Array.from(files)) {
       try {
         await handlePhotoUpload(file)
@@ -1384,7 +1281,7 @@ const handlePhotoSelect = async (event: Event) => {
         console.error('Failed to upload photo:', error)
       }
     }
-    
+
     uploadingCount.value = 0
   }
   // Reset input
@@ -1397,10 +1294,10 @@ const handlePhotoSelect = async (event: Event) => {
 const handlePhotoDrop = async (event: DragEvent) => {
   isDragging.value = false
   const files = event.dataTransfer?.files
-  
+
   if (files) {
     uploadingCount.value = files.length
-    
+
     for (const file of Array.from(files)) {
       if (file.type.startsWith('image/')) {
         try {
@@ -1412,7 +1309,7 @@ const handlePhotoDrop = async (event: DragEvent) => {
         addFeedbackMessage('warning', `${file.name} is not an image file`)
       }
     }
-    
+
     uploadingCount.value = 0
   }
 }
@@ -1645,17 +1542,17 @@ const handleChecklistItemChange = async (itemId: number, completed: boolean) => 
       `/api/projects/tasks/${props.task.id}/setdown/checklist/items/${itemId}`,
       { completed }
     )
-   
+
     // Update local checklist data
     if (response.data.data) {
       checklistData.value = response.data.data
     }
-    
+
     addFeedbackMessage('success', 'Checklist updated')
   } catch (error) {
     console.error('Failed to update checklist item:', error)
     addFeedbackMessage('error', 'Failed to update checklist')
-    
+
     // Reload checklist to restore correct state
     await fetchChecklist()
   }
@@ -1825,7 +1722,7 @@ onMounted(async () => {
     console.log('SetdownTask: Fetching data for task ID:', props.task.id)
     // Fetch setdown data from backend
     await fetchSetdownData(props.task.id)
-    
+
     // Fetch checklist data
     await fetchChecklist()
 
@@ -1869,6 +1766,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

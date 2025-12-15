@@ -1635,20 +1635,19 @@ const previousPhoto = () => {
 const getPhotoUrl = (photo: any) => {
   if (!photo) return ''
   
-  // Priority 1: Use URL if available (backend provides full path)
+  // If URL already exists, use it
   if (photo.url) {
     return photo.url
-  } 
-  // Priority 2: Construct from path
-  else if (photo.path) {
-    // Remove 'public/' prefix if it exists
-    const cleanPath = photo.path.replace(/^public\//, '')
-    return `/storage/${cleanPath}`
+  }
+  
+  // Otherwise construct from path with /api/storage/
+  if (photo.path) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL
+    return `${baseUrl}/api/storage/${photo.path}`
   }
   
   return ''
 }
-
 const handleImageError = (e: Event) => {
   console.error('Failed to load image:', (e.target as HTMLImageElement).src)
   // Could set a fallback image here if needed
