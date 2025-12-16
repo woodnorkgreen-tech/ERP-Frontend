@@ -77,6 +77,7 @@
     <TaskFormDialog
       v-model:visible="showAddDialog"
       :task="null"
+      :parent-task-id="props.taskId"
       @saved="handleSubtaskAdded"
       @cancelled="showAddDialog = false"
     />
@@ -137,14 +138,22 @@ const progressPercentage = computed(() => {
 async function loadSubtasks() {
   loading.value = true
   try {
-    // Fetch subtasks for this parent task
-    await taskStore.fetchTasks({
-      filters: { parent_task_id: props.taskId }
+    // Import the taskApi directly
+    const { taskApi } = await import('../services/api')
+    // Fetch subtasks for this parent task using a direct API call
+    const response = await taskApi.getTasks({
+      parent_task_id: props.taskId
     })
-    // Get subtasks from store (assuming they are filtered)
-    subtasks.value = taskStore.tasks.filter(task => task.parent_task_id === props.taskId)
+    if (response.success && response.data) {
+      subtasks.value = response.data
+    } else {
+      subtasks.value = []
+      toast.error(response.error?.message || 'Failed to load subtasks')
+    }
   } catch (error: any) {
-    toast.error('Failed to load subtasks')
+    console.error('Error loading subtasks:', error)
+    toast.error(error.message || 'Failed to load subtasks')
+    subtasks.value = []
   } finally {
     loading.value = false
   }
@@ -170,7 +179,8 @@ function handleSubtaskToggle(subtaskId: number) {
 
 async function handleSubtaskAdded(newSubtask: Task) {
   showAddDialog.value = false
-  subtasks.value.push(newSubtask)
+  // Refresh the subtask list to ensure we have the latest data
+  await loadSubtasks()
   emit('add', newSubtask)
 
   toast.success('Subtask added successfully')

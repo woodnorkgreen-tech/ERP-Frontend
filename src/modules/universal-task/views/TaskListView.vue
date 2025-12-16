@@ -200,6 +200,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Priority</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subtasks</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assignee</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Due Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
@@ -214,7 +215,16 @@
                       :class="getStatusColor(task.status)"
                     ></div>
                     <div>
-                      <div class="font-medium text-gray-900 dark:text-white">{{ task.title }}</div>
+                      <div class="flex items-center gap-2">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ task.title }}</div>
+                        <span
+                          v-if="task.parent_task_id"
+                          class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium"
+                          title="This is a subtask"
+                        >
+                          Subtask
+                        </span>
+                      </div>
                       <div class="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
                         {{ task.description || 'No description' }}
                       </div>
@@ -236,6 +246,9 @@
                   >
                     {{ getPriorityLabel(task.priority) }}
                   </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-900 dark:text-white">{{ task.subtasks_count ?? 0 }}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div v-if="task.assignedUser" class="flex items-center gap-2">
@@ -280,6 +293,7 @@
                       </svg>
                     </button>
                     <button
+                      v-if="canDelete"
                       @click="confirmDelete(task)"
                       class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1"
                       title="Delete"
@@ -320,30 +334,45 @@
               </div>
 
               <div class="space-y-3">
-                <h3 class="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2">
-                  {{ task.title }}
-                </h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-lg text-gray-900 dark:text-white line-clamp-2">
+                    {{ task.title }}
+                  </h3>
+                  <span
+                    v-if="task.parent_task_id"
+                    class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium"
+                    title="This is a subtask"
+                  >
+                    Subtask
+                  </span>
+                </div>
                 <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
                   {{ task.description || 'No description' }}
                 </p>
 
-                <div class="flex justify-between items-center text-sm">
-                  <div v-if="task.assignedUser" class="flex items-center gap-2">
-                    <div class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
-                      {{ task.assignedUser.name.charAt(0) }}
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center text-sm">
+                    <div v-if="task.assignedUser" class="flex items-center gap-2">
+                      <div class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
+                        {{ task.assignedUser.name.charAt(0) }}
+                      </div>
+                      <span class="text-gray-900 dark:text-white">{{ task.assignedUser.name }}</span>
                     </div>
-                    <span class="text-gray-900 dark:text-white">{{ task.assignedUser.name }}</span>
-                  </div>
-                  <span v-else class="text-gray-400 dark:text-gray-500">Unassigned</span>
+                    <span v-else class="text-gray-400 dark:text-gray-500">Unassigned</span>
 
-                  <div v-if="task.due_date" class="text-right">
-                    <div class="text-gray-900 dark:text-white">{{ formatDate(task.due_date) }}</div>
-                    <div
-                      v-if="isOverdue(task.due_date, task.status)"
-                      class="text-red-600 dark:text-red-400 font-medium text-xs"
-                    >
-                      Overdue
+                    <div v-if="task.due_date" class="text-right">
+                      <div class="text-gray-900 dark:text-white">{{ formatDate(task.due_date) }}</div>
+                      <div
+                        v-if="isOverdue(task.due_date, task.status)"
+                        class="text-red-600 dark:text-red-400 font-medium text-xs"
+                      >
+                        Overdue
+                      </div>
                     </div>
+                  </div>
+
+                  <div v-if="(task.subtasks_count || 0) > 0" class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ task.subtasks_count || 0 }} subtask{{ (task.subtasks_count || 0) === 1 ? '' : 's' }}
                   </div>
                 </div>
               </div>
@@ -491,11 +520,13 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useTaskStore } from '../stores/taskStore'
+import { useAuth } from '../../../composables/useAuth'
 import { TASK_STATUSES, TASK_PRIORITIES } from '../constants'
 import type { Task } from '../types'
 import TaskFormDialog from '../components/TaskFormDialog.vue'
 
 const router = useRouter()
+const { user } = useAuth()
 
 // Store
 const taskStore = useTaskStore()
@@ -505,6 +536,15 @@ const {
   pagination,
   loading
 } = storeToRefs(taskStore)
+
+// Computed
+const canDelete = computed(() => {
+  if (!user.value) return false
+  const userRoles = user.value.roles || []
+  // TEMPORARY: Allow deletion for testing - remove Admin/Super Admin restriction
+  // TODO: Restore this check: return userRoles.includes('Admin') || userRoles.includes('Super Admin')
+  return true // Allow all authenticated users to delete for testing
+})
 
 // Local state
 const viewMode = ref<'list' | 'grid'>('list')
@@ -617,7 +657,11 @@ const confirmDeleteAction = async () => {
     // Simple alert instead of toast
     alert('Task deleted successfully')
   } else {
-    alert('Failed to delete task')
+    // Show the actual error message from the store
+    const errorMessage = taskStore.errors.delete || 'Failed to delete task'
+    alert(`Delete failed: ${errorMessage}`)
+    console.log('User roles:', user.value?.roles)
+    console.log('Can delete:', canDelete.value)
   }
 
   taskToDelete.value = null

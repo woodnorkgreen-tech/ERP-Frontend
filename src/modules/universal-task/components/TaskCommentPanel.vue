@@ -115,23 +115,53 @@ const loadComments = async () => {
 }
 
 const addComment = async () => {
-  if (!newComment.value.trim()) return
+    if (!newComment.value.trim()) return
 
-  loading.value = true
-  try {
-    const response = await taskApi.createComment(props.taskId, newComment.value)
-    if (response.success) {
-      newComment.value = ''
-      showAddComment.value = false
-      await loadComments()
-      emit('commentAdded')
+    loading.value = true
+    try {
+        const response = await taskApi.createComment(props.taskId, newComment.value)
+        if (response.success) {
+            newComment.value = ''
+            showAddComment.value = false
+            await loadComments()
+            emit('commentAdded')
+        } else {
+            // Handle API error response
+            const errorMessage = response.error?.message || 'Failed to add comment'
+            console.error('API Error:', errorMessage)
+            alert(errorMessage)
+        }
+    } catch (error) {
+        console.error('Error adding comment:', error)
+        let errorMessage = 'Failed to add comment'
+
+        // Handle different types of errors
+        if (error.response) {
+            // Server responded with an error status
+            const status = error.response.status
+            const errorData = error.response.data?.error
+
+            if (status === 401) {
+                errorMessage = errorData?.message || 'Please login to add comments'
+            } else if (status === 403) {
+                errorMessage = errorData?.message || 'You do not have permission to add comments'
+            } else if (status === 404) {
+                errorMessage = errorData?.message || 'Task not found'
+            } else if (errorData?.message) {
+                errorMessage = errorData.message
+            }
+        } else if (error.request) {
+            // Request was made but no response received
+            errorMessage = 'Network error. Please check your connection.'
+        } else {
+            // Something happened in setting up the request
+            errorMessage = 'Failed to send comment. Please try again.'
+        }
+
+        alert(errorMessage)
+    } finally {
+        loading.value = false
     }
-  } catch (error) {
-    console.error('Error adding comment:', error)
-    alert('Failed to add comment')
-  } finally {
-    loading.value = false
-  }
 }
 
 const replyToComment = (comment: TaskComment) => {

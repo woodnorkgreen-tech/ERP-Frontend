@@ -27,7 +27,7 @@ class TaskApiService {
 
   constructor() {
     this.client = axios.create({
-      baseURL: '/api/universal-tasks',
+      baseURL: 'http://127.0.0.1:8000/api/universal-tasks',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -78,19 +78,29 @@ class TaskApiService {
     const paginator = raw?.data;
     const items: Task[] = Array.isArray(paginator?.data) ? paginator.data : [];
 
+    // Ensure relationships are properly loaded in each task item
+    const processedItems = items.map(item => ({
+      ...item,
+      // Ensure assignedUser is available even if null
+      assignedUser: item.assignedUser || undefined,
+      department: item.department || undefined,
+      creator: item.creator || undefined,
+      parentTask: item.parentTask || undefined
+    }));
+
     const meta = paginator
       ? {
-        pagination: {
-          page: paginator.current_page ?? paginator.currentPage ?? 1,
-          per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
-          total: paginator.total ?? items.length ?? 0
+          pagination: {
+            page: paginator.current_page ?? paginator.currentPage ?? 1,
+            per_page: paginator.per_page ?? paginator.perPage ?? processedItems.length ?? 0,
+            total: paginator.total ?? processedItems.length ?? 0
+          }
         }
-      }
       : undefined;
 
     return {
       success: !!raw?.success,
-      data: items,
+      data: processedItems,
       meta,
       error: raw?.error
     };
@@ -98,7 +108,36 @@ class TaskApiService {
 
   async getTask(id: number): Promise<ApiResponse<Task>> {
     const response = await this.client.get(`${API_ENDPOINTS.TASKS}/${id}`);
-    return response.data;
+    const raw = response.data as any;
+
+    // Process the task data similar to getTasks
+    if (raw.success && raw.data) {
+      const task = {
+        ...raw.data,
+        assignedUser: raw.data.assignedUser || undefined,
+        department: raw.data.department || undefined,
+        creator: raw.data.creator || undefined,
+        parentTask: raw.data.parentTask || undefined,
+        subtasks: raw.data.subtasks || [],
+        issues: raw.data.issues || [],
+        comments: raw.data.comments || [],
+        attachments: raw.data.attachments || [],
+        experienceLogs: raw.data.experienceLogs || [],
+        dependencies: raw.data.dependencies || [],
+        assignments: raw.data.assignments || [],
+        logisticsContext: raw.data.logisticsContext || undefined,
+        designContext: raw.data.designContext || undefined,
+        financeContext: raw.data.financeContext || undefined,
+        taskable: raw.data.taskable || undefined
+      };
+
+      return {
+        ...raw,
+        data: task
+      };
+    }
+
+    return raw;
   }
 
   async createTask(data: TaskFormData): Promise<ApiResponse<Task>> {
@@ -236,7 +275,28 @@ class TaskApiService {
   async getTaskIssues(taskId?: number): Promise<PaginatedResponse<TaskIssue>> {
     const params = taskId ? { task_id: taskId } : {};
     const response = await this.client.get(API_ENDPOINTS.ISSUES, { params });
-    return response.data;
+    const raw = response.data as any;
+
+    // Backend returns Laravel paginator in raw.data; normalize to PaginatedResponse<TaskIssue>
+    const paginator = raw?.data;
+    const items: TaskIssue[] = Array.isArray(paginator?.data) ? paginator.data : [];
+
+    const meta = paginator
+      ? {
+          pagination: {
+            page: paginator.current_page ?? paginator.currentPage ?? 1,
+            per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
+            total: paginator.total ?? items.length ?? 0
+          }
+        }
+      : undefined;
+
+    return {
+      success: !!raw?.success,
+      data: items,
+      meta,
+      error: raw?.error
+    };
   }
 
   async createIssue(data: TaskIssueFormData & { task_id: number }): Promise<ApiResponse<TaskIssue>> {

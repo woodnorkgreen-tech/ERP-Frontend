@@ -365,18 +365,48 @@ import { useToast } from '../composables/useToast'
 import { ISSUE_SEVERITIES, ISSUE_STATUSES } from '../constants'
 import type { TaskIssue, TaskIssueFormData } from '../types'
 import { useApi } from '@/modules/admin/shared/composables/useApi'
+import { taskApi } from '../services/api'
+import { useRoute } from 'vue-router'
 
 // Components removed - using custom Tailwind implementations
 
 // Props
 interface Props {
-  taskId?: number
+   taskId?: number | string
 }
 
 const props = defineProps<Props>()
 
+// Computed
+const numericTaskId = computed(() => {
+  // First try props
+  let taskId = props.taskId
+
+  // If not provided in props, try to get from route
+  if (taskId === null || taskId === undefined) {
+    const routeId = route.params.id as string
+    if (routeId) {
+      taskId = routeId
+    }
+  }
+
+  if (taskId === null || taskId === undefined) {
+    return undefined
+  }
+  if (typeof taskId === 'string') {
+    const parsed = parseInt(taskId, 10)
+    return isNaN(parsed) ? undefined : parsed
+  }
+  if (typeof taskId === 'number') {
+    return taskId
+  }
+  return undefined
+})
+
 // Composables
 const toast = useToast()
+const { get } = useApi()
+const route = useRoute()
 
 // Reactive state
 const issues = ref<TaskIssue[]>([])
@@ -398,9 +428,6 @@ const issueForm = ref<TaskIssueFormData>({
 })
 
 const errors = ref<Record<string, string>>({})
-
-// API composable
-const { get } = useApi()
 
 // Employee search
 const employeeSearch = ref('')
@@ -475,44 +502,23 @@ const resolvedCount = computed(() =>
 async function loadIssues() {
   loading.value = true
   try {
-    // Mock data - in real app this would call the API
-    issues.value = [
-      {
-        id: 1,
-        task_id: props.taskId || 1,
-        title: 'Login form validation not working',
-        description: 'The email validation on the login form is not preventing invalid email formats from being submitted.',
-        issue_type: 'bug',
-        severity: 'high',
-        status: 'open',
-        reported_by: 1,
-        assigned_to: 2,
-        reported_at: '2024-01-15T10:00:00Z',
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z',
-        reporter: { id: 1, name: 'John Doe', email: 'john@example.com' },
-        assignee: { id: 2, first_name: 'Jane', last_name: 'Smith', name: 'Jane Smith', email: 'jane@example.com' }
-      },
-      {
-        id: 2,
-        task_id: props.taskId || 1,
-        title: 'Mobile responsiveness issues',
-        description: 'The dashboard layout breaks on mobile devices smaller than 375px width.',
-        issue_type: 'bug',
-        severity: 'medium',
-        status: 'resolved',
-        reported_by: 2,
-        assigned_to: 1,
-        reported_at: '2024-01-10T14:30:00Z',
-        resolved_at: '2024-01-12T16:45:00Z',
-        resolution_notes: 'Fixed by adding responsive breakpoints and adjusting CSS grid layout.',
-        created_at: '2024-01-10T14:30:00Z',
-        updated_at: '2024-01-12T16:45:00Z',
-        reporter: { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-        assignee: { id: 1, name: 'John Doe', email: 'john@example.com' }
-      }
-    ]
+    if (numericTaskId.value === undefined || numericTaskId.value === null || numericTaskId.value <= 0) {
+      console.warn('TaskIssuePanel: Invalid task ID', props.taskId, numericTaskId.value)
+      issues.value = []
+      loading.value = false
+      return
+    }
+
+    const response = await taskApi.getTaskIssues(numericTaskId.value)
+    if (response.success && response.data) {
+      issues.value = response.data
+    } else {
+      issues.value = []
+      toast.error('Failed to load issues')
+    }
   } catch (error: any) {
+    console.error('Error loading issues:', error)
+    issues.value = []
     toast.error('Failed to load issues')
   } finally {
     loading.value = false
@@ -602,21 +608,43 @@ async function saveIssue() {
   savingIssue.value = true
 
   try {
+    if (numericTaskId.value === undefined || numericTaskId.value === null || numericTaskId.value <= 0) {
+      console.warn('TaskIssuePanel: Invalid task ID for save', props.taskId, numericTaskId.value)
+      toast.error('Task ID is required')
+      return
+    }
+
+    const formData = {
+      ...issueForm.value,
+      task_id: numericTaskId.value
+    }
+
     if (editingIssue.value) {
       // Update existing issue
-      console.log('Updating issue:', editingIssue.value.id, issueForm.value)
+      const response = await taskApi.updateIssue(editingIssue.value.id, issueForm.value)
+      if (response.success) {
+        toast.success('Issue updated successfully')
+      } else {
+        toast.error('Failed to update issue')
+        return
+      }
     } else {
       // Create new issue
-      console.log('Creating issue:', issueForm.value)
+      const response = await taskApi.createIssue(formData)
+      if (response.success) {
+        toast.success('Issue reported successfully')
+      } else {
+        toast.error('Failed to report issue')
+        return
+      }
     }
 
     showIssueDialog.value = false
     resetIssueForm()
 
-    toast.success(`Issue ${editingIssue.value ? 'updated' : 'reported'} successfully`)
-
     await loadIssues() // Refresh list
   } catch (error: any) {
+    console.error('Error saving issue:', error)
     toast.error(`Failed to ${editingIssue.value ? 'update' : 'report'} issue`)
   } finally {
     savingIssue.value = false
@@ -709,13 +737,16 @@ const selectEmployee = (emp: { id: number; first_name: string; last_name: string
 
 async function resolveIssue(issue: TaskIssue) {
   try {
-    console.log('Resolving issue:', issue.id)
-    showIssueDetailDialog.value = false
-
-    toast.success('Issue marked as resolved')
-
-    await loadIssues() // Refresh list
+    const response = await taskApi.resolveIssue(issue.id)
+    if (response.success) {
+      toast.success('Issue marked as resolved')
+      showIssueDetailDialog.value = false
+      await loadIssues() // Refresh list
+    } else {
+      toast.error('Failed to resolve issue')
+    }
   } catch (error: any) {
+    console.error('Error resolving issue:', error)
     toast.error('Failed to resolve issue')
   }
 }

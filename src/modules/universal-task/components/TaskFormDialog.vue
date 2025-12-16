@@ -7,7 +7,9 @@
     <!-- Modal Content -->
     <div class="flex justify-center sm:justify-end min-h-screen pt-4 px-4 pb-20 sm:block sm:p-0">
       <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg text-left overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all duration-300 ease-out sm:my-8 sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl w-full sm:w-auto sm:ml-auto relative z-10 slide-in-right" role="dialog" aria-modal="true" aria-labelledby="modal-headline" @click.stop>
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <!-- Close button -->
+        <button @click="$emit('update:visible', false)" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 text-2xl leading-none z-20">&times;</button>
+        <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
           <div class="sm:flex sm:items-start">
             <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
               <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4" id="modal-headline">
@@ -220,13 +222,16 @@
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
-          <input
-            v-model="tagInput"
-            type="text"
-            placeholder="Add tags (press Enter)"
+          <select
+            v-model="selectedTag"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            @keydown.enter="addTag"
-          />
+            @change="addTagFromDropdown"
+          >
+            <option value="">Select industry standard tag</option>
+            <option v-for="tag in industryTags" :key="tag" :value="tag">
+              {{ tag }}
+            </option>
+          </select>
           <div v-if="form.tags && form.tags.length > 0" class="mt-2 flex flex-wrap gap-2">
             <span
               v-for="(tag, index) in form.tags"
@@ -260,7 +265,7 @@
                  </button>
                  <button
                    type="button"
-                   @click="cancel"
+                   @click="$emit('update:visible', false)"
                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                  >
                    Cancel
@@ -283,6 +288,7 @@ import { TASK_STATUSES, TASK_PRIORITIES, TASK_TYPES } from '../constants'
 import type { Task, TaskFormData } from '../types'
 import { useApi } from '@/modules/admin/shared/composables/useApi'
 import api from '@/plugins/axios'
+import { formatDateForInput } from '../utils/dateUtils'
 
 // Components removed - using custom Tailwind implementations
 
@@ -290,6 +296,7 @@ import api from '@/plugins/axios'
 interface Props {
   visible: boolean
   task?: Task | null
+  parentTaskId?: number | null
 }
 
 const props = defineProps<Props>()
@@ -331,9 +338,9 @@ const { get } = useApi()
 const departments = ref<Array<{ id: number; name: string }>>([])
 const loadingDepartments = ref(false)
 
-const employees = ref<Array<{ id: number; first_name: string; last_name: string; position?: string; displayName: string }>>([])
-const employeeSuggestions = ref<Array<{ id: number; first_name: string; last_name: string; position?: string; displayName: string }>>([])
-const selectedEmployee = ref<{ id: number; first_name: string; last_name: string; position?: string; displayName: string } | null>(null)
+const employees = ref<Array<{ id: number; employee_id?: number; first_name: string; last_name: string; position?: string; displayName: string }>>([])
+const employeeSuggestions = ref<Array<{ id: number; employee_id?: number; first_name: string; last_name: string; position?: string; displayName: string }>>([])
+const selectedEmployee = ref<{ id: number; employee_id?: number; first_name: string; last_name: string; position?: string; displayName: string } | null>(null)
 const loadingEmployees = ref(false)
 
 const projects = ref<Array<{ id: number; title: string; enquiry_number: string; client?: { full_name: string }; displayName: string }>>([])
@@ -344,6 +351,13 @@ const linkType = ref<'project' | 'office' | null>(null)
 const officeName = ref('')
 const employeeSearch = ref('')
 const tagInput = ref('')
+const selectedTag = ref('')
+const industryTags = ref([
+  'important', 'office', 'departmental', 'urgent',
+  'priority', 'follow-up', 'documentation',
+  'meeting', 'training', 'review', 'client',
+  'internal', 'external', 'administrative'
+])
 
 // Computed
 const isEditing = computed(() => !!props.task)
@@ -416,11 +430,12 @@ const searchEmployees = async (event: { query: string }) => {
       }
     }
 
-    // Filter and format employees - only show names
+    // Filter and format employees - include user_id for task assignment
     employeeSuggestions.value = employeesArray
       .filter((emp: any) => emp.first_name || emp.last_name)
       .map((emp: any) => ({
-        id: emp.id,
+        id: emp.user_id || emp.id, // Use user_id if available, fallback to employee id
+        employee_id: emp.id,
         first_name: emp.first_name || '',
         last_name: emp.last_name || '',
         position: emp.position,
@@ -474,7 +489,7 @@ const handleEmployeeClear = () => {
   selectedEmployee.value = null
 }
 
-const selectEmployee = (emp: { id: number; first_name: string; last_name: string; position?: string; displayName: string }) => {
+const selectEmployee = (emp: { id: number; employee_id?: number; first_name: string; last_name: string; position?: string; displayName: string }) => {
   selectedEmployee.value = emp
   form.value.assigned_user_id = emp.id
   employeeSearch.value = emp.displayName
@@ -486,6 +501,16 @@ const addTag = () => {
     if (!form.value.tags) form.value.tags = []
     form.value.tags.push(tagInput.value.trim())
     tagInput.value = ''
+  }
+}
+
+const addTagFromDropdown = () => {
+  if (selectedTag.value && (!form.value.tags || form.value.tags.length < 10)) {
+    if (!form.value.tags) form.value.tags = []
+    if (!form.value.tags.includes(selectedTag.value)) {
+      form.value.tags.push(selectedTag.value)
+    }
+    selectedTag.value = ''
   }
 }
 
@@ -546,13 +571,13 @@ const populateForm = (task: Task) => {
     task_type: task.task_type || '',
     status: task.status,
     priority: task.priority,
-    parent_task_id: task.parent_task_id || undefined,
+    parent_task_id: task.parent_task_id || props.parentTaskId || undefined,
     taskable_type: task.taskable_type || undefined,
     taskable_id: task.taskable_id || undefined,
     department_id: task.department_id || undefined,
     assigned_user_id: task.assigned_user_id || undefined,
     estimated_hours: task.estimated_hours || undefined,
-    due_date: task.due_date || undefined,
+    due_date: task.due_date ? formatDateForInput(task.due_date) : undefined,
     tags: task.tags || [],
     metadata: task.metadata || {}
   }
@@ -560,11 +585,13 @@ const populateForm = (task: Task) => {
   // Set selected employee if assigned
   if (task.assignedUser) {
     selectedEmployee.value = {
-      id: task.assignedUser.id,
+      id: task.assignedUser.id, // This should be the user ID
+      employee_id: undefined,
       first_name: task.assignedUser.name.split(' ')[0] || '',
       last_name: task.assignedUser.name.split(' ').slice(1).join(' ') || '',
       displayName: task.assignedUser.name
     }
+    employeeSearch.value = task.assignedUser.name
   }
   
   // Set selected project if linked
@@ -580,12 +607,33 @@ const populateForm = (task: Task) => {
 const validateForm = (): boolean => {
   errors.value = {}
 
+  // Required fields validation
   if (!form.value.title?.trim()) {
     errors.value.title = 'Title is required'
   }
 
   if (!form.value.department_id) {
     errors.value.department_id = 'Department is required'
+  }
+
+  if (!form.value.status) {
+    errors.value.status = 'Status is required'
+  }
+
+  if (!form.value.priority) {
+    errors.value.priority = 'Priority is required'
+  }
+
+  if (!form.value.due_date) {
+    errors.value.due_date = 'Due date is required'
+  }
+
+  if (!form.value.assigned_user_id) {
+    errors.value.assigned_user_id = 'Assignee is required'
+  }
+
+  if (!form.value.task_type) {
+    errors.value.task_type = 'Task type is required'
   }
 
   if (form.value.estimated_hours && form.value.estimated_hours < 0) {

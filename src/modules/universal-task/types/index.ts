@@ -35,6 +35,7 @@ export interface Task {
   tags?: string[];
   metadata?: Record<string, any>;
   completion_percentage: number;
+  subtasks_count?: number;
   created_at: string;
   updated_at: string;
 
@@ -50,6 +51,14 @@ export interface Task {
   comments?: TaskComment[];
   attachments?: TaskAttachment[];
   timeEntries?: TaskTimeEntry[];
+
+  // Context data
+  logisticsContext?: LogisticsTaskContext;
+  designContext?: DesignTaskContext;
+  financeContext?: FinanceTaskContext;
+
+  // Polymorphic relationship
+  taskable?: any;
 }
 
 export type TaskStatus =
@@ -62,6 +71,93 @@ export type TaskStatus =
   | 'overdue';
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+// API Response Types
+export interface TaskResponse {
+  id: number;
+  title: string;
+  description?: string;
+  task_type?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  parent_task_id?: number;
+  taskable_type?: string;
+  taskable_id?: number;
+  department_id?: number;
+  assigned_user_id?: number;
+  creator_id: number;
+  estimated_hours?: number;
+  actual_hours?: number;
+  due_date?: string;
+  started_at?: string;
+  completed_at?: string;
+  blocked_reason?: string;
+  tags?: string[];
+  metadata?: Record<string, any>;
+  completion_percentage: number;
+  created_at: string;
+  updated_at: string;
+
+  // Relationships
+  assigned_user?: User;
+  creator?: User;
+  department?: Department;
+  parent_task?: TaskResponse;
+  subtasks?: TaskResponse[];
+  dependencies?: TaskDependencyResponse[];
+  issues?: TaskIssue[];
+  comments?: TaskComment[];
+  attachments?: TaskAttachment[];
+  time_entries?: TaskTimeEntry[];
+
+  // Context data
+  logistics_context?: LogisticsTaskContext;
+  design_context?: DesignTaskContext;
+  finance_context?: FinanceTaskContext;
+}
+
+export interface TaskDependencyResponse {
+  id: number;
+  dependency_type: string;
+  depends_on_task?: TaskResponse;
+}
+
+// Context Types
+export interface LogisticsTaskContext {
+  id: number;
+  transport_type?: string;
+  pickup_location?: string;
+  delivery_location?: string;
+  special_requirements?: string;
+  estimated_distance?: number;
+  actual_distance?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DesignTaskContext {
+  id: number;
+  design_type?: string;
+  specifications?: string;
+  reference_files?: string[];
+  approval_required?: boolean;
+  approved_at?: string;
+  approved_by?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FinanceTaskContext {
+  id: number;
+  budget_allocated?: number;
+  budget_used?: number;
+  currency?: string;
+  cost_center?: string;
+  invoice_required?: boolean;
+  payment_terms?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface TaskDependency {
   id: number;
@@ -446,4 +542,9 @@ export type {
   LoadingState,
   ErrorState,
   TaskEvent,
+  TaskResponse,
+  TaskDependencyResponse,
+  LogisticsTaskContext,
+  DesignTaskContext,
+  FinanceTaskContext,
 };
