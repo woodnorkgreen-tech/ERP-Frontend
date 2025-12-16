@@ -42,9 +42,18 @@
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z"></path>
               </svg>
               New Disbursement
+            </button>
+            <button
+              @click="showUploadModal = true"
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+              </svg>
+              Upload Excel
             </button>
           </div>
         </div>
@@ -264,24 +273,30 @@
     </div>
 
     <!-- Modals -->
-    <TopUpForm 
-      :is-open="showTopUpModal" 
+    <TopUpForm
+      :is-open="showTopUpModal"
       @close="showTopUpModal = false"
       @success="onTopUpSuccess"
     />
-    
-    <DisbursementForm 
-      :is-open="showDisbursementModal" 
+     
+    <DisbursementForm
+      :is-open="showDisbursementModal"
       @close="showDisbursementModal = false"
       @success="onDisbursementSuccess"
     />
-    
-    <DisbursementForm 
-      :is-open="showEditDisbursementModal" 
+     
+    <DisbursementForm
+      :is-open="showEditDisbursementModal"
       :edit-mode="true"
       :disbursement="selectedDisbursement"
       @close="closeEditModal"
       @success="onDisbursementSuccess"
+    />
+    
+    <ExcelUploadModal
+      :is-open="showUploadModal"
+      @close="showUploadModal = false"
+      @success="onUploadSuccess"
     />
     
     <!-- Void Confirmation Modal -->
@@ -357,12 +372,14 @@ import { usePettyCashStore } from '../stores'
 import type { RecentTransaction, PettyCashDisbursement } from '../types/pettyCash'
 import TopUpForm from './TopUpForm.vue'
 import DisbursementForm from './DisbursementForm.vue'
+import ExcelUploadModal from './ExcelUploadModal.vue'
 
 const store = usePettyCashStore()
 const showTopUpModal = ref(false)
 const showDisbursementModal = ref(false)
 const showEditDisbursementModal = ref(false)
 const showVoidModal = ref(false)
+const showUploadModal = ref(false)
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
 const voidReason = ref('')
 const isVoiding = ref(false)
@@ -463,12 +480,27 @@ const refreshDashboard = async () => {
 }
 
 // Modal handlers
-const onTopUpSuccess = () => {
-  // Dashboard will automatically refresh due to store updates
+const onTopUpSuccess = async () => {
+  // Explicitly refresh transaction data after top-up creation
+  console.log('🔄 Top-up created, refreshing transaction data...')
+  await store.fetchTopUps()
+  await store.fetchDisbursements()
+  console.log('🔄 Transaction data refreshed after top-up')
 }
 
-const onDisbursementSuccess = () => {
-  // Dashboard will automatically refresh due to store updates
+const onDisbursementSuccess = async () => {
+  // Explicitly refresh transaction data after disbursement creation/update
+  console.log('🔄 Disbursement operation completed, refreshing transaction data...')
+  await store.fetchTopUps()
+  await store.fetchDisbursements()
+  console.log('🔄 Transaction data refreshed after disbursement')
+}
+
+const onUploadSuccess = async () => {
+  // Refresh all data after successful upload
+  console.log('🔄 Excel upload completed, refreshing all data...')
+  await store.refreshAll()
+  console.log('🔄 All data refreshed after upload')
 }
 
 const closeEditModal = () => {

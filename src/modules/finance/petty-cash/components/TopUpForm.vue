@@ -108,9 +108,13 @@
                 required
               >
                 <option value="">Select payment method</option>
-                <option value="cash">Cash</option>
+                <option value="cash">Cash Account</option>
                 <option value="mpesa">M-Pesa</option>
-                <option value="bank_transfer">Bank Transfer</option>
+                <option value="equity">Equity Bank</option>
+                <option value="stanbic">Stanbic Bank</option>
+                <option value="ncba">NCBA Bank</option>
+                <option value="kcb">KCB Bank</option>
+                <option value="family">Family Bank</option>
                 <option value="other">Other</option>
               </select>
               <p v-if="errors.payment_method" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -231,8 +235,8 @@ const requiresTransactionCode = computed(() => {
 })
 
 const isFormValid = computed(() => {
-  return form.amount && 
-         form.payment_method && 
+  return form.amount &&
+         form.payment_method &&
          (!requiresTransactionCode.value || form.transaction_code)
 })
 
@@ -241,7 +245,11 @@ const getTransactionCodePlaceholder = (): string => {
   switch (form.payment_method) {
     case 'mpesa':
       return 'QH12ABC345'
-    case 'bank_transfer':
+    case 'equity':
+    case 'stanbic':
+    case 'ncba':
+    case 'kcb':
+    case 'family':
       return 'Bank reference number'
     default:
       return 'Transaction reference'
@@ -330,9 +338,14 @@ const handleSubmit = async () => {
 
   if (!result) {
     // Handle API validation errors
-    const storeError = store.error
-    if (storeError && typeof storeError === 'object' && 'errors' in storeError) {
-      errors.value = storeError.errors as Record<string, string[]>
+    try {
+      const storeErrors = store.errors
+      if (storeErrors && typeof storeErrors === 'object' && 'creating' in storeErrors && storeErrors.creating) {
+        errors.value = { general: [storeErrors.creating] }
+      }
+    } catch (error) {
+      console.error('Error handling store errors:', error)
+      errors.value = { general: ['An error occurred while processing your request'] }
     }
   }
 

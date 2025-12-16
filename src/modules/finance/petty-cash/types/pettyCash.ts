@@ -1,5 +1,5 @@
 // Enums with strict typing
-export type PaymentMethod = 'cash' | 'mpesa' | 'bank_transfer' | 'other'
+export type PaymentMethod = 'cash' | 'mpesa' | 'bank_transfer' | 'equity' | 'stanbic' | 'ncba' | 'kcb' | 'family' | 'other'
 export type Classification = 'agencies' | 'admin' | 'operations' | 'other'
 export type DisbursementStatus = 'active' | 'voided'
 export type BalanceStatus = 'normal' | 'low' | 'critical'

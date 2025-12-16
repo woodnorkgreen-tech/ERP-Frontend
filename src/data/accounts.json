@@ -1,0 +1,726 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-15",
+  "accounts": [
+    {
+      "id": 1,
+      "name": "Accounts Payable (A/P)",
+      "code": "AP-001",
+      "category": "liability"
+    },
+    {
+      "id": 2,
+      "name": "Accounts Receivable (A/R)",
+      "code": "AR-001",
+      "category": "asset"
+    },
+    {
+      "id": 3,
+      "name": "Accounts Receivable (A/R) - EUR",
+      "code": "AR-002",
+      "category": "asset"
+    },
+    {
+      "id": 4,
+      "name": "Short Term Debtors",
+      "code": "STD-001",
+      "category": "asset"
+    },
+    {
+      "id": 5,
+      "name": "Cash Account",
+      "code": "CASH-001",
+      "category": "asset"
+    },
+    {
+      "id": 6,
+      "name": "Equity Bank",
+      "code": "EQB-001",
+      "category": "asset"
+    },
+    {
+      "id": 7,
+      "name": "Family Bank",
+      "code": "FMB-001",
+      "category": "asset"
+    },
+    {
+      "id": 8,
+      "name": "Faulu Kenya",
+      "code": "FK-001",
+      "category": "asset"
+    },
+    {
+      "id": 9,
+      "name": "KCB Bank",
+      "code": "KCB-001",
+      "category": "asset"
+    },
+    {
+      "id": 10,
+      "name": "NCBA",
+      "code": "NCBA-001",
+      "category": "asset"
+    },
+    {
+      "id": 11,
+      "name": "NIC Dollar Account",
+      "code": "NIC-001",
+      "category": "asset"
+    },
+    {
+      "id": 12,
+      "name": "Petty cash",
+      "code": "PETTY-001",
+      "category": "asset"
+    },
+    {
+      "id": 13,
+      "name": "SBM",
+      "code": "SBM-001",
+      "category": "asset"
+    },
+    {
+      "id": 14,
+      "name": "Stanbic Bank",
+      "code": "STB-001",
+      "category": "asset"
+    },
+    {
+      "id": 15,
+      "name": "Change in inventory - COS",
+      "code": "COS-001",
+      "category": "expense"
+    },
+    {
+      "id": 16,
+      "name": "Cost of Sales",
+      "code": "COS-002",
+      "category": "expense"
+    },
+    {
+      "id": 17,
+      "name": "Cost of Sales:Branding",
+      "code": "COS-003",
+      "category": "expense"
+    },
+    {
+      "id": 18,
+      "name": "Cost of Sales:Courier - Projects",
+      "code": "COS-004",
+      "category": "expense"
+    },
+    {
+      "id": 19,
+      "name": "Cost of Sales:Fabrication",
+      "code": "COS-005",
+      "category": "expense"
+    },
+    {
+      "id": 20,
+      "name": "Cost of Sales:Field Facilitation",
+      "code": "COS-006",
+      "category": "expense"
+    },
+    {
+      "id": 21,
+      "name": "Cost of Sales:Jomat hardware",
+      "code": "COS-007",
+      "category": "expense"
+    },
+    {
+      "id": 22,
+      "name": "Cost of Sales:Materials",
+      "code": "COS-008",
+      "category": "expense"
+    },
+    {
+      "id": 23,
+      "name": "Cost of Sales:Motor bike and motor vehicle fuel",
+      "code": "COS-009",
+      "category": "expense"
+    },
+    {
+      "id": 24,
+      "name": "Cost of Sales:Paints & Hardware",
+      "code": "COS-010",
+      "category": "expense"
+    },
+    {
+      "id": 25,
+      "name": "Cost of Sales:Parking Fees",
+      "code": "COS-011",
+      "category": "expense"
+    },
+    {
+      "id": 26,
+      "name": "Cost of Sales:Plotting & Cutting",
+      "code": "COS-012",
+      "category": "expense"
+    },
+    {
+      "id": 27,
+      "name": "Cost of Sales:Printing",
+      "code": "COS-013",
+      "category": "expense"
+    },
+    {
+      "id": 28,
+      "name": "Cost of Sales:Team Meals",
+      "code": "COS-014",
+      "category": "expense"
+    },
+    {
+      "id": 29,
+      "name": "Cost of Sales:Teams accomodation",
+      "code": "COS-015",
+      "category": "expense"
+    },
+    {
+      "id": 30,
+      "name": "Cost of Sales:Transport & Delivery",
+      "code": "COS-016",
+      "category": "expense"
+    },
+    {
+      "id": 31,
+      "name": "Discounts given - COS",
+      "code": "COS-017",
+      "category": "expense"
+    },
+    {
+      "id": 32,
+      "name": "Inventory Shrinkage",
+      "code": "INV-001",
+      "category": "expense"
+    },
+    {
+      "id": 33,
+      "name": "Other - COS",
+      "code": "COS-018",
+      "category": "expense"
+    },
+    {
+      "id": 34,
+      "name": "Overhead - COS",
+      "code": "COS-019",
+      "category": "expense"
+    },
+    {
+      "id": 35,
+      "name": "Pasting Expenses",
+      "code": "EXP-001",
+      "category": "expense"
+    },
+    {
+      "id": 36,
+      "name": "Subcontractors - COS",
+      "code": "COS-020",
+      "category": "expense"
+    },
+    {
+      "id": 37,
+      "name": "Dividend disbursed",
+      "code": "DIV-001",
+      "category": "equity"
+    },
+    {
+      "id": 38,
+      "name": "Equity in earnings of subsidiaries",
+      "code": "EQE-001",
+      "category": "equity"
+    },
+    {
+      "id": 39,
+      "name": "Opening Balance Equity",
+      "code": "OBE-001",
+      "category": "equity"
+    },
+    {
+      "id": 40,
+      "name": "Other comprehensive income",
+      "code": "OCI-001",
+      "category": "equity"
+    },
+    {
+      "id": 41,
+      "name": "Retained Earnings",
+      "code": "RE-001",
+      "category": "equity"
+    },
+    {
+      "id": 42,
+      "name": "Share capital",
+      "code": "SC-001",
+      "category": "equity"
+    },
+    {
+      "id": 43,
+      "name": "Administration expenses",
+      "code": "ADM-001",
+      "category": "expense"
+    },
+    {
+      "id": 44,
+      "name": "Administration expenses:Courier & Postage",
+      "code": "ADM-002",
+      "category": "expense"
+    },
+    {
+      "id": 45,
+      "name": "Administration expenses:Depreciation Expense",
+      "code": "ADM-003",
+      "category": "expense"
+    },
+    {
+      "id": 46,
+      "name": "Amortisation expense",
+      "code": "AMO-001",
+      "category": "expense"
+    },
+    {
+      "id": 47,
+      "name": "Atm charges",
+      "code": "ATM-001",
+      "category": "expense"
+    },
+    {
+      "id": 48,
+      "name": "Bad Debts",
+      "code": "BD-001",
+      "category": "expense"
+    },
+    {
+      "id": 49,
+      "name": "Delivery/Trolley expenses",
+      "code": "DEL-001",
+      "category": "expense"
+    },
+    {
+      "id": 50,
+      "name": "EXCISE DUTY",
+      "code": "EXD-001",
+      "category": "expense"
+    },
+    {
+      "id": 51,
+      "name": "Finance cost",
+      "code": "FIN-001",
+      "category": "expense"
+    },
+    {
+      "id": 52,
+      "name": "Finance cost:Bad debts",
+      "code": "FIN-002",
+      "category": "expense"
+    },
+    {
+      "id": 53,
+      "name": "Finance cost:Bank charges",
+      "code": "FIN-003",
+      "category": "expense"
+    },
+    {
+      "id": 54,
+      "name": "Finance cost:Interest expense",
+      "code": "FIN-004",
+      "category": "expense"
+    },
+    {
+      "id": 55,
+      "name": "Finance cost:Mpesa charges",
+      "code": "FIN-005",
+      "category": "expense"
+    },
+    {
+      "id": 56,
+      "name": "Income tax expense",
+      "code": "ITX-001",
+      "category": "expense"
+    },
+    {
+      "id": 57,
+      "name": "Insurance - Disability",
+      "code": "INS-001",
+      "category": "expense"
+    },
+    {
+      "id": 58,
+      "name": "Insurance - General",
+      "code": "INS-002",
+      "category": "expense"
+    },
+    {
+      "id": 59,
+      "name": "Insurance - Liability",
+      "code": "INS-003",
+      "category": "expense"
+    },
+    {
+      "id": 60,
+      "name": "Legal and professional fees",
+      "code": "LPF-001",
+      "category": "expense"
+    },
+    {
+      "id": 61,
+      "name": "Loss on discontinued operations, net of tax",
+      "code": "LDO-001",
+      "category": "expense"
+    },
+    {
+      "id": 62,
+      "name": "Management compensation",
+      "code": "MC-001",
+      "category": "expense"
+    },
+    {
+      "id": 63,
+      "name": "Meals and entertainment",
+      "code": "MAE-001",
+      "category": "expense"
+    },
+    {
+      "id": 64,
+      "name": "Medical expenses",
+      "code": "MED-001",
+      "category": "expense"
+    },
+    {
+      "id": 65,
+      "name": "Motor bike and motor vehicle car wash",
+      "code": "MBMV-001",
+      "category": "expense"
+    },
+    {
+      "id": 66,
+      "name": "Motor bike and motor vehicles Repair",
+      "code": "MBMV-002",
+      "category": "expense"
+    },
+    {
+      "id": 67,
+      "name": "Operating Expenses",
+      "code": "OPE-001",
+      "category": "expense"
+    },
+    {
+      "id": 68,
+      "name": "Operating Expenses:Advertising/Promotional",
+      "code": "OPE-002",
+      "category": "expense"
+    },
+    {
+      "id": 69,
+      "name": "Operating Expenses:Audit & Accountancy Fees",
+      "code": "OPE-003",
+      "category": "expense"
+    },
+    {
+      "id": 70,
+      "name": "Operating Expenses:Commissions and fees",
+      "code": "OPE-004",
+      "category": "expense"
+    },
+    {
+      "id": 71,
+      "name": "Operating Expenses:Consultancy Fees",
+      "code": "OPE-005",
+      "category": "expense"
+    },
+    {
+      "id": 72,
+      "name": "Operating Expenses:Consumables",
+      "code": "OPE-006",
+      "category": "expense"
+    },
+    {
+      "id": 73,
+      "name": "Operating Expenses:Corporate social Responsibility",
+      "code": "OPE-007",
+      "category": "expense"
+    },
+    {
+      "id": 74,
+      "name": "Operating Expenses:Director Expenses",
+      "code": "OPE-008",
+      "category": "expense"
+    },
+    {
+      "id": 75,
+      "name": "Operating Expenses:Director Expenses:Courier - Director's Errands",
+      "code": "OPE-009",
+      "category": "expense"
+    },
+    {
+      "id": 76,
+      "name": "Operating Expenses:Dues and subacriptions",
+      "code": "OPE-010",
+      "category": "expense"
+    },
+    {
+      "id": 77,
+      "name": "Operating Expenses:Dues and subscriptions",
+      "code": "OPE-011",
+      "category": "expense"
+    },
+    {
+      "id": 78,
+      "name": "Operating Expenses:Electricity & Water",
+      "code": "OPE-012",
+      "category": "expense"
+    },
+    {
+      "id": 79,
+      "name": "Operating Expenses:Equipment Rental",
+      "code": "OPE-013",
+      "category": "expense"
+    },
+    {
+      "id": 80,
+      "name": "Operating Expenses:Garbage Collections",
+      "code": "OPE-014",
+      "category": "expense"
+    },
+    {
+      "id": 81,
+      "name": "Operating Expenses:Generator fuel, Repair and Maintenance",
+      "code": "OPE-015",
+      "category": "expense"
+    },
+    {
+      "id": 82,
+      "name": "Operating Expenses:Insurance premium",
+      "code": "OPE-016",
+      "category": "expense"
+    },
+    {
+      "id": 83,
+      "name": "Operating Expenses:Licenses and permits",
+      "code": "OPE-017",
+      "category": "expense"
+    },
+    {
+      "id": 84,
+      "name": "Operating Expenses:Office Casual/Stipend",
+      "code": "OPE-018",
+      "category": "expense"
+    },
+    {
+      "id": 85,
+      "name": "Operating Expenses:Office expenses",
+      "code": "OPE-019",
+      "category": "expense"
+    },
+    {
+      "id": 86,
+      "name": "Operating Expenses:Packaging and Delivery",
+      "code": "OPE-020",
+      "category": "expense"
+    },
+    {
+      "id": 87,
+      "name": "Operating Expenses:Professional Fees",
+      "code": "OPE-021",
+      "category": "expense"
+    },
+    {
+      "id": 88,
+      "name": "Operating Expenses:Rent & lease Payments",
+      "code": "OPE-022",
+      "category": "expense"
+    },
+    {
+      "id": 89,
+      "name": "Operating Expenses:Repairs and Maintenance",
+      "code": "OPE-023",
+      "category": "expense"
+    },
+    {
+      "id": 90,
+      "name": "Operating Expenses:Samples",
+      "code": "OPE-024",
+      "category": "expense"
+    },
+    {
+      "id": 91,
+      "name": "Operating Expenses:Security And Fees",
+      "code": "OPE-025",
+      "category": "expense"
+    },
+    {
+      "id": 92,
+      "name": "Operating Expenses:Set Up Casuals",
+      "code": "OPE-026",
+      "category": "expense"
+    },
+    {
+      "id": 93,
+      "name": "Operating Expenses:Shipping & Delivery Expense",
+      "code": "OPE-027",
+      "category": "expense"
+    },
+    {
+      "id": 94,
+      "name": "Operating Expenses:Site Visist",
+      "code": "OPE-028",
+      "category": "expense"
+    },
+    {
+      "id": 95,
+      "name": "Operating Expenses:Staff Welfare",
+      "code": "OPE-029",
+      "category": "expense"
+    },
+    {
+      "id": 96,
+      "name": "Operating Expenses:Stationery & Printing",
+      "code": "OPE-030",
+      "category": "expense"
+    },
+    {
+      "id": 97,
+      "name": "Operating Expenses:Telephone & Internet",
+      "code": "OPE-031",
+      "category": "expense"
+    },
+    {
+      "id": 98,
+      "name": "Operating Expenses:Transport & Delivery",
+      "code": "OPE-032",
+      "category": "expense"
+    },
+    {
+      "id": 99,
+      "name": "Other general and administrative expenses",
+      "code": "OGAE-001",
+      "category": "expense"
+    },
+    {
+      "id": 100,
+      "name": "Other selling expenses",
+      "code": "OSE-001",
+      "category": "expense"
+    },
+    {
+      "id": 101,
+      "name": "Other Types of Expenses-Advertising Expenses",
+      "code": "OTEA-001",
+      "category": "expense"
+    },
+    {
+      "id": 102,
+      "name": "Overtime expense",
+      "code": "OTE-001",
+      "category": "expense"
+    },
+    {
+      "id": 103,
+      "name": "Payroll Expenses",
+      "code": "PE-001",
+      "category": "expense"
+    },
+    {
+      "id": 104,
+      "name": "Personnel Expenses",
+      "code": "PE-002",
+      "category": "expense"
+    },
+    {
+      "id": 105,
+      "name": "Personnel Expenses:Housing levy",
+      "code": "PE-003",
+      "category": "expense"
+    },
+    {
+      "id": 106,
+      "name": "Personnel Expenses:Nita Levy",
+      "code": "PE-004",
+      "category": "expense"
+    },
+    {
+      "id": 107,
+      "name": "Personnel Expenses:NSSF Expense",
+      "code": "PE-005",
+      "category": "expense"
+    },
+    {
+      "id": 108,
+      "name": "Personnel Expenses:Salaries",
+      "code": "PE-006",
+      "category": "expense"
+    },
+    {
+      "id": 109,
+      "name": "Personnel Expenses:Wages-Direct Labour",
+      "code": "PE-007",
+      "category": "expense"
+    },
+    {
+      "id": 110,
+      "name": "Printing Supplies",
+      "code": "PS-001",
+      "category": "expense"
+    },
+    {
+      "id": 111,
+      "name": "Return Inwards",
+      "code": "RI-001",
+      "category": "revenue"
+    },
+    {
+      "id": 112,
+      "name": "Rider's Expense",
+      "code": "RE-002",
+      "category": "expense"
+    },
+    {
+      "id": 113,
+      "name": "Supplies",
+      "code": "SUP-001",
+      "category": "expense"
+    },
+    {
+      "id": 114,
+      "name": "Travel expenses - selling expenses",
+      "code": "TSE-001",
+      "category": "expense"
+    },
+    {
+      "id": 115,
+      "name": "Unapplied Cash Bill Payment Expense",
+      "code": "UCBPE-001",
+      "category": "expense"
+    },
+    {
+      "id": 116,
+      "name": "Uncategorised Expense",
+      "code": "UE-001",
+      "category": "expense"
+    },
+    {
+      "id": 117,
+      "name": "Utilities",
+      "code": "UTIL-001",
+      "category": "expense"
+    },
+    {
+      "id": 118,
+      "name": "Vat Penalty",
+      "code": "VP-001",
+      "category": "expense"
+    },
+    {
+      "id": 119,
+      "name": "Wage expenses",
+      "code": "WE-001",
+      "category": "expense"
+    },
+    {
+      "id": 120,
+      "name": "WNG Give aways",
+      "code": "WNGA-001",
+      "category": "expense"
+    }
+  ]
+}

@@ -163,56 +163,124 @@
               
               <!-- Transaction Details -->
               <div class="min-w-0 flex-1">
-                <div class="flex items-center space-x-2">
-                  <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    <span v-if="transaction.type === 'top_up'">Top-up</span>
-                    <span v-else>{{ transaction.receiver || 'Disbursement' }}</span>
-                  </h4>
-                  
-                  <!-- Transaction Type Badge -->
-                  <span 
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="transaction.type === 'top_up' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'"
-                  >
-                    {{ transaction.type === 'top_up' ? 'Top-up' : 'Disbursement' }}
-                  </span>
-                  
-                  <!-- Payment Method Badge -->
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
-                    {{ transaction.payment_method?.label || 'Unknown' }}
-                  </span>
-                  
-                  <!-- Classification Badge (for disbursements) -->
-                  <span 
-                    v-if="transaction.classification"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" 
-                    :class="getClassificationBadgeClass(transaction.classification.value)"
-                  >
-                    {{ transaction.classification.label }}
-                  </span>
-                  
-                  <!-- Status Badge (for disbursements) -->
-                  <span 
-                    v-if="transaction.status?.is_voided" 
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
-                  >
-                    Voided
-                  </span>
+                <!-- Edit Mode -->
+                <div v-if="editingTransaction === transaction.id && transaction.type === 'disbursement'" class="space-y-3">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Receiver -->
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Receiver</label>
+                      <input
+                        v-model="editForm.receiver"
+                        type="text"
+                        class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="Receiver name"
+                      />
+                    </div>
+
+                    <!-- Account -->
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Account</label>
+                      <input
+                        v-model="editForm.account"
+                        type="text"
+                        class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="Account"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <textarea
+                      v-model="editForm.description"
+                      rows="2"
+                      class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="Description"
+                    ></textarea>
+                  </div>
+
+                  <!-- Project Name (if applicable) -->
+                  <div v-if="transaction.classification && ['event_planners', 'corporates', 'crs', 'agencies'].includes(transaction.classification.value)">
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Project Name</label>
+                    <input
+                      v-model="editForm.project_name"
+                      type="text"
+                      class="block w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="Project name"
+                    />
+                  </div>
+
+                  <!-- Edit Actions -->
+                  <div class="flex space-x-2">
+                    <button
+                      @click="saveInlineEdit(transaction)"
+                      class="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      Save
+                    </button>
+                    <button
+                      @click="cancelInlineEdit"
+                      class="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-                
-                <!-- Description -->
-                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
-                  {{ transaction.description }}
-                </p>
-                
-                <!-- Additional Details (for disbursements) -->
-                <div v-if="transaction.type === 'disbursement'" class="flex items-center space-x-4 text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  <span v-if="transaction.account">{{ transaction.account }}</span>
-                  <span v-if="transaction.project_name">{{ transaction.project_name }}</span>
-                  <span>{{ formatDate(transaction.created_at.raw) }}</span>
-                </div>
-                <div v-else class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                  {{ formatDate(transaction.created_at.raw) }}
+
+                <!-- View Mode -->
+                <div v-else>
+                  <div class="flex items-center space-x-2">
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <span v-if="transaction.type === 'top_up'">Top-up</span>
+                      <span v-else>{{ transaction.receiver || 'Disbursement' }}</span>
+                    </h4>
+
+                    <!-- Transaction Type Badge -->
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      :class="transaction.type === 'top_up' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'"
+                    >
+                      {{ transaction.type === 'top_up' ? 'Top-up' : 'Disbursement' }}
+                    </span>
+
+                    <!-- Payment Method Badge -->
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                      {{ transaction.payment_method?.label || 'Unknown' }}
+                    </span>
+
+                    <!-- Classification Badge (for disbursements) -->
+                    <span
+                      v-if="transaction.classification"
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                      :class="getClassificationBadgeClass(transaction.classification.value)"
+                    >
+                      {{ transaction.classification.label }}
+                    </span>
+
+                    <!-- Status Badge (for disbursements) -->
+                    <span
+                      v-if="transaction.status?.is_voided"
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
+                    >
+                      Voided
+                    </span>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    {{ transaction.description }}
+                  </p>
+
+                  <!-- Additional Details (for disbursements) -->
+                  <div v-if="transaction.type === 'disbursement'" class="flex items-center space-x-4 text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    <span v-if="transaction.account">{{ transaction.account }}</span>
+                    <span v-if="transaction.project_name">{{ transaction.project_name }}</span>
+                    <span>{{ formatDate(transaction.created_at.raw) }}</span>
+                  </div>
+                  <div v-else class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    {{ formatDate(transaction.created_at.raw) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -230,10 +298,10 @@
               <!-- Actions (for disbursements) -->
               <div v-if="transaction.type === 'disbursement'" class="flex items-center space-x-1">
                 <button
-                  v-if="transaction.can_edit"
-                  @click="editDisbursement(transaction.original_data)"
+                  v-if="editingTransaction !== transaction.id && transaction.can_edit"
+                  @click="startInlineEdit(transaction)"
                   class="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                  title="Edit disbursement"
+                  title="Edit transaction"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -257,19 +325,19 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="allTransactions.length > 15" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+    <div v-if="hasPagination" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <div class="flex items-center justify-between">
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             @click="goToPreviousPage"
-            :disabled="pagination.current_page <= 1"
+            :disabled="currentPage <= 1"
             class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
           <button
             @click="goToNextPage"
-            :disabled="pagination.current_page >= pagination.last_page"
+            :disabled="currentPage >= totalPages"
             class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
@@ -279,11 +347,11 @@
           <div>
             <p class="text-sm text-gray-700 dark:text-gray-300">
               Showing
-              <span class="font-medium">{{ pagination.from }}</span>
+              <span class="font-medium">{{ Math.min((currentPage - 1) * itemsPerPage + 1, totalItems) }}</span>
               to
-              <span class="font-medium">{{ pagination.to }}</span>
+              <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
               of
-              <span class="font-medium">{{ pagination.total }}</span>
+              <span class="font-medium">{{ totalItems }}</span>
               results
             </p>
           </div>
@@ -291,31 +359,31 @@
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
               <button
                 @click="goToPreviousPage"
-                :disabled="pagination.current_page <= 1"
+                :disabled="currentPage <= 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
-              
+
               <button
                 v-for="page in visiblePages"
                 :key="page"
                 @click="goToPage(page)"
                 :class="[
                   'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-                  page === pagination.current_page
+                  page === currentPage
                     ? 'z-10 bg-blue-50 dark:bg-blue-900/50 border-blue-500 text-blue-600 dark:text-blue-400'
                     : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 ]"
               >
                 {{ page }}
               </button>
-              
+
               <button
                 @click="goToNextPage"
-                :disabled="pagination.current_page >= pagination.last_page"
+                :disabled="currentPage >= totalPages"
                 class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -345,9 +413,16 @@ const emit = defineEmits<Emits>()
 const store = usePettyCashStore()
 const showFilters = ref(false)
 const searchQuery = ref('')
+const editingTransaction = ref<string | null>(null)
+const editForm = reactive({
+  receiver: '',
+  account: '',
+  description: '',
+  project_name: ''
+})
 
 // Filters
-const filters = reactive<TransactionFilters>({
+const filters = reactive({
   status: '',
   classification: '',
   payment_method: '',
@@ -355,13 +430,17 @@ const filters = reactive<TransactionFilters>({
   end_date: ''
 })
 
+// Pagination
+const currentPage = ref(1)
+const itemsPerPage = 10
+
 // Computed properties
 const transactions = computed(() => store.transactions)
 const pagination = computed(() => store.pagination.transactions)
 const loading = computed(() => store.loading.transactions)
 
 // Create a flattened list of all transactions (top-ups and disbursements) with unique IDs
-const allTransactions = computed(() => {
+const allTransactionsRaw = computed(() => {
   const transactionList: Array<{
     id: string
     type: 'top_up' | 'disbursement'
@@ -407,39 +486,108 @@ const allTransactions = computed(() => {
       receiver: disbursement.receiver,
       account: disbursement.account,
       project_name: disbursement.project_name,
-      can_edit: disbursement.can_edit,
-      can_void: disbursement.can_void,
+      can_edit: disbursement.can_edit !== false, // Allow editing unless explicitly disabled
+      can_void: disbursement.can_void !== false, // Allow voiding unless explicitly disabled
       top_up_id: disbursement.top_up_id,
       original_data: disbursement
     })
   })
 
   // Sort by creation date (newest first)
-  return transactionList.sort((a, b) => 
+  return transactionList.sort((a, b) =>
     new Date(b.created_at.raw).getTime() - new Date(a.created_at.raw).getTime()
   )
 })
+
+// Filtered transactions based on search and filters
+const filteredTransactions = computed(() => {
+  let transactions = [...allTransactionsRaw.value]
+
+  // Apply search filter
+  if (searchQuery.value.trim()) {
+    const searchTerm = searchQuery.value.toLowerCase()
+    transactions = transactions.filter(transaction =>
+      transaction.description.toLowerCase().includes(searchTerm) ||
+      transaction.receiver?.toLowerCase().includes(searchTerm) ||
+      transaction.account?.toLowerCase().includes(searchTerm) ||
+      transaction.project_name?.toLowerCase().includes(searchTerm) ||
+      transaction.payment_method?.label.toLowerCase().includes(searchTerm)
+    )
+  }
+
+  // Apply status filter
+  if (filters.status) {
+    if (filters.status === 'active') {
+      transactions = transactions.filter(t => t.type === 'top_up' || !t.status?.is_voided)
+    } else if (filters.status === 'voided') {
+      transactions = transactions.filter(t => t.status?.is_voided)
+    }
+  }
+
+  // Apply classification filter
+  if (filters.classification) {
+    transactions = transactions.filter(t =>
+      t.classification?.value === filters.classification
+    )
+  }
+
+  // Apply payment method filter
+  if (filters.payment_method) {
+    transactions = transactions.filter(t =>
+      t.payment_method?.value === filters.payment_method
+    )
+  }
+
+  // Apply date range filter
+  if (filters.start_date) {
+    const startDate = new Date(filters.start_date)
+    transactions = transactions.filter(t =>
+      new Date(t.created_at.raw) >= startDate
+    )
+  }
+
+  if (filters.end_date) {
+    const endDate = new Date(filters.end_date)
+    endDate.setHours(23, 59, 59, 999) // End of day
+    transactions = transactions.filter(t =>
+      new Date(t.created_at.raw) <= endDate
+    )
+  }
+
+  return transactions
+})
+
+// Paginated transactions
+const allTransactions = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  return filteredTransactions.value.slice(startIndex, endIndex)
+})
+
+// Pagination info
+const totalItems = computed(() => filteredTransactions.value.length)
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage))
+const hasPagination = computed(() => totalItems.value > itemsPerPage)
 
 const hasActiveFilters = computed(() => {
   return Object.values(filters).some(value => value !== '') || searchQuery.value !== ''
 })
 
 const visiblePages = computed(() => {
-  const current = pagination.value.current_page
-  const last = pagination.value.last_page
   const pages: number[] = []
-  
+  const total = totalPages.value
+
   // Always show first page
-  if (last > 0) pages.push(1)
-  
+  if (total > 0) pages.push(1)
+
   // Show pages around current page
-  for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) {
+  for (let i = Math.max(2, currentPage.value - 1); i <= Math.min(total - 1, currentPage.value + 1); i++) {
     if (!pages.includes(i)) pages.push(i)
   }
-  
+
   // Always show last page
-  if (last > 1 && !pages.includes(last)) pages.push(last)
-  
+  if (total > 1 && !pages.includes(total)) pages.push(total)
+
   return pages.sort((a, b) => a - b)
 })
 
@@ -482,12 +630,13 @@ const getTransactionAmountColor = (transaction: any): string => {
 
 const getClassificationBadgeClass = (classification: string): string => {
   const classes = {
-    agencies: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
     admin: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
-    operations: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
-    other: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+    event_planners: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
+    corporates: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+    crs: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+    agencies: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-800 dark:text-indigo-100'
   }
-  return classes[classification as keyof typeof classes] || classes.other
+  return classes[classification as keyof typeof classes] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
 }
 
 
@@ -500,66 +649,124 @@ const voidDisbursement = (disbursement: PettyCashDisbursement) => {
   emit('void-disbursement', disbursement)
 }
 
-const applyFilters = async () => {
-  const searchFilters = { ...filters }
-  if (searchQuery.value) {
-    searchFilters.search = searchQuery.value
-  }
-  
-  // Fetch both top-ups and disbursements with filters
-  await Promise.all([
-    store.fetchTopUps(searchFilters),
-    store.fetchDisbursements(searchFilters)
-  ])
+// Inline editing methods
+const startInlineEdit = (transaction: any) => {
+  editingTransaction.value = transaction.id
+  editForm.receiver = transaction.receiver || ''
+  editForm.account = transaction.account || ''
+  editForm.description = transaction.description || ''
+  editForm.project_name = transaction.project_name || ''
 }
 
-const clearFilters = async () => {
+const saveInlineEdit = async (transaction: any) => {
+  try {
+    const updateData = {
+      receiver: editForm.receiver,
+      account: editForm.account,
+      description: editForm.description,
+      project_name: editForm.project_name
+    }
+
+    await store.updateDisbursement(transaction.original_data.id, updateData)
+    editingTransaction.value = null
+
+    // Clear form
+    Object.assign(editForm, {
+      receiver: '',
+      account: '',
+      description: '',
+      project_name: ''
+    })
+  } catch (error) {
+    console.error('Failed to save inline edit:', error)
+    // Could show error message here
+  }
+}
+
+const cancelInlineEdit = () => {
+  editingTransaction.value = null
+  Object.assign(editForm, {
+    receiver: '',
+    account: '',
+    description: '',
+    project_name: ''
+  })
+}
+
+const applyFilters = () => {
+  // Reset to first page when applying filters
+  currentPage.value = 1
+  // Filters are applied automatically through the computed properties
+}
+
+const clearFilters = () => {
   Object.keys(filters).forEach(key => {
-    filters[key as keyof TransactionFilters] = ''
+    filters[key as keyof typeof filters] = ''
   })
   searchQuery.value = ''
-  
-  // Fetch both top-ups and disbursements without filters
-  await Promise.all([
-    store.fetchTopUps(),
-    store.fetchDisbursements()
-  ])
+  // Reset to first page when clearing filters
+  currentPage.value = 1
+  // Filters are cleared automatically through the computed properties
 }
 
-// Pagination methods (simplified for now since we're showing combined data)
-const goToPage = async (page: number) => {
-  const searchFilters = { ...filters, page }
-  if (searchQuery.value) {
-    searchFilters.search = searchQuery.value
+// Client-side pagination methods
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
   }
-  
-  // For now, we'll fetch both types with the same page
-  await Promise.all([
-    store.fetchTopUps(searchFilters),
-    store.fetchDisbursements(searchFilters)
-  ])
 }
 
 const goToPreviousPage = () => {
-  if (pagination.value.current_page > 1) {
-    goToPage(pagination.value.current_page - 1)
+  if (currentPage.value > 1) {
+    currentPage.value--
   }
 }
 
 const goToNextPage = () => {
-  if (pagination.value.current_page < pagination.value.last_page) {
-    goToPage(pagination.value.current_page + 1)
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
   }
 }
 
 // Watchers
-let searchTimeout: NodeJS.Timeout
+let searchTimeout: number
 watch(searchQuery, (newQuery) => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     applyFilters()
   }, 500) // Debounce search
 })
+
+// Watch for filters to reset pagination
+watch(filters, () => {
+  currentPage.value = 1
+}, { deep: true })
+
+// Watch for store data changes to ensure reactivity and reset pagination
+watch(() => store.topUps.length, () => {
+  console.log('🔄 Top-ups updated, transaction list should refresh')
+  currentPage.value = 1 // Reset to first page when data changes
+  nextTick(() => {
+    console.log('🔄 Transaction list refreshed, allTransactions:', allTransactions.value.length)
+  })
+})
+
+watch(() => store.disbursements.length, () => {
+  console.log('🔄 Disbursements updated, transaction list should refresh')
+  currentPage.value = 1 // Reset to first page when data changes
+  nextTick(() => {
+    console.log('🔄 Transaction list refreshed, allTransactions:', allTransactions.value.length)
+  })
+})
+
+// Also watch for balance and summary updates
+watch(() => store.currentBalance, () => {
+  console.log('🔄 Balance updated')
+}, { deep: true })
+
+watch(() => store.summary, () => {
+  console.log('🔄 Summary updated')
+}, { deep: true })
 
 // Safe component initialization
 onMounted(async () => {

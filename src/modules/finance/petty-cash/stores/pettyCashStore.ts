@@ -432,9 +432,9 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                     },
                     payment_method: {
                         value: item.payment_method,
-                        label: item.payment_method === 'cash' ? 'Cash' : 
+                        label: item.payment_method === 'cash' ? 'Cash' :
                                item.payment_method === 'mpesa' ? 'M-Pesa' :
-                               item.payment_method === 'bank_transfer' ? 'Bank Transfer' : 
+                               item.payment_method === 'bank_transfer' ? 'Bank Transfer' :
                                item.payment_method || 'Other'
                     },
                     classification: {
@@ -454,7 +454,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                         raw: item.created_at,
                         formatted: new Date(item.created_at).toLocaleDateString('en-KE'),
                         human: 'Recently'
-                    }
+                    },
+                    // Include permission fields from API response
+                    can_edit: item.can_edit !== undefined ? item.can_edit : false,
+                    can_void: item.can_void !== undefined ? item.can_void : false
                 }))
                 
                 console.log('🔍 fetchDisbursements transformed data:', transformedData[0])
@@ -512,9 +515,14 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                     },
                     payment_method: {
                         value: response.data.payment_method,
-                        label: response.data.payment_method === 'cash' ? 'Cash' : 
+                        label: response.data.payment_method === 'cash' ? 'Cash Account' :
                                response.data.payment_method === 'mpesa' ? 'M-Pesa' :
-                               response.data.payment_method === 'bank_transfer' ? 'Bank Transfer' : 
+                               response.data.payment_method === 'equity' ? 'Equity Bank' :
+                               response.data.payment_method === 'stanbic' ? 'Stanbic Bank' :
+                               response.data.payment_method === 'ncba' ? 'NCBA Bank' :
+                               response.data.payment_method === 'kcb' ? 'KCB Bank' :
+                               response.data.payment_method === 'family' ? 'Family Bank' :
+                               response.data.payment_method === 'bank_transfer' ? 'Bank Transfer' :
                                response.data.payment_method || 'Other'
                     },
                     classification: {
@@ -544,8 +552,11 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                     disbursements.value.unshift(validationResult.data)
                     console.log('🔍 Disbursements array after adding:', disbursements.value.length)
                     
-                    // Refresh balance after creating disbursement
-                    await fetchCurrentBalance()
+                    // Refresh balance and summary after creating disbursement
+                    await Promise.all([
+                        fetchCurrentBalance(),
+                        fetchSummary()
+                    ])
                     
                     dataIntegrity.value.lastValidated = new Date()
                     return validationResult.data
@@ -591,8 +602,11 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                         disbursements.value[index] = validationResult.data
                     }
                     
-                    // Refresh balance after updating disbursement
-                    await fetchCurrentBalance()
+                    // Refresh balance and summary after updating disbursement
+                    await Promise.all([
+                        fetchCurrentBalance(),
+                        fetchSummary()
+                    ])
                     
                     dataIntegrity.value.lastValidated = new Date()
                     return validationResult.data
@@ -640,8 +654,11 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                         disbursements.value[index] = validationResult.data
                     }
                     
-                    // Refresh balance after voiding disbursement
-                    await fetchCurrentBalance()
+                    // Refresh balance and summary after voiding disbursement
+                    await Promise.all([
+                        fetchCurrentBalance(),
+                        fetchSummary()
+                    ])
                     
                     dataIntegrity.value.lastValidated = new Date()
                     return validationResult.data
@@ -697,9 +714,14 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                     },
                     payment_method: {
                         value: item.payment_method,
-                        label: item.payment_method === 'cash' ? 'Cash' : 
+                        label: item.payment_method === 'cash' ? 'Cash Account' :
                                item.payment_method === 'mpesa' ? 'M-Pesa' :
-                               item.payment_method === 'bank_transfer' ? 'Bank Transfer' : 
+                               item.payment_method === 'equity' ? 'Equity Bank' :
+                               item.payment_method === 'stanbic' ? 'Stanbic Bank' :
+                               item.payment_method === 'ncba' ? 'NCBA Bank' :
+                               item.payment_method === 'kcb' ? 'KCB Bank' :
+                               item.payment_method === 'family' ? 'Family Bank' :
+                               item.payment_method === 'bank_transfer' ? 'Bank Transfer' :
                                item.payment_method || 'Other'
                     },
                     remaining_balance: {
@@ -760,14 +782,14 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             if ('success' in response && response.success) {
                 const { validItems } = validateArrayData(response.data || [], validateTopUpData)
                 availableTopUps.value = validItems as PettyCashTopUp[]
-                
+
                 dataIntegrity.value.lastValidated = new Date()
                 return validItems
-            } else if (response.status === 500) {
-                // Handle server error gracefully without throwing
-                console.warn('Available top-ups service temporarily unavailable')
+            } else if (response.success === false && response.message?.includes('Server temporarily unavailable')) {
+                // Handle known backend server errors gracefully without logging as error
+                // The service already handles this case and returns a structured response
                 availableTopUps.value = []
-                errors.value.topUps = 'Top-ups service temporarily unavailable'
+                // Don't set error state for known backend issues to avoid UI disruption
                 return []
             } else {
                 throw new Error(pettyCashService.getErrorMessage(response))
@@ -799,9 +821,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                 if (validationResult.isValid && validationResult.data) {
                     topUps.value.unshift(validationResult.data)
                     
-                    // Refresh balance and available top-ups after creating top-up
+                    // Refresh balance, summary, and available top-ups after creating top-up
                     await Promise.all([
                         fetchCurrentBalance(),
+                        fetchSummary(),
                         fetchAvailableTopUps()
                     ])
                     
@@ -826,6 +849,38 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         if (!result) {
             errors.value.creating = 'Failed to create top-up'
             throw new Error('Failed to create top-up')
+        }
+
+        loading.value.creating = false
+        return result
+    }
+
+    // Excel upload functionality
+    const uploadExcel = async (formData: FormData) => {
+        const operation = async () => {
+            loading.value.creating = true
+            errors.value.creating = null
+
+            const response = await pettyCashService.uploadExcel(formData)
+
+            if ('success' in response && response.success) {
+                // Refresh all data after successful upload
+                await refreshAll()
+                
+                dataIntegrity.value.lastValidated = new Date()
+                return response
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        const result = await withErrorHandling(operation, {
+            context: 'uploadExcel'
+        })
+
+        if (!result) {
+            errors.value.creating = 'Failed to upload Excel file'
+            throw new Error('Failed to upload Excel file')
         }
 
         loading.value.creating = false
@@ -1336,6 +1391,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         goToTransactionPage,
         fetchAvailableTopUps,
         createTopUp,
+        uploadExcel,
         fetchCurrentBalance,
         fetchSummary,
         fetchAnalytics,

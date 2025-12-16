@@ -124,15 +124,7 @@
         </div>
       </div>
 
-      <!-- No Transaction State -->
-      <div v-else-if="!hasLastTransaction" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="text-center py-4">
-          <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No transactions yet</p>
-        </div>
-      </div>
+     
 
       <!-- Health Indicators -->
       <div v-if="needsAttention" class="mt-4 p-3 rounded-md" :class="warningBgColor">

@@ -609,6 +609,30 @@ class PettyCashService {
     return this.makeRequest<ValidationResponse>('POST', '/validate/top-up', data)
   }
 
+  // Excel upload functionality
+  async uploadExcel(formData: FormData): Promise<ApiResponse> {
+    this.validatePermission('petty_cash.upload_excel', 'upload Excel file')
+
+    try {
+      const response = await api.post(`${this.baseUrl}/upload-excel`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 60000, // 60 seconds for upload
+        onUploadProgress: (progressEvent) => {
+          // Progress can be tracked in the component
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            console.log(`Upload progress: ${percentCompleted}%`)
+          }
+        }
+      })
+      return response.data
+    } catch (error: any) {
+      throw this.transformError(error, { operation: 'upload Excel file' })
+    }
+  }
+
   // Export and reporting with permission validation
   async exportData(
     type: 'disbursements' | 'top_ups' | 'summary',

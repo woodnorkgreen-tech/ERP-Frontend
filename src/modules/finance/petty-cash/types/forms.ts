@@ -18,6 +18,7 @@ export interface CreateDisbursementFormData {
   readonly job_number?: NullableString
   readonly payment_method: PaymentMethod
   readonly transaction_code?: NullableString
+  readonly tax?: string // Optional tax field for UI purposes
 }
 
 // Partial update interface with strict null safety

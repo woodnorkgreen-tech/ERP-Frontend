@@ -159,22 +159,45 @@
                 </p>
               </div>
 
-              <!-- Account -->
+              <!-- Account with Autocomplete -->
               <div>
                 <label for="account" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Account <span class="text-red-500">*</span>
                 </label>
-                <input
-                  id="account"
-                  v-model="form.account"
-                  type="text"
-                  :class="[
-                    'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.account ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-                  ]"
-                  placeholder="Account category for expense"
-                  required
-                />
+                <div class="relative">
+                  <input
+                    id="account"
+                    v-model="accountSearch"
+                    @input="onAccountInput"
+                    @focus="showAccountDropdown = true"
+                    @blur="hideAccountDropdown"
+                    type="text"
+                    :class="[
+                      'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                      errors.account ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                    ]"
+                    placeholder="Type to search accounts..."
+                    required
+                  />
+
+                  <!-- Dropdown -->
+                  <div
+                    v-if="showAccountDropdown && filteredAccounts.length"
+                    class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+                  >
+                    <div
+                      v-for="account in filteredAccounts"
+                      :key="account.id"
+                      @mousedown="selectAccount(account)"
+                      class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <div class="flex items-center">
+                        <span class="font-medium text-gray-900 dark:text-white">{{ account.name }}</span>
+                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">({{ account.code }})</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <p v-if="errors.account" class="mt-2 text-sm text-red-600 dark:text-red-400">
                   {{ errors.account[0] }}
                 </p>
@@ -218,8 +241,8 @@
                   required
                 >
                   <option value="">Select classification</option>
+                  <option value="admin">Admin</option>
                   <option value="agencies">Agencies</option>
-                  <option value="admin">Administration</option>
                   <option value="operations">Operations</option>
                   <option value="other">Other</option>
                 </select>
@@ -249,64 +272,38 @@
                   {{ errors.project_name[0] }}
                 </p>
                 <p v-else-if="requiresProject" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Project name is required for {{ form.classification }} classification
+                  Project name is required for {{ form.classification === 'agencies' ? 'Agencies' : 'Operations' }} classification
                 </p>
               </div>
             </div>
 
-            <!-- Payment Method and Transaction Code Row -->
+            <!-- Tax Field and Job Number Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Payment Method -->
+              <!-- Tax Field -->
               <div>
-                <label for="payment_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Payment Method <span class="text-red-500">*</span>
+                <label for="tax" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Tax <span class="text-red-500">*</span>
                 </label>
                 <select
-                  id="payment_method"
-                  v-model="form.payment_method"
+                  id="tax"
+                  v-model="form.tax"
                   :class="[
                     'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.payment_method ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                    errors.tax ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   ]"
                   required
                 >
-                  <option value="">Select payment method</option>
-                  <option value="cash">Cash</option>
-                  <option value="mpesa">M-Pesa</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="other">Other</option>
+                  <option value="">Select tax option</option>
+                  <option value="etr">ETR</option>
+                  <option value="no_etr">No ETR</option>
                 </select>
-                <p v-if="errors.payment_method" class="mt-2 text-sm text-red-600 dark:text-red-400">
-                  {{ errors.payment_method[0] }}
+                <p v-if="errors.tax" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ errors.tax[0] }}
                 </p>
               </div>
 
-              <!-- Transaction Code -->
-              <div v-if="requiresTransactionCode">
-                <label for="transaction_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Transaction Code <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="transaction_code"
-                  v-model="form.transaction_code"
-                  type="text"
-                  :class="[
-                    'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.transaction_code ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-                  ]"
-                  :placeholder="getTransactionCodePlaceholder()"
-                  :required="requiresTransactionCode"
-                />
-                <p v-if="errors.transaction_code" class="mt-2 text-sm text-red-600 dark:text-red-400">
-                  {{ errors.transaction_code[0] }}
-                </p>
-                <p v-else-if="form.payment_method === 'mpesa'" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Enter the 10-character M-Pesa transaction code
-                </p>
-              </div>
-
-              <!-- Job Number (when no transaction code) -->
-              <div v-else>
+              <!-- Job Number -->
+              <div>
                 <label for="job_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Job Number
                 </label>
@@ -324,7 +321,7 @@
                   {{ errors.job_number[0] }}
                 </p>
               </div>
-            </div>     
+            </div>
        <!-- Form Actions -->
             <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
               <button
@@ -360,6 +357,8 @@ import { defaultDisbursementFormData, mergeWithDefaults } from '../utils/default
 import { validateDisbursementFormData } from '../utils/validation'
 import type { CreateDisbursementFormData, UpdateDisbursementFormData } from '../types/forms'
 import type { PettyCashDisbursement } from '../types/pettyCash'
+import type { Account } from '../../../../types/accounts'
+import accountsData from '../../../../data/accounts.json'
 
 interface Props {
   isOpen: boolean
@@ -386,14 +385,24 @@ const isSubmitting = ref(false)
 const isInitialized = ref(false)
 const modalError = ref<string | null>(null)
 
-// Form data with safe defaults
-const form = reactive<CreateDisbursementFormData>({ ...defaultDisbursementFormData })
+// Form data with safe defaults and tax field
+const form = reactive({
+  ...defaultDisbursementFormData,
+  tax: '',
+  account_id: null as number | null // Store account ID for backend
+} as any)
 
 // Form validation
 const errors = ref<Record<string, string[]>>({})
 
 // Modal state tracking
 const modalState = ref<'closed' | 'opening' | 'open' | 'closing'>('closed')
+
+// Account autocomplete
+const accounts = ref<Account[]>(accountsData.accounts)
+const accountSearch = ref('')
+const showAccountDropdown = ref(false)
+const selectedAccount = ref<Account | null>(null)
 
 // Computed properties for current balance
 const currentBalance = computed(() => {
@@ -440,25 +449,50 @@ const requiresProject = computed(() => {
   return ['agencies', 'operations'].includes(form.classification)
 })
 
-const requiresTransactionCode = computed(() => {
-  return form.payment_method && form.payment_method !== 'cash'
+const isFormValid = computed(() => {
+  return form.receiver &&
+         form.account &&
+         form.account_id && // Ensure account ID is selected
+         form.amount &&
+         form.description &&
+         form.classification &&
+         form.tax &&
+         currentBalance.value > 0 && // Ensure there's balance available
+         (!requiresProject.value || form.project_name)
 })
 
-const isFormValid = computed(() => {
-  return form.receiver && 
-         form.account && 
-         form.amount && 
-         form.description && 
-         form.classification && 
-         form.payment_method &&
-         currentBalance.value > 0 && // Ensure there's balance available
-         (!requiresProject.value || form.project_name) &&
-         (!requiresTransactionCode.value || form.transaction_code)
+const filteredAccounts = computed(() => {
+  if (!accountSearch.value || accountSearch.value.length < 2) return []
+
+  return accounts.value.filter(account =>
+    account.name.toLowerCase().includes(accountSearch.value.toLowerCase()) ||
+    account.code.toLowerCase().includes(accountSearch.value.toLowerCase())
+  ).slice(0, 10) // Limit to 10 results
 })
 
 // Methods
 const formatAmount = (amount: number): string => {
   return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+// Account autocomplete methods
+const onAccountInput = () => {
+  showAccountDropdown.value = true
+}
+
+const hideAccountDropdown = () => {
+  // Delay hiding to allow click events
+  setTimeout(() => {
+    showAccountDropdown.value = false
+  }, 150)
+}
+
+const selectAccount = (account: Account) => {
+  selectedAccount.value = account
+  accountSearch.value = account.name
+  form.account = account.name
+  form.account_id = account.id // Store account ID for backend
+  showAccountDropdown.value = false
 }
 
 const getTransactionCodePlaceholder = (): string => {
@@ -474,19 +508,72 @@ const getTransactionCodePlaceholder = (): string => {
 
 // Removed onTopUpChange - no longer needed since we're using current balance
 
-// Enhanced form validation using validation utilities
+// Enhanced form validation for the new structure
 const validateForm = (): boolean => {
   try {
-    const result = validateDisbursementFormData(form)
-    errors.value = result.errors
-    
-    // Additional balance validation
-    if (result.isValid && Number(form.amount) > currentBalance.value) {
-      errors.value.amount = [`Amount exceeds available balance of ${formatAmount(currentBalance.value)}`]
-      return false
+    errors.value = {}
+
+    // Validate receiver
+    if (!form.receiver || form.receiver.trim().length === 0) {
+      errors.value.receiver = ['Receiver name is required']
+    } else if (form.receiver.length > 255) {
+      errors.value.receiver = ['Receiver name cannot exceed 255 characters']
     }
-    
-    return result.isValid
+
+    // Validate account
+    if (!form.account || form.account.trim().length === 0) {
+      errors.value.account = ['Account is required']
+    } else if (form.account.length > 255) {
+      errors.value.account = ['Account cannot exceed 255 characters']
+    } else if (!form.account_id) {
+      errors.value.account = ['Please select a valid account from the dropdown']
+    }
+
+    // Validate amount
+    const amount = Number(form.amount)
+    if (!form.amount || isNaN(amount) || amount <= 0) {
+      errors.value.amount = ['Amount must be a positive number']
+    } else if (amount > currentBalance.value) {
+      errors.value.amount = [`Amount exceeds available balance of ${formatAmount(currentBalance.value)}`]
+    }
+
+    // Validate description
+    if (!form.description || form.description.trim().length === 0) {
+      errors.value.description = ['Description is required']
+    } else if (form.description.length > 1000) {
+      errors.value.description = ['Description cannot exceed 1000 characters']
+    }
+
+    // Validate classification
+    if (!form.classification) {
+      errors.value.classification = ['Please select a classification']
+    } else if (!['admin', 'agencies', 'operations', 'other'].includes(form.classification)) {
+      errors.value.classification = ['Invalid classification selected']
+    }
+
+    // Validate tax
+    if (!form.tax) {
+      errors.value.tax = ['Tax option is required']
+    } else if (!['etr', 'no_etr'].includes(form.tax)) {
+      errors.value.tax = ['Invalid tax option selected']
+    }
+
+    // Validate project name for specific classifications
+    if (requiresProject.value && (!form.project_name || form.project_name.trim().length === 0)) {
+      const classificationLabels = {
+        'agencies': 'Agencies',
+        'operations': 'Operations'
+      }
+      const label = classificationLabels[form.classification as keyof typeof classificationLabels] || form.classification
+      errors.value.project_name = [`Project name is required for ${label} classification`]
+    }
+
+    // Validate job number length if provided
+    if (form.job_number && form.job_number.length > 100) {
+      errors.value.job_number = ['Job number cannot exceed 100 characters']
+    }
+
+    return Object.keys(errors.value).length === 0
   } catch (error) {
     console.error('Form validation error:', error)
     errors.value = { general: ['Validation error occurred'] }
@@ -498,9 +585,14 @@ const validateForm = (): boolean => {
 const resetForm = () => {
   try {
     Object.assign(form, defaultDisbursementFormData)
+    form.account_id = null // Reset account ID
     errors.value = {}
     modalError.value = null
     clearError()
+    // Reset account autocomplete
+    accountSearch.value = ''
+    selectedAccount.value = null
+    showAccountDropdown.value = false
   } catch (error) {
     console.error('Error resetting form:', error)
   }
@@ -512,14 +604,16 @@ const loadDisbursementData = () => {
     Object.assign(form, {
       receiver: d.receiver,
       account: d.account,
+      account_id: null, // For editing, we don't have account ID from API, so set to null
       amount: d.amount.raw.toString(),
       description: d.description,
       project_name: d.project_name || '',
       classification: d.classification.value,
       job_number: d.job_number || '',
-      payment_method: d.payment_method.value,
-      transaction_code: d.transaction_code || ''
+      tax: 'etr' // Default to ETR for existing disbursements
     })
+    // Set account search to match the account name
+    accountSearch.value = d.account
   }
 }
 
@@ -571,19 +665,27 @@ const handleSubmit = async () => {
     isSubmitting.value = true
     
     const formData = {
-      ...form,
+      receiver: form.receiver,
+      account: form.account, // Send account name to backend (not account_id)
       amount: Number(form.amount),
+      description: form.description,
+      project_name: form.project_name || undefined,
+      classification: form.classification, // This needs to match backend validation
+      job_number: form.job_number || undefined,
+      payment_method: 'cash', // Default payment method since we removed the field
+      transaction_code: undefined, // No transaction code needed for cash
       // Add a default top_up_id for backend compatibility
       // In a real system, this would be handled differently
-      top_up_id: 1 // Default value for backend compatibility
+      top_up_id: 1, // Default value for backend compatibility
+      // Note: tax field is not sent to backend, only used for UI validation
     }
 
     let result: PettyCashDisbursement
 
     if (props.editMode && props.disbursement) {
-      result = await store.updateDisbursement(props.disbursement.id, formData as UpdateDisbursementFormData)
+      result = await store.updateDisbursement(props.disbursement.id, formData as any)
     } else {
-      result = await store.createDisbursement(formData)
+      result = await store.createDisbursement(formData as any)
     }
 
     emit('success', result)
@@ -598,9 +700,14 @@ const handleSubmit = async () => {
 
   if (!result) {
     // Handle API validation errors
-    const storeError = store.error
-    if (storeError && typeof storeError === 'object' && 'errors' in storeError) {
-      errors.value = storeError.errors as Record<string, string[]>
+    try {
+      const storeErrors = store.errors
+      if (storeErrors && typeof storeErrors === 'object' && 'creating' in storeErrors && storeErrors.creating) {
+        errors.value = { general: [storeErrors.creating] }
+      }
+    } catch (error) {
+      console.error('Error handling store errors:', error)
+      errors.value = { general: ['An error occurred while processing your request'] }
     }
   }
 
@@ -608,15 +715,52 @@ const handleSubmit = async () => {
 }
 
 // Watchers
-watch(() => form.payment_method, (newMethod) => {
-  if (newMethod === 'cash') {
-    form.transaction_code = ''
+watch(() => form.classification, () => {
+  if (!requiresProject.value) {
+    form.project_name = ''
+  }
+})
+
+// Clear errors when form values change
+watch(() => form.amount, () => {
+  if (errors.value.amount) {
+    delete errors.value.amount
+  }
+})
+
+watch(() => form.receiver, () => {
+  if (errors.value.receiver) {
+    delete errors.value.receiver
+  }
+})
+
+watch(() => form.account, () => {
+  if (errors.value.account) {
+    delete errors.value.account
+  }
+})
+
+watch(() => form.description, () => {
+  if (errors.value.description) {
+    delete errors.value.description
   }
 })
 
 watch(() => form.classification, () => {
-  if (!requiresProject.value) {
-    form.project_name = ''
+  if (errors.value.classification) {
+    delete errors.value.classification
+  }
+})
+
+watch(() => form.tax, () => {
+  if (errors.value.tax) {
+    delete errors.value.tax
+  }
+})
+
+watch(() => form.project_name, () => {
+  if (errors.value.project_name) {
+    delete errors.value.project_name
   }
 })
 
