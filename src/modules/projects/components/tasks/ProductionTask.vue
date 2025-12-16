@@ -424,7 +424,7 @@
                   <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                     <span>{{ checkpoint.elementCount }} production elements</span>
                     <span v-if="checkpoint.checkedBy">Checked by: {{ checkpoint.checkedBy }}</span>
-                    <span v-if="checkpoint.checkedAt">{{ formatDate(checkpoint.checkedAt.toISOString()) }}</span>
+                    <span v-if="checkpoint.checkedAt">{{ formatDate(checkpoint.checkedAt) }}</span>
                   </div>
                 </div>
 
@@ -569,7 +569,7 @@
                 </div>
 
                 <div class="text-xs text-gray-500 dark:text-gray-400">
-                  Last updated: {{ checkpoint.checkedAt ? formatDate(checkpoint.checkedAt.toISOString()) : 'Never' }}
+                  Last updated: {{ checkpoint.checkedAt ? formatDate(checkpoint.checkedAt) : 'Never' }}
                 </div>
               </div>
             </div>
@@ -1563,11 +1563,12 @@ const completionPercentage = computed(() => {
 })
 
 // Date formatting function (following MaterialsTask pattern)
-const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString || dateString === 'TBC') return 'TBC'
+// Date formatting function (following MaterialsTask pattern)
+const formatDate = (dateValue: string | Date | null | undefined) => {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
 
   try {
-    const date = new Date(dateString)
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
     if (isNaN(date.getTime())) return 'TBC'
 
     return date.toLocaleDateString('en-GB', {
@@ -1802,146 +1803,179 @@ const duplicateCheckpoint = (checkpointId: string) => {
   }
 }
 
+
 const generateQualityCheckpoints = async () => {
-  // Generate static quality control checklist
-  const staticCheckpoints = [
-    // 1. Event Details
-    {
-      id: 'qc-event-details',
-      categoryName: '1. Event Details',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'high' as const,
-      elementCount: 6,
-      checklist: [
-        { id: 'project_name_confirmed', label: 'Project Name confirmed', checked: false },
-        { id: 'project_code_confirmed', label: 'Project Code/Ref confirmed', checked: false },
-        { id: 'client_name_confirmed', label: 'Client Name confirmed', checked: false },
-        { id: 'production_dates_confirmed', label: 'Production dates confirmed', checked: false },
-        { id: 'venue_confirmed', label: 'Venue confirmed', checked: false },
-        { id: 'project_officer_confirmed', label: 'Assigned Project Officer confirmed', checked: false }
-      ]
-    },
-
-    // 2. Job Brief Intake
-    {
-      id: 'qc-job-brief',
-      categoryName: '2. Job Brief Intake',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'high' as const,
-      elementCount: 3,
-      checklist: [
-        { id: 'job_sheet_reviewed', label: 'Review job sheet from Design Department', checked: false },
-        { id: 'materials_quantities_confirmed', label: 'Confirm materials, quantities, and deadline', checked: false },
-        { id: 'clarifying_questions_asked', label: 'Ask clarifying questions if needed', checked: false }
-      ]
-    },
-
-    // 3. Material Preparation
-    {
-      id: 'qc-material-prep',
-      categoryName: '3. Material Preparation',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'high' as const,
-      elementCount: 3,
-      checklist: [
-        { id: 'inventory_checked', label: 'Check inventory for required materials', checked: false },
-        { id: 'materials_cut_prepared', label: 'Cut/print/prepare materials as specified', checked: false },
-        { id: 'material_quality_inspected', label: 'Inspect for material quality (no defects/damage)', checked: false }
-      ]
-    },
-
-    // 4. Fabrication
-    {
-      id: 'qc-fabrication',
-      categoryName: '4. Fabrication',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'high' as const,
-      elementCount: 4,
-      checklist: [
-        { id: 'quality_standards_tested', label: 'Test ply timbers/melamine (PSC, primers, etc.)', checked: false },
-        { id: 'materials_post_fabrication_tested', label: 'Test materials where fabrics fall tops', checked: false },
-        { id: 'production_per_specs', label: 'Execute production to PVC, acrylic specs', checked: false },
-        { id: 'safety_standards_observed', label: 'Observe safety standards', checked: false }
-      ]
-    },
-
-    // 5. Assembly
-    {
-      id: 'qc-assembly',
-      categoryName: '5. Assembly',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'medium' as const,
-      elementCount: 3,
-      checklist: [
-        { id: 'dry_fit_before_assembly', label: 'Dry-fit components before final assembly', checked: false },
-        { id: 'correct_fasteners_used', label: 'Use correct fasteners, adhesives, finish', checked: false },
-        { id: 'dimensions_confirmed', label: 'Confirm dimensions and alignments', checked: false }
-      ]
-    },
-
-    // 6. Quality Control (QC)
-    {
-      id: 'qc-quality-control',
-      categoryName: '6. Quality Control (QC)',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'high' as const,
-      elementCount: 3,
-      checklist: [
-        { id: 'scratches_colors_inspected', label: 'Inspect for scratches, incorrect colors, uneven cuts', checked: false },
-        { id: 'final_piece_matches_design', label: 'Confirm final piece matches design', checked: false },
-        { id: 'defects_logged', label: 'Log defects, repairs, or reworks done', checked: false }
-      ]
-    },
-
-    // 7. Packaging & Handover
-    {
-      id: 'qc-packaging',
-      categoryName: '7. Packaging & Handover',
-      status: 'pending' as const,
-      qualityScore: 0,
-      checkedBy: '',
-      checkedAt: null,
-      notes: '',
-      priority: 'medium' as const,
-      elementCount: 4,
-      checklist: [
-        { id: 'items_cleaned', label: 'Clean and finish all items', checked: false },
-        { id: 'packed_with_protection', label: 'Pack with appropriate protection', checked: false },
-        { id: 'labeled_moved_to_storage', label: 'Label and move to storage/delivery area', checked: false },
-        { id: 'job_status_updated', label: 'Update job status on tracker/system', checked: false }
-      ]
+  try {
+    // First, clear all existing quality control checkpoints from the backend
+    const taskId = props.task.id.toString()
+    
+    try {
+      await api.delete(`/api/projects/tasks/${taskId}/production/quality-checkpoints`)
+    } catch (deleteError: any) {
+      if (deleteError.response?.status !== 404) {
+        console.error('Error deleting checkpoints:', deleteError)
+        throw deleteError
+      }
     }
-  ]
+    
+    // Generate static quality control checklist
+    const staticCheckpoints = [
+      // 1. Event Details
+      {
+        id: 'qc-event-details',
+        categoryId: 'event-details',
+        categoryName: '1. Event Details',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'high' as const,
+        elementCount: 6,
+        checklist: [
+          { id: 'project_name_confirmed', label: 'Project Name confirmed', checked: false },
+          { id: 'project_code_confirmed', label: 'Project Code/Ref confirmed', checked: false },
+          { id: 'client_name_confirmed', label: 'Client Name confirmed', checked: false },
+          { id: 'production_dates_confirmed', label: 'Production dates confirmed', checked: false },
+          { id: 'venue_confirmed', label: 'Venue confirmed', checked: false },
+          { id: 'project_officer_confirmed', label: 'Assigned Project Officer confirmed', checked: false }
+        ]
+      },
 
-  // Set the static checkpoints
-  productionData.value.qualityControl = staticCheckpoints
-  console.log(`Generated ${staticCheckpoints.length} static quality control checkpoints`)
-  triggerAutoSave()
+      // 2. Job Brief Intake
+      {
+        id: 'qc-job-brief',
+        categoryId: 'job-brief',
+        categoryName: '2. Job Brief Intake',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'high' as const,
+        elementCount: 3,
+        checklist: [
+          { id: 'job_sheet_reviewed', label: 'Review job sheet from Design Department', checked: false },
+          { id: 'materials_quantities_confirmed', label: 'Confirm materials, quantities, and deadline', checked: false },
+          { id: 'clarifying_questions_asked', label: 'Ask clarifying questions if needed', checked: false }
+        ]
+      },
+
+      // 3. Material Preparation
+      {
+        id: 'qc-material-prep',
+        categoryId: 'material-prep',
+        categoryName: '3. Material Preparation',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'high' as const,
+        elementCount: 3,
+        checklist: [
+          { id: 'inventory_checked', label: 'Check inventory for required materials', checked: false },
+          { id: 'materials_cut_prepared', label: 'Cut/print/prepare materials as specified', checked: false },
+          { id: 'material_quality_inspected', label: 'Inspect for material quality (no defects/damage)', checked: false }
+        ]
+      },
+
+      // 4. Fabrication
+      {
+        id: 'qc-fabrication',
+        categoryId: 'fabrication',
+        categoryName: '4. Fabrication',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'high' as const,
+        elementCount: 4,
+        checklist: [
+          { id: 'quality_standards_tested', label: 'Test ply timbers/melamine (PSC, primers, etc.)', checked: false },
+          { id: 'materials_post_fabrication_tested', label: 'Test materials where fabrics fall tops', checked: false },
+          { id: 'production_per_specs', label: 'Execute production to PVC, acrylic specs', checked: false },
+          { id: 'safety_standards_observed', label: 'Observe safety standards', checked: false }
+        ]
+      },
+
+      // 5. Assembly
+      {
+        id: 'qc-assembly',
+        categoryId: 'assembly',
+        categoryName: '5. Assembly',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'medium' as const,
+        elementCount: 3,
+        checklist: [
+          { id: 'dry_fit_before_assembly', label: 'Dry-fit components before final assembly', checked: false },
+          { id: 'correct_fasteners_used', label: 'Use correct fasteners, adhesives, finish', checked: false },
+          { id: 'dimensions_confirmed', label: 'Confirm dimensions and alignments', checked: false }
+        ]
+      },
+
+      // 6. Quality Control (QC)
+      {
+        id: 'qc-quality-control',
+        categoryId: 'quality-control',
+        categoryName: '6. Quality Control (QC)',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'high' as const,
+        elementCount: 3,
+        checklist: [
+          { id: 'scratches_colors_inspected', label: 'Inspect for scratches, incorrect colors, uneven cuts', checked: false },
+          { id: 'final_piece_matches_design', label: 'Confirm final piece matches design', checked: false },
+          { id: 'defects_logged', label: 'Log defects, repairs, or reworks done', checked: false }
+        ]
+      },
+
+      // 7. Packaging & Handover
+      {
+        id: 'qc-packaging',
+        categoryId: 'packaging',
+        categoryName: '7. Packaging & Handover',
+        status: 'pending' as const,
+        qualityScore: 0,
+        checkedBy: '',
+        checkedAt: null,
+        notes: '',
+        priority: 'medium' as const,
+        elementCount: 4,
+        checklist: [
+          { id: 'items_cleaned', label: 'Clean and finish all items', checked: false },
+          { id: 'packed_with_protection', label: 'Pack with appropriate protection', checked: false },
+          { id: 'labeled_moved_to_storage', label: 'Label and move to storage/delivery area', checked: false },
+          { id: 'job_status_updated', label: 'Update job status on tracker/system', checked: false }
+        ]
+      }
+    ]
+
+    // Set the static checkpoints
+    productionData.value.qualityControl = staticCheckpoints
+    
+    // Save immediately to persist the new checkpoints
+    const saveResult = await manualSave()
+    
+    if (saveResult) {
+      alert('Quality Control checkpoints regenerated successfully!')
+    } else {
+      alert('Failed to save checkpoints. Please try again.')
+    }
+  } catch (error: any) {
+    console.error('Failed to regenerate quality checkpoints:', error)
+    alert(`Failed to regenerate quality checkpoints: ${error.response?.data?.message || error.message}`)
+  }
 }
+
 
 const exportQualityReport = () => {
   const report = {
@@ -2516,6 +2550,15 @@ const autoSave = async () => {
       hasUnsavedChanges.value = false
       lastSaveTime.value = new Date()
       saveRetryCount.value = 0
+      
+      // Update local data with returned data (containing real IDs) if available
+      if (result.data.data) {
+        const data = result.data.data
+        if (data.qualityControl) productionData.value.qualityControl = convertToCamelCase(data.qualityControl)
+        if (data.issues) productionData.value.issues = convertToCamelCase(data.issues)
+        if (data.completionCriteria) productionData.value.completionCriteria = convertToCamelCase(data.completionCriteria)
+      }
+
       console.log('Auto-save successful')
     }
 
@@ -2595,6 +2638,15 @@ const manualSave = async (): Promise<boolean> => {
       hasUnsavedChanges.value = false
       lastSaveTime.value = new Date()
       saveRetryCount.value = 0
+      
+      // Update local data with returned data (containing real IDs) if available
+      if (response.data.data) {
+        const data = response.data.data
+        if (data.qualityControl) productionData.value.qualityControl = convertToCamelCase(data.qualityControl)
+        if (data.issues) productionData.value.issues = convertToCamelCase(data.issues)
+        if (data.completionCriteria) productionData.value.completionCriteria = convertToCamelCase(data.completionCriteria)
+      }
+
       console.log('Manual save successful')
       return true
     }
@@ -2990,21 +3042,32 @@ const loadProductionData = async () => {
     const response = await api.get(`/api/projects/tasks/${taskId}/production`)
 
     if (response.data.success && response.data.data) {
-      // Update production data with backend data (convert snake_case to camelCase)
-      if (response.data.data.quality_control) {
-        productionData.value.qualityControl = convertToCamelCase(response.data.data.quality_control)
+      const data = response.data.data
+      
+      // Update production data with backend data (handling camelCase keys from service)
+      if (data.productionElements) {
+        productionData.value.productionElements = convertToCamelCase(data.productionElements)
       }
-      if (response.data.data.issues) {
-        productionData.value.issues = convertToCamelCase(response.data.data.issues)
+
+      if (data.qualityControl) {
+        productionData.value.qualityControl = convertToCamelCase(data.qualityControl)
+      } else if (data.quality_control) { // Fallback for snake_case
+        productionData.value.qualityControl = convertToCamelCase(data.quality_control)
       }
-      if (response.data.data.completion_criteria) {
-        productionData.value.completionCriteria = convertToCamelCase(response.data.data.completion_criteria)
+
+      if (data.issues) {
+        productionData.value.issues = convertToCamelCase(data.issues)
       }
-      console.log('Existing production data loaded from backend')
+
+      if (data.completionCriteria) {
+        productionData.value.completionCriteria = convertToCamelCase(data.completionCriteria)
+      } else if (data.completion_criteria) { // Fallback for snake_case
+        productionData.value.completionCriteria = convertToCamelCase(data.completion_criteria)
+      }
     }
 
   } catch (error: any) {
-    console.error('Failed to load existing production data:', error)
+    console.error('Failed to load production data:', error)
     // Continue with default data if loading fails
     if (error.response?.status !== 404) {
       console.warn('Production data loading failed, using default data')

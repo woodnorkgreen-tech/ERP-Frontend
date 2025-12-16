@@ -59,12 +59,25 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
+      // Don't redirect if this was a login attempt failure
+      if (error.config?.url?.endsWith('/login')) {
+        return Promise.reject(error);
+      }
+
       // Token expired or invalid
       console.log('401 Unauthorized - clearing auth token');
       removeAuthToken();
-      // Redirect to login if needed
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+
+      // Redirect to login using correct base path
+      const basePath = (import.meta as any).env.BASE_URL || '/';
+      // Ensure we don't double slash if base ends with / and path starts with /
+      const loginUri = 'login';
+      const loginPath = basePath.endsWith('/')
+        ? `${basePath}${loginUri}`
+        : `${basePath}/${loginUri}`;
+
+      if (window.location.pathname !== loginPath) {
+        window.location.href = loginPath;
       }
     }
     return Promise.reject(error);

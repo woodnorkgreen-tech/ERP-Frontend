@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/system/, ''),
       },
     },
   },

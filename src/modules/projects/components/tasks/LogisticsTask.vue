@@ -9,13 +9,13 @@
           Logistics Task - {{ task.title }}
         </h4>
         <button
-          @click="showPrintModal = true"
+          @click="downloadPdfReport"
           class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
           </svg>
-          <span>View/Print Report</span>
+          <span>Download PDF Report</span>
         </button>
       </div>
 
@@ -1411,11 +1411,7 @@
             <span>Mark Complete</span>
           </button>
 
-          <button
-            v-if="task.status !== 'in_progress' && task.status !== 'completed' && task.status !== 'cancelled'"
-            @click="$emit('update-status', 'in_progress')"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors font-medium shadow-sm"
-          >Set In Progress</button>
+
         </div>
 
         <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
@@ -3299,6 +3295,24 @@ const generateChecklistFromItems = async () => {
  */
 const printReport = () => {
   window.print()
+}
+
+/**
+ * Download PDF report
+ */
+const downloadPdfReport = async () => {
+  try {
+    addFeedbackMessage('info', 'Generating PDF report...')
+    await logistics.downloadPdf(props.task.id)
+    addFeedbackMessage('success', 'PDF Report downloaded successfully')
+  } catch (error: any) {
+    console.error('Failed to download PDF:', error)
+    console.error('Error response:', error.response?.data)
+    console.error('Error status:', error.response?.status)
+    
+    const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to download PDF report'
+    addFeedbackMessage('error', errorMessage)
+  }
 }
 
 /**

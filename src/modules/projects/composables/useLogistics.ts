@@ -298,6 +298,43 @@ export function useLogistics() {
     }
   }
 
+  const downloadPdf = async (taskId: number): Promise<void> => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.get(`/api/projects/tasks/${taskId}/logistics/pdf`, {
+        responseType: 'blob'
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `logistics-report-${taskId}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err: any) {
+      // When responseType is 'blob', error responses are also blobs
+      // We need to convert them to JSON to get the error message
+      if (err.response?.data instanceof Blob && err.response?.data?.type === 'application/json') {
+        try {
+          const text = await err.response.data.text()
+          const errorData = JSON.parse(text)
+          error.value = errorData.message || getErrorMessage(err)
+        } catch (parseError) {
+          error.value = getErrorMessage(err)
+        }
+      } else {
+        error.value = getErrorMessage(err)
+      }
+      throw new Error(error.value || 'Failed to download PDF')
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     loading,
     error,
@@ -313,6 +350,7 @@ export function useLogistics() {
     importProductionElements,
     getChecklist,
     updateChecklist,
-    generateChecklist
+    generateChecklist,
+    downloadPdf
   }
 }
