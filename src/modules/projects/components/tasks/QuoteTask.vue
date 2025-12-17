@@ -480,7 +480,7 @@
                       v-model="quoteData.vatEnabled"
                       type="checkbox"
                       class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
-                      @change="toggleVAT"
+                      @click="handleVATChange"
                     />
                   </div>
                 </div>
@@ -1501,12 +1501,12 @@ const updateDiscount = () => {
 }
 
 /**
- * Toggle VAT enabled/disabled (VAT rate is fixed at 16%)
+ * Handle VAT checkbox change (v-model already updated the value)
  */
-const toggleVAT = () => {
-  quoteData.vatEnabled = !quoteData.vatEnabled
+const handleVATChange = () => {
   // Ensure VAT percentage is always 16%
   quoteData.vatPercentage = CONSTANTS.VAT_RATE
+  // Recalculate totals with the new VAT setting
   calculateAllTotals()
   quoteData.updatedAt = new Date()
 }

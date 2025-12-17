@@ -41,6 +41,25 @@
             </button>
           </div>
 
+          <!-- Bank Details Toggle -->
+          <div v-if="!props.readonly" class="flex items-center space-x-2">
+            <label class="text-sm text-gray-600">Bank Details:</label>
+            <button
+              @click="toggleBankDetails"
+              :class="[
+                'px-3 py-1 text-xs rounded-full transition-colors flex items-center space-x-1',
+                showBankDetails
+                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ]"
+            >
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="showBankDetails ? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' : 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21'"></path>
+              </svg>
+              <span>{{ showBankDetails ? 'Show' : 'Hide' }}</span>
+            </button>
+          </div>
+
           <!-- Print Button -->
           <div v-if="!props.readonly" class="flex items-center space-x-2">
             <button
@@ -104,10 +123,25 @@
           <div class="bg-gray-200 p-3 text-xs text-gray-900">
             <div class="font-bold mb-1">{{ quoteData.projectInfo.clientName }}</div>
             <div class="mb-1">Nairobi, Kenya</div>
-            <div class="mb-1"><span class="font-bold">Attn:</span> Project Manager</div>
+            <div class="mb-1">
+              <span class="font-bold">Attn:</span> 
+              <span v-if="!isEditMode">{{ editableDescriptions['customer_attn'] || 'Project Manager' }}</span>
+              <input
+                v-else
+                v-model="editableDescriptions['customer_attn']"
+                class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 ml-1 text-xs"
+                placeholder="Attention to..."
+              />
+            </div>
             <div class="mb-1">
               <span class="font-bold">Project/Event/Setup/Delivery Date:</span> 
-              {{ quoteData.projectInfo.setupDate ? formatDate(new Date(quoteData.projectInfo.setupDate)) : 'TBC' }}
+              <span v-if="!isEditMode">{{ editableDescriptions['project_date'] || (quoteData.projectInfo.setupDate ? formatDate(new Date(quoteData.projectInfo.setupDate)) : 'TBC') }}</span>
+              <input
+                v-else
+                v-model="editableDescriptions['project_date']"
+                type="date"
+                class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 ml-1 text-xs"
+              />
             </div>
             <div>
               <span class="font-bold text-red-600">Ref:</span> 
@@ -186,7 +220,25 @@
                 <tr class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
-                    <div class="font-bold text-gray-900">Provision of labour for setup (within Nairobi)</div>
+                    <div class="font-bold text-gray-900">
+                      <span v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of labour for setup (within Nairobi)' }}</span>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['labour_title']"
+                        class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs"
+                        placeholder="Labour title..."
+                      />
+                    </div>
+                    <div v-if="!isEditMode && editableDescriptions['labour_desc']" class="text-gray-600 text-xs mt-1">
+                      {{ editableDescriptions['labour_desc'] }}
+                    </div>
+                    <textarea
+                      v-else-if="isEditMode"
+                      v-model="editableDescriptions['labour_desc']"
+                      class="w-full mt-1 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs resize-none"
+                      rows="2"
+                      placeholder="Labour description (optional)..."
+                    ></textarea>
                   </td>
                   <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
                   <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
@@ -199,7 +251,25 @@
                 <tr class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 2 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
-                    <div class="font-bold text-gray-900">Transport cost</div>
+                    <div class="font-bold text-gray-900">
+                      <span v-if="!isEditMode">{{ editableDescriptions['logistics_title'] || 'Transport cost' }}</span>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['logistics_title']"
+                        class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs"
+                        placeholder="Logistics title..."
+                      />
+                    </div>
+                    <div v-if="!isEditMode && editableDescriptions['logistics_desc']" class="text-gray-600 text-xs mt-1">
+                      {{ editableDescriptions['logistics_desc'] }}
+                    </div>
+                    <textarea
+                      v-else-if="isEditMode"
+                      v-model="editableDescriptions['logistics_desc']"
+                      class="w-full mt-1 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs resize-none"
+                      rows="2"
+                      placeholder="Logistics description (optional)..."
+                    ></textarea>
                   </td>
                   <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
                   <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
@@ -212,7 +282,25 @@
                 <tr class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 3 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
-                    <div class="font-bold text-gray-900">Provision of Generator and fuel during setup</div>
+                    <div class="font-bold text-gray-900">
+                      <span v-if="!isEditMode">{{ editableDescriptions['expenses_title'] || 'Provision of Generator and fuel during setup' }}</span>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['expenses_title']"
+                        class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs"
+                        placeholder="Expenses title..."
+                      />
+                    </div>
+                    <div v-if="!isEditMode && editableDescriptions['expenses_desc']" class="text-gray-600 text-xs mt-1">
+                      {{ editableDescriptions['expenses_desc'] }}
+                    </div>
+                    <textarea
+                      v-else-if="isEditMode"
+                      v-model="editableDescriptions['expenses_desc']"
+                      class="w-full mt-1 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs resize-none"
+                      rows="2"
+                      placeholder="Expenses description (optional)..."
+                    ></textarea>
                   </td>
                   <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
                   <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
@@ -227,10 +315,19 @@
                 <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.subtotal) }}</td>
               </tr>
               
+              <!-- VAT Row (if enabled) -->
+              <tr v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0">
+                <td colspan="3" class="border-r border-gray-300"></td>
+                <td class="py-1 px-2 font-bold text-purple-700 border-r border-gray-300 border-b border-gray-300">VAT (16%)</td>
+                <td class="py-1 px-2 text-right font-bold text-purple-700 border-b border-gray-300">{{ formatCurrency(quoteData.totals.vatAmount) }}</td>
+              </tr>
+
               <!-- Total Row -->
               <tr>
                 <td colspan="3" class="border-r border-gray-300"></td>
-                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">Total</td>
+                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">
+                  {{ quoteData.vatEnabled && quoteData.totals.vatAmount > 0 ? 'Total (Inc. VAT)' : 'Total' }}
+                </td>
                 <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.grandTotal) }}</td>
               </tr>
             </tbody>
@@ -250,11 +347,55 @@
               <div class="mb-2">
                 <h4 class="font-bold text-red-600 mb-1">PAYMENT TERMS</h4>
                 <ul class="list-none space-y-0.5 text-gray-800">
-                  <li><span class="font-semibold">Deposit Payment:</span> Within Agreed Timelines (Per Email)</li>
-                  <li><span class="font-semibold">Balance Payment:</span> Upon complete delivery</li>
-                  <li><span class="font-semibold">Late Payment Penalty:</span> 2% Monthly for Late Payments</li>
-                  <li>Production begins after receipt of LPO and payment of 70% Deposit</li>
-                  <li>The Total Quote amount is <span class="text-red-600 font-semibold">exclusive of 16% VAT</span></li>
+                  <li>
+                    <span class="font-semibold">Deposit Payment:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['payment_deposit'] || 'Within Agreed Timelines (Per Email)' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['payment_deposit']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
+                      placeholder="Deposit payment terms..."
+                    />
+                  </li>
+                  <li>
+                    <span class="font-semibold">Balance Payment:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['payment_balance'] || 'Upon complete delivery' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['payment_balance']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
+                      placeholder="Balance payment terms..."
+                    />
+                  </li>
+                  <li>
+                    <span class="font-semibold">Late Payment Penalty:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['payment_penalty'] || '2% Monthly for Late Payments' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['payment_penalty']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
+                      placeholder="Late payment penalty..."
+                    />
+                  </li>
+                  <li v-if="!isEditMode">{{ editableDescriptions['payment_production'] || 'Production begins after receipt of LPO and payment of 70% Deposit' }}</li>
+                  <textarea
+                    v-else
+                    v-model="editableDescriptions['payment_production']"
+                    class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-[10px] resize-none"
+                    rows="1"
+                    placeholder="Production start condition..."
+                  ></textarea>
+                  <li v-if="!isEditMode">
+                    The Total Quote amount is <span class="text-red-600 font-semibold">{{ editableDescriptions['payment_vat'] || 'exclusive of 16% VAT' }}</span>
+                  </li>
+                  <li v-else class="flex items-center gap-1">
+                    The Total Quote amount is 
+                    <input
+                      v-model="editableDescriptions['payment_vat']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] text-red-600 font-semibold flex-1"
+                      placeholder="VAT terms..."
+                    />
+                  </li>
                 </ul>
               </div>
 
@@ -262,8 +403,26 @@
               <div class="mb-2">
                 <h4 class="font-bold text-red-600 mb-1">CLIENT OBLIGATIONS</h4>
                 <ul class="list-none space-y-0.5 text-gray-800">
-                  <li><span class="font-semibold">Setup & Branding Time:</span> Client must provide ample time for setup</li>
-                  <li><span class="font-semibold">Pre-Production Approvals:</span> Client must approve pre-production on time</li>
+                  <li>
+                    <span class="font-semibold">Setup & Branding Time:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['client_setup_time'] || 'Client must provide ample time for setup' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['client_setup_time']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
+                      placeholder="Setup time requirement..."
+                    />
+                  </li>
+                  <li>
+                    <span class="font-semibold">Pre-Production Approvals:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['client_approvals'] || 'Client must approve pre-production on time' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['client_approvals']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
+                      placeholder="Approval requirement..."
+                    />
+                  </li>
                 </ul>
               </div>
 
@@ -271,23 +430,128 @@
               <div class="mb-2">
                 <h4 class="font-bold text-red-600 mb-1">APPROVAL & EXECUTION</h4>
                 <ul class="list-none space-y-0.5 text-gray-800">
-                  <li><span class="font-semibold">Approval Required Before Work:</span> Client must approve before work starts</li>
-                  <li><span class="font-semibold">Change Requests Process:</span> Changes to initial quote will be billed separately</li>
+                  <li>
+                    <span class="font-semibold">Approval Required Before Work:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['approval_required'] || 'Client must approve before work starts' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['approval_required']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
+                      placeholder="Approval requirement..."
+                    />
+                  </li>
+                  <li>
+                    <span class="font-semibold">Change Requests Process:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['change_requests'] || 'Changes to initial quote will be billed separately' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['change_requests']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
+                      placeholder="Change request policy..."
+                    />
+                  </li>
                 </ul>
               </div>
 
               <!-- Bank Details -->
-              <div class="mt-3 border-t border-gray-200 pt-2">
-                <div class="font-bold text-gray-900 mb-1">Cheques payable to Woodnork Green Limited</div>
+              <div v-if="showBankDetails" class="mt-3 border-t border-gray-200 pt-2">
+                <div class="font-bold text-gray-900 mb-1">
+                  <span v-if="!isEditMode">{{ editableDescriptions['bank_cheque_payable'] || 'Cheques payable to Woodnork Green Limited' }}</span>
+                  <input
+                    v-else
+                    v-model="editableDescriptions['bank_cheque_payable']"
+                    class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-[10px]"
+                    placeholder="Cheque payable to..."
+                  />
+                </div>
                 <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-gray-800">
-                  <div><span class="font-semibold">Account Name:</span> Woodnork Green Ltd</div>
-                  <div><span class="font-semibold">Bank Name:</span> NCBA Bank. <span class="font-semibold">Code:</span> 07000</div>
-                  <div><span class="font-semibold">Branch:</span> Kenyatta Avenue. <span class="font-semibold">Code:</span> 125</div>
-                  <div><span class="font-semibold">Account Number:</span> <span class="text-red-600 font-bold">1002970089</span></div>
-                  <div><span class="font-semibold">SWIFT Code:</span> CBAFKENX</div>
+                  <div>
+                    <span class="font-semibold">Account Name:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_account_name']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-32"
+                      placeholder="Account name..."
+                    />
+                  </div>
+                  <div>
+                    <span class="font-semibold">Bank Name:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_name'] || 'NCBA Bank' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_name']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-24"
+                      placeholder="Bank..."
+                    />
+                    <span class="font-semibold ml-1">Code:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_code'] || '07000' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_code']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-16"
+                      placeholder="Code..."
+                    />
+                  </div>
+                  <div>
+                    <span class="font-semibold">Branch:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_branch']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-28"
+                      placeholder="Branch..."
+                    />
+                    <span class="font-semibold ml-1">Code:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_branch_code'] || '125' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_branch_code']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-12"
+                      placeholder="Code..."
+                    />
+                  </div>
+                  <div>
+                    <span class="font-semibold">Account Number:</span> 
+                    <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_account_number']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-28"
+                      placeholder="Account number..."
+                    />
+                  </div>
+                  <div>
+                    <span class="font-semibold">SWIFT Code:</span> 
+                    <span v-if="!isEditMode">{{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}</span>
+                    <input
+                      v-else
+                      v-model="editableDescriptions['bank_swift']"
+                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-24"
+                      placeholder="SWIFT..."
+                    />
+                  </div>
                   <div class="col-span-2 flex space-x-2">
-                    <div><span class="font-semibold">PAYBILL:</span> <span class="text-red-600 font-bold">880100</span></div>
-                    <div><span class="font-semibold">A/C:</span> <span class="text-red-600 font-bold">1002970089</span></div>
+                    <div>
+                      <span class="font-semibold">PAYBILL:</span> 
+                      <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['bank_paybill']"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-16"
+                        placeholder="Paybill..."
+                      />
+                    </div>
+                    <div>
+                      <span class="font-semibold">A/C:</span> 
+                      <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill_ac'] || '1002970089' }}</span>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['bank_paybill_ac']"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-24"
+                        placeholder="A/C..."
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -358,6 +622,7 @@ const emit = defineEmits<Emits>()
 // Reactive state
 const showDetailedItems = ref(props.displayOptions?.showDetailedItems || false)
 const isEditMode = ref(false)
+const showBankDetails = ref(true) // Default to showing bank details
 const editableDescriptions = ref<Record<string, string>>({})
 
 /**
@@ -380,6 +645,13 @@ const toggleEditMode = () => {
 }
 
 /**
+ * Toggle bank details visibility
+ */
+const toggleBankDetails = () => {
+  showBankDetails.value = !showBankDetails.value
+}
+
+/**
  * Initialize editable descriptions
  */
 const initializeEditableDescriptions = () => {
@@ -388,16 +660,52 @@ const initializeEditableDescriptions = () => {
     editableDescriptions.value[element.id] = getElementDescription(element)
   })
 
+  // Initialize customer details
+  editableDescriptions.value['customer_attn'] = 'Project Manager'
+  editableDescriptions.value['project_date'] = props.quoteData.projectInfo.setupDate 
+    ? new Date(props.quoteData.projectInfo.setupDate).toISOString().split('T')[0]
+    : ''
+
   // Initialize descriptions for other categories
   if (props.quoteData.totals.labourTotal > 0) {
-    editableDescriptions.value['labour'] = 'Professional setup and installation services'
+    editableDescriptions.value['labour_title'] = 'Provision of labour for setup (within Nairobi)'
+    editableDescriptions.value['labour_desc'] = 'Professional setup and installation services'
   }
   if (props.quoteData.totals.expensesTotal > 0) {
-    editableDescriptions.value['expenses'] = 'Transportation, accommodation and other project costs'
+    editableDescriptions.value['expenses_title'] = 'Provision of Generator and fuel during setup'
+    editableDescriptions.value['expenses_desc'] = 'Transportation, accommodation and other project costs'
   }
   if (props.quoteData.totals.logisticsTotal > 0) {
-    editableDescriptions.value['logistics'] = 'Equipment delivery and logistics coordination'
+    editableDescriptions.value['logistics_title'] = 'Transport cost'
+    editableDescriptions.value['logistics_desc'] = 'Equipment delivery and logistics coordination'
   }
+
+  // Initialize Payment Terms
+  editableDescriptions.value['payment_deposit'] = 'Within Agreed Timelines (Per Email)'
+  editableDescriptions.value['payment_balance'] = 'Upon complete delivery'
+  editableDescriptions.value['payment_penalty'] = '2% Monthly for Late Payments'
+  editableDescriptions.value['payment_production'] = 'Production begins after receipt of LPO and payment of 70% Deposit'
+  editableDescriptions.value['payment_vat'] = 'exclusive of 16% VAT'
+
+  // Initialize Client Obligations
+  editableDescriptions.value['client_setup_time'] = 'Client must provide ample time for setup'
+  editableDescriptions.value['client_approvals'] = 'Client must approve pre-production on time'
+
+  // Initialize Approval & Execution
+  editableDescriptions.value['approval_required'] = 'Client must approve before work starts'
+  editableDescriptions.value['change_requests'] = 'Changes to initial quote will be billed separately'
+
+  // Initialize Bank Details
+  editableDescriptions.value['bank_cheque_payable'] = 'Cheques payable to Woodnork Green Limited'
+  editableDescriptions.value['bank_account_name'] = 'Woodnork Green Ltd'
+  editableDescriptions.value['bank_name'] = 'NCBA Bank'
+  editableDescriptions.value['bank_code'] = '07000'
+  editableDescriptions.value['bank_branch'] = 'Kenyatta Avenue'
+  editableDescriptions.value['bank_branch_code'] = '125'
+  editableDescriptions.value['bank_account_number'] = '1002970089'
+  editableDescriptions.value['bank_swift'] = 'CBAFKENX'
+  editableDescriptions.value['bank_paybill'] = '880100'
+  editableDescriptions.value['bank_paybill_ac'] = '1002970089'
 }
 
 /**
