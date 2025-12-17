@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative notification-center">
     <!-- Notification Bell Button -->
     <button
       @click="toggleNotificationPanel"
@@ -7,8 +7,7 @@
       :class="{ 'text-blue-600 dark:text-blue-400': hasUnreadNotifications }"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.5 2.5a2.121 2.121 0 013 3L6 9l-4 1 1-4 5.5-5.5z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
       </svg>
       <!-- Notification Badge -->
       <span
@@ -97,6 +96,20 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                   {{ notification.message }}
                 </p>
+                <!-- Context Info -->
+                <div v-if="notification.data" class="mt-1 text-xs space-y-1">
+                  <div v-if="notification.data.enquiry_title" class="font-medium text-gray-700 dark:text-gray-300">
+                    {{ notification.data.enquiry_title }} <span v-if="notification.data.enquiry_number" class="text-gray-500 font-normal">(#{{ notification.data.enquiry_number }})</span>
+                  </div>
+                  <div v-if="notification.data.client_name" class="text-gray-500 italic">
+                    {{ notification.data.client_name }}
+                  </div>
+                  <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 mt-1">
+                    <span v-if="notification.data.assigned_by">by {{ notification.data.assigned_by }}</span>
+                    <span v-if="notification.data.assigned_by && notification.data.due_date">•</span>
+                    <span v-if="notification.data.due_date">Due: {{ new Date(notification.data.due_date).toLocaleDateString() }}</span>
+                  </div>
+                </div>
                 <div v-if="notification.data" class="mt-2 flex flex-wrap gap-1">
                   <span
                     v-for="tag in getNotificationTags(notification)"
@@ -189,24 +202,45 @@ const handleNotificationClick = async (notification: any) => {
     // Mark as read
     await markAsRead(notification.id)
 
-    // Handle task notifications specially - check for enquiry_id in data first
-    if (notification.type === 'task_assigned' && notification.data?.enquiry_id) {
-      // Navigate to the enquiry page and open the task dashboard
-      const enquiryId = notification.data.enquiry_id
-      const taskId = notification.data.task_id
+    // Route based on notification type
+    if (notification.type.startsWith('enquiry_task_')) {
+      // Project/Enquiry task notification
+      const enquiryId = notification.data?.enquiry_id
+      const taskId = notification.data?.task_id
 
-      // Navigate to enquiries management page with task dashboard open
-      router.push({
-        path: '/projects/enquiries',
-        query: {
-          open_tasks: String(enquiryId),
-          highlight_task: String(taskId)
-        }
-      })
+      if (enquiryId && taskId) {
+        // Navigate to enquiries management page with task dashboard open
+        router.push({
+          path: '/projects/enquiries',
+          query: {
+            open_tasks: String(enquiryId),
+            highlight_task: String(taskId)
+          }
+        })
+      } else {
+        // Fallback - just go to enquiries page
+        router.push('/projects/enquiries')
+      }
       closePanel()
-    } else if (notification.type === 'task_assigned') {
-      // Fallback for task notifications without proper data - navigate to enquiries page
-      router.push('/projects/enquiries')
+    } 
+    else if (notification.type.startsWith('universal_task_')) {
+      // Universal task notification
+      const taskId = notification.data?.task_id
+
+      if (taskId) {
+        router.push({
+          path: '/universal-tasks',
+          query: {
+            task: String(taskId)
+          }
+        })
+      } else {
+        router.push('/universal-tasks')
+      }
+      closePanel()
+    }
+    else {
+      // Generic notification - just close panel
       closePanel()
     }
   } catch (err) {
@@ -254,9 +288,26 @@ const formatTime = (dateString: string): string => {
 
 const getNotificationIconClass = (type: string): string => {
   const classes: Record<string, string> = {
+    // Enquiry task types
+    enquiry_task_assigned: 'bg-blue-500',
+    enquiry_task_reassigned: 'bg-indigo-500',
+    enquiry_task_unassigned: 'bg-gray-500',
+    enquiry_task_completed: 'bg-green-500',
+    enquiry_task_due_soon: 'bg-orange-500',
+    enquiry_task_overdue: 'bg-red-500',
+    
+    // Universal task types
+    universal_task_assigned: 'bg-blue-500',
+    universal_task_completed: 'bg-green-500',
+    universal_task_due_soon: 'bg-orange-500',
+    universal_task_overdue: 'bg-red-500',
+    
+    // Legacy types (backward compatibility)
     task_assigned: 'bg-blue-500',
     task_completed: 'bg-green-500',
     deadline_approaching: 'bg-orange-500',
+    
+    // Generic types
     system: 'bg-purple-500',
     info: 'bg-gray-500'
   }

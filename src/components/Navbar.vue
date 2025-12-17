@@ -16,9 +16,7 @@
       <button @click="toggleTheme" class="p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-warning hover:bg-blue-100 dark:hover:bg-gray-700" :title="theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
         <span class="text-lg">{{ theme === 'dark' ? '☀️' : '🌙' }}</span>
       </button>
-      <button class="p-2 rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-blue-100 dark:hover:bg-gray-700">
-        <span class="text-lg">🔔</span>
-      </button>
+      <NotificationCenter />
       <div class="flex items-center space-x-3">
         <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-r from-primary to-primary-light">
           <span class="text-white font-bold text-sm">U</span>
@@ -39,6 +37,7 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
+import NotificationCenter from '@/modules/shared/components/NotificationCenter.vue'
 
 const { isLoggedIn, user, logout } = useAuth()
 const { theme, toggleTheme } = useTheme()
