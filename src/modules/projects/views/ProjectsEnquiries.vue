@@ -31,6 +31,16 @@
         </div>
         <div class="flex items-center space-x-4">
           <button
+            v-if="isProjectOfficer"
+            @click="filters.assigned_to_me = !filters.assigned_to_me"
+            class="px-4 py-2 rounded-lg font-medium transition-colors border"
+            :class="filters.assigned_to_me 
+              ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-800' 
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
+          >
+            {{ filters.assigned_to_me ? 'My Projects Only' : 'All Projects' }}
+          </button>
+          <button
             @click="openLogisticsLogModal()"
             class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors ml-3"
           >
@@ -62,40 +72,82 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="Search enquiries..."
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
-        <select
-          v-model="filters.status"
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        >
-          <option value="">All Status</option>
-          <option value="client_registered">Client Registered</option>
-          <option value="enquiry_logged">Enquiry Logged</option>
-          <option value="site_survey_completed">Site Survey Completed</option>
-          <option value="design_completed">Design Completed</option>
-          <option value="design_approved">Design Approved</option>
-          <option value="materials_specified">Materials Specified</option>
-          <option value="budget_created">Budget Created</option>
-          <option value="quote_prepared">Quote Prepared</option>
-          <option value="quote_approved">Quote Approved</option>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Search -->
+        <div class="md:col-span-4">
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Search</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search by title, client..."
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow sm:text-sm"
+            />
+          </div>
+        </div>
 
-          <option value="planning">Planning</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <button
-          @click="applyFilters"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          Filter
-        </button>
+        <!-- Status -->
+        <div class="md:col-span-3">
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Filters</label>
+          <select
+            v-model="filters.status"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm"
+          >
+            <option value="">All Statuses</option>
+            <optgroup label="Pre-Project">
+              <option value="client_registered">Client Registered</option>
+              <option value="enquiry_logged">Enquiry Logged</option>
+              <option value="site_survey_completed">Site Survey Completed</option>
+            </optgroup>
+            <optgroup label="Design & Planning">
+              <option value="design_completed">Design Completed</option>
+              <option value="design_approved">Design Approved</option>
+              <option value="materials_specified">Materials Specified</option>
+              <option value="budget_created">Budget Created</option>
+              <option value="quote_prepared">Quote Prepared</option>
+              <option value="quote_approved">Quote Approved</option>
+              <option value="planning">Planning</option>
+            </optgroup>
+            <optgroup label="Execution">
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="md:col-span-3">
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Sort By</label>
+          <select
+            v-model="filters.sort_by"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm"
+          >
+            <option value="created_at">Date Created</option>
+            <option value="expected_delivery_date">Expected Delivery</option>
+
+            <option value="priority">Priority</option>
+            <option value="title">Project Title</option>
+          </select>
+        </div>
+
+        <!-- Sort Order -->
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Order</label>
+          <select
+            v-model="filters.sort_order"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm"
+          >
+            <option value="desc">Newest / High</option>
+            <option value="asc">Oldest / Low</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -832,6 +884,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
+const filters = ref({ search: '', status: '', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -841,9 +894,19 @@ const canLogEnquiry = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Client Service', 'Project Officer'].includes(role))
 })
 
+const isProjectOfficer = computed(() => {
+  return user.value?.roles?.includes('Project Officer')
+})
+
+// Automatically default to "My Projects" for Project Officers when user data loads
+watch(isProjectOfficer, (newValue) => {
+  if (newValue) {
+    filters.value.assigned_to_me = true
+  }
+}, { immediate: true })
+
 // Status Tabs
 const activeTab = ref('all')
-const filters = ref({ search: '', status: '', client_name: '' })
 const showCreateModal = ref(false)
 const titleInputRef = ref<HTMLInputElement | null>(null)
 const editingEnquiry = ref<ProjectEnquiry | null>(null)
@@ -974,6 +1037,16 @@ const filteredEnquiries = computed(() => {
 const applyFilters = () => {
   fetchEnquiries({ ...filters.value, page: 1 }) // Reset to page 1 when applying filters
 }
+
+// Automatic filtering with debounce
+let debounceTimer: any = null
+watch(filters, () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  
+  debounceTimer = setTimeout(() => {
+    applyFilters()
+  }, 500)
+}, { deep: true })
 
 const handlePageChange = async (page: number) => {
   await goToPage(page)
@@ -1437,7 +1510,10 @@ const fetchLogisticsDrivers = async () => {
 }
 
 onMounted(async () => {
-  await fetchEnquiries()
+  if (isProjectOfficer.value) {
+      filters.value.assigned_to_me = true
+  }
+  await fetchEnquiries(filters.value)
   await fetchClients()
   await fetchAvailableProjectOfficers()
   await fetchLogisticsDrivers()

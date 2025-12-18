@@ -20,7 +20,10 @@ export function useProjectsEnquiries() {
     search?: string;
     status?: string;
     client_name?: string;
-    page?: number
+    page?: number;
+    sort_by?: string;
+    sort_order?: string;
+    assigned_to_me?: boolean;
   }) => {
     loading.value = true
     error.value = null
