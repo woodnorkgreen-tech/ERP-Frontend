@@ -724,6 +724,13 @@ watch(() => props.isVisible, (isOpen) => {
   }
 })
 
+// Automatically hide bank details if VAT is disabled
+watch(() => props.quoteData?.vatEnabled, (enabled) => {
+  if (!enabled) {
+    showBankDetails.value = false
+  }
+})
+
 /**
  * Toggle detail level
  */

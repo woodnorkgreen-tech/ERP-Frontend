@@ -480,7 +480,7 @@
                       v-model="quoteData.vatEnabled"
                       type="checkbox"
                       class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
-                      @click="handleVATChange"
+                      @change="handleVATChange"
                     />
                   </div>
                 </div>
@@ -660,7 +660,7 @@
     <QuoteViewer
       :is-visible="showQuoteViewer"
       :quote-data="quoteData"
-      :readonly="task.status === 'completed'"
+      :readonly="task.status === 'cancelled'"
       @close="closeQuoteViewer"
     />
 
