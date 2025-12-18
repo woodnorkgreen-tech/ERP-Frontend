@@ -141,6 +141,7 @@ export function useProjectsDashboard() {
   const enquiryMetrics = computed(() => dashboardMetrics.value?.enquiry_metrics || null)
   const taskMetrics = computed(() => dashboardMetrics.value?.task_metrics || null)
   const projectMetrics = computed(() => dashboardMetrics.value?.project_metrics || null)
+  const financialMetrics = computed(() => dashboardMetrics.value?.financial_metrics || null)
 
   return {
     dashboardMetrics,
@@ -149,6 +150,7 @@ export function useProjectsDashboard() {
     enquiryMetrics,
     taskMetrics,
     projectMetrics,
+    financialMetrics,
     fetchDashboardMetrics,
     fetchEnquiryMetrics,
     fetchTaskMetrics,

@@ -169,7 +169,15 @@
                 <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ elementIndex + 1 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
-                    <div class="font-bold text-gray-900">{{ element.name }}</div>
+                    <div class="font-bold text-gray-900">
+                      <span v-if="!isEditMode">{{ getOverride(element.id, 'name', element.name) }}</span>
+                      <input
+                        v-else
+                        :value="getOverride(element.id, 'name', element.name)"
+                        @input="(e: any) => updateOverride(element.id, 'name', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs font-bold w-full"
+                      />
+                    </div>
                     <div v-if="!isEditMode" class="text-gray-600">{{ getDescription(element.id, element) }}</div>
                     <textarea
                       v-else
@@ -179,9 +187,27 @@
                       placeholder="Enter description..."
                     ></textarea>
                   </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(element.finalTotal / ((element.materials?.[0]?.quantity || 1) * (element.materials?.[0]?.days || 1))) }}</td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(element.finalTotal) }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">
+                     <span v-if="!isEditMode">{{ getOverride(element.id, 'qty', 1) }}</span>
+                     <input
+                        v-else
+                        type="number"
+                        :value="getOverride(element.id, 'qty', 1)"
+                        @input="(e: any) => updateOverride(element.id, 'qty', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
+                      />
+                  </td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">
+                     <span v-if="!isEditMode">{{ formatCurrency(getOverride(element.id, 'price', element.finalTotal)) }}</span>
+                     <input
+                        v-else
+                        type="number"
+                        :value="getOverride(element.id, 'price', element.finalTotal)"
+                        @input="(e: any) => updateOverride(element.id, 'price', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
+                      />
+                  </td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal(element.id, 1, element.finalTotal)) }}</td>
                 </tr>
 
                 <!-- Detailed View -->
@@ -206,27 +232,53 @@
                   <tr v-for="(material, matIndex) in element.materials" :key="material.id" class="border-b border-gray-200">
                     <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
                     <td class="py-1 px-2 pl-6 border-r border-gray-300">
-                      <div class="text-gray-900">{{ material.description }}</div>
+                       <span v-if="!isEditMode" class="text-gray-900">{{ getOverride(material.id, 'name', material.description) }}</span>
+                       <input
+                        v-else
+                        :value="getOverride(material.id, 'name', material.description)"
+                        @input="(e: any) => updateOverride(material.id, 'name', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
+                      />
                     </td>
-                    <td class="py-1 px-2 text-center border-r border-gray-300">{{ material.quantity }}</td>
-                    <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(material.finalPrice / (material.quantity * (material.days || 1))) }}</td>
-                    <td class="py-1 px-2 text-right">{{ formatCurrency(material.finalPrice) }}</td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ getOverride(material.id, 'qty', material.quantity) }}</span>
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(material.id, 'qty', material.quantity)"
+                        @input="(e: any) => updateOverride(material.id, 'qty', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ formatCurrency(getRowTotal(material.id, material.quantity, material.finalPrice) / Number(getOverride(material.id, 'qty', material.quantity))) }}</span>
+                       <!-- Edit Unit Price directly -->
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(material.id, 'price', material.finalPrice / material.quantity)"
+                        @input="(e: any) => updateOverride(material.id, 'price', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(material.id, material.quantity, material.finalPrice)) }}</td>
                   </tr>
                 </template>
               </template>
 
-              <!-- Labour -->
-              <template v-if="quoteData.totals.labourTotal > 0">
-                <tr class="border-b border-gray-300 hover:bg-gray-50">
+              <!-- Labour & Expenses -->
+              <template v-if="quoteData.totals.labourTotal > 0 || quoteData.totals.expensesTotal > 0">
+                <!-- Summary View -->
+                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
-                      <span v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of labour for setup (within Nairobi)' }}</span>
+                      <span v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</span>
                       <input
                         v-else
                         v-model="editableDescriptions['labour_title']"
                         class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs"
-                        placeholder="Labour title..."
+                        placeholder="Labour & Expenses title..."
                       />
                     </div>
                     <div v-if="!isEditMode && editableDescriptions['labour_desc']" class="text-gray-600 text-xs mt-1">
@@ -237,13 +289,124 @@
                       v-model="editableDescriptions['labour_desc']"
                       class="w-full mt-1 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs resize-none"
                       rows="2"
-                      placeholder="Labour description (optional)..."
+                      placeholder="Labour & Expenses description (optional)..."
                     ></textarea>
                   </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300">
+                     <span v-if="!isEditMode">{{ getOverride('labour_expenses_summary', 'qty', 1) }}</span>
+                     <input
+                        v-else
+                        type="number"
+                        :value="getOverride('labour_expenses_summary', 'qty', 1)"
+                        @input="(e: any) => updateOverride('labour_expenses_summary', 'qty', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
+                      />
+                  </td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300">
+                     <span v-if="!isEditMode">{{ formatCurrency(getOverride('labour_expenses_summary', 'price', quoteData.totals.labourTotal + quoteData.totals.expensesTotal)) }}</span>
+                     <input
+                        v-else
+                        type="number"
+                        :value="getOverride('labour_expenses_summary', 'price', quoteData.totals.labourTotal + quoteData.totals.expensesTotal)"
+                        @input="(e: any) => updateOverride('labour_expenses_summary', 'price', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
+                      />
+                  </td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal('labour_expenses_summary', 1, quoteData.totals.labourTotal + quoteData.totals.expensesTotal)) }}</td>
                 </tr>
+
+                <!-- Detailed View -->
+                <template v-else>
+                  <!-- Header -->
+                  <tr class="bg-gray-100 border-b border-gray-300">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
+                    <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
+                      <div v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</div>
+                      <input
+                        v-else
+                        v-model="editableDescriptions['labour_title']"
+                        class="flex-1 text-xs bg-yellow-50 border border-yellow-300 rounded px-2 py-1 w-full"
+                        placeholder="Labour & Expenses title..."
+                      />
+                    </td>
+                  </tr>
+
+                  <!-- Labour Items -->
+                  <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-b border-gray-200">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
+                    <td class="py-1 px-2 pl-6 border-r border-gray-300">
+                      <div v-if="!isEditMode">
+                         <span class="text-gray-900">{{ getOverride(labour.id, 'name', labour.type) }}</span>
+                         <span class="text-[10px] text-gray-500 capitalize ml-1">{{ labour.category }}</span>
+                      </div>
+                      <input
+                        v-else
+                        :value="getOverride(labour.id, 'name', labour.type)"
+                        @input="(e: any) => updateOverride(labour.id, 'name', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
+                       />
+                    </td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ getOverride(labour.id, 'qty', labour.quantity) }}</span>
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(labour.id, 'qty', labour.quantity)"
+                        @input="(e: any) => updateOverride(labour.id, 'qty', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ formatCurrency(getOverride(labour.id, 'price', labour.unitRate * (1 + (quoteData.margins.labour || 0) / 100))) }}</span>
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(labour.id, 'price', labour.unitRate * (1 + (quoteData.margins.labour || 0) / 100))"
+                        @input="(e: any) => updateOverride(labour.id, 'price', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(labour.id, labour.quantity, labour.amount * (1 + (quoteData.margins.labour || 0) / 100))) }}</td>
+                  </tr>
+
+                  <!-- Expense Items -->
+                  <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-b border-gray-200">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
+                    <td class="py-1 px-2 pl-6 border-r border-gray-300">
+                      <div v-if="!isEditMode">
+                         <span class="text-gray-900">{{ getOverride(expense.id, 'name', expense.description) }}</span>
+                         <div class="text-[10px] text-gray-500 capitalize">{{ expense.category }}</div>
+                      </div>
+                      <input
+                        v-else
+                        :value="getOverride(expense.id, 'name', expense.description)"
+                        @input="(e: any) => updateOverride(expense.id, 'name', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
+                       />
+                    </td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ getOverride(expense.id, 'qty', 1) }}</span>
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(expense.id, 'qty', 1)"
+                        @input="(e: any) => updateOverride(expense.id, 'qty', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                       <span v-if="!isEditMode">{{ formatCurrency(getOverride(expense.id, 'price', expense.finalPrice)) }}</span>
+                       <input
+                        v-else
+                        type="number"
+                        :value="getOverride(expense.id, 'price', expense.finalPrice)"
+                        @input="(e: any) => updateOverride(expense.id, 'price', e.target.value)"
+                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
+                      />
+                    </td>
+                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(expense.id, 1, expense.finalPrice)) }}</td>
+                  </tr>
+                </template>
               </template>
 
               <!-- Logistics -->
@@ -277,36 +440,7 @@
                 </tr>
               </template>
 
-              <!-- Expenses -->
-              <template v-if="quoteData.totals.expensesTotal > 0">
-                <tr class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 3 }}</td>
-                  <td class="py-1 px-2 border-r border-gray-300">
-                    <div class="font-bold text-gray-900">
-                      <span v-if="!isEditMode">{{ editableDescriptions['expenses_title'] || 'Provision of Generator and fuel during setup' }}</span>
-                      <input
-                        v-else
-                        v-model="editableDescriptions['expenses_title']"
-                        class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs"
-                        placeholder="Expenses title..."
-                      />
-                    </div>
-                    <div v-if="!isEditMode && editableDescriptions['expenses_desc']" class="text-gray-600 text-xs mt-1">
-                      {{ editableDescriptions['expenses_desc'] }}
-                    </div>
-                    <textarea
-                      v-else-if="isEditMode"
-                      v-model="editableDescriptions['expenses_desc']"
-                      class="w-full mt-1 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-xs resize-none"
-                      rows="2"
-                      placeholder="Expenses description (optional)..."
-                    ></textarea>
-                  </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
-                </tr>
-              </template>
+
 
               <!-- Subtotal Row -->
               <tr class="border-t-2 border-gray-400">
@@ -456,101 +590,41 @@
               <!-- Bank Details -->
               <div v-if="showBankDetails" class="mt-3 border-t border-gray-200 pt-2">
                 <div class="font-bold text-gray-900 mb-1">
-                  <span v-if="!isEditMode">{{ editableDescriptions['bank_cheque_payable'] || 'Cheques payable to Woodnork Green Limited' }}</span>
-                  <input
-                    v-else
-                    v-model="editableDescriptions['bank_cheque_payable']"
-                    class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-[10px]"
-                    placeholder="Cheque payable to..."
-                  />
+                  {{ editableDescriptions['bank_cheque_payable'] || 'Cheques payable to Woodnork Green Limited' }}
                 </div>
                 <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-gray-800">
                   <div>
                     <span class="font-semibold">Account Name:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_account_name']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-32"
-                      placeholder="Account name..."
-                    />
+                    {{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}
                   </div>
                   <div>
                     <span class="font-semibold">Bank Name:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_name'] || 'NCBA Bank' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_name']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-24"
-                      placeholder="Bank..."
-                    />
+                    {{ editableDescriptions['bank_name'] || 'NCBA Bank' }}
                     <span class="font-semibold ml-1">Code:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_code'] || '07000' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_code']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-16"
-                      placeholder="Code..."
-                    />
+                    {{ editableDescriptions['bank_code'] || '07000' }}
                   </div>
                   <div>
                     <span class="font-semibold">Branch:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_branch']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-28"
-                      placeholder="Branch..."
-                    />
+                    {{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }}
                     <span class="font-semibold ml-1">Code:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_branch_code'] || '125' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_branch_code']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-12"
-                      placeholder="Code..."
-                    />
+                    {{ editableDescriptions['bank_branch_code'] || '125' }}
                   </div>
                   <div>
                     <span class="font-semibold">Account Number:</span> 
-                    <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_account_number']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-28"
-                      placeholder="Account number..."
-                    />
+                    <span class="text-red-600 font-bold">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</span>
                   </div>
                   <div>
                     <span class="font-semibold">SWIFT Code:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['bank_swift']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] w-24"
-                      placeholder="SWIFT..."
-                    />
+                    {{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}
                   </div>
                   <div class="col-span-2 flex space-x-2">
                     <div>
                       <span class="font-semibold">PAYBILL:</span> 
-                      <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
-                      <input
-                        v-else
-                        v-model="editableDescriptions['bank_paybill']"
-                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-16"
-                        placeholder="Paybill..."
-                      />
+                      <span class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
                     </div>
                     <div>
                       <span class="font-semibold">A/C:</span> 
-                      <span v-if="!isEditMode" class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill_ac'] || '1002970089' }}</span>
-                      <input
-                        v-else
-                        v-model="editableDescriptions['bank_paybill_ac']"
-                        class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-[10px] text-red-600 font-bold w-24"
-                        placeholder="A/C..."
-                      />
+                      <span class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill_ac'] || '1002970089' }}</span>
                     </div>
                   </div>
                 </div>
@@ -579,7 +653,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 /**
  * Props interface
@@ -622,8 +696,33 @@ const emit = defineEmits<Emits>()
 // Reactive state
 const showDetailedItems = ref(props.displayOptions?.showDetailedItems || false)
 const isEditMode = ref(false)
-const showBankDetails = ref(true) // Default to showing bank details
+const showBankDetails = ref(!!props.quoteData?.vatEnabled) // Default to VAT status
 const editableDescriptions = ref<Record<string, string>>({})
+const overrides = ref<Record<string, any>>({})
+
+const getOverride = (id: string, field: string, defaultVal: any) => {
+  const key = `${id}_${field}`
+  return overrides.value[key] !== undefined ? overrides.value[key] : defaultVal
+}
+
+const updateOverride = (id: string, field: string, value: any) => {
+  overrides.value[`${id}_${field}`] = value
+}
+
+const getRowTotal = (id: string, defaultQty: number, defaultTotal: number) => {
+  const qty = Number(getOverride(id, 'qty', defaultQty))
+  // Default unit price is Total / Qty
+  const defaultUnitPrice = defaultQty ? defaultTotal / defaultQty : 0
+  const unitPrice = Number(getOverride(id, 'price', defaultUnitPrice))
+  return qty * unitPrice
+}
+
+// Watch for modal opening to sync bank details visibility with VAT status
+watch(() => props.isVisible, (isOpen) => {
+  if (isOpen) {
+    showBankDetails.value = !!props.quoteData?.vatEnabled
+  }
+})
 
 /**
  * Toggle detail level
@@ -667,13 +766,9 @@ const initializeEditableDescriptions = () => {
     : ''
 
   // Initialize descriptions for other categories
-  if (props.quoteData.totals.labourTotal > 0) {
-    editableDescriptions.value['labour_title'] = 'Provision of labour for setup (within Nairobi)'
-    editableDescriptions.value['labour_desc'] = 'Professional setup and installation services'
-  }
-  if (props.quoteData.totals.expensesTotal > 0) {
-    editableDescriptions.value['expenses_title'] = 'Provision of Generator and fuel during setup'
-    editableDescriptions.value['expenses_desc'] = 'Transportation, accommodation and other project costs'
+  if (props.quoteData.totals.labourTotal > 0 || props.quoteData.totals.expensesTotal > 0) {
+    editableDescriptions.value['labour_title'] = 'Provision of Labour and Expenses'
+    editableDescriptions.value['labour_desc'] = 'Professional setup, installation services, and project expenses'
   }
   if (props.quoteData.totals.logisticsTotal > 0) {
     editableDescriptions.value['logistics_title'] = 'Transport cost'
@@ -727,182 +822,84 @@ const printQuote = () => {
     isEditMode.value = false
   }
 
-  // Small delay to ensure edit mode is fully exited
+  // Small delay to ensure edit mode is fully exited and DOM updated
   setTimeout(() => {
     // Get the quote content element
     const quoteContent = document.querySelector('.quote-content')
     if (quoteContent) {
       // Create a new window for printing
-      const printWindow = window.open('', '_blank', 'width=800,height=600')
+      const printWindow = window.open('', '_blank', 'width=1024,height=768')
       if (printWindow) {
+        printWindow.document.write('<!DOCTYPE html><html><head><title>Quote</title>')
+        
+        // Copy all styles from current document to ensure WYSIWYG
+        const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
+        styles.forEach(node => {
+          printWindow.document.head.appendChild(node.cloneNode(true))
+        })
+
+        // Add specific print styles for layout and minimalism
         printWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Quote - ${props.quoteData.projectInfo.clientName}</title>
-            <style>
-              body {
-                font-family: system-ui, -apple-system, sans-serif;
-                margin: 20px;
-                color: #000;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-
-              /* Logo and header styling */
-              img {
-                max-height: 64px;
-                width: auto;
-              }
-
-              /* Green headers - matching your design */
-              .bg-green-500 {
-                background-color: #10b981 !important;
-                color: white !important;
-                padding: 8px 16px !important;
-                font-weight: 600 !important;
-                font-size: 14px !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-
-              /* Gray backgrounds */
-              .bg-gray-100 {
-                background-color: #f3f4f6 !important;
-                padding: 16px !important;
-                border: 1px solid #d1d5db !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .bg-gray-50 {
-                background-color: #f9fafb !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-
-              /* Colored backgrounds for detailed view */
-              .bg-blue-50 {
-                background-color: #eff6ff !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .bg-yellow-50 {
-                background-color: #fefce8 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .bg-green-50 {
-                background-color: #f0fdf4 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .bg-orange-50 {
-                background-color: #fff7ed !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-
-              /* Table styling */
-              table {
-                border-collapse: collapse !important;
-                width: 100% !important;
-                margin: 0 !important;
-              }
-              th, td {
-                border: 1px solid #d1d5db !important;
-                padding: 8px !important;
-                text-align: left !important;
-              }
-              th {
-                background-color: #f9fafb !important;
-                font-weight: 600 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-
-              /* Text colors */
-              .text-green-600 { color: #059669 !important; }
-              .text-red-600 { color: #dc2626 !important; }
-              .text-blue-800 { color: #1e40af !important; }
-              .text-yellow-800 { color: #92400e !important; }
-              .text-green-800 { color: #166534 !important; }
-              .text-orange-800 { color: #9a3412 !important; }
-              .text-gray-900 { color: #111827 !important; }
-              .text-gray-600 { color: #4b5563 !important; }
-              .text-gray-500 { color: #6b7280 !important; }
-
-              /* Alignment */
-              .text-right { text-align: right !important; }
-              .text-center { text-align: center !important; }
-
-              /* Font weights */
-              .font-bold { font-weight: 700 !important; }
-              .font-semibold { font-weight: 600 !important; }
-              .font-medium { font-weight: 500 !important; }
-
-              /* Font sizes */
-              .text-3xl { font-size: 1.875rem !important; line-height: 2.25rem !important; }
-              .text-2xl { font-size: 1.5rem !important; line-height: 2rem !important; }
-              .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
-              .text-sm { font-size: 0.875rem !important; line-height: 1.25rem !important; }
-              .text-xs { font-size: 0.75rem !important; line-height: 1rem !important; }
-
-              /* Spacing */
-              .mb-8 { margin-bottom: 2rem !important; }
-              .mb-6 { margin-bottom: 1.5rem !important; }
-              .mb-4 { margin-bottom: 1rem !important; }
-              .mb-2 { margin-bottom: 0.5rem !important; }
-              .mb-1 { margin-bottom: 0.25rem !important; }
-              .mt-1 { margin-top: 0.25rem !important; }
-              .mt-2 { margin-top: 0.5rem !important; }
-              .space-y-1 > * + * { margin-top: 0.25rem !important; }
-              .space-y-2 > * + * { margin-top: 0.5rem !important; }
-
-              /* Layout */
-              .flex { display: flex !important; }
-              .justify-between { justify-content: space-between !important; }
-              .items-center { align-items: center !important; }
-              .items-start { align-items: flex-start !important; }
-              .space-x-4 > * + * { margin-left: 1rem !important; }
-              .space-x-2 > * + * { margin-left: 0.5rem !important; }
-
-              /* Borders */
-              .border { border: 1px solid #d1d5db !important; }
-              .border-gray-300 { border-color: #d1d5db !important; }
-              .border-t { border-top: 1px solid #d1d5db !important; }
-              .border-t-2 { border-top: 2px solid #6b7280 !important; }
-              .border-r { border-right: 1px solid #d1d5db !important; }
-              .border-b { border-bottom: 1px solid #d1d5db !important; }
-
-              /* Page setup */
-              @page {
-                margin: 0.5in;
-                size: A4;
-              }
-
-              /* Prevent page breaks within sections */
-              .mb-8 {
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-              }
-            </style>
-          </head>
-          <body>
-            ${quoteContent.innerHTML}
-          </body>
-          </html>
+          <style>
+            body { 
+              font-family: system-ui, -apple-system, sans-serif;
+              margin: 0;
+              padding: 20px;
+              background: white;
+            }
+            .quote-content { 
+              width: 100%;
+              max-width: 100%;
+              margin: 0;
+              padding: 0 !important;
+              box-shadow: none !important;
+              border: none !important;
+            }
+            /* Colors */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            /* Page breaks */
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            .break-inside-avoid { page-break-inside: avoid; }
+            
+            /* Hide non-print elements just in case */
+            button, .no-print { display: none !important; }
+            
+            /* Typography tweaks for print */
+            h1, h2, h3, h4, h5, h6 { color: black !important; }
+            .text-gray-900 { color: black !important; }
+            .text-gray-600 { color: #333 !important; }
+            
+            /* Ensure inputs look like text if any remain */
+            input, textarea {
+              border: none;
+              background: transparent;
+              resize: none;
+              padding: 0;
+            }
+          </style>
         `)
+        
+        printWindow.document.write('</head><body>')
+        
+        // Clone the content
+        printWindow.document.write(quoteContent.outerHTML)
+        
+        printWindow.document.write('</body></html>')
         printWindow.document.close()
-        printWindow.focus()
-        printWindow.print()
-        printWindow.close()
+        
+        // Wait for styles/images to load
+        setTimeout(() => {
+          printWindow.focus()
+          printWindow.print()
+          printWindow.close()
+        }, 500)
       }
-    } else {
-      // Fallback to regular print
-      window.print()
     }
   }, 100)
 }
+
 
 /**
  * Generate quote number

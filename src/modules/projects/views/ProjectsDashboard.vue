@@ -11,6 +11,20 @@
           :project-metrics="projectMetrics"
           :task-metrics="taskMetrics"
         />
+        
+        <!-- Strategic Insights Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" v-if="financialMetrics && enquiryMetrics && projectMetrics">
+           <FinancialHealthScore
+             :revenue="financialMetrics.revenue"
+             :profit="financialMetrics.profit"
+             :margin="financialMetrics.margin"
+             :cost="financialMetrics.cost"
+           />
+           <ProjectPipelineFunnel
+             :enquiry-metrics="enquiryMetrics"
+             :project-metrics="projectMetrics"
+           />
+        </div>
 
         <!-- Charts Section -->
         <ChartsSection
@@ -50,13 +64,15 @@ import { onMounted } from 'vue'
 import { useProjectsDashboard } from '../composables/useProjectsDashboard'
 import DashboardHeader from '../components/DashboardHeader.vue'
 import KPICards from '../components/KPICards.vue'
+import FinancialHealthScore from '../components/FinancialHealthScore.vue'
+import ProjectPipelineFunnel from '../components/ProjectPipelineFunnel.vue'
 import ChartsSection from '../components/ChartsSection.vue'
 import MetricsGrid from '../components/MetricsGrid.vue'
 import AlertsPanel from '../components/AlertsPanel.vue'
 import ActivityFeed from '../components/ActivityFeed.vue'
 import DashboardFilters from '../components/DashboardFilters.vue'
 
-const { dashboardMetrics, enquiryMetrics, taskMetrics, projectMetrics, loading, fetchDashboardMetrics } = useProjectsDashboard()
+const { dashboardMetrics, enquiryMetrics, taskMetrics, projectMetrics, financialMetrics, loading, fetchDashboardMetrics } = useProjectsDashboard()
 
 const handleRefresh = () => {
   fetchDashboardMetrics()

@@ -1288,16 +1288,17 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import api from '@/plugins/axios'
-import type {
-  ProductionTaskData,
-  ProjectInfo,
-  ProductionElement,
-  QualityControlCheckpoint,
-  ProductionIssue,
-  CompletionCriterion,
-  ProductionElementCategory,
-  IssueCategory
-} from './types'
+// TODO: Create types.ts file or move these type definitions inline
+// import type {
+//   ProductionTaskData,
+//   ProjectInfo,
+//   ProductionElement,
+//   QualityControlCheckpoint,
+//   ProductionIssue,
+//   CompletionCriterion,
+//   ProductionElementCategory,
+//   IssueCategory
+// } from './types'
 
 /**
  * Props interface for the ProductionTask component
@@ -1407,11 +1408,11 @@ const getTabBadgeCount = (tabId: string): number => {
     case 'production-elements':
       return productionData.value.productionElements.length
     case 'quality':
-      return productionData.value.qualityControl.filter(qc => qc.status === 'failed').length
+      return productionData.value.qualityControl.filter((qc: any) => qc.status === 'failed').length
     case 'issues':
-      return productionData.value.issues.filter(issue => issue.status === 'open').length
+      return productionData.value.issues.filter((issue: any) => issue.status === 'open').length
     case 'completion':
-      return productionData.value.completionCriteria.filter(c => c.met).length
+      return productionData.value.completionCriteria.filter((c: any) => c.met).length
     default:
       return 0
   }
@@ -1424,7 +1425,7 @@ const getTabBadgeClass = (tabId: string): string => {
     case 'production-elements':
       return `${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`
     case 'quality':
-      const failedCount = productionData.value.qualityControl.filter(qc => qc.status === 'failed').length
+      const failedCount = productionData.value.qualityControl.filter((qc: any) => qc.status === 'failed').length
       return failedCount > 0
         ? `${baseClasses} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`
         : `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`
@@ -1522,13 +1523,13 @@ const projectInfo = computed(() => {
   const enquiry = props.task.enquiry
 
   return {
-    projectId: enquiry?.enquiry_number || `ENQ-${props.task.enquiry_id}`,
-    enquiryNumber: enquiry?.enquiry_number || `ENQ-${props.task.enquiry_id}`,
+    projectId: enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    enquiryNumber: enquiry?.enquiry_number || `ENQ-${props.task.id}`,
     enquiryTitle: enquiry?.title || 'Untitled Project',
-    clientName: enquiry?.client?.full_name || enquiry?.client?.FullName || enquiry?.contact_person || 'Unknown Client',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Unknown Client',
     eventVenue: enquiry?.venue || 'TBC',
     setupDate: enquiry?.expected_delivery_date || 'TBC',
-    setDownDate: enquiry?.set_down_date || 'TBC', // This field might not be available in the current schema
+    setDownDate: 'TBC', // Field not available in current schema
     estimatedBudget: enquiry?.estimated_budget,
     contactPerson: enquiry?.contact_person || 'TBC'
   }
@@ -1536,14 +1537,14 @@ const projectInfo = computed(() => {
 
 // Categories with elements computed property
 const categoriesWithElements = computed(() => {
-  return productionElementCategories.value.filter(category =>
-    productionData.value.productionElements.some(element => element.category === category.id)
+  return productionElementCategories.value.filter((category: any) =>
+    productionData.value.productionElements.some((element: any) => element.category === category.id)
   )
 })
 
 // Get elements by category
 const getElementsByCategory = (categoryId: string) => {
-  return productionData.value.productionElements.filter(element => element.category === categoryId)
+  return productionData.value.productionElements.filter((element: any) => element.category === categoryId)
 }
 
 // Filtered issues based on selected category
@@ -1551,14 +1552,14 @@ const filteredIssues = computed(() => {
   if (!selectedIssueCategory.value) {
     return productionData.value.issues
   }
-  return productionData.value.issues.filter(issue => issue.category === selectedIssueCategory.value)
+  return productionData.value.issues.filter((issue: any) => issue.category === selectedIssueCategory.value)
 })
 
 // Completion percentage
 const completionPercentage = computed(() => {
   const total = productionData.value.completionCriteria.length
   if (total === 0) return 0
-  const completed = productionData.value.completionCriteria.filter(c => c.met).length
+  const completed = productionData.value.completionCriteria.filter((c: any) => c.met).length
   return Math.round((completed / total) * 100)
 })
 
@@ -1597,7 +1598,7 @@ const formatCurrency = (amount: number | null | undefined) => {
 
 // Quality control status management
 const updateQualityStatus = (checkpointId: string, status: QualityControlCheckpoint['status']) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
   if (checkpoint) {
     const previousStatus = checkpoint.status
     checkpoint.status = status
@@ -1633,13 +1634,13 @@ const isCheckpointDetailsExpanded = (checkpointId: string): boolean => {
 
 // Quality control utility functions
 const getQualityStatusCount = (status: QualityControlCheckpoint['status']): number => {
-  return productionData.value.qualityControl.filter(checkpoint => checkpoint.status === status).length
+  return productionData.value.qualityControl.filter((checkpoint: any) => checkpoint.status === status).length
 }
 
 const qualityProgressPercentage = computed(() => {
   const total = productionData.value.qualityControl.length
   if (total === 0) return 0
-  const completed = productionData.value.qualityControl.filter(c => c.status === 'passed' || c.status === 'failed').length
+  const completed = productionData.value.qualityControl.filter((c: any) => c.status === 'passed' || c.status === 'failed').length
   return Math.round((completed / total) * 100)
 })
 
@@ -1698,7 +1699,7 @@ const getQualityStatusIcon = (status: QualityControlCheckpoint['status']) => {
 
 // Quality control management functions
 const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
   if (checkpoint) {
     checkpoint.notes = notes
     checkpoint.updatedAt = new Date()
@@ -1707,15 +1708,15 @@ const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
 }
 
 const updateChecklistItem = (checkpointId: string, itemId: string, checked: boolean) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
   if (checkpoint && checkpoint.checklist) {
-    const item = checkpoint.checklist.find(i => i.id === itemId)
+    const item = checkpoint.checklist.find((i: any) => i.id === itemId)
     if (item) {
       item.checked = checked
       
       // Update quality score based on checklist completion
       const totalItems = checkpoint.checklist.length
-      const checkedItems = checkpoint.checklist.filter(i => i.checked).length
+      const checkedItems = checkpoint.checklist.filter((i: any) => i.checked).length
       checkpoint.qualityScore = Math.round((checkedItems / totalItems) * 100)
       
       // Auto-update status based on completion
@@ -1733,7 +1734,7 @@ const updateChecklistItem = (checkpointId: string, itemId: string, checked: bool
 }
 
 const updateQualityScore = (checkpointId: string, score?: number) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
   if (checkpoint) {
     checkpoint.qualityScore = score
     checkpoint.updatedAt = new Date()

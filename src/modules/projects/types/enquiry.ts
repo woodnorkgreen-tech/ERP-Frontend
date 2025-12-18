@@ -7,7 +7,7 @@ export interface ProjectEnquiry {
   description?: string;
   project_scope?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'client_registered' | 'enquiry_logged' | 'site_survey_completed' | 'design_completed' | 'design_approved' | 'materials_specified' | 'budget_created' | 'quote_prepared' | 'quote_approved' | 'converted_to_project' | 'planning' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'client_registered' | 'enquiry_logged' | 'site_survey_completed' | 'design_completed' | 'design_approved' | 'materials_specified' | 'budget_created' | 'quote_prepared' | 'quote_approved' | 'planning' | 'in_progress' | 'completed' | 'cancelled';
   department_id?: number;
   assigned_department?: string;
   project_deliverables?: string;
@@ -17,7 +17,7 @@ export interface ProjectEnquiry {
   follow_up_notes?: string;
   enquiry_number: string;
   job_number?: string;
-  converted_to_project_id?: number;
+
   venue?: string;
   site_survey_skipped: boolean;
   site_survey_skip_reason?: string;
@@ -289,7 +289,7 @@ export interface DashboardMetrics {
     total_projects: number;
     active_projects: number;
     completed_projects: number;
-    converted_enquiries: number;
+
     total_budget: number;
     projects_by_status: Record<string, number>;
     average_duration_days: number | null;
@@ -316,4 +316,10 @@ export interface DashboardMetrics {
     message: string;
     action_url?: string;
   }>;
+  financial_metrics?: {
+    revenue: number;
+    cost: number;
+    profit: number;
+    margin: number;
+  };
 }

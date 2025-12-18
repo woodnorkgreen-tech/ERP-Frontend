@@ -8,7 +8,7 @@ export const ENQUIRY_STATUSES = [
   'budget_created',
   'quote_prepared',
   'quote_approved',
-  'converted_to_project',
+
   'planning',
   'in_progress',
   'completed',
@@ -32,7 +32,7 @@ export const ENQUIRY_STATUS_LABELS: Record<string, string> = {
   'budget_created': 'Budget Created',
   'quote_prepared': 'Quote Prepared',
   'quote_approved': 'Quote Approved',
-  'converted_to_project': 'Converted to Project',
+
   'planning': 'Planning',
   'in_progress': 'In Progress',
   'completed': 'Completed',
@@ -50,7 +50,7 @@ export const ENQUIRY_STATUS_COLORS: Record<string, string> = {
   'budget_created': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
   'quote_prepared': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
   'quote_approved': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
-  'converted_to_project': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300',
+
   'planning': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
   'in_progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
   'completed': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
@@ -59,4 +59,4 @@ export const ENQUIRY_STATUS_COLORS: Record<string, string> = {
 
 export const PAGINATION_PER_PAGE = 6;
 
-export const CONVERTIBLE_STATUSES = ['quote_approved'];
+

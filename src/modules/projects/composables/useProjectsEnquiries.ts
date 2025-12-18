@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import type { ProjectEnquiry, CreateProjectEnquiryData, UpdateProjectEnquiryData } from '../types/enquiry'
 import api from '@/plugins/axios'
-import { PAGINATION_PER_PAGE, CONVERTIBLE_STATUSES } from '../constants/enquiryConstants'
+import { PAGINATION_PER_PAGE } from '../constants/enquiryConstants'
 
 const enquiries = ref<ProjectEnquiry[]>([])
 const pagination = ref({
@@ -127,13 +127,7 @@ export function useProjectsEnquiries() {
     }
   }
 
-  const convertToProject = async (id: number): Promise<void> => {
-    await updateEnquiry(id, { status: 'converted_to_project' })
-  }
 
-  const canConvertToProject = (enquiry: ProjectEnquiry): boolean => {
-    return CONVERTIBLE_STATUSES.includes(enquiry.status)
-  }
 
   const approveQuote = async (id: number): Promise<void> => {
     try {
@@ -150,7 +144,7 @@ export function useProjectsEnquiries() {
   const inProgressEnquiries = computed(() => enquiries.value.filter(enquiry =>
     ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(enquiry.status)
   ))
-  const convertedEnquiries = computed(() => enquiries.value.filter(enquiry => enquiry.status === 'converted_to_project'))
+
   const totalEnquiries = computed(() => enquiries.value.length)
 
   const goToPage = async (page: number) => {
@@ -168,12 +162,9 @@ export function useProjectsEnquiries() {
     createEnquiry,
     updateEnquiry,
     deleteEnquiry,
-    convertToProject,
-    canConvertToProject,
     approveQuote,
     newEnquiries,
     inProgressEnquiries,
-    convertedEnquiries,
     totalEnquiries
   }
 }

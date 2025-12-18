@@ -164,99 +164,7 @@
                     </div>
                   </div>
 
-                  <!-- Conversion Status Card -->
-                  <div class="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-5 border border-blue-200 dark:border-gray-500">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
-                      <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                      Project Conversion Status
-                    </h3>
 
-                    <div class="space-y-3">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                          <div class="flex-shrink-0">
-                            <div :class="enquiry.status ? 'bg-green-500' : 'bg-gray-300'" class="h-8 w-8 rounded-full flex items-center justify-center">
-                              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Enquiry Received</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">{{ formatDate(enquiry.created_at) }}</p>
-                          </div>
-                        </div>
-                        <span class="text-xs font-semibold text-green-600 dark:text-green-400">✓ Complete</span>
-                      </div>
-
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                          <div class="flex-shrink-0">
-                            <div :class="hasSurveyTask ? 'bg-green-500' : 'bg-gray-300'" class="h-8 w-8 rounded-full flex items-center justify-center">
-                              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Survey Task</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">Site survey conducted</p>
-                          </div>
-                        </div>
-                        <span :class="hasSurveyTask ? 'text-green-600 dark:text-green-400' : 'text-gray-400'" class="text-xs font-semibold">
-                          {{ hasSurveyTask ? '✓ Created' : '○ Pending' }}
-                        </span>
-                      </div>
-
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                          <div class="flex-shrink-0">
-                            <div :class="hasQuote ? 'bg-green-500' : 'bg-gray-300'" class="h-8 w-8 rounded-full flex items-center justify-center">
-                              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Quote Generated</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">Pricing approved by client</p>
-                          </div>
-                        </div>
-                        <span :class="hasQuote ? 'text-green-600 dark:text-green-400' : 'text-gray-400'" class="text-xs font-semibold">
-                          {{ hasQuote ? '✓ Yes' : '○ No' }}
-                        </span>
-                      </div>
-
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                          <div class="flex-shrink-0">
-                            <div :class="isConverted ? 'bg-green-500' : 'bg-gray-300'" class="h-8 w-8 rounded-full flex items-center justify-center">
-                              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Project Created</p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">{{ enquiry.job_number || 'Not converted yet' }}</p>
-                          </div>
-                        </div>
-                        <span :class="isConverted ? 'text-green-600 dark:text-green-400' : 'text-gray-400'" class="text-xs font-semibold">
-                          {{ isConverted ? '✓ Converted' : '○ Pending' }}
-                        </span>
-                      </div>
-
-                      <button
-                        v-if="!isConverted && canConvert"
-                        @click="$emit('convert', enquiry.id)"
-                        class="w-full mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Convert to Project Now
-                      </button>
-                    </div>
-                  </div>
 
                   <!-- Related Tasks Timeline -->
                   <div v-if="enquiry.tasks && enquiry.tasks.length > 0" class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
@@ -350,7 +258,7 @@ const hasPrivilegedAccess = computed(() => {
 const emit = defineEmits<{
   close: []
   edit: [enquiry: ProjectEnquiry]
-  convert: [id: number]
+
 }>()
 
 // Computed properties
@@ -359,16 +267,10 @@ const hasSurveyTask = computed(() => {
 })
 
 const hasQuote = computed(() => {
-  return props.enquiry?.status && ['quote_prepared', 'quote_approved', 'converted_to_project'].includes(props.enquiry.status)
+  return props.enquiry?.status && ['quote_prepared', 'quote_approved'].includes(props.enquiry.status)
 })
 
-const isConverted = computed(() => {
-  return props.enquiry?.status === 'converted_to_project' || !!props.enquiry?.job_number
-})
 
-const canConvert = computed(() => {
-  return props.enquiry?.status === 'quote_approved'
-})
 
 // Helper functions
 const getStatusColor = (status: string) => {
@@ -379,7 +281,7 @@ const getStatusColor = (status: string) => {
     'design_completed': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
     'quote_prepared': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     'quote_approved': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    'converted_to_project': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300',
+
     'in_progress': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
     'completed': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
     'cancelled': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
@@ -395,7 +297,7 @@ const getStatusLabel = (status: string) => {
     'design_completed': 'Design Complete',
     'quote_prepared': 'Quote Prepared',
     'quote_approved': 'Quote Approved',
-    'converted_to_project': 'Converted to Project',
+
     'in_progress': 'In Progress',
     'completed': 'Completed',
     'cancelled': 'Cancelled'

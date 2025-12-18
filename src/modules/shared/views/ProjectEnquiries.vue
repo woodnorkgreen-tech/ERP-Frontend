@@ -75,7 +75,7 @@
           <option value="budget_created">Budget Created</option>
           <option value="quote_prepared">Quote Prepared</option>
           <option value="quote_approved">Quote Approved</option>
-          <option value="converted_to_project">Converted to Project</option>
+
           <option value="planning">Planning</option>
           <option value="in_progress">In Progress</option>
           <option value="completed">Completed</option>
@@ -192,13 +192,7 @@
                  >
                    Tasks&rarr;
                  </router-link>
-                 <button
-                   v-if="canConvertToProject(enquiry)"
-                   @click="convertToProject(enquiry.id)"
-                   class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
-                 >
-                   Convert to Project
-                 </button>
+
                </td>
              </tr>
 
@@ -352,7 +346,7 @@
                 <option value="budget_created">Budget Created</option>
                 <option value="quote_prepared">Quote Prepared</option>
                 <option value="quote_approved">Quote Approved</option>
-                <option value="converted_to_project">Converted to Project</option>
+
                 <option value="planning">Planning</option>
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
@@ -493,7 +487,7 @@ const emit = defineEmits<{
   }]
 }>()
 
-const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, convertToProject, canConvertToProject, newEnquiries, inProgressEnquiries, convertedEnquiries } = useProjectsEnquiries()
+const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
 
@@ -553,11 +547,9 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   site_survey_skip_reason: ''
 })
 
-const statusTabs = computed(() => [
   { key: 'all', label: 'All', count: pagination.value.total },
   { key: 'new', label: 'New', count: newEnquiries.value.length },
-  { key: 'in_progress', label: 'In Progress', count: inProgressEnquiries.value.length },
-  { key: 'converted', label: 'Converted', count: convertedEnquiries.value.length }
+  { key: 'in_progress', label: 'In Progress', count: inProgressEnquiries.value.length }
 ])
 
 const filteredEnquiries = computed(() => {
@@ -568,8 +560,6 @@ const filteredEnquiries = computed(() => {
       filtered = newEnquiries.value.filter(e => e !== undefined && e !== null)
     } else if (activeTab.value === 'in_progress') {
       filtered = inProgressEnquiries.value.filter(e => e !== undefined && e !== null)
-    } else if (activeTab.value === 'converted') {
-      filtered = convertedEnquiries.value.filter(e => e !== undefined && e !== null)
     }
   }
 

@@ -111,7 +111,7 @@ const getStatusLabel = (status: string) => {
     'budget_created': 'Budget Created',
     'quote_prepared': 'Quote Prepared',
     'quote_approved': 'Quote Approved',
-    'converted_to_project': 'Converted to Project',
+
     'planning': 'Planning',
     'in_progress': 'In Progress',
     'completed': 'Completed',
@@ -131,7 +131,7 @@ const getStatusColor = (status: string) => {
     'budget_created': 'bg-green-400',
     'quote_prepared': 'bg-teal-400',
     'quote_approved': 'bg-cyan-400',
-    'converted_to_project': 'bg-emerald-400',
+
     'planning': 'bg-orange-400',
     'in_progress': 'bg-blue-500',
     'completed': 'bg-green-500',
