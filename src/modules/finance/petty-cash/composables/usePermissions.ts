@@ -11,6 +11,7 @@ export type PettyCashPermission =
   | 'petty_cash.recalculate_balance'
   | 'petty_cash.view_reports'
   | 'petty_cash.export_data'
+  | 'petty_cash.upload_excel'
   | 'petty_cash.manage_settings'
 
 // Permission groups for easier management
@@ -56,6 +57,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
     'petty_cash.recalculate_balance',
     'petty_cash.view_reports',
     'petty_cash.export_data',
+    'petty_cash.upload_excel',
     'petty_cash.manage_settings'
   ],
   manager: [
@@ -66,7 +68,8 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
     'petty_cash.void_disbursement',
     'petty_cash.view_balance',
     'petty_cash.view_reports',
-    'petty_cash.export_data'
+    'petty_cash.export_data',
+    'petty_cash.upload_excel'
   ],
   user: [
     'petty_cash.view',
@@ -159,6 +162,7 @@ export function usePermissions() {
   const canViewBalance = computed(() => hasPermission('petty_cash.view_balance'))
   const canRecalculateBalance = computed(() => hasPermission('petty_cash.recalculate_balance'))
   const canExportData = computed(() => hasPermission('petty_cash.export_data'))
+  const canUploadExcel = computed(() => hasPermission('petty_cash.upload_excel'))
   const canManageSettings = computed(() => hasPermission('petty_cash.manage_settings'))
 
   // Permission validation with error handling
@@ -277,6 +281,7 @@ export function usePermissions() {
       'petty_cash.recalculate_balance': 'Recalculate Balance',
       'petty_cash.view_reports': 'View Reports',
       'petty_cash.export_data': 'Export Data',
+      'petty_cash.upload_excel': 'Upload Excel',
       'petty_cash.manage_settings': 'Manage Settings'
     }
 

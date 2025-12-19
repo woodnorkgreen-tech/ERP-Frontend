@@ -80,7 +80,14 @@
 
             <!-- Results Summary -->
             <div v-if="uploadResults" class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Import Results</h4>
+              <div class="flex justify-between items-start">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Import Results</h4>
+                <button @click="close" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
               <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p class="text-gray-600 dark:text-gray-300">Total Rows:</p>
@@ -138,6 +145,7 @@
         <!-- Modal Footer -->
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
           <button
+            v-if="!uploadResults"
             @click="uploadFile"
             :disabled="!selectedFile || isUploading"
             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed relative z-20"
@@ -149,6 +157,14 @@
             {{ isUploading ? 'Uploading...' : 'Upload File' }}
           </button>
           <button
+            v-if="uploadResults"
+            @click="close"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm relative z-20 cursor-pointer"
+          >
+            Close
+          </button>
+          <button
+            v-if="!uploadResults"
             @click="close"
             class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm relative z-20 cursor-pointer"
           >
@@ -266,34 +282,45 @@ const uploadFile = async () => {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
 
-    // Simulate progress for demo purposes
-    const interval = setInterval(() => {
-      uploadProgress.value += 5
-      if (uploadProgress.value >= 90) {
-        clearInterval(interval)
-      }
-    }, 200)
-
     const response = await store.uploadExcel(formData)
 
-    clearInterval(interval)
     uploadProgress.value = 100
 
     if (response.success) {
       uploadResults.value = response.data
       
-      // Reset for next upload after a delay
-      setTimeout(() => {
-        clearFile()
-        emit('success')
-        close()
-      }, 3000)
+      // Keep modal open for user review
+      emit('success')
     } else {
       errorMessage.value = response.message || 'Failed to upload file'
+      
+      // Show detailed error information if available
+      if (response.errors) {
+        const errorDetails = Object.values(response.errors).flat().join('; ')
+        if (errorDetails) {
+          errorMessage.value += `: ${errorDetails}`
+        }
+      }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error)
-    errorMessage.value = 'An error occurred during upload. Please try again.'
+    
+    // Handle different types of errors
+    if (error.response?.data?.message) {
+      errorMessage.value = error.response.data.message
+      
+      // Show validation errors if present
+      if (error.response.data.errors) {
+        const errorDetails = Object.values(error.response.data.errors).flat().join('; ')
+        if (errorDetails) {
+          errorMessage.value += `: ${errorDetails}`
+        }
+      }
+    } else if (error.message) {
+      errorMessage.value = error.message
+    } else {
+      errorMessage.value = 'An error occurred during upload. Please try again.'
+    }
   } finally {
     isUploading.value = false
     setTimeout(() => {
