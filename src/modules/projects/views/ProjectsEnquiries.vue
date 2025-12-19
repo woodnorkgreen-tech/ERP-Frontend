@@ -210,11 +210,32 @@
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                  {{ enquiry.project_officer?.name || 'Not assigned' }}
                </td>
-               <td class="px-6 py-4 whitespace-nowrap">
-                 <span :class="getStatusColor(enquiry.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                   {{ getStatusLabel(enquiry.status) }}
-                 </span>
-               </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <!-- Interactive Status Dropdown -->
+                  <div v-if="canLogEnquiry" class="relative group inline-block">
+                     <select
+                        :value="enquiry.status"
+                        @change="updateStatus(enquiry, ($event.target as HTMLSelectElement).value)"
+                        class="appearance-none pl-3 pr-8 py-1 rounded-full text-xs font-semibold cursor-pointer border-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-colors outline-none"
+                        :class="getStatusColor(enquiry.status)"
+                     >
+                        <option 
+                          v-for="(label, key) in ENQUIRY_STATUS_LABELS" 
+                          :key="key" 
+                          :value="key"
+                          class="bg-white text-gray-900 shadow-sm"
+                        >
+                          {{ label }}
+                        </option>
+                     </select>
+                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-current opacity-60">
+                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                     </div>
+                  </div>
+                  <span v-else :class="getStatusColor(enquiry.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                    {{ getStatusLabel(enquiry.status) }}
+                  </span>
+                </td>
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                  <div v-if="enquiry.job_number" class="font-semibold text-blue-600 dark:text-blue-400">
                    {{ enquiry.job_number }}
@@ -224,7 +245,7 @@
                  </div>
                </td>
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
                    {{ getUserTaskCount(enquiry) }}
                  </span>
                </td>
@@ -1392,6 +1413,31 @@ const handleFormSubmit = async () => {
   }
 }
 
+const updateStatus = async (enquiry: ProjectEnquiry, newStatus: string) => {
+  const oldStatus = enquiry.status
+  if (confirm(`Are you sure you want to change status to "${ENQUIRY_STATUS_LABELS[newStatus] || newStatus}"?`)) {
+    try {
+      // Update backend
+      await updateEnquiry(enquiry.id, { status: newStatus } as any)
+      // Update local state is handled by reactivity if we mutate enquiry, 
+      // but fetchEnquiries might be safer to ensure consistency
+      enquiry.status = newStatus as any // Optimistic update
+    } catch (error) {
+       console.error("Failed to update status", error)
+       alert("Failed to update status")
+       enquiry.status = oldStatus // Revert
+       await fetchEnquiries() // Hard refresh
+    }
+  } else {
+     // Revert visual selection if confirmed 'no' (Vue binding might stick)
+     // Force re-assignment to trigger reactivity
+     enquiry.status = oldStatus
+     // We might need to force refresh key on the select if it doesn't revert
+     await nextTick()
+     enquiry.status = oldStatus
+  }
+}
+
 const getStatusColor = (status: string) => {
   return ENQUIRY_STATUS_COLORS[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
 }
@@ -1400,14 +1446,15 @@ const getStatusLabel = (status: string) => {
   return ENQUIRY_STATUS_LABELS[status] || status
 }
 
-const getUserTaskCount = (enquiry: ProjectEnquiry) => {
-  if (!user.value || !enquiry.enquiryTasks) return 0
-  return enquiry.enquiryTasks.filter(task => {
+const getUserTaskCount = (enquiry: any) => {
+  const tasks = enquiry.enquiryTasks || enquiry.enquiry_tasks
+  if (!user.value || !tasks) return 0
+  return tasks.filter((task: any) => {
     // Check legacy assignment
     if (task.assigned_to?.id === user.value!.id) return true
     // Check multi-user assignment (handle both camelCase and snake_case)
     const assignedUsers = task.assignedUsers || task.assigned_users
-    if (assignedUsers?.some(u => u.id === user.value!.id)) return true
+    if (assignedUsers?.some((u: any) => u.id === user.value!.id)) return true
     return false
   }).length
 }

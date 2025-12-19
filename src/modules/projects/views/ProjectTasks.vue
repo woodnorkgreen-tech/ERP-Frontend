@@ -76,6 +76,9 @@
       </div>
     </div>
 
+    <!-- Task Metrics -->
+
+
     <!-- Filters -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -239,24 +242,51 @@
               <!-- Quick Assign Section -->
               <div class="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700" @click.stop>
                 <div class="flex items-center gap-2">
-                  <select
-                    @change="quickAssignTask(task, $event)"
-                    class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:border-blue-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                    @click.stop
+                  <button 
+                    v-if="!task.assigned_to && !task.assigned_users?.length"
+                    @click.stop="claimTask(task)"
+                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1 shadow-sm"
                   >
-                    <option value="">{{ task.assigned_to ? '✓ ' + task.assigned_to.name : 'Quick Assign...' }}</option>
-                    <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                      {{ user.name }}
-                    </option>
-                  </select>
-                  <button
-                    @click.stop="openAdvancedAssign(task)"
-                    class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-1 text-sm"
-                    title="Advanced Assignment"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7m-7 8v6m-4-6v6m7-2l3-3m-3 3l-3-3" />
                     </svg>
+                    Claim Task
+                  </button>
+                  <div
+                    v-else
+                    :class="[
+                       'flex-1 flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs border transition-all shadow-sm',
+                       task.assigned_to?.id === user?.id 
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800'
+                          : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                    ]"
+                  >
+                     <!-- Avatar -->
+                     <div 
+                       :class="task.assigned_to?.id === user?.id ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'"
+                       class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ring-1 ring-white/50"
+                     >
+                        {{ getInitials(task.assigned_to?.name || '?') }}
+                     </div>
+
+                     <!-- Name and Icon -->
+                     <div class="flex-1 min-w-0 flex items-center justify-between">
+                         <span class="font-medium truncate">{{ task.assigned_to?.name }}</span>
+                         
+                         <!-- Padlock if locked (Others) -->
+                         <svg v-if="task.assigned_to?.id !== user?.id" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                         
+                         <!-- User Icon if Me -->
+                         <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                     </div>
+                  </div>
+                  <button 
+                    v-if="task.assigned_to?.id === user?.id"
+                    @click.stop="handoverTask(task)"
+                    class="px-2 py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded transition-colors"
+                    title="Release back to pool"
+                  >
+                    Release Task
                   </button>
                 </div>
               </div>
@@ -353,24 +383,21 @@
                   
                   <!-- Quick Assign + Advanced Assign -->
                   <div class="flex items-center gap-2 mb-2">
-                    <select
-                      @change="quickAssignTask(task, $event)"
-                      class="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      @click.stop
-                    >
-                      <option value="">{{ task.assigned_to ? '✓ ' + task.assigned_to.name : 'Assign...' }}</option>
-                      <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                        {{ user.name }}
-                      </option>
-                    </select>
                     <button
-                      @click.stop="openAdvancedAssign(task)"
-                      class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs"
-                      title="Advanced"
+                      v-if="!task.assigned_to && !task.assigned_users?.length" 
+                      @click.stop="claimTask(task)"
+                      class="flex-1 bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
                     >
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                      </svg>
+                      Claim
+                    </button>
+                    <!-- Dropdown removed for assigned tasks -->
+                    <button 
+                      v-if="task.assigned_to?.id === user?.id"
+                      @click.stop="handoverTask(task)"
+                      class="px-2 py-1 text-xs text-white bg-orange-500 hover:bg-orange-600 rounded transition-colors mr-1"
+                      title="Release back to pool"
+                    >
+                      Handover
                     </button>
                   </div>
                   
@@ -398,9 +425,10 @@
     <TaskModal
       :show="showTaskModal"
       :task="selectedTask"
+      :readonly="isReadonly"
       @close="closeTaskModal"
       @update-status="handleTaskModalStatusUpdate"
-      @complete="handleTaskModalComplete"
+      @saved="fetchAllTasks"
     />
   </div>
 </template>
@@ -414,6 +442,7 @@ import { useAuth } from '@/composables/useAuth'
 import api from '@/plugins/axios'
 import TaskAssignmentModal from '../components/TaskAssignmentModal.vue'
 import TaskModal from '../components/TaskModal.vue'
+import TaskLockedModal from '../components/TaskLockedModal.vue'
 
 const route = useRoute()
 const { user } = useAuth()
@@ -430,6 +459,7 @@ const filters = ref({
 
 const showTaskAssignmentModal = ref(false)
 const showTaskModal = ref(false)
+const isReadonly = ref(false)
 const selectedTask = ref<EnquiryTask | null>(null)
 const viewMode = ref<'grid' | 'table'>('grid')
 const showAllTasks = ref(false)
@@ -489,6 +519,56 @@ const quickAssignTask = async (task: EnquiryTask, event: Event) => {
   } catch (error) {
     console.error('Error assigning task:', error)
     select.value = '' // Reset on error
+  }
+}
+
+// Claim task function
+const claimTask = async (task: EnquiryTask) => {
+  if (!user.value?.id) return
+  
+  try {
+    const response = await api.post(`/api/projects/enquiry-tasks/${task.id}/assign`, {
+      assigned_user_id: user.value.id,
+      priority: task.priority || 'medium'
+    })
+    
+    // Update task in local state
+    const taskIndex = enquiryTasks.value.findIndex(t => t.id === task.id)
+    if (taskIndex > -1) {
+      enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], ...response.data.data }
+    }
+    
+    console.log(`Task "${task.title}" claimed by user ${user.value.id}`)
+  } catch (error) {
+    console.error('Error claiming task:', error)
+  }
+}
+
+// Release task (release to pool)
+const handoverTask = async (task: EnquiryTask) => {
+  if (!user.value?.id) return
+  
+  // Prompt for reason (Mandatory as per requirements)
+  const reason = prompt(`Please provide a reason for releasing task "${task.title}" back to the pool:`)
+  if (reason === null) return // Cancelled
+  if (!reason.trim()) {
+      alert("A reason is required to release the task.")
+      return
+  }
+
+  try {
+    const response = await api.put(`/api/projects/enquiry-tasks/${task.id}/release`, { reason: reason })
+    
+    // Update task in local state
+    const taskIndex = enquiryTasks.value.findIndex(t => t.id === task.id)
+    if (taskIndex > -1) {
+      enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], ...response.data.data }
+    }
+    
+    console.log(`Task "${task.title}" released to pool. Reason: ${reason}`)
+  } catch (error) {
+    console.error('Error releasing task:', error)
+    alert('Failed to release task')
   }
 }
 
@@ -607,14 +687,67 @@ const handleTaskAssigned = (updatedTask: EnquiryTask) => {
   }
 }
 
-const openTaskModal = (task: EnquiryTask) => {
-  selectedTask.value = task
-  showTaskModal.value = true
+const openTaskModal = async (task: EnquiryTask) => {
+  // 1. Optimistic Check (Instant)
+  const currentUser = user.value
+  const assignee = task.assigned_to
+  if (assignee && assignee.id !== currentUser?.id) {
+     const userRoles = currentUser?.roles || []
+     const isManager = userRoles.some((role: string) => 
+       ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service', 'HR'].includes(role)
+     )
+     if (!isManager) {
+        // Open TaskModal in Read-Only Mode
+        selectedTask.value = task
+        isReadonly.value = true
+        showTaskModal.value = true
+        return
+     }
+   }
+
+   // 2. Server Check (Authoritative & Refresh)
+   try {
+     const response = await api.get(`/api/tasks/${task.id}`)
+     const freshTask = response.data.data
+     
+     // Update local state with fresh data
+     const index = enquiryTasks.value.findIndex(t => t.id === task.id)
+     if (index !== -1) {
+         enquiryTasks.value[index] = { ...enquiryTasks.value[index], ...freshTask }
+     }
+ 
+     // Check if task is locked for current user
+     if (freshTask.is_locked_for_user) {
+         selectedTask.value = freshTask
+         isReadonly.value = true
+         showTaskModal.value = true
+         return
+     }
+     
+     selectedTask.value = freshTask
+     isReadonly.value = false
+     showTaskModal.value = true
+ 
+   } catch (error: any) {
+    if (error.response?.status === 403) {
+      // Fallback for unexpected 403s (should rely on is_locked_for_user now)
+       alert("Access Denied: " + (error.response?.data?.message || "Task is locked by another user."))
+    } else {
+      console.error("Failed to fetch task details:", error)
+      // Fallback: If network error but passed local check, maybe allow? 
+      // Safest to block or show stale if local check passed. 
+      // But strictly, we want to enforce lock.
+      alert("Unable to verify task lock status. Please try again.")
+    }
+  }
 }
 
 const closeTaskModal = () => {
   showTaskModal.value = false
   selectedTask.value = null
+  isReadonly.value = false
+  // Refresh tasks to ensure list is up to date (e.g. locks, status changes)
+  applyFilters()
 }
 
 const handleTaskModalStatusUpdate = async (status: EnquiryTask['status']) => {
@@ -703,6 +836,17 @@ const getTaskTypeInitial = (type: string) => {
   }
   return initials[type] || 'T'
 }
+
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+
 
 onMounted(async () => {
   // Add global event listener for task-completed events

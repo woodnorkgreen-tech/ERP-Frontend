@@ -5,7 +5,7 @@
       v-if="shouldUseDirectComponent(task.type)"
       :is="taskComponent"
       :task="task"
-      :readonly="task.status === 'completed'"
+      :readonly="readonly || task.status === 'completed'"
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
@@ -20,7 +20,7 @@
       v-else
       :is="taskComponent"
       :task="task"
-      :readonly="false"
+      :readonly="readonly"
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
@@ -50,6 +50,7 @@ import DefaultTask from './DefaultTask.vue'
 
 interface Props {
   task: EnquiryTask
+  readonly?: boolean
 }
 
 const props = defineProps<Props>()

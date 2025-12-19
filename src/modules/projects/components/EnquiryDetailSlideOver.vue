@@ -167,19 +167,66 @@
 
 
                   <!-- Related Tasks Timeline -->
-                  <div v-if="enquiry.tasks && enquiry.tasks.length > 0" class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
+                  <div v-if="taskList.length > 0" class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
                       <svg class="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                       </svg>
-                      Associated Tasks ({{ enquiry.tasks.length }})
+                      Associated Tasks ({{ taskList.length }})
                     </h3>
+
+                    <!-- Task Metrics Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <!-- Total -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Total</p>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white">{{ tasksMetrics.total }}</p>
+                      </div>
+                      
+                      <!-- Completion -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Done</p>
+                        <div class="flex items-baseline space-x-1">
+                           <p class="text-xl font-bold text-green-600 dark:text-green-400">{{ tasksMetrics.completionRate }}%</p>
+                        </div>
+                      </div>
+
+                      <!-- Overdue -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Overdue</p>
+                        <p class="text-xl font-bold text-red-600 dark:text-red-400">{{ tasksMetrics.overdue }}</p>
+                      </div>
+
+                      <!-- In Progress -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Active</p>
+                        <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ tasksMetrics.inProgress }}</p>
+                      </div>
+                       
+                       <!-- Pending -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Pending</p>
+                        <p class="text-xl font-bold text-yellow-600 dark:text-yellow-400">{{ tasksMetrics.pending }}</p>
+                      </div>
+
+                       <!-- Unassigned -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Unassigned</p>
+                        <p class="text-xl font-bold text-purple-600 dark:text-purple-400">{{ tasksMetrics.unassigned }}</p>
+                      </div>
+
+                       <!-- High Priority -->
+                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Critical</p>
+                        <p class="text-xl font-bold text-orange-600 dark:text-orange-400">{{ tasksMetrics.highPriority }}</p>
+                      </div>
+                    </div>
                     <div class="space-y-3">
-                      <div v-for="task in enquiry.tasks" :key="task.id" class="flex items-center justify-between p-3 bg-gray-5 dark:bg-gray-700 rounded-lg">
+                      <div v-for="task in taskList" :key="task.id" class="flex items-center justify-between p-3 bg-gray-5 dark:bg-gray-700 rounded-lg">
                         <div class="flex items-center space-x-3">
                           <div :class="getTaskStatusColor(task.status)" class="w-3 h-3 rounded-full"></div>
                           <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ task.task_type }}</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ task.type }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">Assigned to: {{ task.assigned_user?.name || 'Unassigned' }}</p>
                           </div>
                         </div>
@@ -241,7 +288,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ProjectEnquiry } from '../types/enquiry'
+import type { ProjectEnquiry, EnquiryTask } from '../types/enquiry'
 import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps<{
@@ -263,11 +310,46 @@ const emit = defineEmits<{
 
 // Computed properties
 const hasSurveyTask = computed(() => {
-  return props.enquiry?.tasks?.some(t => t.task_type === 'Site Survey') || false
+  return props.enquiry?.enquiryTasks?.some(t => t.type === 'Site Survey') || false
 })
 
 const hasQuote = computed(() => {
   return props.enquiry?.status && ['quote_prepared', 'quote_approved'].includes(props.enquiry.status)
+})
+
+const taskList = computed<EnquiryTask[]>(() => {
+  const enq = props.enquiry as any
+  return enq?.enquiryTasks || enq?.tasks || []
+})
+
+const tasksMetrics = computed(() => {
+  const tasks = taskList.value
+  const total = tasks.length
+  if (total === 0) return { total: 0, completed: 0, completionRate: 0, overdue: 0, inProgress: 0, pending: 0, highPriority: 0, unassigned: 0 }
+
+  const completed = tasks.filter(t => t.status === 'completed').length
+  const inProgress = tasks.filter(t => t.status === 'in_progress').length
+  const pending = tasks.filter(t => t.status === 'pending').length
+  const highPriority = tasks.filter(t => ['high', 'urgent'].includes(t.priority || '')).length
+  // Check both assigned_user_id and assigned_to object structure
+  const unassigned = tasks.filter(t => !t.assigned_user_id && !t.assigned_to).length
+  
+  const overdue = tasks.filter(t => {
+     if (!t.due_date) return false
+     if (t.status === 'completed' || t.status === 'cancelled') return false
+     return new Date(t.due_date) < new Date()
+  }).length
+  
+  return {
+    total,
+    completed,
+    completionRate: Math.round((completed / total) * 100),
+    overdue,
+    inProgress,
+    pending,
+    highPriority,
+    unassigned
+  }
 })
 
 

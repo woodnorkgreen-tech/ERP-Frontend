@@ -57,14 +57,64 @@
     </div>
   </div>
 
+  <!-- Tabs -->
+  <div class="border-b border-gray-200 dark:border-gray-700 -mx-5 px-5 bg-gray-50/50 dark:bg-gray-800/50 mb-4">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <button 
+        @click="activeTab = 'details'"
+        :class="[
+          activeTab === 'details'
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200',
+          'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
+        ]"
+      >
+        Task Details
+      </button>
+      <button 
+        @click="activeTab = 'history'"
+        :class="[
+          activeTab === 'history'
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200',
+          'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm'
+        ]"
+      >
+        Assignment History
+      </button>
+    </nav>
+  </div>
+
+        <!-- Read-Only Banner -->
+        <div v-if="readonly" class="mb-4 bg-amber-50 border-l-4 border-amber-500 p-4 dark:bg-amber-900/20 dark:border-amber-500">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-amber-700 dark:text-amber-200">
+                <span class="font-bold">Read Only:</span> This task is currently locked. You can view details but cannot make changes.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Task Content via TaskRenderer -->
         <div class="task-content">
-          <TaskRenderer
-            :task="task"
-            @update-status="handleStatusUpdate"
-            @complete="handleComplete"
-            @save-design-data="handleSaveDesignData"
-          />
+          <div v-show="activeTab === 'details'">
+            <TaskRenderer
+              :task="task"
+              :readonly="readonly"
+              @update-status="handleStatusUpdate"
+              @complete="handleComplete"
+              @save-design-data="handleSaveDesignData"
+            />
+          </div>
+          <div v-if="activeTab === 'history'">
+            <TaskHistory :taskId="task.id" />
+          </div>
         </div>
       </div>
     </div>
@@ -72,13 +122,17 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import type { EnquiryTask } from '../types/enquiry'
 import TaskRenderer from './tasks/TaskRenderer.vue'
+import TaskHistory from './TaskHistory.vue'
+
+const activeTab = ref('details')
 
 interface Props {
   show: boolean
   task: EnquiryTask | null
+  readonly?: boolean
 }
 
 const props = defineProps<Props>()
