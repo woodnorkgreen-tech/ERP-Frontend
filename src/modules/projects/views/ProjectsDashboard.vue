@@ -5,53 +5,50 @@
         <!-- Dashboard Header -->
         <DashboardHeader :loading="loading" @refresh="handleRefresh" />
 
-        <!-- KPI Cards -->
+        <!-- KPI Cards (Essential Numbers) -->
         <KPICards
           :enquiry-metrics="enquiryMetrics"
           :project-metrics="projectMetrics"
           :task-metrics="taskMetrics"
         />
         
-        <!-- Strategic Insights Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" v-if="financialMetrics && enquiryMetrics && projectMetrics">
-           <FinancialHealthScore
-             :revenue="financialMetrics.revenue"
-             :profit="financialMetrics.profit"
-             :margin="financialMetrics.margin"
-             :cost="financialMetrics.cost"
-           />
-           <ProjectPipelineFunnel
-             :enquiry-metrics="enquiryMetrics"
-             :project-metrics="projectMetrics"
-           />
-        </div>
-
-        <!-- Charts Section -->
-        <ChartsSection
-          :enquiry-metrics="enquiryMetrics"
-          :task-metrics="taskMetrics"
-        />
-
-        <!-- Metrics Grid -->
+        <!-- Detailed Stats (Simple Breakdown) -->
         <MetricsGrid
           :enquiry-metrics="enquiryMetrics"
           :project-metrics="projectMetrics"
         />
 
-        <!-- Bottom Section -->
+        <!-- Visuals & Accountability -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+           <!-- Pipeline Funnel -->
+           <ProjectPipelineFunnel
+             :enquiry-metrics="enquiryMetrics"
+             :project-metrics="projectMetrics"
+           />
+           <!-- Activity Feed (Moved up for Accountability) -->
+           <ActivityFeed
+              :activities="dashboardMetrics?.recent_activities"
+              :loading="loading"
+              class="h-full"
+           />
+        </div>
+
+        <!-- Charts Section (Trends) -->
+        <ChartsSection
+          :enquiry-metrics="enquiryMetrics"
+          :task-metrics="taskMetrics"
+        />
+
+        <!-- Operational Tools: Filters & Alerts -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <!-- Filters Sidebar -->
           <div class="xl:col-span-1">
             <DashboardFilters @filter="handleFilter" @export="handleExport" />
           </div>
 
-          <!-- Alerts and Activities -->
-          <div class="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Alerts -->
+          <div class="xl:col-span-2">
             <AlertsPanel :alerts="dashboardMetrics?.alerts" />
-            <ActivityFeed
-              :activities="dashboardMetrics?.recent_activities"
-              :loading="loading"
-            />
           </div>
         </div>
       </div>
@@ -64,7 +61,7 @@ import { onMounted } from 'vue'
 import { useProjectsDashboard } from '../composables/useProjectsDashboard'
 import DashboardHeader from '../components/DashboardHeader.vue'
 import KPICards from '../components/KPICards.vue'
-import FinancialHealthScore from '../components/FinancialHealthScore.vue'
+
 import ProjectPipelineFunnel from '../components/ProjectPipelineFunnel.vue'
 import ChartsSection from '../components/ChartsSection.vue'
 import MetricsGrid from '../components/MetricsGrid.vue'

@@ -64,33 +64,46 @@
       </h4>
 
       <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Project Information</h5>
-        <!-- Project Information Grid - 3 per row -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ materialsData.projectInfo.enquiryTitle }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ materialsData.projectInfo.projectId }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.clientName }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.eventVenue }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(materialsData.projectInfo.setupDate) }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Set Down Date</label>
-            <p class="text-sm text-gray-900 dark:text-white text-gray-500 italic">{{ materialsData.projectInfo.setDownDate }}</p>
+      <!-- Project Information Display (Collapsible) -->
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+        <div 
+          @click="showProjectInfo = !showProjectInfo"
+          class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
+        >
+          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': !showProjectInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            Project Information
+          </h5>
+          <span class="text-xs text-gray-500" v-if="!showProjectInfo">Click to expand details</span>
+        </div>
+        
+        <div v-show="showProjectInfo" class="px-4 pb-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+          <!-- Project Information Grid - 3 per row -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
+              <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ materialsData.projectInfo.enquiryTitle }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
+              <p class="text-sm text-gray-900 dark:text-white font-medium">{{ materialsData.projectInfo.projectId }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.clientName }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.eventVenue }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
+              <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(materialsData.projectInfo.setupDate) }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 dark:text-gray-400">Set Down Date</label>
+              <p class="text-sm text-gray-900 dark:text-white text-gray-500 italic">{{ materialsData.projectInfo.setDownDate }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -101,85 +114,102 @@
       <div class="flex items-center justify-between mb-4">
         <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Project Elements</h5>
         <div class="flex items-center space-x-3">
-          <button
-            @click="toggleAllElements"
-            class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-            </svg>
-            <span>{{ allElementsCollapsed ? 'Expand All' : 'Collapse All' }}</span>
-          </button>
+          <div class="flex items-center space-x-2">
+            <!-- Add Element Primary Action -->
+            <button
+              @click="openAddElementModal"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2 shadow-sm"
+              :disabled="task.status === 'completed' && !isEditMode"
+              :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+              :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to add elements' : 'Add new element to project'"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              <span>Add Element</span>
+            </button>
 
-          <!-- Version Management Buttons -->
-          <CreateVersionButton
-            title="Material"
-            type="materials"
-            @create="handleCreateVersion"
-          />
-          <button
-            @click="showVersionHistory = true"
-            class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>Version History</span>
-          </button>
+            <!-- Toggle All (Icon Button) -->
+            <button
+              @click="toggleAllElements"
+              class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              :title="allElementsCollapsed ? 'Expand All' : 'Collapse All'"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+              </svg>
+            </button>
 
-          <!-- Download Excel Template Button -->
-          <button
-            @click="downloadExcelTemplate"
-            class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-            :title="'Download Excel template for bulk materials upload'"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <span>Download Template</span>
-          </button>
+            <!-- Tools Dropdown -->
+            <div class="relative" ref="toolsDropdownTarget">
+              <button
+                @click="isToolsDropdownOpen = !isToolsDropdownOpen"
+                class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 shadow-sm"
+              >
+                <span>Tools</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
 
-          <!-- Upload Excel Button -->
-          <button
-            @click="showExcelUploadModal = true"
-            class="px-3 py-1 text-xs bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-            :title="'Upload filled Excel template to import materials'"
-            :disabled="task.status === 'completed' && !isEditMode"
-            :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-              />
-            </svg>
-            <span>Upload Excel</span>
-          </button>
+              <!-- Dropdown Menu -->
+              <div
+                v-if="isToolsDropdownOpen"
+                class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1"
+              >
+                <div class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Data Actions
+                </div>
+                
+                <button
+                  @click="downloadExcelTemplate(); isToolsDropdownOpen = false"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
+                >
+                  <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Download Template</span>
+                </button>
 
-          <button
-            @click="openAddElementModal"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
-            :disabled="task.status === 'completed' && !isEditMode"
-            :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-            :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to add elements' : 'Add new element to project'"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            <span>Add Element</span>
-          </button>
+                <button
+                  @click="showExcelUploadModal = true; isToolsDropdownOpen = false"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
+                  :disabled="task.status === 'completed' && !isEditMode"
+                  :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+                >
+                  <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                  <span>Upload Excel</span>
+                </button>
+                
+                <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                
+                <div class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Version Control
+                </div>
+
+                <div class="px-3 py-1">
+                   <CreateVersionButton
+                    title="Material"
+                    type="materials"
+                    @create="handleCreateVersion"
+                    class="w-full justify-start" 
+                  />
+                </div>
+
+                <button
+                  @click="showVersionHistory = true; isToolsDropdownOpen = false"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
+                >
+                  <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Version History</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -223,27 +253,25 @@
               <span class="text-xs opacity-75">{{ getIncludedMaterialsCount(element) }} materials</span>
               <button
                 @click.stop="openEditElementModal(element)"
-                class="text-xs opacity-75 hover:opacity-100 transition-opacity flex items-center space-x-1"
+                class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                 :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to edit elements' : 'Edit Element'"
                 :disabled="task.status === 'completed' && !isEditMode"
                 :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
               >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
-                <span>Edit</span>
               </button>
               <button
                 @click.stop="confirmDeleteElement(element)"
-                class="text-xs text-red-600 dark:text-red-400 opacity-75 hover:opacity-100 transition-opacity flex items-center space-x-1"
+                class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                 :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to delete elements' : 'Delete Element'"
                 :disabled="task.status === 'completed' && !isEditMode"
                 :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
               >
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
-                <span>Delete</span>
               </button>
               <!-- Collapse/Expand Icon -->
               <div class="text-xs opacity-75">
@@ -333,57 +361,77 @@
 
     <!-- Department Approvals Section -->
     <div class="mb-8">
-      <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Department Approvals</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          All three departments must approve the materials list before budget can be created
-        </p>
-
-        <!-- Overall Status Banner -->
-        <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div class="flex items-center space-x-2">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
-              ✓ All departments approved. Budget import enabled.
-            </span>
+      <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+        <div 
+          @click="showApprovals = !showApprovals" 
+          class="flex items-center justify-between cursor-pointer mb-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded transition-colors"
+        >
+          <div class="flex items-center">
+             <svg class="w-4 h-4 mr-2 text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': !showApprovals }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+             <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Department Approvals</h3>
+                <p v-if="showApprovals" class="text-sm text-gray-600 dark:text-gray-400">
+                  All three departments must approve the materials list before budget can be created
+                </p>
+             </div>
           </div>
-        </div>
-        <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-          <div class="flex items-center space-x-2">
-            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-              ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
-            </span>
+          <!-- Status Summary Badge when collapsed -->
+          <div v-if="!showApprovals">
+             <span v-if="approvalStatus.all_approved" class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">All Approved</span>
+             <span v-else class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs border border-yellow-200">Pending Approvals</span>
           </div>
         </div>
 
-        <!-- Approval Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <ApprovalCard
-            department="design"
-            title="Design Team"
-            :approval-data="approvalStatus.design"
-            :can-approve="canApproveForDepartment('design')"
-            @approve="approveForDepartment('design', $event)"
-          />
-          <ApprovalCard
-            department="production"
-            title="Production"
-            :approval-data="approvalStatus.production"
-            :can-approve="canApproveForDepartment('production')"
-            @approve="approveForDepartment('production', $event)"
-          />
-          <ApprovalCard
-            department="finance"
-            title="Accounts / Costing"
-            :approval-data="approvalStatus.finance"
-            :can-approve="canApproveForDepartment('finance')"
-            @approve="approveForDepartment('finance', $event)"
-          />
+        <div v-show="showApprovals">
+          <!-- Overall Status Banner -->
+          <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                ✓ All departments approved. Budget import enabled.
+              </span>
+            </div>
+          </div>
+          <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Approval Status Bar -->
+          <div class="flex flex-col md:flex-row bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
+            <ApprovalCard
+              class="flex-1 border-0 rounded-none shadow-none"
+              department="design"
+              title="Design"
+              :approval-data="approvalStatus.design"
+              :can-approve="canApproveForDepartment('design')"
+              @approve="approveForDepartment('design', $event)"
+            />
+            <ApprovalCard
+              class="flex-1 border-0 rounded-none shadow-none"
+              department="production"
+              title="Production"
+              :approval-data="approvalStatus.production"
+              :can-approve="canApproveForDepartment('production')"
+              @approve="approveForDepartment('production', $event)"
+            />
+            <ApprovalCard
+              class="flex-1 border-0 rounded-none shadow-none"
+              department="finance"
+              title="Finance"
+              :approval-data="approvalStatus.finance"
+              :can-approve="canApproveForDepartment('finance')"
+              @approve="approveForDepartment('finance', $event)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -406,21 +454,8 @@
         </button>
 
         <button
-          @click="addAdditionalMaterials"
-          class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
-          :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to add materials' : 'Add more materials to existing elements or create new elements'"
-          :disabled="task.status === 'completed' && !isEditMode"
-          :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Add Additional Materials</span>
-        </button>
-
-        <button
           @click="viewMaterialsList"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm rounded-lg transition-colors flex items-center space-x-2 border border-gray-300 dark:border-gray-600"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -512,6 +547,17 @@
           </h3>
           <div class="flex items-center space-x-3">
             <button
+              @click="downloadPDF"
+              :disabled="isGeneratingPDF"
+              class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+            >
+              <svg v-if="isGeneratingPDF" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              <span>{{ isGeneratingPDF ? 'Generating PDF...' : 'Download PDF' }}</span>
+            </button>
+            <button
               @click="printMaterialsList"
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
             >
@@ -531,8 +577,8 @@
           </div>
         </div>
 
-        <!-- Printable Content -->
-        <div id="printable-materials-list" class="p-6 overflow-y-auto max-h-[calc(95vh-140px)] print:overflow-visible print:max-h-none">
+        <!-- Printable Content (Forced Light Mode for PDF) -->
+        <div id="printable-materials-list" class="p-6 overflow-y-auto max-h-[calc(95vh-140px)] print:overflow-visible print:max-h-none bg-white text-black">
           <!-- Project Header for Print -->
           <div class="mb-8 print:mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 print:text-black">
@@ -739,6 +785,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import { jsPDF } from 'jspdf'
 import { useAuth } from '@/composables/useAuth'
 import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
@@ -987,6 +1035,12 @@ const confirmDeleteElement = async (element: ProjectElement) => {
     isLoading.value = false
   }
 }
+
+const isToolsDropdownOpen = ref(false)
+const toolsDropdownTarget = ref(null)
+const showProjectInfo = ref(true)
+const showApprovals = ref(true)
+onClickOutside(toolsDropdownTarget, () => isToolsDropdownOpen.value = false)
 
 /**
  * Reactive materials data structure
@@ -1694,6 +1748,57 @@ const formatDate = (dateString: string): string => {
     return dateString
   }
 }
+
+/**
+ * Download the materials list as a PDF
+ * Uses jsPDF to generate a PDF from the printable content
+ */
+const isGeneratingPDF = ref(false)
+const downloadPDF = async () => {
+  const element = document.getElementById('printable-materials-list')
+  if (!element) return
+
+  isGeneratingPDF.value = true
+  
+  // Temporarily disable dark mode for capture
+  const isDark = document.documentElement.classList.contains('dark')
+  if (isDark) {
+    document.documentElement.classList.remove('dark')
+  }
+
+  try {
+    // Create new PDF instance
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // Generate PDF from HTML
+    await doc.html(element, {
+      callback: function (doc) {
+        doc.save(`Materials-List-${materialsData.projectInfo.projectId}.pdf`)
+        // Restore dark mode immediately after save if needed, although finally block covers it
+      },
+      x: 10,
+      y: 10,
+      width: 190, // A4 width (210) - 20mm margin
+      windowWidth: 1200 // Force desktop width for rendering
+    })
+    
+    console.log('PDF generated successfully')
+  } catch (err) {
+    console.error('Failed to generate PDF:', err)
+    alert('Failed to generate PDF. Please try using the Print button and "Save as PDF".')
+  } finally {
+    // Restore dark mode
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    }
+    isGeneratingPDF.value = false
+  }
+}
+
 </script>
 
 <style>
