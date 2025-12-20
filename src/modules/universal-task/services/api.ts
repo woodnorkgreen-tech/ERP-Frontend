@@ -77,16 +77,62 @@ class TaskApiService {
     // Backend returns Laravel paginator in raw.data; normalize to PaginatedResponse<Task>
     const paginator = raw?.data;
     const items: Task[] = Array.isArray(paginator?.data) ? paginator.data : [];
+    
+    // Extract users data if available at the root level
+    const usersData = raw?.data?.users || raw?.users || [];
 
     // Ensure relationships are properly loaded in each task item
-    const processedItems = items.map(item => ({
-      ...item,
-      // Ensure assignedUser is available even if null
-      assignedUser: item.assignedUser || undefined,
-      department: item.department || undefined,
-      creator: item.creator || undefined,
-      parentTask: item.parentTask || undefined
-    }));
+    const processedItems = items.map(item => {
+      // Process assignments to ensure user data is properly structured
+      const processedAssignments = Array.isArray(item.assignments) 
+        ? item.assignments.map(assignment => {
+            // Process assignment data
+            
+            // Try to normalize user data
+            let user = assignment.user || assignment.assigned_user || assignment.assignee || undefined;
+            let assignedBy = assignment.assignedBy || assignment.assigned_by || assignment.assigner || undefined;
+            
+            // Handle case where user might be just an ID
+            if (typeof user === 'number' && (item.users || usersData)) {
+              const userPool = item.users || usersData;
+              user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
+            }
+            
+            if (typeof assignedBy === 'number' && (item.users || usersData)) {
+              const userPool = item.users || usersData;
+              assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
+            }
+            
+            // Handle case where user might be just a string
+            if (typeof user === 'string' && user.trim() !== '') {
+              user = { name: user };
+            }
+            
+            if (typeof assignedBy === 'string' && assignedBy.trim() !== '') {
+              assignedBy = { name: assignedBy };
+            }
+            
+            const normalizedAssignment = {
+              ...assignment,
+              user: user,
+              assignedBy: assignedBy
+            };
+            
+
+            return normalizedAssignment;
+          })
+        : [];
+
+      return {
+        ...item,
+        // Ensure assignedUser is available even if null
+        assignedUser: item.assignedUser || item.assigned_user || item.assignee || undefined,
+        department: item.department || undefined,
+        creator: item.creator || undefined,
+        parentTask: item.parentTask || undefined,
+        assignments: processedAssignments
+      };
+    });
 
     const meta = paginator
       ? {
@@ -109,12 +155,57 @@ class TaskApiService {
   async getTask(id: number): Promise<ApiResponse<Task>> {
     const response = await this.client.get(`${API_ENDPOINTS.TASKS}/${id}`);
     const raw = response.data as any;
+    
+
 
     // Process the task data similar to getTasks
     if (raw.success && raw.data) {
+      // Extract users data if available
+      const usersData = raw?.data?.users || raw?.users || [];
+      
+      // Process assignments to ensure user data is properly structured
+      const processedAssignments = Array.isArray(raw.data.assignments) 
+        ? raw.data.assignments.map(assignment => {
+            // Process assignment data
+            
+            // Try to normalize user data
+            let user = assignment.user || assignment.assigned_user || assignment.assignee || undefined;
+            let assignedBy = assignment.assignedBy || assignment.assigned_by || assignment.assigner || undefined;
+            
+            // Handle case where user might be just an ID
+            if (typeof user === 'number' && (raw.data.users || usersData)) {
+              const userPool = raw.data.users || usersData;
+              user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
+            }
+            
+            if (typeof assignedBy === 'number' && (raw.data.users || usersData)) {
+              const userPool = raw.data.users || usersData;
+              assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
+            }
+            
+            // Handle case where user might be just a string
+            if (typeof user === 'string' && user.trim() !== '') {
+              user = { name: user };
+            }
+            
+            if (typeof assignedBy === 'string' && assignedBy.trim() !== '') {
+              assignedBy = { name: assignedBy };
+            }
+            
+            const normalizedAssignment = {
+              ...assignment,
+              user: user,
+              assignedBy: assignedBy
+            };
+            
+
+            return normalizedAssignment;
+          })
+        : [];
+
       const task = {
         ...raw.data,
-        assignedUser: raw.data.assignedUser || undefined,
+        assignedUser: raw.data.assignedUser || raw.data.assigned_user || raw.data.assignee || undefined,
         department: raw.data.department || undefined,
         creator: raw.data.creator || undefined,
         parentTask: raw.data.parentTask || undefined,
@@ -124,7 +215,7 @@ class TaskApiService {
         attachments: raw.data.attachments || [],
         experienceLogs: raw.data.experienceLogs || [],
         dependencies: raw.data.dependencies || [],
-        assignments: raw.data.assignments || [],
+        assignments: processedAssignments,
         logisticsContext: raw.data.logisticsContext || undefined,
         designContext: raw.data.designContext || undefined,
         financeContext: raw.data.financeContext || undefined,
@@ -169,6 +260,23 @@ class TaskApiService {
       role,
       replace_existing: replaceExisting
     });
+    return response.data;
+  }
+
+  async assignMultiple(id: number, assignments: any[]): Promise<ApiResponse<Task>> {
+    const response = await this.client.post(`${API_ENDPOINTS.TASKS}/${id}/assign`, {
+      assignments
+    });
+    return response.data;
+  }
+
+  async getTaskAssignees(id: number): Promise<ApiResponse<any[]>> {
+    const response = await this.client.get(`${API_ENDPOINTS.TASKS}/${id}/assignees`);
+    return response.data;
+  }
+
+  async removeTaskAssignee(taskId: number, assignmentId: number): Promise<ApiResponse<void>> {
+    const response = await this.client.delete(`${API_ENDPOINTS.TASKS}/${taskId}/assignees/${assignmentId}`);
     return response.data;
   }
 

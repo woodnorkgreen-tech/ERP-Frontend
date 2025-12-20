@@ -157,9 +157,11 @@ export const useTaskStore = defineStore('universalTask', () => {
   async function createTask(data: TaskFormData): Promise<Task | null> {
     loading.value.create = true;
     errors.value.create = '';
+    console.log('Creating task with data:', data);
 
     try {
       const response = await taskApi.createTask(data);
+      console.log('Task creation response:', response);
 
       if (response.success && response.data) {
         const newTask = response.data;
@@ -172,6 +174,32 @@ export const useTaskStore = defineStore('universalTask', () => {
     } catch (error: any) {
       errors.value.create = error.message || 'An error occurred while creating task';
       console.error('Error creating task:', error);
+      return null;
+    } finally {
+      loading.value.create = false;
+    }
+  }
+
+  async function createSubtask(parentTaskId: number, data: TaskFormData): Promise<Task | null> {
+    loading.value.create = true;
+    errors.value.create = '';
+    console.log('Creating subtask with data:', data, 'for parent task:', parentTaskId);
+
+    try {
+      const response = await taskApi.createSubtask(parentTaskId, data);
+      console.log('Subtask creation response:', response);
+
+      if (response.success && response.data) {
+        const newTask = response.data;
+        tasks.value.unshift(newTask); // Add to beginning of list
+        return newTask;
+      } else {
+        errors.value.create = response.error?.message || 'Failed to create subtask';
+        return null;
+      }
+    } catch (error: any) {
+      errors.value.create = error.message || 'An error occurred while creating subtask';
+      console.error('Error creating subtask:', error);
       return null;
     } finally {
       loading.value.create = false;
@@ -278,6 +306,99 @@ export const useTaskStore = defineStore('universalTask', () => {
     }
   }
 
+  async function assignMultiple(id: number, assignments: any[]): Promise<Task | null> {
+    loading.value.assign = true;
+    errors.value.assign = '';
+
+    try {
+      const response = await taskApi.assignMultiple(id, assignments);
+
+      if (response.success && response.data) {
+        const updatedTask = response.data;
+
+        // Update in tasks array
+        const index = tasks.value.findIndex(task => task.id === id);
+        if (index !== -1) {
+          tasks.value[index] = updatedTask;
+        }
+
+        // Update current task if it's the same
+        if (currentTask.value?.id === id) {
+          currentTask.value = updatedTask;
+        }
+
+        return updatedTask;
+      } else {
+        errors.value.assign = response.error?.message || 'Failed to assign task';
+        return null;
+      }
+    } catch (error: any) {
+      errors.value.assign = error.message || 'An error occurred while assigning task';
+      console.error('Error assigning task:', error);
+      return null;
+    } finally {
+      loading.value.assign = false;
+    }
+  }
+
+  async function getTaskAssignees(id: number): Promise<any[] | null> {
+    loading.value.assign = true;
+    errors.value.assign = '';
+
+    try {
+      const response = await taskApi.getTaskAssignees(id);
+
+      if (response.success && response.data) {
+        return response.data;
+      } else {
+        errors.value.assign = response.error?.message || 'Failed to fetch task assignees';
+        return null;
+      }
+    } catch (error: any) {
+      errors.value.assign = error.message || 'An error occurred while fetching task assignees';
+      console.error('Error fetching task assignees:', error);
+      return null;
+    } finally {
+      loading.value.assign = false;
+    }
+  }
+
+  async function removeTaskAssignee(taskId: number, assignmentId: number): Promise<boolean> {
+    loading.value.assign = true;
+    errors.value.assign = '';
+
+    try {
+      const response = await taskApi.removeTaskAssignee(taskId, assignmentId);
+
+      if (response.success) {
+        // Update task in tasks array if it exists
+        const taskIndex = tasks.value.findIndex(task => task.id === taskId);
+        if (taskIndex !== -1) {
+          const task = tasks.value[taskIndex];
+          if (task.assignments) {
+            task.assignments = task.assignments.filter(a => a.id !== assignmentId);
+          }
+        }
+
+        // Update current task if it's the same
+        if (currentTask.value?.id === taskId && currentTask.value.assignments) {
+          currentTask.value.assignments = currentTask.value.assignments.filter(a => a.id !== assignmentId);
+        }
+
+        return true;
+      } else {
+        errors.value.assign = response.error?.message || 'Failed to remove task assignee';
+        return false;
+      }
+    } catch (error: any) {
+      errors.value.assign = error.message || 'An error occurred while removing task assignee';
+      console.error('Error removing task assignee:', error);
+      return false;
+    } finally {
+      loading.value.assign = false;
+    }
+  }
+
   async function updateTaskStatus(id: number, status: string, notes?: string): Promise<Task | null> {
     loading.value.status = true;
     errors.value.status = '';
@@ -379,9 +500,13 @@ export const useTaskStore = defineStore('universalTask', () => {
     fetchTasks,
     fetchTask,
     createTask,
+    createSubtask,
     updateTask,
     deleteTask,
     assignTask,
+    assignMultiple,
+    getTaskAssignees,
+    removeTaskAssignee,
     updateTaskStatus,
 
     // Utilities

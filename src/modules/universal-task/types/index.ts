@@ -105,6 +105,7 @@ export interface TaskResponse {
   parent_task?: TaskResponse;
   subtasks?: TaskResponse[];
   dependencies?: TaskDependencyResponse[];
+  assignments?: TaskAssignment[];
   issues?: TaskIssue[];
   comments?: TaskComment[];
   attachments?: TaskAttachment[];

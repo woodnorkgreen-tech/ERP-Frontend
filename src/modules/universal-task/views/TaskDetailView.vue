@@ -178,7 +178,12 @@
               </div>
               <div>
                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ task.assignedUser?.name || 'Unassigned' }}
+                  <template v-if="getAssigneeInfo(task).name">
+                    {{ getAssigneeInfo(task).name }}
+                  </template>
+                  <template v-else>
+                    Unassigned
+                  </template>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Assignee</div>
               </div>
@@ -349,6 +354,49 @@
         </div>
       </div>
 
+      <!-- Assignments -->
+      <div v-if="task.assignments && task.assignments.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Task Assignments
+        </h3>
+        <div class="space-y-3">
+          <div
+            v-for="assignment in task.assignments"
+            :key="assignment.id"
+            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+          >
+
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                <span class="text-xs font-medium text-blue-800 dark:text-blue-200">
+                  {{ getUserInitials(assignment.user || assignment.assigned_user || assignment) }}
+                </span>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white">{{ getUserName(assignment.user || assignment.assigned_user || assignment) }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  <span v-if="(assignment.user || assignment.assigned_user) && getUserName(assignment.user || assignment.assigned_user) !== 'Unknown User'">
+                    {{ getUserName(assignment.user || assignment.assigned_user) }}
+                  </span>
+                  <span v-else-if="assignment.role">
+                    {{ assignment.role }}
+                  </span>
+                  <span v-if="assignment.is_primary" class="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">
+                    Primary
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-gray-500 dark:text-gray-400">Assigned by {{ getUserName(assignment.assignedBy || assignment.assigned_by || assignment.assigner || assignment) }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(assignment.assigned_at) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Tags -->
       <div v-if="task.tags && task.tags.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -677,6 +725,116 @@ const error = computed(() => errors.value.task || null)
 const canDelete = computed(() => {
   return user.value && user.value.roles && (user.value.roles.includes('Admin') || user.value.roles.includes('Super Admin'))
 })
+
+const getAssigneeInfo = (task: any) => {
+  // Check for assignments first (newer structure)
+  if (task.assignments && task.assignments.length > 0) {
+    const primary = task.assignments.find((a: any) => a.is_primary);
+    const assignment = primary || task.assignments[0];
+    const user = assignment.user;
+    if (user && user.name) {
+      return {
+        name: user.name,
+        initials: user.name.charAt(0).toUpperCase()
+      };
+    }
+  }
+  
+  // Fallback to assignedUser (older structure)
+  if (task.assignedUser && task.assignedUser.name) {
+    return {
+      name: task.assignedUser.name,
+      initials: task.assignedUser.name.charAt(0).toUpperCase()
+    };
+  }
+  
+  // Fallback to assigned_user relationship
+  if (task.assigned_user && task.assigned_user.name) {
+    return {
+      name: task.assigned_user.name,
+      initials: task.assigned_user.name.charAt(0).toUpperCase()
+    };
+  }
+  
+  return { name: '', initials: '' };
+}
+
+const getUserName = (user: any) => {
+  // Handle null/undefined case
+  if (!user) return 'Unknown User';
+  
+  // Handle direct string values
+  if (typeof user === 'string' && user.trim() !== '') return user;
+  
+  // Handle numeric IDs
+  if (typeof user === 'number') return `User #${user}`;
+  
+  // Handle direct properties
+  if (user.name) return user.name;
+  if (user.email) return user.email;
+  if (user.full_name) return user.full_name;
+  if (user.first_name || user.last_name) {
+    return `${user.first_name || ''} ${user.last_name || ''}`.trim();
+  }
+  
+  // Special handling for assignment objects
+  // If this is an assignment object, try to get the user from the expected properties
+  if (user.user && typeof user.user === 'object') {
+    return getUserName(user.user);
+  }
+  
+  if (user.assignedBy && typeof user.assignedBy === 'object') {
+    return getUserName(user.assignedBy);
+  }
+  
+  // Handle ID references
+  if (user.user_id || user.userId) {
+    const id = user.user_id || user.userId;
+    return `User #${id}`;
+  }
+  
+  // Handle different property names for user objects
+  const userObj = user.assigned_user || user.assignee || user.created_by || user.assigner;
+  if (userObj && typeof userObj === 'object') {
+    return getUserName(userObj);
+  }
+  
+  // If we have an object but can't extract name, show its keys for debugging
+  if (typeof user === 'object' && user !== null) {
+    const keys = Object.keys(user);
+    if (keys.length > 0) {
+      // Special handling for assignment objects that might have user data in unexpected places
+      if (user.assignee_name) return user.assignee_name;
+      if (user.assigner_name) return user.assigner_name;
+      
+      // For debugging purposes, return the user ID if available
+      if (user.id && user.id !== undefined) {
+        return `User #${user.id}`;
+      }
+      
+      // Return a more informative debug message
+      return `Unknown User (${keys.join(', ')})`;
+    }
+  }
+  
+  return 'Unknown User';
+};
+
+const getUserInitials = (user: any) => {
+  const name = getUserName(user);
+  if (name === 'Unknown User' || name.startsWith('User #')) return 'U';
+  
+  // Extract initials from name (handle multiple words)
+  const words = name.split(' ').filter(word => word.length > 0);
+  if (words.length === 0) return 'U';
+  
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  }
+  
+  // For two or more words, take first letter of first and last word
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+};
 
 const activeTab = ref('overview')
 const showEditDialog = ref(false)

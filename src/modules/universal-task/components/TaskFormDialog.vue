@@ -16,268 +16,253 @@
                 {{ isEditing ? 'Edit Task' : 'Create Task' }}
               </h3>
               <div class="space-y-6">
-      <!-- Basic Information -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h3>
+                <!-- Basic Information -->
+                <div class="space-y-4">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h3>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title *</label>
+                    <input
+                      v-model="form.title"
+                      type="text"
+                      placeholder="Enter task title"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      :class="{ 'border-red-500': errors.title }"
+                    />
+                    <small v-if="errors.title" class="text-red-500 text-xs mt-1">{{ errors.title }}</small>
+                  </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title *</label>
-          <input
-            v-model="form.title"
-            type="text"
-            placeholder="Enter task title"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            :class="{ 'border-red-500': errors.title }"
-          />
-          <small v-if="errors.title" class="text-red-500 text-xs mt-1">{{ errors.title }}</small>
-        </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                    <textarea
+                      v-model="form.description"
+                      placeholder="Enter task description"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows="3"
+                    ></textarea>
+                  </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-          <textarea
-            v-model="form.description"
-            placeholder="Enter task description"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            rows="3"
-          ></textarea>
-        </div>
+                  <!-- Task Details - More Compact Grid -->
+                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                      <select
+                        v-model="form.status"
+                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select</option>
+                        <option v-for="option in statusOptions" :key="option.value" :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-            <select
-              v-model="form.status"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select status</option>
-              <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                      <select
+                        v-model="form.priority"
+                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select</option>
+                        <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
-            <select
-              v-model="form.priority"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select priority</option>
-              <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Task Type</label>
+                      <select
+                        v-model="form.task_type"
+                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select</option>
+                        <option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Task Type</label>
-            <select
-              v-model="form.task_type"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Select task type</option>
-              <option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Hours</label>
+                      <input
+                        v-model="form.estimated_hours"
+                        type="number"
+                        placeholder="Hours"
+                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        min="0"
+                        max="999"
+                      />
+                    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estimated Hours</label>
-            <input
-              v-model="form.estimated_hours"
-              type="number"
-              placeholder="Enter estimated hours"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              min="0"
-              max="999"
-            />
-          </div>
-        </div>
-      </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                      <input
+                        v-model="form.due_date"
+                        type="date"
+                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        :min="new Date().toISOString().split('T')[0]"
+                      />
+                    </div>
+                  </div>
 
-      <!-- Assignment & Organization -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Assignment & Organization</h3>
+                  <!-- Linking (project / office) and Additional Details (tags) - Same Row -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Link To</label>
+                      <div class="flex gap-2 mb-2">
+                        <button
+                          type="button"
+                          @click="linkType = 'project'"
+                          :class="[
+                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                            linkType === 'project'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ]"
+                        >
+                          Project
+                        </button>
+                        <button
+                          type="button"
+                          @click="linkType = 'office'"
+                          :class="[
+                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                            linkType === 'office'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ]"
+                        >
+                          Office
+                        </button>
+                        <button
+                          type="button"
+                          @click="linkType = null; form.taskable_type = undefined; form.taskable_id = undefined"
+                          :class="[
+                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                            !linkType
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ]"
+                        >
+                          None
+                        </button>
+                      </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
-            <select
-              v-model="form.department_id"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              :class="{ 'border-red-500': errors.department_id }"
-              :disabled="loadingDepartments"
-            >
-              <option value="">Select department</option>
-              <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                {{ dept.name }}
-              </option>
-            </select>
-            <small v-if="errors.department_id" class="text-red-500 text-xs mt-1">{{ errors.department_id }}</small>
-          </div>
+                      <!-- Project/Enquiry Dropdown -->
+                      <select
+                        v-if="linkType === 'project'"
+                        v-model="selectedProject"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        :disabled="loadingProjects"
+                        @change="handleProjectSelect"
+                      >
+                        <option value="">Select project/enquiry</option>
+                        <option v-for="proj in projects" :key="proj.id" :value="proj.id">
+                          {{ proj.title }} ({{ proj.enquiry_number }})
+                        </option>
+                      </select>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assignee</label>
-            <input
-              v-model="employeeSearch"
-              type="text"
-              placeholder="Type to search employees..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              @input="searchEmployees({ query: employeeSearch })"
-            />
-            <div v-if="employeeSuggestions.length > 0" class="mt-1 max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 shadow-lg">
-              <div
-                v-for="emp in employeeSuggestions"
-                :key="emp.id"
-                @click="selectEmployee(emp)"
-                class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-gray-900 dark:text-white"
-              >
-                {{ emp.displayName }}
+                      <!-- Office Input -->
+                      <input
+                        v-if="linkType === 'office'"
+                        v-model="officeName"
+                        type="text"
+                        placeholder="Enter office name or location"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @input="handleOfficeInput"
+                      />
+                    </div>
+
+                    <!-- Additional Details (tags) -->
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
+                      <select
+                        v-model="selectedTag"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @change="addTagFromDropdown"
+                      >
+                        <option value="">Select industry standard tag</option>
+                        <option v-for="tag in industryTags" :key="tag" :value="tag">
+                          {{ tag }}
+                        </option>
+                      </select>
+                      <div v-if="form.tags && form.tags.length > 0" class="mt-2 flex flex-wrap gap-2">
+                        <span
+                          v-for="(tag, index) in form.tags"
+                          :key="index"
+                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                        >
+                          {{ tag }}
+                          <button @click="removeTag(index)" class="ml-1 text-blue-600 hover:text-blue-800">
+                            ×
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  </div>                </div>
+
+                <!-- Department (full row) -->
+                <div class="space-y-4">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Organization</h3>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
+                    <select
+                      v-model="form.department_id"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      :class="{ 'border-red-500': errors.department_id }"
+                      :disabled="loadingDepartments"
+                    >
+                      <option value="">Select department</option>
+                      <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                        {{ dept.name }}
+                      </option>
+                    </select>
+                    <small v-if="errors.department_id" class="text-red-500 text-xs mt-1">{{ errors.department_id }}</small>
+                  </div>
+
+                  <!-- Assignment (full row) -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assignees</label>
+                    <TaskAssignmentManager 
+                      ref="assignmentManagerRef"
+                      :task-id="props.task?.id"
+                      :initial-assignments="props.task?.assignments || []"
+                      @assignments-updated="handleAssignmentsUpdated"
+                    />
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button
+                    type="button"
+                    :disabled="saving"
+                    @click="save"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                  >
+                    <span v-if="saving" class="mr-2">
+                      <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </span>
+                    {{ isEditing ? 'Update Task' : 'Create Task' }}
+                  </button>
+                  <button
+                    type="button"
+                    @click="$emit('update:visible', false)"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Link To</label>
-          <div class="flex gap-2 mb-2">
-            <button
-              type="button"
-              @click="linkType = 'project'"
-              :class="[
-                'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                linkType === 'project'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              ]"
-            >
-              Project
-            </button>
-            <button
-              type="button"
-              @click="linkType = 'office'"
-              :class="[
-                'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                linkType === 'office'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              ]"
-            >
-              Office
-            </button>
-            <button
-              type="button"
-              @click="linkType = null; form.taskable_type = undefined; form.taskable_id = undefined"
-              :class="[
-                'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                !linkType
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              ]"
-            >
-              None
-            </button>
-          </div>
-
-          <!-- Project/Enquiry Dropdown -->
-          <select
-            v-if="linkType === 'project'"
-            v-model="selectedProject"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            :disabled="loadingProjects"
-            @change="handleProjectSelect"
-          >
-            <option value="">Select project/enquiry</option>
-            <option v-for="proj in projects" :key="proj.id" :value="proj.id">
-              {{ proj.title }} ({{ proj.enquiry_number }})
-            </option>
-          </select>
-
-          <!-- Office Input -->
-          <input
-            v-if="linkType === 'office'"
-            v-model="officeName"
-            type="text"
-            placeholder="Enter office name or location"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            @input="handleOfficeInput"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Due Date</label>
-          <input
-            v-model="form.due_date"
-            type="date"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            :min="new Date().toISOString().split('T')[0]"
-          />
-        </div>
       </div>
-
-      <!-- Additional Details -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Additional Details</h3>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
-          <select
-            v-model="selectedTag"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            @change="addTagFromDropdown"
-          >
-            <option value="">Select industry standard tag</option>
-            <option v-for="tag in industryTags" :key="tag" :value="tag">
-              {{ tag }}
-            </option>
-          </select>
-          <div v-if="form.tags && form.tags.length > 0" class="mt-2 flex flex-wrap gap-2">
-            <span
-              v-for="(tag, index) in form.tags"
-              :key="index"
-              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-            >
-              {{ tag }}
-              <button @click="removeTag(index)" class="ml-1 text-blue-600 hover:text-blue-800">
-                ×
-              </button>
-            </span>
-          </div>
-        </div>
-               </div>
-
-               <!-- Footer -->
-               <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                 <button
-                   type="button"
-                   :disabled="saving"
-                   @click="save"
-                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-                 >
-                   <span v-if="saving" class="mr-2">
-                     <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                     </svg>
-                   </span>
-                   {{ isEditing ? 'Update Task' : 'Create Task' }}
-                 </button>
-                 <button
-                   type="button"
-                   @click="$emit('update:visible', false)"
-                   class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                 >
-                   Cancel
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
- </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -289,6 +274,7 @@ import type { Task, TaskFormData } from '../types'
 import { useApi } from '@/modules/admin/shared/composables/useApi'
 import api from '@/plugins/axios'
 import { formatDateForInput } from '../utils/dateUtils'
+import TaskAssignmentManager from './TaskAssignmentManager.vue'
 
 // Components removed - using custom Tailwind implementations
 
@@ -330,6 +316,7 @@ const form = ref<TaskFormData>({
 
 const errors = ref<Record<string, string>>({})
 const saving = ref(false)
+const assignmentManagerRef = ref<InstanceType<typeof TaskAssignmentManager> | null>(null)
 
 // API composable
 const { get } = useApi()
@@ -480,20 +467,9 @@ const fetchProjects = async () => {
   }
 }
 
-const handleEmployeeSelect = (event: { value: { id: number; displayName: string } }) => {
-  form.value.assigned_user_id = event.value.id
-}
-
-const handleEmployeeClear = () => {
-  form.value.assigned_user_id = undefined
-  selectedEmployee.value = null
-}
-
-const selectEmployee = (emp: { id: number; employee_id?: number; first_name: string; last_name: string; position?: string; displayName: string }) => {
-  selectedEmployee.value = emp
-  form.value.assigned_user_id = emp.id
-  employeeSearch.value = emp.displayName
-  employeeSuggestions.value = []
+const handleAssignmentsUpdated = (assignments: any[]) => {
+  // We'll handle assignments when saving the form
+  console.log('Assignments updated:', assignments)
 }
 
 const addTag = () => {
@@ -562,6 +538,10 @@ const resetForm = () => {
   officeName.value = ''
   employeeSearch.value = ''
   tagInput.value = ''
+  // Reset assignment manager if it exists
+  if (assignmentManagerRef.value) {
+    // This would require a reset method on the assignment manager
+  }
 }
 
 const populateForm = (task: Task) => {
@@ -580,8 +560,7 @@ const populateForm = (task: Task) => {
     due_date: task.due_date ? formatDateForInput(task.due_date) : undefined,
     tags: task.tags || [],
     metadata: task.metadata || {}
-  }
-  
+  }  
   // Set selected employee if assigned
   if (task.assignedUser) {
     selectedEmployee.value = {
@@ -628,9 +607,10 @@ const validateForm = (): boolean => {
     errors.value.due_date = 'Due date is required'
   }
 
-  if (!form.value.assigned_user_id) {
-    errors.value.assigned_user_id = 'Assignee is required'
-  }
+  // Assignee validation is now handled by TaskAssignmentManager
+  // if (!form.value.assigned_user_id) {
+  //   errors.value.assigned_user_id = 'Assignee is required'
+  // }
 
   if (!form.value.task_type) {
     errors.value.task_type = 'Task type is required'
@@ -644,11 +624,14 @@ const validateForm = (): boolean => {
 }
 
 const save = async () => {
+  console.log('Save button clicked')
   if (!validateForm()) {
+    console.log('Form validation failed', errors.value)
     return
   }
-
   saving.value = true
+  console.log('Creating task with form data:', form.value)
+  console.log('Parent task ID:', props.parentTaskId)
 
   try {
     // Prepare form data
@@ -687,8 +670,31 @@ const save = async () => {
 
     if (isEditing.value && props.task) {
       task = await taskStore.updateTask(props.task.id, formData)
+      
+      // Handle assignments for existing tasks
+      if (assignmentManagerRef.value) {
+        const assignments = assignmentManagerRef.value.getAssignmentsPayload()
+        if (assignments.length > 0) {
+          await taskStore.assignMultiple(props.task.id, assignments)
+        }
+      }
     } else {
-      task = await taskStore.createTask(formData)
+      // Create task or subtask
+      if (props.parentTaskId) {
+        // Create subtask
+        task = await taskStore.createSubtask(props.parentTaskId, formData)
+      } else {
+        // Create regular task
+        task = await taskStore.createTask(formData)
+      }
+      
+      // Then assign users if it's a new task
+      if (task && assignmentManagerRef.value) {
+        const assignments = assignmentManagerRef.value.getAssignmentsPayload()
+        if (assignments.length > 0) {
+          await taskStore.assignMultiple(task.id, assignments)
+        }
+      }
     }
 
     if (task) {
@@ -698,6 +704,7 @@ const save = async () => {
       toast.error(`Failed to ${isEditing.value ? 'update' : 'create'} task`)
     }
   } catch (error: any) {
+    console.error('Error creating task:', error)
     toast.error(error.message || `Failed to ${isEditing.value ? 'update' : 'create'} task`)
   } finally {
     saving.value = false
@@ -721,6 +728,10 @@ watch(() => props.task, (newTask) => {
     populateForm(newTask)
   } else {
     resetForm()
+    // When creating a new task (not editing), set parent_task_id if provided
+    if (props.parentTaskId) {
+      form.value.parent_task_id = props.parentTaskId
+    }
   }
 }, { immediate: true })
 

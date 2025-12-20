@@ -5,15 +5,14 @@
       <h3 class="text-lg font-semibold text-gray-900">Subtasks</h3>
       <button
         v-if="editable"
-        @click="showAddDialog = true"
+        @click="handleAddSubtaskClick"
         class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md flex items-center gap-2"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
         Add Subtask
-      </button>
-    </div>
+      </button>    </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
@@ -30,7 +29,7 @@
       <p class="text-gray-600 mb-4">Break down this task into smaller, manageable subtasks.</p>
       <button
         v-if="editable"
-        @click="showAddDialog = true"
+        @click="handleAddSubtaskClick"
         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md flex items-center gap-2 mx-auto"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,14 +74,14 @@
 
     <!-- Add Subtask Dialog -->
     <TaskFormDialog
-      v-model:visible="showAddDialog"
+      :visible="showAddDialog"
       :task="null"
       :parent-task-id="props.taskId"
+      @update:visible="showAddDialog = $event"
       @saved="handleSubtaskAdded"
       @cancelled="showAddDialog = false"
     />
-  </div>
-</template>
+  </div></template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -135,6 +134,11 @@ const progressPercentage = computed(() => {
 })
 
 // Methods
+function handleAddSubtaskClick() {
+  console.log('Add subtask button clicked, props.taskId:', props.taskId)
+  showAddDialog.value = true
+}
+
 async function loadSubtasks() {
   loading.value = true
   try {
