@@ -5,7 +5,7 @@ export interface ProjectEnquiry {
   client_id: number;
   title: string;
   description?: string;
-  project_scope?: string;
+  project_scope?: string[];
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'client_registered' | 'enquiry_logged' | 'site_survey_completed' | 'design_completed' | 'design_approved' | 'materials_specified' | 'budget_created' | 'quote_prepared' | 'quote_approved' | 'planning' | 'in_progress' | 'completed' | 'cancelled';
   department_id?: number;
@@ -45,6 +45,8 @@ export interface ProjectEnquiry {
     id: number;
     name: string;
   };
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface TaskAssignmentHistory {
@@ -144,7 +146,7 @@ export interface CreateProjectEnquiryData {
   client_id: number | null;
   title: string;
   description?: string;
-  project_scope?: string;
+  project_scope?: string[];
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   status: ProjectEnquiry['status'];
   contact_person: string;

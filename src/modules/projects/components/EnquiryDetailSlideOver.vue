@@ -133,7 +133,23 @@
                         <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Description</p>
                         <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.description || 'No description provided' }}</p>
                       </div>
-                      <div v-if="enquiry.project_scope">
+                      <div v-if="projectDeliverables && projectDeliverables.length > 0">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Project Deliverables</p>
+                        <ul class="space-y-2">
+                          <li 
+                            v-for="(deliverable, index) in projectDeliverables" 
+                            :key="index"
+                            class="text-sm text-gray-900 dark:text-white flex items-start"
+                          >
+                            <svg class="w-4 h-4 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ deliverable }}</span>
+                          </li>
+                        </ul>
+                      </div>
+                      <!-- Fallback for old string format data -->
+                      <div v-else-if="enquiry.project_scope && typeof enquiry.project_scope === 'string'">
                         <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Deliverables</p>
                         <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.project_scope }}</p>
                       </div>
@@ -316,6 +332,32 @@ const hasSurveyTask = computed(() => {
 const hasQuote = computed(() => {
   return props.enquiry?.status && ['quote_prepared', 'quote_approved'].includes(props.enquiry.status)
 })
+
+// Parse project_scope into deliverables array
+const projectDeliverables = computed<string[]>(() => {
+  const scope = props.enquiry?.project_scope
+  if (!scope) return []
+  
+  // If it's already an array, return it
+  if (Array.isArray(scope)) {
+    return scope.filter(item => item && item.trim())
+  }
+  
+  // If it's a string, try to parse as JSON array
+  if (typeof scope === 'string') {
+    try {
+      const parsed = JSON.parse(scope)
+      if (Array.isArray(parsed)) {
+        return parsed.filter(item => item && item.trim())
+      }
+    } catch {
+      // Not valid JSON array - return empty so it falls back to string display
+    }
+  }
+  
+  return []
+})
+
 
 const taskList = computed<EnquiryTask[]>(() => {
   const enq = props.enquiry as any

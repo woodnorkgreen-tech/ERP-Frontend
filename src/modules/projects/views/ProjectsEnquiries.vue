@@ -379,17 +379,51 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Scope</label>
-              <textarea
-                v-model="enquiryFormData.project_scope"
-                @keydown.enter.stop
-                rows="4"
-                placeholder="Enter project scope in point format, e.g.:
-- Item 1
-- Item 2
-- Item 3"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              ></textarea>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Deliverables</label>
+              
+              <!-- Deliverables List -->
+              <div v-if="projectDeliverables.length > 0" class="space-y-2 mb-3">
+                <div 
+                  v-for="(deliverable, index) in projectDeliverables" 
+                  :key="index"
+                  class="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 p-2 rounded-md border border-gray-200 dark:border-gray-600"
+                >
+                  <svg class="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="flex-1 text-sm text-gray-900 dark:text-white">{{ deliverable }}</span>
+                  <button
+                    @click="removeDeliverable(index)"
+                    type="button"
+                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 p-1 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Add New Deliverable -->
+              <div class="flex gap-2">
+                <input
+                  v-model="newDeliverable"
+                  @keydown.enter.prevent.stop="addDeliverable"
+                  type="text"
+                  placeholder="Enter a deliverable (e.g., Logo design, Signage, Interior branding)"
+                  class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <button
+                  @click="addDeliverable"
+                  type="button"
+                  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors flex items-center gap-1"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                  </svg>
+                  Add
+                </button>
+              </div>
             </div>
           </div>
 
@@ -484,23 +518,58 @@
 
           <!-- Site Survey Tab -->
           <div v-if="activeModalTab === 'survey'" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div class="space-y-4">
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                <label class="flex items-center text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
                   <input
                     v-model="enquiryFormData.site_survey_skipped"
                     type="checkbox"
-                    class="mr-2"
+                    class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                   />
-                  Skip Site Survey
+                  <span class="ml-2">Skip Site Survey Process</span>
                 </label>
+                
+                <!-- Guidance Message -->
+                <div v-if="enquiryFormData.site_survey_skipped" class="mt-3 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 p-3 rounded border border-blue-100 dark:border-blue-800 flex items-start">
+                  <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                  <div>
+                    <p class="font-semibold mb-1">Guidance:</p>
+                    <p>Skipping the survey is recommended ONLY if:</p>
+                    <ul class="list-disc list-inside mt-1 ml-1 space-y-0.5 opacity-90">
+                      <li>This is a repeat job with known dimensions</li>
+                      <li>The client has provided accurate architectural drawings</li>
+                      <li>It is a pure supply-only job</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
-              <div v-if="enquiryFormData.site_survey_skipped">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Skip Reason</label>
+
+              <div v-show="enquiryFormData.site_survey_skipped" class="pl-0 md:pl-6 border-l-2 border-gray-100 dark:border-gray-700 transition-all">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason for Skipping *</label>
+                
+                <!-- Recommended Reasons Chips -->
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <button 
+                    v-for="reason in ['Repeat Job', 'Client Provided Specs', 'Supply Only', 'Virtual Survey']" 
+                    :key="reason"
+                    type="button"
+                    @click="enquiryFormData.site_survey_skip_reason = reason"
+                    class="px-3 py-1 text-xs rounded-full border transition-colors"
+                    :class="enquiryFormData.site_survey_skip_reason === reason 
+                      ? 'bg-primary text-white border-primary' 
+                      : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-primary hover:text-primary'"
+                  >
+                    {{ reason }}
+                  </button>
+                </div>
+
                 <input
                   v-model="enquiryFormData.site_survey_skip_reason"
                   type="text"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="Enter specific reason..."
+                  class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
                 />
               </div>
             </div>
@@ -1024,7 +1093,7 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   client_id: null as number | null,
   title: '',
   description: '',
-  project_scope: '',
+  project_scope: [],
   priority: 'medium',
   status: 'enquiry_logged',
   contact_person: '',
@@ -1034,6 +1103,25 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   site_survey_skipped: false,
   site_survey_skip_reason: ''
 })
+
+// Deliverables management
+const newDeliverable = ref('')
+const projectDeliverables = ref<string[]>([])
+
+const addDeliverable = () => {
+  const trimmed = newDeliverable.value.trim()
+  if (trimmed && !projectDeliverables.value.includes(trimmed)) {
+    projectDeliverables.value.push(trimmed)
+    enquiryFormData.value.project_scope = [...projectDeliverables.value]
+    newDeliverable.value = ''
+  }
+}
+
+const removeDeliverable = (index: number) => {
+  projectDeliverables.value.splice(index, 1)
+  enquiryFormData.value.project_scope = [...projectDeliverables.value]
+}
+
 
 const statusTabs = computed(() => [
   { key: 'all', label: 'All', count: pagination.value.total },
@@ -1082,7 +1170,7 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     client_id: enquiry.client_id,
     title: enquiry.title || '',
     description: enquiry.description || '',
-    project_scope: enquiry.project_scope || '',
+    project_scope: enquiry.project_scope || [],
     priority: enquiry.priority || 'medium',
     status: enquiry.status || 'enquiry_logged',
     contact_person: enquiry.contact_person || '',
@@ -1092,6 +1180,8 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     site_survey_skipped: enquiry.site_survey_skipped ?? false,
     site_survey_skip_reason: enquiry.site_survey_skip_reason || ''
   }
+  // Sync deliverables
+  projectDeliverables.value = Array.isArray(enquiry.project_scope) ? [...enquiry.project_scope] : []
   showCreateModal.value = true
 }
 
@@ -1378,7 +1468,7 @@ const closeModal = () => {
     client_id: null,
     title: '',
     description: '',
-    project_scope: '',
+    project_scope: [],
     priority: 'medium',
     status: 'enquiry_logged',
     contact_person: '',
@@ -1388,6 +1478,9 @@ const closeModal = () => {
     site_survey_skipped: false,
     site_survey_skip_reason: ''
   }
+  // Reset deliverables
+  projectDeliverables.value = []
+  newDeliverable.value = ''
 }
 
 const handleFormSubmit = async () => {
