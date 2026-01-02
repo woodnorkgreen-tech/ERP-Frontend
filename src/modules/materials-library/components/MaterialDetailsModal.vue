@@ -1,88 +1,107 @@
 <template>
-  <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all duration-300">
-    <div 
-      class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all scale-100"
-      @click.stop
-    >
-      <!-- Header -->
-      <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-10">
-        <div class="flex items-center space-x-3">
-          <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-            <i class="mdi mdi-information-outline text-emerald-600 dark:text-emerald-400 text-xl"></i>
+  <div class="fixed inset-0 flex items-center justify-center z-[100] p-4 sm:p-6">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
+
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Premium Header -->
+      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-emerald-50/30 dark:from-gray-900 dark:to-emerald-900/10">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 shadow-inner">
+            <i class="mdi mdi-information-variant text-emerald-600 dark:text-emerald-400 text-2xl"></i>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Material Details</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Viewing reference information for {{ material.material_name }}</p>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Material Specifications</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Reference data for {{ material.material_name }}</p>
           </div>
         </div>
-        <button 
-          @click="$emit('close')" 
-          class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors group"
+        <button
+          @click="$emit('close')"
+          class="p-2 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-full transition-all duration-200"
         >
-          <i class="mdi mdi-close text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 text-xl"></i>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
         </button>
       </div>
 
-      <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Modal Body -->
+      <div class="p-8 overflow-y-auto custom-scrollbar flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          <!-- Primary Information -->
-          <section>
-            <h4 class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-4 flex items-center">
-              <i class="mdi mdi-card-text-outline mr-2 text-base"></i>
-              Core Information
-            </h4>
-            <div class="space-y-4">
-              <DetailItem label="SKU / Material Code" :value="material.material_code" icon="mdi-barcode" />
-              <DetailItem label="Material Name" :value="material.material_name" icon="mdi-format-title" />
-              <DetailItem label="Category" :value="material.category" icon="mdi-tag-outline" />
-              <DetailItem label="Subcategory" :value="material.subcategory || 'N/A'" icon="mdi-tag-multiple-outline" />
-              <DetailItem label="Unit of Measure (UOM)" :value="material.unit_of_measure" icon="mdi-unfold-more-horizontal" />
-              <DetailItem label="Unit Cost" :value="formatCurrency(material.unit_cost)" icon="mdi-currency-usd" />
-            </div>
-
-            <div v-if="material.notes" class="mt-8">
-               <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center">
-                <i class="mdi mdi-note-outline mr-2 text-base"></i>
-                Notes
+          <!-- Column 1: Core Information -->
+          <div class="space-y-8">
+            <section>
+              <h4 class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-6 flex items-center">
+                <span class="w-8 h-[1px] bg-emerald-500/30 mr-3"></span>
+                Primary Identification
               </h4>
-              <p class="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 whitespace-pre-wrap leading-relaxed">
-                {{ material.notes }}
-              </p>
-            </div>
-          </section>
+              <div class="grid grid-cols-1 gap-5">
+                <DetailItem label="SKU / Material Code" :value="material.material_code" icon="mdi-barcode-scan" />
+                <DetailItem label="Material Name" :value="material.material_name" icon="mdi-format-title" />
+                <div class="grid grid-cols-2 gap-5">
+                  <DetailItem label="Category" :value="material.category" icon="mdi-tag-outline" />
+                  <DetailItem label="Subcategory" :value="material.subcategory || 'N/A'" icon="mdi-tag-multiple-outline" />
+                </div>
+                <div class="grid grid-cols-2 gap-5">
+                  <DetailItem label="Unit (UOM)" :value="material.unit_of_measure" icon="mdi-unfold-more-horizontal" />
+                  <DetailItem label="Standard Cost" :value="formatCurrency(material.unit_cost)" icon="mdi-currency-usd" class="text-emerald-600 dark:text-emerald-400 font-bold" />
+                </div>
+              </div>
+            </section>
 
-          <!-- Specifications & Technical Data -->
-          <section>
-            <h4 class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-4 flex items-center">
-              <i class="mdi mdi-cogs mr-2 text-base"></i>
-              Technical Specifications
-            </h4>
-            <div v-if="hasAttributes" class="grid grid-cols-1 gap-4">
-              <DetailItem 
-                v-for="(val, key) in material.attributes" 
-                :key="key" 
-                :label="formatKey(key)" 
-                :value="val" 
-                variant="compact"
-              />
-            </div>
-            <div v-else class="flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-gray-800/30 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-               <i class="mdi mdi-database-off text-3xl text-gray-300 dark:text-gray-600 mb-2"></i>
-               <p class="text-sm text-gray-500 dark:text-gray-400 italic text-center">No additional specifications available for this workstation type.</p>
-            </div>
-          </section>
+            <section v-if="material.notes">
+              <h4 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center">
+                <span class="w-8 h-[1px] bg-gray-300 dark:bg-gray-700 mr-3"></span>
+                Procurement Notes
+              </h4>
+              <div class="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/50 text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                {{ material.notes }}
+              </div>
+            </section>
+          </div>
+
+          <!-- Column 2: Technical Specs -->
+          <div class="space-y-8">
+            <section>
+              <h4 class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] mb-6 flex items-center">
+                <span class="w-8 h-[1px] bg-emerald-500/30 mr-3"></span>
+                Production Parameters
+              </h4>
+              
+              <div v-if="hasAttributes" class="space-y-4">
+                <div class="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800/50 overflow-hidden divide-y divide-gray-50 dark:divide-gray-800/50">
+                  <DetailItem 
+                    v-for="(val, key) in material.attributes" 
+                    :key="key" 
+                    :label="formatKey(key)" 
+                    :value="val" 
+                    variant="compact"
+                    class="px-5 py-3 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-colors"
+                  />
+                </div>
+              </div>
+              
+              <div v-else class="flex flex-col items-center justify-center p-16 bg-gray-50/50 dark:bg-gray-800/20 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800">
+                <div class="w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-sm flex items-center justify-center mb-4">
+                  <i class="mdi mdi-database-off text-3xl text-gray-200 dark:text-gray-700"></i>
+                </div>
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">No Extended Specifications</p>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="px-8 py-5 border-t border-gray-100 dark:border-gray-800 flex justify-end bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm">
+      <!-- Action Footer -->
+      <div class="p-8 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-end">
         <button 
-          @click="$emit('close')" 
-          class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl text-sm transition-all focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800"
+          @click="$emit('close')"
+          class="px-10 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-full text-sm font-bold border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
         >
-          Close View
+          Dismiss View
         </button>
       </div>
     </div>
