@@ -8,28 +8,36 @@ export interface ElementType {
     category: string
     is_predefined: boolean
     order: number
+    materials?: any[]
     created_at?: string
     updated_at?: string
 }
 
-export function useElementTypes() {
-    const elementTypes = ref<ElementType[]>([])
-    const isLoading = ref(false)
-    const error = ref<string | null>(null)
+const elementTypes = ref<ElementType[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+let isInitialized = false
 
+export function useElementTypes() {
     /**
      * Fetch all element types from the API
      */
-    const fetchElementTypes = async (): Promise<ElementType[]> => {
+    const fetchElementTypes = async (force: boolean = false): Promise<ElementType[]> => {
+        if (isInitialized && !force && elementTypes.value.length > 0) {
+            return elementTypes.value
+        }
         try {
             isLoading.value = true
             error.value = null
 
-            const response = await api.get('/api/projects/element-types')
+            const response = await api.get('/api/projects/element-templates')
 
-            if (response.data.success) {
-                elementTypes.value = response.data.data
-                return response.data.data
+            // More robust check - if it has data and no success:false, it's likely a success
+            if (response.data && response.data.success !== false) {
+                const data = response.data.data || response.data
+                elementTypes.value = Array.isArray(data) ? data : []
+                isInitialized = true
+                return elementTypes.value
             } else {
                 throw new Error(response.data.message || 'Failed to fetch element types')
             }

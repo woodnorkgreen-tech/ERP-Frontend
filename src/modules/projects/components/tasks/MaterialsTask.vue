@@ -907,16 +907,22 @@ interface ElementTemplate {
 interface MaterialItem {
   /** Unique identifier for the material item */
   id: string
+  /** Linked material library ID */
+  libraryMaterialId?: number | null
   /** Descriptive name or description of the material */
   description: string
   /** Unit of measurement (e.g., "Pcs", "Ltrs", "Mtrs", "sqm") */
   unitOfMeasurement: string
   /** Quantity required (supports decimal values) */
   quantity: number
+  /** Unit cost of the material */
+  unitCost?: number | null
   /** Whether this material is included in the current project */
   isIncluded: boolean
   /** Optional additional notes about the material */
   notes?: string
+  /** Whether this material is additional */
+  isAdditional?: boolean
   /** Timestamp when the material was created */
   createdAt: Date
   /** Timestamp when the material was last updated */

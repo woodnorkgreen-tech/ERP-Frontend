@@ -34,11 +34,13 @@ export interface ProjectElement {
 
 export interface MaterialItem {
   id: string
+  libraryMaterialId?: number | null // Linked to materials library
   description: string
   unitOfMeasurement: string
   quantity: number
+  unitCost?: number | null
   isIncluded: boolean
-  isAdditional?: boolean  // ← ADD THIS LINE
+  isAdditional?: boolean
   notes?: string
   createdAt: Date
   updatedAt: Date
@@ -57,6 +59,7 @@ export interface ElementTemplate {
 
 export interface MaterialTemplate {
   id: string
+  libraryMaterialId?: number
   description: string
   unitOfMeasurement: string
   defaultQuantity: number
@@ -178,11 +181,13 @@ export class MaterialsService {
         notes: element.notes || null,
         materials: element.materials.map(material => ({
           id: material.id,
+          libraryMaterialId: material.libraryMaterialId || null,
           description: material.description,
           unitOfMeasurement: material.unitOfMeasurement,
           quantity: material.quantity,
+          unitCost: material.unitCost ?? null,
           isIncluded: material.isIncluded,
-          isAdditional: material.isAdditional || false,  // ← ADD THIS LINE
+          isAdditional: material.isAdditional || false,
           notes: material.notes || null
         }))
       })),
