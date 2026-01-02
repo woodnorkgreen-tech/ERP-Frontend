@@ -308,7 +308,7 @@
     </div>
 
     <!-- Create/Edit Enquiry Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 font-poppins">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-7xl w-full max-h-[90vh] overflow-y-auto">
         <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">
           {{ editingEnquiry ? 'Edit Enquiry' : 'Log New Enquiry' }}
@@ -637,7 +637,7 @@
     />
 
     <!-- Logistics Log Modal -->
-    <div v-if="showLogisticsLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div v-if="showLogisticsLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 font-poppins">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-8xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">

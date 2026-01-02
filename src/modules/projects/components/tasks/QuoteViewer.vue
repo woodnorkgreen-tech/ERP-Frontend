@@ -1,91 +1,95 @@
 <template>
-  <!-- Modal Overlay -->
-  <div v-if="isVisible" class="quote-viewer-modal fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto print:max-h-none print:shadow-none print:rounded-none">
-      <!-- Modal Header (Controls) -->
-      <div class="flex items-center justify-between p-4 border-b print:hidden">
-        <h3 class="text-lg font-semibold text-gray-900">Client Quote Preview</h3>
-        <div class="flex items-center space-x-4">
+  <div v-if="isVisible" class="quote-viewer-modal fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 lg:p-8 font-poppins">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
+
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl w-full max-w-[1400px] h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-300">
+      
+      <!-- Premium Header -->
+      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/40 print:hidden relative">
+        <div class="flex items-center space-x-5">
+           <div class="p-2.5 bg-emerald-500/10 rounded-xl shadow-inner border border-emerald-500/20">
+            <i class="mdi mdi-file-document-outline text-emerald-600 text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Financial Prospectus</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Validating project valuation & deliverables</p>
+          </div>
+        </div>
+
+        <!-- Master Action Hub -->
+        <div class="flex items-center gap-4">
           <!-- Detail Level Toggle -->
-          <div class="flex items-center space-x-2">
-            <label class="text-sm text-gray-600">Show Details:</label>
+          <div class="hidden sm:flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
             <button
-              @click="toggleDetailLevel"
-              :class="[
-                'px-3 py-1 text-xs rounded-full transition-colors',
-                showDetailedItems
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              ]"
+              @click="showDetailedItems = false"
+              :class="[!showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300']"
+              class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
             >
-              {{ showDetailedItems ? 'Detailed' : 'Summary' }}
+              Summary
+            </button>
+            <button
+              @click="showDetailedItems = true"
+              :class="[showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300']"
+              class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+            >
+              Detailed
             </button>
           </div>
 
-          <!-- Edit Mode Toggle -->
-          <div v-if="!props.readonly" class="flex items-center space-x-2">
-            <label class="text-sm text-gray-600">Edit Descriptions:</label>
+          <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+
+          <!-- Controls Group -->
+          <div class="flex items-center gap-2">
+            <!-- Edit Mode -->
             <button
+              v-if="!props.readonly"
               @click="toggleEditMode"
-              :class="[
-                'px-3 py-1 text-xs rounded-full transition-colors flex items-center space-x-1',
-                isEditMode
-                  ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              ]"
+              :class="[isEditMode ? 'bg-blue-600 text-white shadow-blue-500/20' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-blue-500/50']"
+              class="p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative"
+              :title="isEditMode ? 'Commit Changes' : 'Enable Strategic Editing'"
             >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
-              <span>{{ isEditMode ? 'Done' : 'Edit' }}</span>
+              <i class="mdi mdi-pencil-outline text-xl" :class="{'animate-pulse': isEditMode}"></i>
             </button>
-          </div>
 
-          <!-- Bank Details Toggle -->
-          <div v-if="!props.readonly" class="flex items-center space-x-2">
-            <label class="text-sm text-gray-600">Bank Details:</label>
+            <!-- Bank Details -->
             <button
+              v-if="!props.readonly"
               @click="toggleBankDetails"
-              :class="[
-                'px-3 py-1 text-xs rounded-full transition-colors flex items-center space-x-1',
-                showBankDetails
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              ]"
+              :class="[showBankDetails ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-emerald-500/50']"
+              class="p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all"
+              :title="showBankDetails ? 'Hide Bank Intel' : 'Show Payment Routing'"
             >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="showBankDetails ? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' : 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21'"></path>
-              </svg>
-              <span>{{ showBankDetails ? 'Show' : 'Hide' }}</span>
+              <i class="mdi mdi-bank-outline text-xl"></i>
+            </button>
+
+            <!-- Print -->
+            <button
+              v-if="!props.readonly"
+              @click="printQuote"
+              class="p-2 bg-gray-900 dark:bg-gray-700 text-white rounded-xl shadow-lg shadow-black/10 hover:scale-105 active:scale-95 transition-all"
+              title="Deploy to Printer"
+            >
+              <i class="mdi mdi-printer-outline text-xl"></i>
             </button>
           </div>
 
-          <!-- Print Button -->
-          <div v-if="!props.readonly" class="flex items-center space-x-2">
-            <button
-              @click="printQuote"
-              class="px-3 py-1 text-xs rounded-full transition-colors flex items-center space-x-1 bg-green-100 text-green-800 hover:bg-green-200"
-            >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-              </svg>
-              <span>Print</span>
-            </button>
-          </div>
+          <div class="h-10 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
 
           <button
             @click="$emit('close')"
-            class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <!-- Quote Content -->
-      <div class="quote-content p-8 bg-white">
+      <!-- Quote Body with Centered Paper -->
+      <div class="flex-grow overflow-y-auto custom-scrollbar bg-gray-100/50 dark:bg-gray-950 p-4 sm:p-12 print:p-0 print:bg-white">
+        <div class="quote-content max-w-5xl mx-auto bg-white shadow-2xl rounded-sm p-10 sm:p-16 print:p-0 print:shadow-none print:max-w-none print:mx-0">
+
         <!-- Header Section -->
         <div class="flex items-start justify-between mb-6">
           <!-- Company Logo and Name -->
@@ -167,7 +171,7 @@
               <template v-for="(element, elementIndex) in quoteData.materials" :key="element.id">
                 <!-- Summary View (Default) -->
                 <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ elementIndex + 1 }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ getOverride(element.id, 'name', element.name) }}</span>
@@ -214,7 +218,7 @@
                 <template v-else>
                   <!-- Element Header -->
                   <tr class="bg-gray-100 border-b border-gray-300">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ elementIndex + 1 }}</td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
                     <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
                       <div v-if="!isEditMode">{{ element.name }} - {{ getDescription(element.id, element) }}</div>
                       <div v-else class="flex items-center space-x-2">
@@ -650,6 +654,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">

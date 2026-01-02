@@ -32,6 +32,7 @@
 import { computed } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import TaskDataViewer from './TaskDataViewer.vue'
+import type { DesignAsset } from './design/types/design'
 import SurveyTask from './SurveyTask.vue'
 import DesignTask from './DesignTask.vue'
 import MaterialsTask from './MaterialsTask.vue'
@@ -58,8 +59,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
-  'save-design-data': [data: any[]
-]
+  'save-design-data': [data: DesignAsset[]]
 }>()
 
 // Helper function to determine if task should use direct component instead of TaskDataViewer
@@ -140,7 +140,7 @@ const handleComplete = () => {
   emit('complete')
 }
 
-const handleSaveDesignData = (data: unknown[]) => {
+const handleSaveDesignData = (data: DesignAsset[]) => {
   emit('save-design-data', data)
 }
 </script>

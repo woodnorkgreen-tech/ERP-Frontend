@@ -1,77 +1,113 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-gray-900 bg-opacity-50 p-4 md:inset-0 h-modal md:h-full" @click="closeModal">
-    <div class="relative w-full max-w-md h-full md:h-auto" @click.stop>
-      <!-- Modal content -->
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <!-- Close button -->
-        <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" @click="closeModal">
-            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            <span class="sr-only">Close modal</span>
-        </button>
+  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
 
-        <div class="p-6 text-left">
-           <div class="flex items-center gap-3 mb-4">
-             <div class="p-2 bg-red-100 rounded-full text-red-600 dark:bg-red-900 dark:text-red-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-             </div>
-             <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-              Task Locked
-             </h3>
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Premium Header (Red Theme for Warning) -->
+      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-red-50/30 dark:from-gray-900 dark:to-red-900/10">
+        <div class="flex items-center space-x-4">
+          <div class="p-2.5 bg-red-500/10 rounded-xl shadow-inner border border-red-500/20">
+            <i class="mdi mdi-lock-alert text-red-600 dark:text-red-400 text-xl"></i>
           </div>
-
-          <p class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-             This task is currently assigned to another user. You can view its status but cannot make changes.
-          </p>
-
-          <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 space-y-3 dark:bg-gray-600 dark:border-gray-500">
-             <div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-gray-300">Task</span>
-                <p class="text-gray-900 font-medium dark:text-white">{{ task.title }}</p>
-             </div>
-             
-             <div class="flex justify-between items-center">
-                <div>
-                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-gray-300">Current Status</span>
-                  <div class="mt-1">
-                      <span :class="statusClass(task.status)" class="px-2 py-1 rounded text-xs font-medium capitalize">
-                          {{ task.status ? task.status.replace('_', ' ') : 'Pending' }}
-                      </span>
-                  </div>
-                </div>
-                <div class="text-right">
-                   <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-gray-300">Department</span>
-                   <p class="text-gray-800 text-sm dark:text-gray-200">{{ task.department?.name || 'N/A' }}</p>
-                </div>
-             </div>
-
-             <div class="border-t border-gray-200 pt-3 mt-3 dark:border-gray-500">
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2 dark:text-gray-300">Assigned To</span>
-                <div class="flex items-center gap-3">
-                   <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm dark:bg-blue-900 dark:text-blue-300">
-                      {{ getInitials(task.locked_by_user?.name || 'Unknown') }}
-                   </div>
-                   <div>
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ task.locked_by_user?.name || 'Unknown User' }}</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">{{ task.locked_by_user?.email || '' }}</p>
-                   </div>
-                </div>
-             </div>
-          </div>
-
-          <div class="mt-6 text-right">
-            <button
-              type="button"
-              class="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:text-white dark:hover:bg-gray-600"
-              @click="closeModal"
-            >
-              Close
-            </button>
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Access Locked</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Task occupancy restricted</p>
           </div>
         </div>
+        <button
+          @click="closeModal"
+          class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all duration-200"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-8 overflow-y-auto custom-scrollbar flex-grow">
+        <div class="bg-red-50/50 dark:bg-red-900/10 p-5 rounded-2xl border border-red-100/50 dark:border-red-900/30 flex items-start space-x-4 mb-8">
+          <div class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 shadow-sm">!</div>
+          <p class="text-xs text-red-700/80 dark:text-red-300 leading-relaxed font-medium">
+            This task is currently being modified by another team member. Concurrent edits are disabled to prevent data collisions.
+          </p>
+        </div>
+
+        <div class="space-y-6">
+          <div class="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/50">
+            <div class="mb-4">
+              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Active Task</span>
+              <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.title }}</p>
+            </div>
+            
+            <div class="flex justify-between items-center py-4 border-t border-gray-100 dark:border-gray-800">
+               <div>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Status</span>
+                <span :class="statusClass(task.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                  {{ task.status ? task.status.replace('_', ' ') : 'Pending' }}
+                </span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Department</span>
+                <p class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ task.department?.name || 'Central Operations' }}</p>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
+              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3 block">Currently Assigned To</span>
+              <div class="flex items-center gap-4">
+                <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-blue-500/20">
+                  {{ getInitials(task.locked_by_user?.name || 'Unknown') }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.locked_by_user?.name || 'Unknown Agent' }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate opacity-70">{{ task.locked_by_user?.email || 'N/A' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="p-8 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center">
+        <button
+          type="button"
+          class="px-10 py-2.5 bg-gray-900 dark:bg-gray-800 hover:bg-black dark:hover:bg-gray-700 text-white rounded-full text-sm font-bold shadow-lg transition-all active:scale-95"
+          @click="closeModal"
+        >
+          Acknowledged
+        </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+@keyframes animate-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+  animation: animate-in 0.2s ease-out forwards;
+}
+</style>
 
 <script setup lang="ts">
 const props = defineProps<{

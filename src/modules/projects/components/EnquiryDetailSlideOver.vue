@@ -1,264 +1,281 @@
 <template>
-  <transition name="modal">
-    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
+  <div v-if="show" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 lg:p-8">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
 
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-[1600px] h-[95vh] flex flex-col relative z-20 border border-gray-200 dark:border-gray-800 overflow-hidden animate-in fade-in duration-200">
+      
+      <!-- Professional Header -->
+      <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 relative">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="flex items-center space-x-4 min-w-0">
+            <div class="min-w-0">
+               <div class="flex items-center gap-3 mb-1">
+                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white truncate">
+                    {{ enquiry?.title || 'Project Detail' }}
+                  </h2>
+                  <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-800">
+                    {{ enquiry.job_number }}
+                  </span>
+               </div>
+               
+               <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
+                  <span class="text-gray-500 font-medium">{{ enquiry.enquiry_number }}</span>
+                  <span class="text-gray-300 dark:text-gray-700">|</span>
+                  <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded text-xs font-semibold">
+                    {{ getStatusLabel(enquiry.status) }}
+                  </span>
+                  <span class="text-gray-300 dark:text-gray-700">|</span>
+                  <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded text-xs font-semibold uppercase">
+                    {{ enquiry.priority }}
+                  </span>
+               </div>
+            </div>
+          </div>
 
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl modal-panel relative z-50 sm:my-2 sm:align-middle sm:max-w-[98vw] sm:w-full" @click.stop>
-          <div class="flex flex-col h-[95vh]">
-              <!-- Header -->
-              <div class="px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-1">
-                      <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                        {{ enquiry?.title || 'Loading...' }}
-                      </h2>
-                      <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                        {{ enquiry.job_number }}
-                      </span>
-                    </div>
-                    
-                    <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
-                      <span class="text-gray-500 dark:text-gray-400 font-mono text-xs">{{ enquiry.enquiry_number }}</span>
-                      
-                      <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded-full text-xs font-medium border border-opacity-10 bg-opacity-10">
-                        {{ getStatusLabel(enquiry.status) }}
-                      </span>
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2">
+             <button 
+               @click="exportToPDF"
+               :disabled="isGeneratingPDF"
+               class="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+             >
+                <i v-if="!isGeneratingPDF" class="mdi mdi-download-outline text-lg"></i>
+                <div v-else class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>{{ isGeneratingPDF ? 'Generating...' : 'Export PDF' }}</span>
+             </button>
+             
+             <div class="h-8 w-px bg-gray-200 dark:bg-gray-800 mx-2"></div>
 
-                      <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded-full text-xs font-medium border border-opacity-10 bg-opacity-10">
-                        {{ enquiry.priority?.toUpperCase() }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Actions & Close -->
-                  <div class="flex items-center gap-2 ml-4">
-                     <!-- Action Toolbar -->
-                     <!-- Action Toolbar -->
-                     <div v-if="enquiry" class="flex items-center gap-2 mr-2">
-                        <button 
-                          @click="exportToPDF"
-                          :disabled="isGeneratingPDF"
-                          class="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-full shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
-                          title="Download Project Data Sheet PDF"
-                        >
-                           <svg v-if="!isGeneratingPDF" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                           <svg v-else class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
-                           <span>{{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}</span>
-                        </button>
-                     </div>
-                     
-                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
-
-                    <button
-                      @click="$emit('close')"
-                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Content -->
-              <div v-if="enquiry" class="flex-1 overflow-y-auto">
-                <div class="px-6 py-6 space-y-6">
-
-                  <!-- Executive Metrics -->
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-                      <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-1">Project Status</p>
-                      <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                        <span class="w-2h-2 rounded-full mr-2" :class="getStatusColor(enquiry.status).split(' ')[0]"></span>
-                        {{ getStatusLabel(enquiry.status || '') }}
-                      </h3>
-                    </div>
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-                      <div class="flex justify-between items-end mb-1">
-                        <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Overall Progress</p>
-                        <span class="text-xs font-bold text-blue-700 dark:text-blue-300">{{ projectProgress }}%</span>
-                      </div>
-                      <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000" :style="{ width: `${projectProgress}%` }"></div>
-                      </div>
-                      <p class="text-xs text-blue-500 mt-2">{{ tasksMetrics.completed }} of {{ tasksMetrics.total }} tasks completed</p>
-                    </div>
-                    <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-100 dark:border-orange-800">
-                      <p class="text-xs text-orange-600 dark:text-orange-400 font-bold uppercase tracking-wider mb-1">Priority</p>
-                      <div class="flex items-center">
-                         <h3 class="text-lg font-bold text-gray-900 dark:text-white uppercase">{{ enquiry.priority || 'Normal' }}</h3>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Timeline Dashboard -->
-                  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                     <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Project Schedule</h3>
-                     <div class="flex flex-col md:flex-row justify-between text-sm">
-                        <div class="mb-4 md:mb-0">
-                          <p class="text-xs text-gray-500">Received</p>
-                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate(enquiry.date_received || enquiry.created_at || null) }}</p>
-                        </div>
-                        <div class="mb-4 md:mb-0">
-                          <p class="text-xs text-gray-500">Expected Delivery</p>
-                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate(enquiry.expected_delivery_date || null) }}</p>
-                        </div>
-                        <div v-if="(enquiry as any).event_date" class="mb-4 md:mb-0">
-                          <p class="text-xs text-gray-500">Event Date</p>
-                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate((enquiry as any).event_date) }}</p>
-                        </div>
-                         <!-- Days Remaining -->
-                        <div class="pl-4 border-l-4 border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-900/20 p-2 pr-4 rounded-r">
-                           <p class="text-xs text-green-700 dark:text-green-300 font-bold uppercase">Time Remaining</p>
-                           <p class="font-bold text-green-800 dark:text-green-200" v-html="calculateDaysRemaining(enquiry.expected_delivery_date || null)"></p>
-                        </div>
-                     </div>
-                  </div>
-
-                  <!-- Client & Project Details Grid -->
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Client Info -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Client Details</h3>
-                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                       </div>
-                       <div class="p-4 space-y-3">
-                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Client Name</span>
-                             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ (enquiry.client as any)?.full_name || (enquiry.client as any)?.name || 'Unknown' }}</span>
-                          </div>
-                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Contact Person</span>
-                             <span class="text-sm text-gray-900 dark:text-white">{{ enquiry.contact_person || 'N/A' }}</span>
-                          </div>
-                           <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Phone</span>
-                             <span class="text-sm text-gray-900 dark:text-white">{{ (enquiry.client as any)?.phone || (enquiry.client as any)?.PhoneNo || 'N/A' }}</span>
-                          </div>
-                          <div class="flex justify-between">
-                             <span class="text-xs text-gray-500 uppercase">Email</span>
-                             <span class="text-sm text-gray-900 dark:text-white">{{ (enquiry.client as any)?.email || (enquiry.client as any)?.Email || 'N/A' }}</span>
-                          </div>
-                       </div>
-                    </div>
-
-                    <!-- Project Info -->
-                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Project Particulars</h3>
-                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                       </div>
-                       <div class="p-4 space-y-3">
-                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Title</span>
-                             <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ enquiry.title }}</span>
-                          </div>
-                          <div v-if="enquiry.job_number" class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Job Number</span>
-                             <span class="text-sm font-mono font-bold text-blue-600">{{ enquiry.job_number }}</span>
-                          </div>
-                           <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
-                             <span class="text-xs text-gray-500 uppercase">Venue</span>
-                             <span class="text-sm text-gray-900 dark:text-white">{{ enquiry.venue || 'N/A' }}</span>
-                          </div>
-                          <div class="flex justify-between">
-                             <span class="text-xs text-gray-500 uppercase">Project Officer</span>
-                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ enquiry.project_officer?.name || 'Unassigned' }}</span>
-                          </div>
-                       </div>
-                    </div>
-                  </div>
-
-                  <!-- Description & Scope -->
-                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                       <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Description of works</h3>
-                       <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-700/30 p-3 rounded border border-gray-100 dark:border-gray-700">
-                         {{ enquiry.description || 'No description provided.' }}
-                       </p>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                       <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Deliverables</h3>
-                        <ul class="space-y-2 max-h-40 overflow-y-auto">
-                          <li v-for="(item, i) in projectDeliverables" :key="i" class="text-sm flex items-start">
-                             <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                             <span class="text-gray-700 dark:text-gray-300">{{ item }}</span>
-                          </li>
-                          <li v-if="projectDeliverables.length === 0" class="text-sm text-gray-400 italic">As per description</li>
-                       </ul>
-                    </div>
-                  </div>
-
-                  <!-- Tasks Table -->
-                   <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Operational Tasks ({{ taskList.length }})</h3>
-                          <router-link :to="`/projects/tasks?enquiry_id=${enquiry.id}`" class="text-xs font-semibold text-blue-600 hover:text-blue-800">View Board &rarr;</router-link>
-                       </div>
-                       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                          <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
-                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due</th>
-                            </tr>
-                          </thead>
-                          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <tr v-for="task in taskList" :key="task.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                              <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                {{ task.title || task.type }}
-                                <div class="text-xs text-gray-500 font-normal">{{ task.type }}</div>
-                              </td>
-                              <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize" :class="getTaskStatusBadgeColor(task.status)">
-                                  {{ task.status.replace('_', ' ') }}
-                                </span>
-                              </td>
-                              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ (task as any).assigned_user?.name || (task as any).assignedUser?.name || 'Unassigned' }}
-                              </td>
-                              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ formatDate(task.due_date || null) }}
-                              </td>
-                            </tr>
-                             <tr v-if="taskList.length === 0">
-                                <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500 italic">No tasks created yet.</td>
-                             </tr>
-                          </tbody>
-                       </table>
-                   </div>
-
-                   <!-- Financials & Notes -->
-                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
-                      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                         <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Financial Summary</h3>
-                         <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/30 rounded border bottom-gray-100 dark:border-gray-600">
-                            <span class="text-sm text-gray-500 font-medium uppercase">Estimated Budget</span>
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">KES {{ enquiry.estimated_budget?.toLocaleString() || '0' }}</span>
-                         </div>
-                      </div>
-                       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 relative overflow-hidden">
-                          <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-bl-full -mr-8 -mt-8 z-0"></div>
-                         <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2 z-10 relative">Important Notes</h3>
-                         <p class="text-sm text-gray-600 dark:text-gray-300 z-10 relative">{{ enquiry.follow_up_notes || 'No notes available.' }}</p>
-                      </div>
-                   </div>
-
-                </div>
-              </div>
+            <button
+              @click="$emit('close')"
+              class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Information Core -->
+      <div v-if="enquiry" class="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-950">
+        <div class="px-8 py-8 space-y-6">
+
+          <!-- Key Performance Indicators -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Project Progress</div>
+              <div class="flex items-center gap-4">
+                <div class="flex-1">
+                  <div class="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-2 overflow-hidden">
+                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000" :style="{ width: `${projectProgress}%` }"></div>
+                  </div>
+                </div>
+                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ projectProgress }}%</span>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Task Milestone Status</div>
+              <div class="text-lg font-bold text-gray-900 dark:text-white">
+                {{ tasksMetrics.completed }} / {{ tasksMetrics.total }} <span class="text-xs text-gray-500 font-medium ml-1">Completed</span>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Budget Estimate</div>
+              <div class="text-lg font-bold text-gray-900 dark:text-white">
+                <span class="text-xs text-gray-500 font-medium mr-1 font-mono">KES</span>{{ enquiry.estimated_budget?.toLocaleString() || '0' }}
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Delivery Deadline</div>
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ formatDate(enquiry.expected_delivery_date ?? null) }}</div>
+                <span :class="calculateDaysRemaining(enquiry.expected_delivery_date ?? null).includes('overdue') ? 'text-red-500' : 'text-emerald-600'" class="text-[10px] font-bold uppercase">
+                  {{ calculateDaysRemaining(enquiry.expected_delivery_date ?? null) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Information Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Stakeholder Info -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Stakeholder Information</h3>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Client</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ (enquiry.client as any)?.full_name || (enquiry.client as any)?.name || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Contact Person</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right">{{ enquiry.contact_person || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Phone</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right">{{ (enquiry.client as any)?.phone || (enquiry.client as any)?.PhoneNo || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Email</span>
+                  <span class="text-sm font-medium text-blue-600 dark:text-blue-400 text-right">{{ (enquiry.client as any)?.email || (enquiry.client as any)?.Email || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deployment Details -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Logistics</h3>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Site / Venue</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ enquiry.venue || 'N/A' }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Project Lead</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ enquiry.project_officer?.name || 'Unassigned' }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Record Created</span>
+                  <span class="text-sm font-medium text-gray-800 dark:text-gray-200 text-right">{{ formatDate(enquiry.created_at ?? null) }}</span>
+                </div>
+                <div class="flex justify-between items-start">
+                  <span class="text-xs text-gray-500 font-medium uppercase">Expected Delivery</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ formatDate(enquiry.expected_delivery_date ?? null) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project Scope / Deliverables -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Deliverables</h3>
+              </div>
+              <div class="p-6">
+                <ul class="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+                  <li v-for="(item, i) in projectDeliverables" :key="i" class="text-sm flex items-start">
+                    <span class="text-blue-500 font-bold mr-2">•</span>
+                    <span class="text-gray-700 dark:text-gray-300">{{ item }}</span>
+                  </li>
+                  <li v-if="projectDeliverables.length === 0" class="text-xs text-gray-400 italic">
+                    No individual deliverables specified in the project scope.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Description -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Objectives & Description</h3>
+            </div>
+            <div class="p-6">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
+                {{ enquiry.description || 'No detailed description provided for this project.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Detailed Task Matrix -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Operational Task Board</h3>
+              <router-link :to="`/projects/tasks?enquiry_id=${enquiry.id}`" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                View All Tasks <i class="mdi mdi-arrow-right"></i>
+              </router-link>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                  <tr>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">Task Name</th>
+                    <th class="px-6 py-3 text-center font-semibold text-gray-600 dark:text-gray-400">Type</th>
+                    <th class="px-6 py-3 text-center font-semibold text-gray-600 dark:text-gray-400">Status</th>
+                    <th class="px-6 py-3 text-center font-semibold text-gray-600 dark:text-gray-400">Assigned To</th>
+                    <th class="px-6 py-3 text-right font-semibold text-gray-600 dark:text-gray-400">Due Date</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                  <tr v-for="task in taskList" :key="task.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                      {{ task.title || task.type }}
+                    </td>
+                    <td class="px-6 py-4 text-center text-gray-500">{{ task.type }}</td>
+                    <td class="px-6 py-4 text-center">
+                      <span class="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-tight" :class="getTaskStatusBadgeColor(task.status)">
+                        {{ task.status.replace('_', ' ') }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        {{ ((task as any).assigned_user || (task as any).assignedUser)?.name || 'Unassigned' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <div v-if="task.due_date" class="flex flex-col">
+                        <span class="font-medium text-gray-900 dark:text-gray-200">{{ formatDate(task.due_date) }}</span>
+                        <span class="text-[10px] font-semibold text-blue-500">{{ calculateDaysRemaining(task.due_date) }}</span>
+                      </div>
+                      <span v-else class="text-gray-400 text-xs">-</span>
+                    </td>
+                  </tr>
+                  <tr v-if="taskList.length === 0">
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">
+                      No active tasks found for this project.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Bottom Section: Budget & Notes -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
+             <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Project Financial Reference</h4>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-bold text-gray-900 dark:text-white tabular-nums">
+                    {{ enquiry.estimated_budget?.toLocaleString() || '0' }}
+                  </span>
+                  <span class="text-sm font-semibold text-gray-500 uppercase font-mono">KES</span>
+                </div>
+             </div>
+             <div class="bg-amber-50 dark:bg-amber-900/10 p-6 rounded-lg border border-amber-200 dark:border-amber-800">
+                <h4 class="text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-widest mb-3">Internal Observations</h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300 italic">
+                  {{ enquiry.follow_up_notes || 'No critical internal observations recorded.' }}
+                </p>
+             </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-8 py-5 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex justify-between items-center text-sm">
+         <div class="text-gray-400 font-medium">
+            System Record ID: {{ enquiry?.id }}
+         </div>
+         <div class="flex items-center gap-3">
+            <button
+               @click="$emit('close')"
+               class="px-6 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
+            >
+               Close Document
+            </button>
+         </div>
+      </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup lang="ts">

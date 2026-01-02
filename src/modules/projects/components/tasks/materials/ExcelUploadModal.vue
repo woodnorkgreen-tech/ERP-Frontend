@@ -1,208 +1,241 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <!-- Background overlay -->
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="closeModal"></div>
+  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
 
-      <!-- Center positioning helper -->
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- High-End Header -->
+      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/30">
+        <div class="flex items-center space-x-5">
+          <div class="p-2.5 bg-emerald-500/10 rounded-xl shadow-inner border border-emerald-500/20">
+            <i class="mdi mdi-microsoft-excel text-emerald-600 text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Data Integrity Import</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Synchronizing external material inventories</p>
+          </div>
+        </div>
+        <button
+          @click="closeModal"
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all duration-200"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
 
-      <!-- Modal panel -->
-      <div class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-              <!-- Header -->
-              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4" id="modal-title">
-                Upload Materials from Excel
-              </h3>
+      <!-- Modal Body -->
+      <div class="flex-grow overflow-y-auto custom-scrollbar p-8 bg-gray-50/30 dark:bg-gray-900/40">
+        
+        <!-- Upload Area -->
+        <div v-if="!uploadedFile && !isUploading" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div
+            class="group relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 cursor-pointer overflow-hidden shadow-inner"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+            @click="fileInput?.click()"
+            :class="isDragging 
+              ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-500/5 ring-4 ring-emerald-500/10' 
+              : 'border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-gray-800/20 hover:border-emerald-400/50 dark:hover:border-emerald-500/30'"
+          >
+            <!-- Animated Glow Background on dragging -->
+            <div v-if="isDragging" class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-blue-500/5 animate-pulse"></div>
 
-              <!-- Upload Area (when no file uploaded) -->
-              <div v-if="!uploadedFile && !isUploading" class="mt-4">
-                <div
-                  class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
-                  @dragover.prevent="isDragging = true"
-                  @dragleave.prevent="isDragging = false"
-                  @drop.prevent="handleDrop"
-                  @click="$refs.fileInput.click()"
-                  :class="{ 'border-blue-400 bg-blue-50 dark:bg-blue-900/20': isDragging }"
-                >
-                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    <span class="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag and drop
-                  </p>
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                    Excel files only (.xlsx, .xls) - Max 5MB
-                  </p>
-                  <input
-                    ref="fileInput"
-                    type="file"
-                    class="hidden"
-                    accept=".xlsx,.xls"
-                    @change="handleFileSelect"
-                  />
+            <div class="relative z-10">
+              <div class="mx-auto h-20 w-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-all duration-300 shadow-sm border border-emerald-500/10">
+                <i class="mdi mdi-cloud-upload text-4xl text-emerald-600 dark:text-emerald-400"></i>
+              </div>
+              <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Deploy Manifest File</h4>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">Drag-and-drop your inventory matrix or <span class="text-emerald-600 dark:text-emerald-400 font-bold underline underline-offset-4 decoration-emerald-500/30">browse workstation</span></p>
+              
+              <div class="flex items-center justify-center space-x-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                <span class="flex items-center"><i class="mdi mdi-file-excel mr-1.5 text-base"></i> XLSX / XLS</span>
+                <span class="flex items-center"><i class="mdi mdi-database-outline mr-1.5 text-base"></i> MAX 5MB</span>
+              </div>
+            </div>
+
+            <input
+              ref="fileInput"
+              type="file"
+              class="hidden"
+              accept=".xlsx,.xls"
+              @change="handleFileSelect"
+            />
+          </div>
+
+          <!-- Technical Pro-Tips -->
+          <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div class="bg-white/60 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/60 flex items-start space-x-4">
+                <div class="p-2 bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400 shrink-0"><i class="mdi mdi-lightbulb-on-outline text-xl"></i></div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1">Standardized Mapping</h5>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium">Use standardized dropdown values for Type, Category, and Units to ensure downstream logistical accuracy.</p>
                 </div>
+             </div>
+             <div class="bg-white/60 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/60 flex items-start space-x-4">
+                <div class="p-2 bg-purple-500/10 rounded-xl text-purple-600 dark:text-purple-400 shrink-0"><i class="mdi mdi-layers-outline text-xl"></i></div>
+                <div>
+                  <h5 class="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1">Data Continuity</h5>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed font-medium">Ensure element cell headers are correctly matched with their respective materials in the following rows.</p>
+                </div>
+             </div>
+          </div>
+        </div>
 
-                <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div class="flex">
-                    <svg class="h-5 w-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                    </svg>
-                    <div class="ml-3">
-                      <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300">Tips for successful upload:</h3>
-                      <div class="mt-2 text-sm text-blue-700 dark:text-blue-400">
-                        <ul class="list-disc list-inside space-y-1">
-                          <li>Download the template first if you haven't already</li>
-                          <li>Follow the empty cell continuation format</li>
-                          <li>Use dropdown values for Type, Category, and Unit</li>
-                          <li>Ensure all quantities are greater than 0</li>
-                        </ul>
-                      </div>
+        <!-- Validation Loading State -->
+        <div v-if="isUploading" class="flex flex-col items-center justify-center py-20">
+          <div class="relative w-16 h-16 mb-6">
+            <div class="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin ring-8 ring-emerald-500/5"></div>
+          </div>
+          <p class="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.3em]">Auditing Spreadsheet Data...</p>
+        </div>
+
+        <!-- Preview Results Display -->
+        <div v-if="previewData && !isUploading" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <!-- Stats Dashboard -->
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white dark:bg-gray-800/60 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 opacity-70">Structural Units</div>
+              <div class="flex items-end justify-between">
+                <span class="text-3xl font-black text-blue-600 dark:text-blue-400 leading-none">{{ stats.total_elements }}</span>
+                <i class="mdi mdi-cube-outline text-2xl text-gray-200 dark:text-gray-700"></i>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800/60 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 opacity-70">Total Materials</div>
+              <div class="flex items-end justify-between">
+                <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{{ stats.total_materials }}</span>
+                <i class="mdi mdi-package-variant text-2xl text-gray-200 dark:text-gray-700"></i>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800/60 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm" :class="{'ring-2 ring-amber-500/20': stats.total_warnings > 0}">
+              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 opacity-70">Validation Warnings</div>
+              <div class="flex items-end justify-between">
+                <span class="text-3xl font-black text-amber-500 leading-none">{{ stats.total_warnings }}</span>
+                <i class="mdi mdi-alert-circle-outline text-2xl text-gray-200 dark:text-gray-700"></i>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800/60 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm" :class="{'ring-2 ring-red-500/20': stats.total_errors > 0}">
+              <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 opacity-70">Critical Errors</div>
+              <div class="flex items-end justify-between">
+                <span class="text-3xl font-black text-red-500 leading-none">{{ stats.total_errors }}</span>
+                <i class="mdi mdi-close-octagon-outline text-2xl text-gray-200 dark:text-gray-700"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Validation Feedback (Errors) -->
+          <div v-if="errors.length > 0" class="mb-6 bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-3xl overflow-hidden animate-in slide-in-from-top-4">
+            <div class="px-6 py-4 bg-red-500/10 border-b border-red-500/10 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                 <i class="mdi mdi-alert-decagram text-red-500 text-xl"></i>
+                 <h4 class="text-xs font-black text-red-700 dark:text-red-400 uppercase tracking-widest">Action Required: Blocking Faults detected</h4>
+              </div>
+              <span class="text-[10px] font-black bg-red-500 text-white px-3 py-0.5 rounded-full">{{ errors.length }} ERRORS</span>
+            </div>
+            <div class="p-6 max-h-48 overflow-y-auto custom-scrollbar">
+               <ul class="space-y-3">
+                  <li v-for="(error, index) in errors" :key="index" class="flex items-start text-xs text-red-700/80 dark:text-red-400/80 font-medium">
+                     <span class="w-20 shrink-0 font-black text-red-500 uppercase tracking-tighter">[ROW {{ error.row }}]</span>
+                     <span class="flex-grow">{{ error.message }}</span>
+                  </li>
+               </ul>
+            </div>
+          </div>
+
+          <!-- Preview Table Refined -->
+          <div class="bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex items-center justify-between">
+               <h4 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] flex items-center">
+                  <i class="mdi mdi-database-search-outline mr-2 text-sm"></i> Manifest Extraction Preview
+               </h4>
+               <button @click="resetUpload" class="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:scale-105 transition-transform">
+                  RE-UPLOAD MANIFEST
+               </button>
+            </div>
+            <div class="max-h-[40vh] overflow-y-auto custom-scrollbar">
+              <div v-for="(element, index) in elements" :key="index" class="group transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-b-0">
+                <div class="bg-blue-500/[0.03] dark:bg-blue-500/5 px-6 py-4 flex items-center justify-between">
+                  <div class="min-w-0">
+                    <div class="flex items-center space-x-3 mb-1.5">
+                      <span class="text-[10px] font-black font-mono text-gray-300 dark:text-gray-600">EID-{{ element.id }}</span>
+                      <h5 class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ element.name }}</h5>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">
+                        {{ element.type }}
+                      </span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter" :class="getCategoryClass(element.category)">
+                        {{ element.category }}
+                      </span>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Loading State -->
-              <div v-if="isUploading" class="mt-4 text-center py-12">
-                <svg class="animate-spin h-12 w-12 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="mt-4 text-gray-600 dark:text-gray-400">Validating file...</p>
-              </div>
-
-              <!-- Preview Results -->
-              <div v-if="previewData && !isUploading" class="mt-4">
-                <!-- Stats Summary -->
-                <div class="grid grid-cols-4 gap-4 mb-4">
-                  <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ stats.total_elements }}</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Elements</div>
-                  </div>
-                  <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                    <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.total_materials }}</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Materials</div>
-                  </div>
-                  <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
-                    <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.total_warnings }}</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Warnings</div>
-                  </div>
-                  <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                    <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.total_errors }}</div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400">Errors</div>
+                  <div class="text-right">
+                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">{{ element.particulars.length }} ITEMS</div>
+                    <div class="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter italic">Validated</div>
                   </div>
                 </div>
-
-                <!-- Errors -->
-                <div v-if="errors.length > 0" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                  <h4 class="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">
-                    ❌ Errors ({{ errors.length }}) - Must be fixed before importing
-                  </h4>
-                  <div class="max-h-40 overflow-y-auto">
-                    <ul class="text-sm text-red-700 dark:text-red-400 space-y-1">
-                      <li v-for="(error, index) in errors" :key="index" class="flex">
-                        <span class="font-mono text-xs mr-2">Row {{ error.row }}:</span>
-                        <span>{{ error.message }}</span>
-                      </li>
-                    </ul>
-                  </div>
+                <div class="px-10 py-4 bg-white/50 dark:bg-gray-900/20">
+                  <table class="w-full text-xs">
+                    <thead>
+                       <tr class="text-[8px] font-black text-gray-400 uppercase tracking-widest text-left">
+                          <th class="pb-2">Material Specification</th>
+                          <th class="pb-2 text-right">Qty / Dim</th>
+                       </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+                      <tr v-for="(material, mIndex) in element.particulars" :key="mIndex" class="group/row">
+                        <td class="py-2.5 font-medium text-gray-700 dark:text-gray-300 pr-4">
+                           <i class="mdi mdi-arrow-right-bottom text-gray-200 mr-2 text-xs"></i>
+                           {{ material.description || 'Global Part Specification' }}
+                        </td>
+                        <td class="py-2.5 text-right font-black text-blue-600 dark:text-blue-400 tabular-nums">
+                           {{ material.quantity }} <span class="text-[8px] uppercase tracking-widest ml-1 text-gray-400">{{ material.unit }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-
-                <!-- Warnings -->
-                <div v-if="warnings.length > 0" class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <h4 class="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-2">
-                    ⚠️ Warnings ({{ warnings.length }}) - Will import with defaults
-                  </h4>
-                  <div class="max-h-40 overflow-y-auto">
-                    <ul class="text-sm text-yellow-700 dark:text-yellow-400 space-y-1">
-                      <li v-for="(warning, index) in warnings" :key="index" class="flex">
-                        <span class="font-mono text-xs mr-2">Row {{ warning.row }}:</span>
-                        <span>{{ warning.message }}</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <!-- Preview Table -->
-                <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                  <div class="bg-gray-50 dark:bg-gray-900 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Preview Data</h4>
-                  </div>
-                  <div class="max-h-96 overflow-y-auto">
-                    <div v-for="(element, index) in elements" :key="index" class="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                      <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2">
-                        <div class="flex justify-between items-center">
-                          <div>
-                            <span class="font-mono text-xs text-gray-500 mr-2">{{ element.id }}</span>
-                            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ element.name }}</span>
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                              {{ element.type }}
-                            </span>
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded-full" :class="getCategoryClass(element.category)">
-                              {{ element.category }}
-                            </span>
-                          </div>
-                          <span class="text-xs text-gray-500">{{ element.particulars.length }} materials</span>
-                        </div>
-                      </div>
-                      <div class="px-4 py-2">
-                        <ul class="text-sm space-y-1">
-                          <li v-for="(material, mIndex) in element.particulars" :key="mIndex" class="flex justify-between text-gray-700 dark:text-gray-300">
-                            <span>• {{ material.description }}</span>
-                            <span class="text-gray-500">{{ material.quantity }} {{ material.unit }}</span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Change file option -->
-                <div class="mt-4 flex justify-center">
-                  <button
-                    @click="resetUpload"
-                    class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    ← Upload a different file
-                  </button>
-                </div>
-              </div>
-
-              <!-- Error Message -->
-              <div v-if="errorMessage" class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                <p class="text-sm text-red-700 dark:text-red-400">{{ errorMessage }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Footer buttons -->
-        <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button
-            v-if="previewData && hasNoErrors"
-            type="button"
-            @click="confirmImport"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-            :disabled="isImporting"
-          >
-            <svg v-if="isImporting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isImporting ? 'Importing...' : 'Confirm Import' }}
-          </button>
-          <button
-            type="button"
-            @click="closeModal"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            :disabled="isImporting"
-          >
-            {{ previewData ? 'Cancel' : 'Close' }}
-          </button>
-        </div>
+        <!-- System Message / Fault Indicator -->
+        <transition name="fade">
+          <div v-if="errorMessage" class="mt-8 bg-red-500 dark:bg-red-900/20 border border-red-500/20 p-6 rounded-3xl flex items-center space-x-4">
+             <div class="w-10 h-10 rounded-2xl bg-red-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-red-500/30">
+                <i class="mdi mdi-api text-2xl"></i>
+             </div>
+             <p class="text-sm font-bold text-red-900 dark:text-red-400 leading-tight">System Exception: <span class="opacity-70 font-medium">{{ errorMessage }}</span></p>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="px-8 py-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row-reverse gap-4 items-center">
+        <button
+          v-if="previewData && hasNoErrors"
+          type="button"
+          @click="confirmImport"
+          :disabled="isImporting"
+          class="w-full sm:w-auto px-10 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-sm font-black shadow-xl shadow-emerald-500/20 transition-all active:scale-95 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:scale-100 border border-emerald-400/30"
+        >
+          <div v-if="isImporting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <i v-else class="mdi mdi-check-all text-lg"></i>
+          <span>{{ isImporting ? 'EXECUTING PERSISTENCE...' : 'COMMIT TO PROJECT' }}</span>
+        </button>
+        
+        <button
+          @click="closeModal"
+          :disabled="isImporting"
+          class="w-full sm:w-auto px-8 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-full transition-all disabled:opacity-50"
+        >
+          {{ previewData ? 'Abort Operation' : 'Terminate' }}
+        </button>
       </div>
     </div>
   </div>
@@ -226,6 +259,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // State
+const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 const isDragging = ref(false)
 const isUploading = ref(false)

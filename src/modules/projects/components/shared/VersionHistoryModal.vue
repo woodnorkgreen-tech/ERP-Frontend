@@ -1,166 +1,116 @@
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-    @click.self="close"
-  >
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] flex flex-col"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          {{ title }} Version History
-        </h3>
+  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click.self="close"></div>
+
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Premium Header -->
+      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
+        <div class="flex items-center space-x-5">
+           <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
+            <i class="mdi mdi-history text-blue-600 text-2xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+              {{ title }} Snapshots
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium italic">Temporal record of engineering iterations</p>
+          </div>
+        </div>
         <button
           @click="close"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all duration-200"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-6">
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-gray-50/30 dark:bg-gray-900/40">
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex items-center justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-20">
+          <div class="relative w-12 h-12">
+            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p class="mt-4 text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Reconstructing History...</p>
         </div>
 
         <!-- Error State -->
-        <div
-          v-else-if="error"
-          class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-        >
-          <p class="text-red-800 dark:text-red-200">{{ error }}</p>
+        <div v-else-if="error" class="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl flex items-center space-x-4 animate-in slide-in-from-top-4">
+          <div class="p-2 bg-red-500 rounded-lg text-white shadow-lg shadow-red-500/20">
+            <i class="mdi mdi-alert-circle-outline text-xl"></i>
+          </div>
+          <div>
+             <h4 class="text-sm font-bold text-red-700 dark:text-red-400">Chronology Failure</h4>
+             <p class="text-xs text-red-600/80 dark:text-red-400/70 font-medium">{{ error }}</p>
+          </div>
         </div>
 
         <!-- Empty State -->
-        <div
-          v-else-if="versions.length === 0"
-          class="text-center py-12 text-gray-500 dark:text-gray-400"
-        >
-          <svg
-            class="w-16 h-16 mx-auto mb-4 opacity-50"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          <p class="text-lg font-medium">No versions created yet</p>
-          <p class="text-sm mt-1">Create your first version to track changes over time</p>
+        <div v-else-if="versions.length === 0" class="flex flex-col items-center justify-center py-24 opacity-40">
+          <i class="mdi mdi-file-restore-outline text-6xl text-gray-300"></i>
+          <p class="mt-4 text-sm font-bold uppercase tracking-widest">No archival snapshots found</p>
+          <p class="text-[10px] mt-1 font-bold">COMMIT YOUR FIRST REVISION TO START TRACKING</p>
         </div>
 
         <!-- Versions List -->
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-4">
           <div
             v-for="version in versions"
             :key="version.id"
-            class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+            class="group relative bg-white dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-500/30"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="flex items-center space-x-3 mb-2">
+                <div class="flex items-center space-x-4 mb-4">
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                    class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                   >
-                    v{{ version.version_number }}
+                    REL v{{ version.version_number }}
                   </span>
-                  <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+                  <h4 class="text-base font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {{ version.label }}
                   </h4>
                 </div>
 
-                <div class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                  <div class="flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    <i class="mdi mdi-account-star-outline mr-2 text-lg text-gray-400"></i>
                     <span>{{ version.created_by_name }}</span>
                   </div>
 
-                  <div class="flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                  <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    <i class="mdi mdi-clock-outline mr-2 text-lg text-gray-400"></i>
                     <span>{{ formatDate(version.created_at) }}</span>
                   </div>
 
-                  <!-- Material Version Reference (for budget versions only) -->
                   <div
                     v-if="version.materials_version_number"
-                    class="flex items-center space-x-2 text-purple-600 dark:text-purple-400"
+                    class="flex items-center text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                      />
-                    </svg>
-                    <span>Linked to Material v{{ version.materials_version_number }}</span>
+                    <i class="mdi mdi-link-variant mr-1 text-base"></i>
+                    <span>Linked Material v{{ version.materials_version_number }}</span>
                   </div>
                 </div>
               </div>
 
-              <div class="ml-4 flex space-x-2">
+              <div class="ml-6 flex items-center space-x-2">
                 <button
                   @click="previewVersion(version)"
-                  class="px-3 py-1 text-xs bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors flex items-center space-x-1"
+                  class="p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 rounded-xl transition-all duration-200 text-gray-500 dark:text-gray-400 shadow-sm"
+                  title="Preview Version"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  <span>View</span>
+                   <i class="mdi mdi-eye-outline text-xl"></i>
                 </button>
                 <button
                   @click="confirmRestore(version)"
-                  class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors flex items-center space-x-1"
+                  class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center space-x-2"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  <span>Restore</span>
+                   <i class="mdi mdi-backup-restore text-lg"></i>
+                   <span>Restore</span>
                 </button>
               </div>
             </div>
@@ -169,106 +119,92 @@
       </div>
 
       <!-- Footer -->
-      <div class="flex justify-end p-6 border-t border-gray-200 dark:border-gray-700">
+      <div class="px-8 py-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end">
         <button
           @click="close"
-          class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          class="px-8 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-full transition-all"
         >
-          Close
+          Dismiss Browser
         </button>
       </div>
-    </div>
 
-    <!-- Restore Confirmation Dialog -->
-    <div
-      v-if="restoreConfirmation.show"
-      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[60]"
-      @click.self="closeRestoreConfirmation"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6"
-      >
-        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Confirm Version Restore
-        </h4>
+      <!-- Restore Confirmation Overlay -->
+      <transition enter-active-class="duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="duration-150 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="restoreConfirmation.show" class="absolute inset-0 z-50 flex items-center justify-center p-8 bg-slate-900/40 backdrop-blur-md">
+           <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full border border-white/20 dark:border-gray-800 overflow-hidden animate-in zoom-in duration-200">
+              <div class="p-8">
+                 <div class="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-6 border border-amber-500/20">
+                    <i class="mdi mdi-alert text-3xl text-amber-500"></i>
+                 </div>
+                 <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">System Rollback</h3>
+                 <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-6">
+                    You are about to restore <span class="text-blue-600 font-black">v{{ restoreConfirmation.version?.version_number }}</span>. 
+                    Current unsaved iterations will be overwritten by this archived state.
+                 </p>
 
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Are you sure you want to restore to
-          <span class="font-semibold">v{{ restoreConfirmation.version?.version_number }} - {{
-            restoreConfirmation.version?.label
-          }}</span>?
-        </p>
+                 <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl space-y-3 mb-8">
+                    <div class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest"><i class="mdi mdi-check-circle-outline mr-2 text-emerald-500"></i> Status: Non-Destructive to history</div>
+                    <div class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest"><i class="mdi mdi-alert-circle-outline mr-2 text-amber-500"></i> Status: Overwrites active data</div>
+                 </div>
 
-        <div
-          class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg mb-4"
-        >
-          <div class="flex items-start space-x-2">
-            <svg
-              class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <div class="text-xs text-yellow-800 dark:text-yellow-200">
-              <p class="font-semibold mb-1">This will:</p>
-              <ul class="list-disc list-inside space-y-1">
-                <li>Replace current {{ type }} data with this version</li>
-                <li v-if="type === 'materials'">Reset all approvals to draft</li>
-                <li v-if="type === 'budget'">Reset budget status to draft</li>
-                <li>This action cannot be undone (but you can create a new version first)</li>
-              </ul>
-            </div>
-          </div>
+                 <div class="flex gap-3">
+                    <button
+                      @click="closeRestoreConfirmation"
+                      :disabled="isRestoring"
+                      class="flex-1 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                    >
+                      Abort
+                    </button>
+                    <button
+                      @click="handleRestore"
+                      :disabled="isRestoring"
+                      class="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center space-x-2"
+                    >
+                       <div v-if="isRestoring" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                       <span>{{ isRestoring ? 'RESTORE IN PROGRESS' : 'CONFIRM ROLLBACK' }}</span>
+                    </button>
+                 </div>
+              </div>
+           </div>
         </div>
-
-        <div class="flex justify-end space-x-3">
-          <button
-            @click="closeRestoreConfirmation"
-            :disabled="isRestoring"
-            class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            @click="handleRestore"
-            :disabled="isRestoring"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 text-white rounded-lg transition-colors flex items-center space-x-2"
-          >
-            <svg
-              v-if="isRestoring"
-              class="animate-spin h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <span>{{ isRestoring ? 'Restoring...' : 'Restore Version' }}</span>
-          </button>
-        </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+@keyframes animate-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+  animation: animate-in 0.2s ease-out forwards;
+}
+
+.zoom-in {
+  animation: zoom-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes zoom-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+</style>
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';

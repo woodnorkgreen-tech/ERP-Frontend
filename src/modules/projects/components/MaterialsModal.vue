@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[100] p-4 sm:p-6">
+  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[100] p-4 sm:p-6 font-poppins">
     <!-- Glass Backdrop -->
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
 
