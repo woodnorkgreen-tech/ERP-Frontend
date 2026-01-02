@@ -49,6 +49,9 @@ const PERMISSIONS = {
   FINANCE_BUDGET_READ: 'finance.budget.read',
   FINANCE_BUDGET_UPDATE: 'finance.budget.update',
 
+  // Materials Library
+  MATERIALS_VIEW: 'materials-library.view',
+
   // Future Finance Permissions (commented out - not yet implemented)
   // FINANCE_BUDGET_CREATE: 'finance.budget.create',
   // FINANCE_BUDGET_APPROVE: 'finance.budget.approve',
@@ -341,6 +344,12 @@ export function useRouteGuard() {
             { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: '📊' }
           ]
         },
+        {
+          department: 'Materials & Inventory',
+          routes: [
+            { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: '🧱' }
+          ]
+        },
       )
     }
     // Admin gets admin routes
@@ -379,6 +388,7 @@ export function useRouteGuard() {
       routes.push(
         { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: '📈' },
         { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: '📝' },
+        { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: '🧱' },
       )
     }
 

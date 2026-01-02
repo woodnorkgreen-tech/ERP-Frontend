@@ -9,6 +9,7 @@ import { projectsRoutes } from './projects'
 import { clientServiceRoutes } from './clientservice'
 
 import { financeRoutes } from './finance'
+import materialsLibraryRoutes from '@/modules/materials-library/routes'
 
 // Combine all routes
 const routes: RouteRecordRaw[] = [
@@ -19,6 +20,7 @@ const routes: RouteRecordRaw[] = [
   ...clientServiceRoutes,
 
   ...financeRoutes,
+  ...materialsLibraryRoutes,
 
   // Public Routes
   {
