@@ -1,84 +1,68 @@
 <template>
-  <transition name="slide-over">
-    <div v-if="show" class="fixed inset-0 overflow-hidden z-50">
-      <!-- Background overlay -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div
-          @click="$emit('close')"
-          class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
-        ></div>
+  <transition name="modal">
+    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
 
-        <!-- Slide-over panel -->
-        <div class="fixed inset-y-0 right-0 max-w-full flex">
-          <div class="w-screen max-w-6xl">
-            <div class="h-full flex flex-col bg-white dark:bg-gray-800 shadow-xl">
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl modal-panel relative z-50 sm:my-2 sm:align-middle sm:max-w-[98vw] sm:w-full" @click.stop>
+          <div class="flex flex-col h-[95vh]">
               <!-- Header -->
-              <div class="px-6 py-6 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
+              <div class="px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
-                    <div class="flex items-center space-x-3">
-                      <div class="flex-shrink-0">
-                        <div class="h-12 w-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-                          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <h2 class="text-2xl font-bold text-white">
-                          {{ enquiry?.title || 'Loading...' }}
-                        </h2>
-                        <p class="text-sm text-blue-100 mt-1">
-                          {{ enquiry?.enquiry_number || 'No number assigned' }}
-                        </p>
-                      </div>
+                    <div class="flex items-center gap-3 mb-1">
+                      <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                        {{ enquiry?.title || 'Loading...' }}
+                      </h2>
+                      <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                        {{ enquiry.job_number }}
+                      </span>
                     </div>
-
-                    <!-- Status and Priority badges -->
-                    <div v-if="enquiry" class="flex items-center space-x-2 mt-4">
-                      <span :class="getStatusColor(enquiry.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
+                    
+                    <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
+                      <span class="text-gray-500 dark:text-gray-400 font-mono text-xs">{{ enquiry.enquiry_number }}</span>
+                      
+                      <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded-full text-xs font-medium border border-opacity-10 bg-opacity-10">
                         {{ getStatusLabel(enquiry.status) }}
                       </span>
-                      <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-3 py-1 rounded-full text-xs font-semibold">
+
+                      <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded-full text-xs font-medium border border-opacity-10 bg-opacity-10">
                         {{ enquiry.priority?.toUpperCase() }}
-                      </span>
-                      <span v-if="enquiry.job_number" class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        {{ enquiry.job_number }}
                       </span>
                     </div>
                   </div>
 
-                  <!-- Close button -->
-                  <button
-                    @click="$emit('close')"
-                    class="ml-3 text-white hover:text-gray-200 p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors"
-                  >
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+                  <!-- Actions & Close -->
+                  <div class="flex items-center gap-2 ml-4">
+                     <!-- Action Toolbar -->
+                     <!-- Action Toolbar -->
+                     <div v-if="enquiry" class="flex items-center gap-2 mr-2">
+                        <button 
+                          @click="exportToPDF"
+                          :disabled="isGeneratingPDF"
+                          class="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-full shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                          title="Download Project Data Sheet PDF"
+                        >
+                           <svg v-if="!isGeneratingPDF" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                           <svg v-else class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                           <span>{{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}</span>
+                        </button>
+                     </div>
+                     
+                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
 
-                <!-- Quick action buttons -->
-                <div v-if="enquiry" class="flex flex-wrap gap-2 mt-4">
-                  <button class="px-3 py-1.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span>Email Client</span>
-                  </button>
-                  <button class="px-3 py-1.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span>Call Client</span>
-                  </button>
-                  <button v-if="hasPrivilegedAccess" @click="$emit('edit', enquiry)" class="px-3 py-1.5 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span>Edit</span>
-                  </button>
+                    <button
+                      @click="$emit('close')"
+                      class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -86,215 +70,190 @@
               <div v-if="enquiry" class="flex-1 overflow-y-auto">
                 <div class="px-6 py-6 space-y-6">
 
-                  <!-- Client Information Card -->
-                  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
-                      <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0 zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Client Information
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client Name</p>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                          {{ enquiry.client?.full_name || enquiry.client?.FullName || 'Unknown Client' }}
-                        </p>
+                  <!-- Executive Metrics -->
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                      <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-1">Project Status</p>
+                      <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                        <span class="w-2h-2 rounded-full mr-2" :class="getStatusColor(enquiry.status).split(' ')[0]"></span>
+                        {{ getStatusLabel(enquiry.status || '') }}
+                      </h3>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                      <div class="flex justify-between items-end mb-1">
+                        <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Overall Progress</p>
+                        <span class="text-xs font-bold text-blue-700 dark:text-blue-300">{{ projectProgress }}%</span>
                       </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contact Person</p>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">{{ enquiry.contact_person || 'N/A' }}</p>
+                      <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000" :style="{ width: `${projectProgress}%` }"></div>
                       </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Phone</p>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                          {{ enquiry.client?.PhoneNo || enquiry.client?.phone || 'N/A' }}
-                        </p>
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</p>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                          {{ enquiry.client?.Email || enquiry.client?.email || 'N/A' }}
-                        </p>
+                      <p class="text-xs text-blue-500 mt-2">{{ tasksMetrics.completed }} of {{ tasksMetrics.total }} tasks completed</p>
+                    </div>
+                    <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-100 dark:border-orange-800">
+                      <p class="text-xs text-orange-600 dark:text-orange-400 font-bold uppercase tracking-wider mb-1">Priority</p>
+                      <div class="flex items-center">
+                         <h3 class="text-lg font-bold text-gray-900 dark:text-white uppercase">{{ enquiry.priority || 'Normal' }}</h3>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Project Request Details Card -->
-                  <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
-                      <svg class="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      Project Request Details
-                    </h3>
-                    <div class="space-y-4">
-                      <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Description</p>
-                        <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.description || 'No description provided' }}</p>
-                      </div>
-                      <div v-if="projectDeliverables && projectDeliverables.length > 0">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Project Deliverables</p>
-                        <ul class="space-y-2">
-                          <li 
-                            v-for="(deliverable, index) in projectDeliverables" 
-                            :key="index"
-                            class="text-sm text-gray-900 dark:text-white flex items-start"
-                          >
-                            <svg class="w-4 h-4 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <span>{{ deliverable }}</span>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- Fallback for old string format data -->
-                      <div v-else-if="enquiry.project_scope && typeof enquiry.project_scope === 'string'">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Deliverables</p>
-                        <p class="text-sm text-gray-900 dark:text-white mt-1">{{ enquiry.project_scope }}</p>
-                      </div>
-                      <div class="grid grid-cols-3 gap-4">
-                        <div>
-                          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date Received</p>
-                          <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                            {{ formatDate(enquiry.date_received || enquiry.created_at) }}
-                          </p>
+                  <!-- Timeline Dashboard -->
+                  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                     <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Project Schedule</h3>
+                     <div class="flex flex-col md:flex-row justify-between text-sm">
+                        <div class="mb-4 md:mb-0">
+                          <p class="text-xs text-gray-500">Received</p>
+                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate(enquiry.date_received || enquiry.created_at || null) }}</p>
                         </div>
-                        <div>
-                          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Expected Delivery</p>
-                          <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                            {{ enquiry.expected_delivery_date ? formatDate(enquiry.expected_delivery_date) : 'Not set' }}
-                          </p>
+                        <div class="mb-4 md:mb-0">
+                          <p class="text-xs text-gray-500">Expected Delivery</p>
+                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate(enquiry.expected_delivery_date || null) }}</p>
                         </div>
-                        <div>
-                          <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Officer</p>
-                          <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                            {{ enquiry.project_officer?.name || 'Not assigned' }}
-                          </p>
+                        <div v-if="(enquiry as any).event_date" class="mb-4 md:mb-0">
+                          <p class="text-xs text-gray-500">Event Date</p>
+                          <p class="font-semibold text-gray-900 dark:text-white">{{ formatDate((enquiry as any).event_date) }}</p>
                         </div>
-                      </div>
-                      <div v-if="enquiry.venue">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Venue</p>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white mt-1">{{ enquiry.venue }}</p>
-                      </div>
-                    </div>
+                         <!-- Days Remaining -->
+                        <div class="pl-4 border-l-4 border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-900/20 p-2 pr-4 rounded-r">
+                           <p class="text-xs text-green-700 dark:text-green-300 font-bold uppercase">Time Remaining</p>
+                           <p class="font-bold text-green-800 dark:text-green-200" v-html="calculateDaysRemaining(enquiry.expected_delivery_date || null)"></p>
+                        </div>
+                     </div>
                   </div>
 
-
-
-                  <!-- Related Tasks Timeline -->
-                  <div v-if="taskList.length > 0" class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
-                      <svg class="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                      </svg>
-                      Associated Tasks ({{ taskList.length }})
-                    </h3>
-
-                    <!-- Task Metrics Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <!-- Total -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Total</p>
-                        <p class="text-xl font-bold text-gray-900 dark:text-white">{{ tasksMetrics.total }}</p>
-                      </div>
-                      
-                      <!-- Completion -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Done</p>
-                        <div class="flex items-baseline space-x-1">
-                           <p class="text-xl font-bold text-green-600 dark:text-green-400">{{ tasksMetrics.completionRate }}%</p>
-                        </div>
-                      </div>
-
-                      <!-- Overdue -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Overdue</p>
-                        <p class="text-xl font-bold text-red-600 dark:text-red-400">{{ tasksMetrics.overdue }}</p>
-                      </div>
-
-                      <!-- In Progress -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Active</p>
-                        <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ tasksMetrics.inProgress }}</p>
-                      </div>
-                       
-                       <!-- Pending -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Pending</p>
-                        <p class="text-xl font-bold text-yellow-600 dark:text-yellow-400">{{ tasksMetrics.pending }}</p>
-                      </div>
-
-                       <!-- Unassigned -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Unassigned</p>
-                        <p class="text-xl font-bold text-purple-600 dark:text-purple-400">{{ tasksMetrics.unassigned }}</p>
-                      </div>
-
-                       <!-- High Priority -->
-                      <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-100 dark:border-gray-600">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Critical</p>
-                        <p class="text-xl font-bold text-orange-600 dark:text-orange-400">{{ tasksMetrics.highPriority }}</p>
-                      </div>
-                    </div>
-                    <div class="space-y-3">
-                      <div v-for="task in taskList" :key="task.id" class="flex items-center justify-between p-3 bg-gray-5 dark:bg-gray-700 rounded-lg">
-                        <div class="flex items-center space-x-3">
-                          <div :class="getTaskStatusColor(task.status)" class="w-3 h-3 rounded-full"></div>
-                          <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ task.type }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Assigned to: {{ task.assigned_user?.name || 'Unassigned' }}</p>
+                  <!-- Client & Project Details Grid -->
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Client Info -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Client Details</h3>
+                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                       </div>
+                       <div class="p-4 space-y-3">
+                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Client Name</span>
+                             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ (enquiry.client as any)?.full_name || (enquiry.client as any)?.name || 'Unknown' }}</span>
                           </div>
-                        </div>
-                        <span :class="getTaskStatusBadgeColor(task.status)" class="px-2 py-1 rounded text-xs font-semibold">
-                          {{ task.status }}
-                        </span>
-                      </div>
+                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Contact Person</span>
+                             <span class="text-sm text-gray-900 dark:text-white">{{ enquiry.contact_person || 'N/A' }}</span>
+                          </div>
+                           <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Phone</span>
+                             <span class="text-sm text-gray-900 dark:text-white">{{ (enquiry.client as any)?.phone || (enquiry.client as any)?.PhoneNo || 'N/A' }}</span>
+                          </div>
+                          <div class="flex justify-between">
+                             <span class="text-xs text-gray-500 uppercase">Email</span>
+                             <span class="text-sm text-gray-900 dark:text-white">{{ (enquiry.client as any)?.email || (enquiry.client as any)?.Email || 'N/A' }}</span>
+                          </div>
+                       </div>
                     </div>
-                    <router-link
-                      :to="`/projects/tasks?enquiry_id=${enquiry.id}`"
-                      class="block mt-4 text-center px-4 py-2 border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 dark:text-blue-400 rounded-lg font-medium transition-colors"
-                    >
-                      View All Tasks →
-                    </router-link>
+
+                    <!-- Project Info -->
+                     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Project Particulars</h3>
+                          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                       </div>
+                       <div class="p-4 space-y-3">
+                          <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Title</span>
+                             <span class="text-sm font-semibold text-gray-900 dark:text-white text-right">{{ enquiry.title }}</span>
+                          </div>
+                          <div v-if="enquiry.job_number" class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Job Number</span>
+                             <span class="text-sm font-mono font-bold text-blue-600">{{ enquiry.job_number }}</span>
+                          </div>
+                           <div class="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-2">
+                             <span class="text-xs text-gray-500 uppercase">Venue</span>
+                             <span class="text-sm text-gray-900 dark:text-white">{{ enquiry.venue || 'N/A' }}</span>
+                          </div>
+                          <div class="flex justify-between">
+                             <span class="text-xs text-gray-500 uppercase">Project Officer</span>
+                             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ enquiry.project_officer?.name || 'Unassigned' }}</span>
+                          </div>
+                       </div>
+                    </div>
                   </div>
 
-                  <!-- Activity History -->
-                  <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-600">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4 flex items-center">
-                      <svg class="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Activity History
-                    </h3>
-                    <div class="space-y-3">
-                      <div class="flex items-start space-x-3">
-                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-blue-500"></div>
-                        <div>
-                          <p class="text-sm text-gray-900 dark:text-white">Enquiry created</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(enquiry.created_at) }}</p>
-                        </div>
-                      </div>
-                      <div v-if="enquiry.updated_at !== enquiry.created_at" class="flex items-start space-x-3">
-                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-green-500"></div>
-                        <div>
-                          <p class="text-sm text-gray-900 dark:text-white">Last updated</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(enquiry.updated_at) }}</p>
-                        </div>
-                      </div>
-                      <div v-if="enquiry.follow_up_notes" class="flex items-start space-x-3">
-                        <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-yellow-500"></div>
-                        <div>
-                          <p class="text-sm text-gray-900 dark:text-white">Follow-up notes</p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">{{ enquiry.follow_up_notes }}</p>
-                        </div>
-                      </div>
+                  <!-- Description & Scope -->
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                       <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Description of works</h3>
+                       <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-700/30 p-3 rounded border border-gray-100 dark:border-gray-700">
+                         {{ enquiry.description || 'No description provided.' }}
+                       </p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                       <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Deliverables</h3>
+                        <ul class="space-y-2 max-h-40 overflow-y-auto">
+                          <li v-for="(item, i) in projectDeliverables" :key="i" class="text-sm flex items-start">
+                             <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                             <span class="text-gray-700 dark:text-gray-300">{{ item }}</span>
+                          </li>
+                          <li v-if="projectDeliverables.length === 0" class="text-sm text-gray-400 italic">As per description</li>
+                       </ul>
                     </div>
                   </div>
+
+                  <!-- Tasks Table -->
+                   <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                       <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                          <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Operational Tasks ({{ taskList.length }})</h3>
+                          <router-link :to="`/projects/tasks?enquiry_id=${enquiry.id}`" class="text-xs font-semibold text-blue-600 hover:text-blue-800">View Board &rarr;</router-link>
+                       </div>
+                       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                          <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due</th>
+                            </tr>
+                          </thead>
+                          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr v-for="task in taskList" :key="task.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                              <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                {{ task.title || task.type }}
+                                <div class="text-xs text-gray-500 font-normal">{{ task.type }}</div>
+                              </td>
+                              <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize" :class="getTaskStatusBadgeColor(task.status)">
+                                  {{ task.status.replace('_', ' ') }}
+                                </span>
+                              </td>
+                              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ (task as any).assigned_user?.name || (task as any).assignedUser?.name || 'Unassigned' }}
+                              </td>
+                              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ formatDate(task.due_date || null) }}
+                              </td>
+                            </tr>
+                             <tr v-if="taskList.length === 0">
+                                <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500 italic">No tasks created yet.</td>
+                             </tr>
+                          </tbody>
+                       </table>
+                   </div>
+
+                   <!-- Financials & Notes -->
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                         <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2">Financial Summary</h3>
+                         <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/30 rounded border bottom-gray-100 dark:border-gray-600">
+                            <span class="text-sm text-gray-500 font-medium uppercase">Estimated Budget</span>
+                            <span class="text-lg font-bold text-gray-900 dark:text-white">KES {{ enquiry.estimated_budget?.toLocaleString() || '0' }}</span>
+                         </div>
+                      </div>
+                       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 relative overflow-hidden">
+                          <div class="absolute top-0 right-0 w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-bl-full -mr-8 -mt-8 z-0"></div>
+                         <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider mb-2 z-10 relative">Important Notes</h3>
+                         <p class="text-sm text-gray-600 dark:text-gray-300 z-10 relative">{{ enquiry.follow_up_notes || 'No notes available.' }}</p>
+                      </div>
+                   </div>
 
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -306,6 +265,7 @@
 import { computed } from 'vue'
 import type { ProjectEnquiry, EnquiryTask } from '../types/enquiry'
 import { useAuth } from '@/composables/useAuth'
+import { useProjectPDF } from '../composables/useProjectPDF'
 
 const props = defineProps<{
   show: boolean
@@ -313,6 +273,7 @@ const props = defineProps<{
 }>()
 
 const { user } = useAuth()
+const { isGenerating: isGeneratingPDF, generateProjectPDF } = useProjectPDF()
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer'].includes(role))
@@ -323,6 +284,18 @@ const emit = defineEmits<{
   edit: [enquiry: ProjectEnquiry]
 
 }>()
+
+// Export to PDF function
+const exportToPDF = async () => {
+  if (!props.enquiry) return
+  
+  const result = await generateProjectPDF(props.enquiry)
+  
+  if (!result.success) {
+    console.error('Failed to generate PDF')
+    // You could add a toast notification here
+  }
+}
 
 // Computed properties
 const hasSurveyTask = computed(() => {
@@ -392,6 +365,25 @@ const tasksMetrics = computed(() => {
     highPriority,
     unassigned
   }
+})
+
+const projectProgress = computed(() => {
+  const status = props.enquiry?.status
+  if (!status) return 0
+  if (status === 'completed') return 100
+  if (status === 'cancelled') return 0
+  
+  const weights: Record<string, number> = {
+    'client_registered': 5,
+    'enquiry_logged': 10,
+    'site_survey_completed': 25,
+    'design_completed': 40,
+    'quote_prepared': 50,
+    'quote_approved': 60, // Key Milestone: Deposit Paid / Approved
+    'in_progress': 75     // Production / Execution Phase
+  }
+  
+  return weights[status] || 0
 })
 
 
@@ -474,25 +466,38 @@ const formatDateTime = (date: string | null) => {
     minute: '2-digit'
   })
 }
+
+const calculateDaysRemaining = (dateStr: string | null | undefined) => {
+  if (!dateStr) return '-'
+  const target = new Date(dateStr)
+  const now = new Date()
+  const diff = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  
+  if (isNaN(diff)) return '-'
+  if (diff < 0) return `${Math.abs(diff)} days overdue`
+  return `${diff} days left`
+}
 </script>
 
 <style scoped>
-.slide-over-enter-active,
-.slide-over-leave-active {
-  transition: all 0.3s ease;
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.slide-over-enter-from,
-.slide-over-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
 }
 
-.slide-over-enter-from .fixed.inset-y-0,
-.slide-over-leave-to .fixed.inset-y-0 {
-  transform: translateX(100%);
+.modal-enter-active .modal-panel,
+.modal-leave-active .modal-panel {
+  transition: all 0.3s ease;
 }
 
-.fixed.inset-y-0 {
-  transition: transform 0.3s ease;
+.modal-enter-from .modal-panel,
+.modal-leave-to .modal-panel {
+  opacity: 0;
+  transform: translateY(4px) scale(0.95);
 }
 </style>

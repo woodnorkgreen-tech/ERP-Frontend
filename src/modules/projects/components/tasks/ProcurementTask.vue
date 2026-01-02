@@ -147,6 +147,7 @@
                       <td class="px-4 py-3 text-sm">
                         <select
                           v-model="material.stockStatus"
+                          :disabled="!isStoresUser"
                           @change="updateStockStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
                           :class="[
                             'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
@@ -169,7 +170,7 @@
                           @input="updateStockQuantity(material.budgetItemId, ($event.target as HTMLInputElement).value)"
                           min="0"
                           :max="material.quantity"
-                          :disabled="material.stockStatus === 'out_of_stock' || material.stockStatus === 'pending_check'"
+                          :disabled="!isStoresUser || material.stockStatus === 'out_of_stock' || material.stockStatus === 'pending_check'"
                           class="w-20 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                         />
                       </td>
@@ -189,7 +190,7 @@
                         <select
                           v-model="material.procurementStatus"
                           @change="updateProcurementStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
-                          :disabled="material.purchaseQuantity === 0 && material.procurementStatus === 'not_needed'"
+                          :disabled="!isProcurementUser || (material.purchaseQuantity === 0 && material.procurementStatus === 'not_needed')"
                           :class="[
                             'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
                             'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
@@ -207,6 +208,7 @@
                       <td class="px-4 py-3 text-sm">
                         <input
                           v-model="material.vendorName"
+                          :disabled="!isProcurementUser"
                           @input="updateVendorName(material.budgetItemId, ($event.target as HTMLInputElement).value)"
                           type="text"
                           placeholder="Vendor name"
@@ -300,6 +302,22 @@
           >
             Complete Task
           </button>
+
+          <button
+            v-if="isStoresUser && task.status !== 'completed'"
+            @click="openHandoverModal('procurement')"
+            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Handover to Procurement
+          </button>
+
+          <button
+            v-if="isProcurementUser && task.status !== 'completed'"
+            @click="openHandoverModal('stores')"
+            class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+          >
+            Handover to Stores
+          </button>
         </div>
 
         <!-- Save Button -->
@@ -334,6 +352,46 @@
         </div>
       </div>
     </div>
+
+    <!-- Handover Modal -->
+    <div v-if="showHandoverModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Handover to {{ handoverTarget === 'procurement' ? 'Procurement' : 'Stores' }}</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Select a {{ handoverTarget === 'procurement' ? 'procurement officer' : 'stores user' }} to assign this task to.
+        </p>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assign To</label>
+          <select
+            v-model="selectedHandoverUser"
+            class="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
+          >
+            <option :value="null">Select user...</option>
+            <option v-for="user in handoverList" :key="user.id" :value="user.id">
+              {{ user.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <button
+            @click="showHandoverModal = false"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmHandover"
+            :disabled="!selectedHandoverUser || isHandoverSubmitting"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg flex items-center space-x-2"
+          >
+            <span v-if="isHandoverSubmitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+            <span>Confirm Handover</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -345,6 +403,9 @@ import { useProcurementData } from '@/composables/useProcurementData'
 import { useProcurementSave } from '@/composables/useProcurementSave'
 import { useAutoSave } from '@/composables/useAutoSave'
 import { CSVExporter } from '@/utils/csvExport'
+import { useAuth } from '@/composables/useAuth'
+import { useUsers } from '@/modules/admin/userManagement/composables/useUsers'
+import api from '@/plugins/axios'
 
 interface Props {
   task: EnquiryTask
@@ -357,6 +418,84 @@ const emit = defineEmits<{
   'save-procurement': [data: ProcurementTaskData]
   'complete': []
 }>()
+
+// Permissions and Role Management
+const { user: authUser } = useAuth()
+const { users: allUsers, fetchUsers } = useUsers()
+
+const hasAuthRole = (role: string) => {
+  return authUser.value?.roles?.some(r => r.toLowerCase() === role.toLowerCase()) || false
+}
+
+const isStoresUser = computed(() => hasAuthRole('super admin') || hasAuthRole('stores') || hasAuthRole('store_keeper') || hasAuthRole('admin') || hasAuthRole('manager'))
+const isProcurementUser = computed(() => hasAuthRole('super admin') || hasAuthRole('procurement') || hasAuthRole('procurement_officer') || hasAuthRole('admin') || hasAuthRole('manager'))
+
+// Handover Logic
+const showHandoverModal = ref(false)
+const selectedHandoverUser = ref<number | null>(null)
+const isHandoverSubmitting = ref(false)
+const handoverTarget = ref<'procurement' | 'stores'>('procurement')
+
+const procurementUsers = computed(() => {
+  return allUsers.value.filter(u => 
+    u.roles.some(r => r.name.toLowerCase().includes('procurement')) ||
+    u.department?.name.toLowerCase().includes('procurement')
+  )
+})
+
+const storesUsers = computed(() => {
+  return allUsers.value.filter(u => 
+    u.roles.some(r => ['stores', 'store_keeper'].includes(r.name.toLowerCase())) ||
+    u.department?.name.toLowerCase().includes('stores')
+  )
+})
+
+const handoverList = computed(() => handoverTarget.value === 'procurement' ? procurementUsers.value : storesUsers.value)
+
+const openHandoverModal = async (target: 'procurement' | 'stores') => {
+  handoverTarget.value = target
+  showHandoverModal.value = true
+  if (allUsers.value.length === 0) {
+    await fetchUsers()
+  }
+}
+
+const confirmHandover = async () => {
+  if (!selectedHandoverUser.value) return
+  isHandoverSubmitting.value = true
+  try {
+    // Check if task is already assigned to determine endpoint
+    // Note: TypeScript might not know about assigned_to, but it exists in backend model
+    const isReassign = !!(props.task as any).assigned_to
+
+    if (isReassign) {
+      // Use reassign endpoint (PUT) which records history
+      await api.put(`/api/projects/enquiry-tasks/${props.task.id}/reassign`, {
+        new_assigned_user_id: selectedHandoverUser.value,
+        reason: handoverTarget.value === 'procurement' ? 'Handover from Stores to Procurement' : 'Handover from Procurement to Stores'
+      })
+    } else {
+      // Use assign endpoint (POST) which also records history
+      await api.post(`/api/projects/enquiry-tasks/${props.task.id}/assign`, {
+        assigned_user_id: selectedHandoverUser.value,
+        notes: handoverTarget.value === 'procurement' ? 'Handover from Stores to Procurement' : 'Handover from Procurement to Stores'
+      })
+    }
+
+    // Ensure status is updated to in_progress if not already
+    if (props.task.status !== 'in_progress') {
+      emit('update-status', 'in_progress')
+    }
+
+    showHandoverModal.value = false
+    alert('Task successfully handed over to procurement.')
+  } catch (e) {
+    console.error('Handover failed:', e)
+    alert('Failed to handover task. Please try again.')
+  } finally {
+    isHandoverSubmitting.value = false
+  }
+}
 
 // Tab management
 const activeTab = ref('items')

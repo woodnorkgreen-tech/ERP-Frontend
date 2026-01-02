@@ -167,6 +167,9 @@
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Enquiry/Job Number
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Enquiry
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -182,9 +185,6 @@
                 Status
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Enquiry/Job Number
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 My Tasks
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -195,6 +195,14 @@
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
            <template v-for="enquiry in filteredEnquiries" :key="enquiry.id">
              <tr>
+               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                 <div v-if="enquiry.job_number" class="font-bold text-base text-blue-700 dark:text-blue-300">
+                   {{ enquiry.job_number }}
+                 </div>
+                 <div v-else class="font-bold text-blue-600 dark:text-blue-400">
+                   {{ enquiry.enquiry_number }}
+                 </div>
+               </td>
                <td class="px-6 py-4 whitespace-nowrap">
                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ enquiry.title }}</div>
                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ (enquiry.description || '').substring(0, 50) }}{{ (enquiry.description || '').length > 50 ? '...' : '' }}</div>
@@ -236,14 +244,7 @@
                     {{ getStatusLabel(enquiry.status) }}
                   </span>
                 </td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                 <div v-if="enquiry.job_number" class="font-semibold text-blue-600 dark:text-blue-400">
-                   {{ enquiry.job_number }}
-                 </div>
-                 <div v-else class="text-gray-500">
-                   {{ enquiry.enquiry_number }}
-                 </div>
-               </td>
+
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
                    {{ getUserTaskCount(enquiry) }}

@@ -7,6 +7,8 @@
       :title="sidebarTitle"
       :subtitle="sidebarSubtitle"
       @update:collapsed="handleSidebarToggle"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
       class="flex-shrink-0 z-30 shadow-xl"
     />
 
@@ -187,11 +189,31 @@ const { theme, toggleTheme } = useTheme()
 const router = useRouter()
 const route = useRoute()
 
-const sidebarCollapsed = ref(false)
+const sidebarCollapsed = ref(true)
 const notificationCenter = ref()
 const notificationPopup = ref()
 const profileMenuOpen = ref(false)
 const profileMenuRef = ref<HTMLElement | null>(null)
+
+// Check if device supports hover (desktop) vs touch
+const canHover = () => {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(hover: hover)').matches
+}
+
+const handleMouseEnter = () => {
+  if (canHover()) {
+    sidebarCollapsed.value = false
+  }
+}
+
+const handleMouseLeave = () => {
+  if (canHover()) {
+    sidebarCollapsed.value = true
+  }
+}
+
+
 
 const toggleProfileMenu = (event: Event) => {
   event.stopPropagation()

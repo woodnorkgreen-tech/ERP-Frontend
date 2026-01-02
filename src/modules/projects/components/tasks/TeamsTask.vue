@@ -640,7 +640,23 @@ const teamTabs = [
  * Project info extraction logic from task.enquiry data
  * Handles graceful fallback for missing project information with error tracking
  */
-const extractProjectInfo = (): ProjectInfo => {
+/**
+ * Project information state
+ */
+const projectInfo = ref<ProjectInfo>({
+  projectId: 'N/A',
+  enquiryTitle: 'Untitled Project',
+  clientName: 'N/A',
+  eventVenue: 'TBC',
+  setupDate: 'TBC',
+  setDownDate: 'TBC',
+  contactPerson: 'N/A'
+})
+
+/**
+ * Update project info from task.enquiry data
+ */
+const updateProjectInfo = () => {
   try {
     projectInfoState.value.isLoading = true
     projectInfoState.value.hasErrors = false
@@ -650,70 +666,58 @@ const extractProjectInfo = (): ProjectInfo => {
     if (!enquiry) {
       projectInfoState.value.hasErrors = true
       projectInfoState.value.errorMessage = 'No project data available'
-      addFeedbackMessage('warning', 'Project information is not available. Some features may be limited.')
+      if (!feedbackMessages.value.find(m => m.message.includes('not available'))) {
+        addFeedbackMessage('warning', 'Project information is not available. Some features may be limited.')
+      }
+      return
     }
 
-    const projectInfo: ProjectInfo = {
-      projectId: enquiry?.enquiry_number || 'N/A',
-      enquiryTitle: enquiry?.title || 'Untitled Project',
-      clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
-      eventVenue: enquiry?.venue || 'TBC',
-      setupDate: enquiry?.expected_delivery_date || 'TBC',
-      setDownDate: 'TBC', // This would come from project data when available
-      estimatedBudget: enquiry?.estimated_budget,
-      contactPerson: enquiry?.contact_person || 'N/A'
+    projectInfo.value = {
+      projectId: enquiry.enquiry_number || 'N/A',
+      enquiryTitle: enquiry.title || 'Untitled Project',
+      clientName: enquiry.client?.full_name || enquiry.contact_person || 'N/A',
+      eventVenue: enquiry.venue || 'TBC',
+      setupDate: enquiry.expected_delivery_date || 'TBC',
+      setDownDate: 'TBC',
+      estimatedBudget: enquiry.estimated_budget,
+      contactPerson: enquiry.contact_person || 'N/A'
     }
 
     // Check for critical missing information
     const missingFields = []
-    if (projectInfo.projectId === 'N/A') missingFields.push('Project ID')
-    if (projectInfo.enquiryTitle === 'Untitled Project') missingFields.push('Project Title')
-    if (projectInfo.clientName === 'N/A') missingFields.push('Client Name')
+    if (projectInfo.value.projectId === 'N/A') missingFields.push('Project ID')
+    if (projectInfo.value.enquiryTitle === 'Untitled Project') missingFields.push('Project Title')
+    if (projectInfo.value.clientName === 'N/A') missingFields.push('Client Name')
 
     if (missingFields.length > 0) {
       projectInfoState.value.hasErrors = true
       projectInfoState.value.errorMessage = `Missing project information: ${missingFields.join(', ')}`
-      addFeedbackMessage('warning', `Some project information is missing: ${missingFields.join(', ')}`)
+      // Avoid spamming duplicate messages
+      if (!feedbackMessages.value.some(m => m.message.includes('missing'))) {
+        addFeedbackMessage('warning', `Some project information is missing: ${missingFields.join(', ')}`)
+      }
     }
 
-    return projectInfo
   } catch (error) {
     projectInfoState.value.hasErrors = true
     projectInfoState.value.errorMessage = 'Failed to load project information'
-    addFeedbackMessage('error', 'Failed to load project information. Please refresh the page.')
-
-    // Return safe defaults
-    return {
-      projectId: 'ERROR',
-      enquiryTitle: 'Error Loading Project',
-      clientName: 'N/A',
-      eventVenue: 'TBC',
-      setupDate: 'TBC',
-      setDownDate: 'TBC',
-      contactPerson: 'N/A'
-    }
+    console.error('Error updating project info:', error)
   } finally {
     projectInfoState.value.isLoading = false
   }
 }
 
 /**
- * Main teams data structure
- */
-const projectInfo = computed(() => extractProjectInfo())
-
-/**
  * Initialize data on component mount
  */
 onMounted(async () => {
   try {
-    // Load team categories and existing teams data
+    // Load team categories
     await teams.fetchTeamCategories()
-    await teams.fetchTeamsForTask(props.task.id)
-    addFeedbackMessage('success', 'Teams data loaded successfully')
+    // Teams data is loaded by the immediate watcher on props.task
   } catch (error) {
-    console.error('Error loading teams data:', error)
-    addFeedbackMessage('error', 'Failed to load teams data. Please refresh the page.')
+    console.error('Error loading teams categories:', error)
+    addFeedbackMessage('error', 'Failed to load team categories. Please refresh the page.')
   }
 })
 
@@ -744,40 +748,28 @@ const getActiveTabLabel = (): string => {
 /**
  * Hardcoded team types for each category
  */
+/**
+ * Common team types definition
+ */
+const COMMON_TEAM_TYPES = [
+  { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
+  { id: 2, team_type_id: 2, display_name: 'Technicians' },
+  { id: 3, team_type_id: 3, display_name: 'Painters' },
+  { id: 4, team_type_id: 4, display_name: 'Welders' },
+  { id: 5, team_type_id: 5, display_name: 'Electricians' },
+  { id: 6, team_type_id: 6, display_name: 'ICT' },
+  { id: 7, team_type_id: 7, display_name: 'Loading' },
+  { id: 8, team_type_id: 8, display_name: 'Offloading' },
+  { id: 9, team_type_id: 9, display_name: 'Carpenters' }
+]
+
+/**
+ * Team types for each category
+ */
 const hardcodedTeamTypes = {
-  workshop: [
-    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
-    { id: 2, team_type_id: 2, display_name: 'Technicians' },
-    { id: 3, team_type_id: 3, display_name: 'Painters' },
-    { id: 4, team_type_id: 4, display_name: 'Welders' },
-    { id: 5, team_type_id: 5, display_name: 'Electricians' },
-    { id: 6, team_type_id: 6, display_name: 'ICT' },
-    { id: 7, team_type_id: 7, display_name: 'Loading' },
-    { id: 8, team_type_id: 8, display_name: 'Offloading' },
-    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
-  ],
-  setup: [
-    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
-    { id: 2, team_type_id: 2, display_name: 'Technicians' },
-    { id: 3, team_type_id: 3, display_name: 'Painters' },
-    { id: 4, team_type_id: 4, display_name: 'Welders' },
-    { id: 5, team_type_id: 5, display_name: 'Electricians' },
-    { id: 6, team_type_id: 6, display_name: 'ICT' },
-    { id: 7, team_type_id: 7, display_name: 'Loading' },
-    { id: 8, team_type_id: 8, display_name: 'Offloading' },
-    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
-  ],
-  setdown: [
-    { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
-    { id: 2, team_type_id: 2, display_name: 'Technicians' },
-    { id: 3, team_type_id: 3, display_name: 'Painters' },
-    { id: 4, team_type_id: 4, display_name: 'Welders' },
-    { id: 5, team_type_id: 5, display_name: 'Electricians' },
-    { id: 6, team_type_id: 6, display_name: 'ICT' },
-    { id: 7, team_type_id: 7, display_name: 'Loading' },
-    { id: 8, team_type_id: 8, display_name: 'Offloading' },
-    { id: 9, team_type_id: 9, display_name: 'Carpenters' }
-  ]
+  workshop: COMMON_TEAM_TYPES,
+  setup: COMMON_TEAM_TYPES,
+  setdown: COMMON_TEAM_TYPES
 }
 
 /**
@@ -1098,20 +1090,9 @@ const getTeamTypeDisplayName = (team: any): string => {
     return team.team_type.display_name
   }
 
-  // Fallback to hardcoded names based on team_type_id
-  const hardcodedNames: Record<number, string> = {
-    1: 'Pasting Team',
-    2: 'Technicians',
-    3: 'Painters',
-    4: 'Welders',
-    5: 'Electricians',
-    6: 'ICT',
-    7: 'Loading',
-    8: 'Offloading',
-    9: 'Carpenters'
-  }
-
-  return hardcodedNames[team.team_type_id] || 'Unknown Team'
+  // Fallback to common team types
+  const type = COMMON_TEAM_TYPES.find(t => t.team_type_id === team.team_type_id)
+  return type?.display_name || 'Unknown Team'
 }
 
 /**
@@ -1119,12 +1100,14 @@ const getTeamTypeDisplayName = (team: any): string => {
  */
 watch(
   () => props.task,
-  (newTask) => {
+  (newTask, oldTask) => {
+    updateProjectInfo()
     try {
-      if (newTask && newTask.id !== (props.task?.id)) {
-        // Fetch teams for the new task
+      // Fetch teams if task ID changed or on initial load (immediate)
+      if (newTask && (!oldTask || newTask.id !== oldTask.id)) {
         teams.fetchTeamsForTask(newTask.id).catch(error => {
           console.error('Error updating teams data for new task:', error)
+          addFeedbackMessage('error', 'Failed to load teams data')
         })
       }
     } catch (error) {
@@ -1132,6 +1115,6 @@ watch(
       addFeedbackMessage('error', 'Failed to update teams data')
     }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 )
 </script>

@@ -724,7 +724,33 @@
           Complete Report
         </button>
       </div>
-      <div class="flex space-x-2">
+      <div class="flex items-center space-x-3">
+        <!-- Auto-save status indicator -->
+        <div v-if="formData.id" class="flex items-center space-x-2">
+          <transition name="fade" mode="out-in">
+            <span v-if="autoSaveStatus === 'saving'" class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+              <svg class="animate-spin h-4 w-4 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </span>
+            <span v-else-if="autoSaveStatus === 'saved'" class="text-sm text-green-600 dark:text-green-400 flex items-center">
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Saved ✓
+            </span>
+            <span v-else-if="autoSaveStatus === 'error'" class="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Save failed
+            </span>
+          </transition>
+        </div>
+        
+        <div class="flex space-x-2">
         <button
           v-if="formData.id"
           @click="handleDownloadPdf"
@@ -740,6 +766,7 @@
         >
           {{ loading ? 'Saving...' : 'Save Report Data' }}
         </button>
+        </div>
       </div>
     </div>
   </div>
@@ -750,6 +777,7 @@ import { ref, computed, watch, onMounted, reactive } from 'vue'
 import api from '@/plugins/axios'
 import { useArchivalReport, type ArchivalReportData } from '../../composables/useArchivalReport'
 import { useHandover } from '../../composables/useHandover'
+import { useAutoSave } from '@/composables/useAutoSave'
 import type { EnquiryTask } from '../../types/enquiry'
 
 interface ReportSection {
@@ -794,6 +822,7 @@ const { loading, error, getReport, createReport, updateReport, autoPopulate, dow
 const activeTab = ref('project-info')
 const successMessage = ref('')
 const errorMessage = ref('')
+const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
 // Form data connected to archival backend
 const formData = reactive<ArchivalReportData>({
@@ -1136,6 +1165,56 @@ onMounted(async () => {
   await loadArchivalReport()
 })
 
+// Auto-save function
+const performAutoSave = async () => {
+  // Only auto-save if we have a report ID (not for new reports)
+  if (!formData.id) return
+  
+  autoSaveStatus.value = 'saving'
+  
+  try {
+    const dataToSave = {
+      ...formData,
+      recommendations_action_points: reportData.value.recommendations,
+      archive_reference: reportData.value.archive_reference,
+      archive_location: reportData.value.archive_location,
+      retention_period: reportData.value.retention_period,
+      status: 'draft' as const
+    }
+    
+    await updateReport(props.task.id, formData.id, dataToSave)
+    autoSaveStatus.value = 'saved'
+    
+    // Reset to idle after 2 seconds
+    setTimeout(() => {
+      if (autoSaveStatus.value === 'saved') {
+        autoSaveStatus.value = 'idle'
+      }
+    }, 2000)
+  } catch (err) {
+    console.error('Auto-save failed:', err)
+    autoSaveStatus.value = 'error'
+    
+    // Reset to idle after 3 seconds
+    setTimeout(() => {
+      if (autoSaveStatus.value === 'error') {
+        autoSaveStatus.value = 'idle'
+      }
+    }, 3000)
+  }
+}
+
+// Initialize auto-save with 3 second debounce and 30 second periodic save
+useAutoSave(
+  () => formData,
+  performAutoSave,
+  {
+    debounce: 3000,      // Save 3 seconds after user stops typing
+    interval: 30000,     // Backup save every 30 seconds
+    enabled: true
+  }
+)
+
 const loadArchivalReport = async () => {
   try {
     const report = await getReport(props.task.id)
@@ -1152,6 +1231,23 @@ const loadArchivalReport = async () => {
           (report as any)[field] = (report as any)[field].split('T')[0]
         }
       })
+
+      // Format project_scope to string for textarea
+      if (report.project_scope) {
+        if (Array.isArray(report.project_scope)) {
+            report.project_scope = report.project_scope.join('\n')
+        } else if (typeof report.project_scope === 'string') {
+            // Check if it's a JSON string of an array
+            try {
+                const parsed = JSON.parse(report.project_scope)
+                if (Array.isArray(parsed)) {
+                    report.project_scope = parsed.join('\n')
+                }
+            } catch (e) {
+                // It's just a regular string, keep as is
+            }
+        }
+      }
 
       Object.assign(formData, report)
       // Map backend data to existing UI fields
@@ -1209,6 +1305,36 @@ const handleSubmit = async () => {
       successMessage.value = 'Report saved successfully!'
     } else {
       const newReport = await createReport(props.task.id, dataToSave)
+      
+      // Format dates for input type="date"
+      const dateFields = [
+        'start_date', 'end_date', 'production_start_date', 
+        'handover_date', 'setdown_date', 
+        'project_officer_sign_date', 'reviewer_sign_date'
+      ]
+      
+      dateFields.forEach(field => {
+        if ((newReport as any)[field]) {
+          (newReport as any)[field] = (newReport as any)[field].split('T')[0]
+        }
+      })
+      
+      // Format project_scope to string for textarea
+      if ((newReport as any).project_scope) {
+        if (Array.isArray((newReport as any).project_scope)) {
+            (newReport as any).project_scope = (newReport as any).project_scope.join('\n')
+        } else if (typeof (newReport as any).project_scope === 'string') {
+            try {
+                const parsed = JSON.parse((newReport as any).project_scope)
+                if (Array.isArray(parsed)) {
+                    (newReport as any).project_scope = parsed.join('\n')
+                }
+            } catch (e) {
+                // It's just a regular string, keep as is
+            }
+        }
+      }
+      
       Object.assign(formData, newReport)
       successMessage.value = 'Report created successfully!'
     }
@@ -1242,6 +1368,12 @@ const handleAutoPopulate = async () => {
   try {
     const data = await autoPopulate(props.task.id)
     console.log('Auto-populate data received:', data)
+    
+    // Ensure project_scope is a string
+    if (data.project_scope && Array.isArray(data.project_scope)) {
+        data.project_scope = data.project_scope.join('\n')
+    }
+    
     Object.assign(formData, data)
     successMessage.value = 'Data auto-filled from previous tasks!'
     
@@ -1373,3 +1505,15 @@ watch(() => props.task.id, async () => {
   }
 })
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

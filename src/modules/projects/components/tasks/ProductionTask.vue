@@ -325,6 +325,63 @@
         </div>
       </div>
 
+        <!-- Procurement Status Tab -->
+        <div v-if="activeTab === 'procurement-status'" class="space-y-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+               <h3 class="text-lg font-medium text-gray-900 dark:text-white">Procurement & Stock Status</h3>
+               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">View the status of materials from the Procurement task.</p>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900/50">
+                   <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item / Description</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock Status</th>
+                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Procurement Status</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock Qty</th>
+                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Req. Qty</th>
+                   </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                   <tr v-for="(item, index) in productionData.relatedProcurementItems" :key="index">
+                      <td class="px-6 py-4">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.elementName }}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.description }}</div>
+                      </td>
+                       <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                          {{ item.category }}
+                       </td>
+                       <td class="px-6 py-4 text-center">
+                          <span :class="['px-2 py-1 text-xs rounded-full border', getStockStatusClass(item.stockStatus)]">
+                             {{ (item.stockStatus || 'pending_check').replace(/_/g, ' ').toUpperCase() }}
+                          </span>
+                       </td>
+                       <td class="px-6 py-4 text-center">
+                          <span :class="['px-2 py-1 text-xs rounded-full border', getProcurementStatusClass(item.procurementStatus)]">
+                             {{ (item.procurementStatus || 'not_needed').replace(/_/g, ' ').toUpperCase() }}
+                          </span>
+                       </td>
+                       <td class="px-6 py-4 text-right text-sm text-gray-900 dark:text-white">
+                          {{ item.stockQuantity }}
+                       </td>
+                       <td class="px-6 py-4 text-right text-sm text-gray-900 dark:text-white">
+                          {{ item.quantity }}
+                       </td>
+                   </tr>
+                   <tr v-if="!productionData.relatedProcurementItems || productionData.relatedProcurementItems.length === 0">
+                      <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                         No procurement data available.
+                      </td>
+                   </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       <!-- Quality Control Tab -->
       <div
         v-show="activeTab === 'quality'"
@@ -909,265 +966,106 @@
         </div>
       </div>
 
-      <!-- Completion Tab -->
+
+
+      <!-- Design Files Tab -->
       <div
-        v-show="activeTab === 'completion'"
-        class="completion-section tab-panel"
-        :id="`tab-panel-completion`"
+        v-show="activeTab === 'design'"
+        class="design-section tab-panel"
+        :id="`tab-panel-design`"
         role="tabpanel"
-        :aria-labelledby="`tab-completion`"
-        :class="{ 'animate-fade-in': activeTab === 'completion' }"
+        :aria-labelledby="`tab-design`"
+        :class="{ 'animate-fade-in': activeTab === 'design' }"
       >
-        <!-- Completion Header -->
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Production Completion Criteria</h3>
+         <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Design Assets</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Complete all criteria to finish production
+              View artworks, renders, and designs associated with this project.
             </p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <button
-              @click="addCustomCriterion"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >
-              Add Custom Criterion
-            </button>
-            <button
-              @click="resetAllCriteria"
-              class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
-            >
-              Reset All
-            </button>
-          </div>
-        </div>
+         </div>
 
-        <!-- Overall Progress Card -->
-        <div class="mb-6 p-6 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Overall Production Progress</h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                {{ completedCriteriaCount }} of {{ productionData.completionCriteria.length }} criteria completed
-              </p>
+         <!-- Loading State -->
+         <div v-if="isLoadingDesignAssets" class="flex justify-center py-12">
+            <div class="flex flex-col items-center space-y-3 text-blue-600 dark:text-blue-400">
+               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+               <span class="text-sm font-medium">Loading design assets...</span>
             </div>
-            <div class="text-right">
-              <div class="text-3xl font-bold text-green-600 dark:text-green-400">{{ completionPercentage }}%</div>
-              <div class="text-sm text-gray-600 dark:text-gray-400">Complete</div>
-            </div>
-          </div>
+         </div>
 
-          <!-- Progress Bar -->
-          <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 mb-4">
-            <div
-              class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-              :style="{ width: completionPercentage + '%' }"
-            ></div>
-          </div>
+         <!-- Error State -->
+         <div v-else-if="designAssetsError" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
+            <p class="text-red-600 dark:text-red-300">{{ designAssetsError }}</p>
+            <button @click="fetchDesignAssets" class="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">Try Again</button>
+         </div>
 
-          <!-- Status Message -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span v-if="completionPercentage === 100" class="text-green-600 dark:text-green-400">
-                Ready for production completion
-              </span>
-              <span v-else-if="completionPercentage >= 75" class="text-yellow-600 dark:text-yellow-400">
-                Almost ready - {{ productionData.completionCriteria.length - completedCriteriaCount }} criteria remaining
-              </span>
-              <span v-else class="text-blue-600 dark:text-blue-400">
-                In progress - {{ completedCriteriaCount }} criteria completed
-              </span>
-            </div>
-            <button
-              v-if="completionPercentage === 100"
-              @click="completeProduction"
-              class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
-            >
-              Complete Production
-            </button>
-          </div>
-        </div>
+         <!-- Empty State -->
+         <div v-else-if="designAssets.length === 0" class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+            <p class="text-gray-500 dark:text-gray-400">No design assets found for this project.</p>
+         </div>
 
-        <!-- Completion Criteria by Category -->
-        <div class="space-y-6">
-          <div v-for="category in completionCategories" :key="category.id" class="category-section">
-            <!-- Category Header -->
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <span class="text-2xl"></span>
-                <div>
-                  <h4 class="text-md font-medium text-gray-900 dark:text-white">{{ category.name }}</h4>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">{{ category.description }}</p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ getCategoryCompletedCount(category.id) }}/{{ getCategoryCriteriaCount(category.id) }}
-                </span>
-                <div class="w-16 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                  <div
-                    class="bg-green-500 h-2 rounded-full transition-all duration-300"
-                    :style="{ width: getCategoryCompletionPercentage(category.id) + '%' }"
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Category Criteria -->
-            <div class="space-y-3 ml-8">
-              <div
-                v-for="criterion in getCategoryCriteria(category.id)"
-                :key="criterion.id"
-                class="completion-item"
-              >
-                <label
-                  class="completion-checkbox flex items-start p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                  :class="{ 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700': criterion.met }"
-                >
-                  <input
-                    type="checkbox"
-                    v-model="criterion.met"
-                    @change="updateCompletionCriterion(criterion.id, criterion.met)"
-                    class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded mr-4 mt-0.5 flex-shrink-0"
+         <!-- Assets Grid -->
+         <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div v-for="asset in designAssets" :key="asset.id" class="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+               <!-- Thumbnail -->
+               <div class="aspect-w-16 aspect-h-9 bg-gray-100 dark:bg-gray-700 relative" style="padding-top: 56.25%;">
+                  <img 
+                    v-if="isImageAsset(asset)" 
+                    :src="getAssetUrl(asset)" 
+                    :alt="asset.description || asset.file_name"
+                    class="absolute inset-0 object-cover w-full h-full"
+                    loading="lazy"
                   />
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between">
-                      <div class="flex-1">
-                        <span
-                          class="text-sm font-medium text-gray-900 dark:text-white"
-                          :class="{ 'line-through text-gray-500 dark:text-gray-400': criterion.met }"
-                        >
-                          {{ criterion.description }}
-                        </span>
-                        <div v-if="criterion.notes" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {{ criterion.notes }}
-                        </div>
-                        <div v-if="criterion.met && criterion.completedAt" class="text-xs text-green-600 dark:text-green-400 mt-1">
-                          ✓ Completed {{ formatDate(criterion.completedAt) }}
-                        </div>
-                      </div>
-                      <div class="flex items-center space-x-2 ml-4">
-                        <button
-                          @click.prevent="editCriterion(criterion.id)"
-                          class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          :aria-label="'Edit criterion'"
-                        >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                          </svg>
-                        </button>
-                        <button
-                          v-if="criterion.isCustom"
-                          @click.prevent="deleteCriterion(criterion.id)"
-                          class="p-1 text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
-                          :aria-label="'Delete criterion'"
-                        >
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                  <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400">
+                     <!-- Generic File Icon -->
+                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                     </svg>
                   </div>
-                </label>
-              </div>
+               </div>
+
+               <!-- Info -->
+               <div class="p-3">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate" :title="asset.file_name">{{ asset.file_name }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ asset.category ? asset.category.toUpperCase() : 'UNKNOWN' }}</p>
+                  
+                   <!-- Actions -->
+                   <div class="mt-3 flex space-x-2">
+                       <a 
+                         v-if="asset.file_url"
+                         :href="asset.file_url" 
+                         target="_blank" 
+                         class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                         download
+                        >
+                         Download
+                       </a>
+                        <a 
+                         v-if="asset.file_url"
+                         :href="asset.file_url" 
+                         target="_blank" 
+                         class="text-xs bg-gray-50 text-gray-600 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                        >
+                         View
+                       </a>
+                   </div>
+               </div>
+               
+               <!-- Status Badge -->
+               <div class="absolute top-2 right-2">
+                   <span 
+                    class="px-2 py-0.5 text-xs rounded-full shadow-sm"
+                    :class="{
+                        'bg-green-100 text-green-800': asset.status === 'approved',
+                        'bg-yellow-100 text-yellow-800': asset.status === 'pending',
+                        'bg-red-100 text-red-800': asset.status === 'rejected',
+                        'bg-blue-100 text-blue-800': asset.status === 'concept'
+                    }"
+                   >
+                     {{ asset.status }}
+                   </span>
+               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Material-Related Completion Items -->
-        <div v-if="materialRelatedCriteria.length > 0" class="mt-8">
-          <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <span class="text-xl mr-2"></span>
-            Material-Related Completion Items
-          </h4>
-          <div class="space-y-2">
-            <div
-              v-for="criterion in materialRelatedCriteria"
-              :key="criterion.id"
-              class="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700"
-            >
-              <input
-                type="checkbox"
-                v-model="criterion.met"
-                @change="updateCompletionCriterion(criterion.id, criterion.met)"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
-              />
-              <span class="text-sm text-gray-900 dark:text-white">{{ criterion.description }}</span>
-              <span class="ml-auto text-xs text-blue-600 dark:text-blue-400">
-                {{ criterion.elementCount || 0 }} elements
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Add Custom Criterion Modal -->
-        <div v-if="showAddCriterionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4" style="z-index: 9999;" @click="closeAddCriterionModal">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md mx-auto border border-gray-200 dark:border-gray-700" @click.stop>
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">Add Custom Criterion</h3>
-              <button @click="closeAddCriterionModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-
-            <form @submit.prevent="addNewCriterion" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                <input
-                  v-model="newCriterion.description"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Describe the completion criterion"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                <select
-                  v-model="newCriterion.category"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="">Select category</option>
-                  <option value="production">Production</option>
-                  <option value="quality">Quality</option>
-                  <option value="documentation">Documentation</option>
-                  <option value="approval">Approval</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
-                <textarea
-                  v-model="newCriterion.notes"
-                  rows="2"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Additional notes or details"
-                ></textarea>
-              </div>
-
-              <div class="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  @click="closeAddCriterionModal"
-                  class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Add Criterion
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+         </div>
       </div>
 
     <!-- Save Status Indicator -->
@@ -1288,17 +1186,111 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import api from '@/plugins/axios'
-// TODO: Create types.ts file or move these type definitions inline
-// import type {
-//   ProductionTaskData,
-//   ProjectInfo,
-//   ProductionElement,
-//   QualityControlCheckpoint,
-//   ProductionIssue,
-//   CompletionCriterion,
-//   ProductionElementCategory,
-//   IssueCategory
-// } from './types'
+
+// Status styling helpers
+const getStockStatusClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'in_stock': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
+    'partial_stock': 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 text-amber-700 dark:text-amber-300',
+    'out_of_stock': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300',
+    'pending_check': 'border-gray-300 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+  }
+  return classes[status] || classes['pending_check']
+}
+
+const getProcurementStatusClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'not_needed': 'border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-500',
+    'pending': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
+    'ordered': 'border-purple-300 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-600 text-purple-700 dark:text-purple-300',
+    'received': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
+    'cancelled': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300'
+  }
+  return classes[status] || classes['pending']
+}
+
+
+// Type definitions
+interface ProductionElementCategory {
+  id: string
+  name: string
+  displayName: string
+  color: string
+}
+
+interface IssueCategory {
+    id: string
+    label: string
+    color: string
+}
+
+interface CompletionCriterion {
+    id: string
+    description: string
+    met: boolean
+    category: string
+    notes?: string
+    completedAt?: string | Date
+    isCustom?: boolean
+    elementCount?: number
+    [key: string]: any
+}
+
+interface ProductionIssue {
+    id: string
+    title: string
+    description: string
+    category: string
+    priority: 'low' | 'medium' | 'high'
+    status: 'open' | 'in_progress' | 'resolved'
+    reportedBy: string
+    reportedDate: any
+    resolvedDate?: any
+    resolution?: string
+    [key: string]: any
+}
+
+interface ProductionElement {
+    id: string
+    name: string
+    description: string
+    quantity: number
+    unitOfMeasurement: string
+    category: string
+    status?: string
+    [key: string]: any
+}
+
+interface QualityControlCheckpoint {
+    id: string
+    categoryId: string
+    description?: string
+    status: 'pending' | 'passed' | 'failed' | 'in_progress'
+    notes?: string
+    checkedBy?: string
+    checkedAt?: string | Date | null
+    checklist?: any[]
+    [key: string]: any
+}
+
+interface ProjectInfo {
+    projectId?: string
+    enquiryTitle?: string
+    clientName?: string
+    eventVenue?: string
+    setupDate?: string | Date
+    [key: string]: any
+}
+
+interface ProductionTaskData {
+    projectInfo: ProjectInfo
+    productionElements: ProductionElement[]
+    relatedProcurementItems: any[]
+    qualityControl: QualityControlCheckpoint[]
+    issues: ProductionIssue[]
+    completionCriteria: CompletionCriterion[]
+    [key: string]: any
+}
 
 /**
  * Props interface for the ProductionTask component
@@ -1326,17 +1318,102 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
-
 // Tab navigation with enhanced functionality
 const activeTab = ref('production-elements')
 
 const tabs = [
   { id: 'production-elements', label: 'Production Elements', description: 'View and manage production elements' },
+  { id: 'procurement-status', label: 'Procurement Status', description: 'View procurement and stock status' },
   { id: 'quality', label: 'Quality Control', description: 'Manage quality control checkpoints' },
   { id: 'issues', label: 'Issues', description: 'Track and resolve production issues' },
-  { id: 'completion', label: 'Completion', description: 'Review completion criteria' }
+  { id: 'design', label: 'Design Files', description: 'View Design Artworks and Renders' }
 ]
+
+// Design Asset Interface
+interface DesignAsset {
+  id: number
+  file_name: string
+  file_type: string
+  mime_type: string
+  category: string
+  status: string
+  description: string | null
+  file_url?: string
+  [key: string]: any
+}
+
+// Design Assets Logic
+const designAssets = ref<DesignAsset[]>([])
+const isLoadingDesignAssets = ref(false)
+const designAssetsError = ref<string | null>(null)
+
+// Helper to get asset URL
+const getAssetUrl = (asset: DesignAsset): string => {
+  return asset.file_url || ''
+}
+
+const isImageAsset = (asset: DesignAsset): boolean => {
+  return asset.mime_type?.startsWith('image/') || false
+}
+
+const fetchDesignAssets = async () => {
+  if (!props.task.project_enquiry_id) {
+     designAssetsError.value = 'No project enquiry ID found.'
+     return
+  }
+
+  isLoadingDesignAssets.value = true
+  designAssetsError.value = null
+
+  try {
+      // 1. Get Enquiry details to find Design Task ID
+      // We start by looking for a cached or available way, but API is safest
+      const enquiryResponse = await api.get(`/api/projects/enquiries/${props.task.project_enquiry_id}`)
+      
+      // Access tasks relation
+      let enquiryTasks = []
+      if (enquiryResponse.data && enquiryResponse.data.data && enquiryResponse.data.data.enquiry_tasks) {
+          enquiryTasks = enquiryResponse.data.data.enquiry_tasks
+      } else if (enquiryResponse.data && enquiryResponse.data.data && enquiryResponse.data.data.enquiryTasks) {
+          enquiryTasks = enquiryResponse.data.data.enquiryTasks
+      }
+      
+      const designTask = enquiryTasks.find((t: any) => t.task_type === 'Design' || t.task_type === 'Designer' || t.type === 'design')
+      
+      if (!designTask) {
+          // If no design task found in the response, we might need a more specific query
+          designAssetsError.value = 'No Design Task found for this project.'
+          isLoadingDesignAssets.value = false
+          return
+      }
+
+      // 2. Fetch Assets
+      const assetsResponse = await api.get(`/api/projects/enquiry-tasks/${designTask.id}/design-assets`)
+      if (assetsResponse.data && assetsResponse.data.data) {
+           designAssets.value = assetsResponse.data.data
+      } else if (Array.isArray(assetsResponse.data)) {
+           designAssets.value = assetsResponse.data
+      } else {
+           designAssets.value = []
+      }
+
+  } catch (err: any) {
+      console.error('Error fetching design assets:', err)
+      designAssetsError.value = 'Failed to load design assets.'
+  } finally {
+      isLoadingDesignAssets.value = false
+  }
+}
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'design' && designAssets.value.length === 0 && !designAssetsError.value) {
+    fetchDesignAssets()
+  }
+})
+
+const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
+
+
 
 // Tab navigation functions
 const setActiveTab = (tabId: string) => {
@@ -1413,6 +1490,8 @@ const getTabBadgeCount = (tabId: string): number => {
       return productionData.value.issues.filter((issue: any) => issue.status === 'open').length
     case 'completion':
       return productionData.value.completionCriteria.filter((c: any) => c.met).length
+    case 'design':
+      return designAssets.value.length
     default:
       return 0
   }
@@ -1433,6 +1512,8 @@ const getTabBadgeClass = (tabId: string): string => {
       return `${baseClasses} bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300`
     case 'completion':
       return `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`
+    case 'design':
+      return `${baseClasses} bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300`
     default:
       return `${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300`
   }
@@ -1499,6 +1580,7 @@ const defaultCompletionCriteria = ref<CompletionCriterion[]>([
 
 // Reactive data structure following ProcurementTask pattern
 const productionData = ref<ProductionTaskData>({
+  relatedProcurementItems: [], // Initialize empty array for procurement items
   projectInfo: {
     projectId: '',
     enquiryNumber: '',
@@ -3048,6 +3130,10 @@ const loadProductionData = async () => {
       // Update production data with backend data (handling camelCase keys from service)
       if (data.productionElements) {
         productionData.value.productionElements = convertToCamelCase(data.productionElements)
+      }
+
+      if (data.relatedProcurementItems) {
+        productionData.value.relatedProcurementItems = convertToCamelCase(data.relatedProcurementItems)
       }
 
       if (data.qualityControl) {

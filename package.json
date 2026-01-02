@@ -25,6 +25,7 @@
     "browser-image-compression": "^2.0.2",
     "chart.js": "^4.5.0",
     "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.12.1",
     "jspdf": "^3.0.3",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",

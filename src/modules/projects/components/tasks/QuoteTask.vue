@@ -740,7 +740,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
@@ -753,7 +753,7 @@ const CONSTANTS = {
   VAT_RATE: 16,
   DEFAULT_DAYS: 1,
   DEFAULT_MARGINS: {
-    MATERIALS: 20,
+    MATERIALS: 60,
     LABOUR: 0,
     EXPENSES: 0,
     LOGISTICS: 0
@@ -1188,14 +1188,14 @@ const initializeProjectInfo = (): ProjectInfo => {
 }
 
 /**
- * Initialize default margin settings
+ * Initialize default margin settings using global constants
  */
 const initializeMargins = (): MarginSettings => {
   return {
-    materials: 20, // 20% default margin
-    labour: 15,    // 15% default margin
-    expenses: 10,  // 10% default margin
-    logistics: 15  // 15% default margin
+    materials: CONSTANTS.DEFAULT_MARGINS.MATERIALS,
+    labour: CONSTANTS.DEFAULT_MARGINS.LABOUR,
+    expenses: CONSTANTS.DEFAULT_MARGINS.EXPENSES,
+    logistics: CONSTANTS.DEFAULT_MARGINS.LOGISTICS
   }
 }
 
@@ -1250,6 +1250,52 @@ const quoteData = reactive<QuoteData>({
   createdAt: new Date(),
   updatedAt: new Date()
 })
+
+// Auto-save functionality
+const autoSaveTimeout = ref<TimeoutHandle | null>(null)
+const isSavingQuote = ref(false)
+
+/**
+ * Auto-save quote data when changes are made
+ */
+const autoSaveQuote = async () => {
+  // Clear any existing timeout
+  if (autoSaveTimeout.value) {
+    clearTimeout(autoSaveTimeout.value)
+    autoSaveTimeout.value = null
+  }
+  
+  // Set new timeout to save after 2 seconds of inactivity
+  autoSaveTimeout.value = setTimeout(async () => {
+    if (!quoteData.budgetImported || isSavingQuote.value || isPreviewingVersion.value || quoteData.status === 'approved') {
+      return // Don't auto-save if no budget imported, already saving, in preview mode, or approved
+    }
+    
+    try {
+      isSavingQuote.value = true
+      await saveQuote()
+      console.log('Quote auto-saved successfully')
+    } catch (error) {
+      console.error('Auto-save failed:', error)
+    } finally {
+      isSavingQuote.value = false
+    }
+  }, 2000) // 2 second debounce
+}
+
+// Watch for changes to trigger autosave
+watch(
+  () => ({
+    margins: quoteData.margins,
+    discountAmount: quoteData.discountAmount,
+    vatEnabled: quoteData.vatEnabled,
+    totals: quoteData.totals
+  }),
+  () => {
+    autoSaveQuote()
+  },
+  { deep: true }
+)
 
 // Utility functions
 /**
@@ -1542,6 +1588,11 @@ const closeQuoteViewer = () => {
  * Fetch budget data from the backend API
  */
 const fetchBudgetData = async (options = { showLoading: false, skipIfExists: false }) => {
+  // Prevent modification if approved
+  if (quoteData.status === 'approved') {
+    return
+  }
+
   // Skip if budget is already imported and we want to skip
   if (options.skipIfExists && quoteData.budgetImported) {
     return
@@ -1694,6 +1745,23 @@ const loadExistingQuote = async () => {
 
     if (response.data.data) {
       Object.assign(quoteData, response.data.data)
+      
+      // AUTO-UPGRADE: If we detect the old default margin (20%), upgrade to new default (60%)
+      if (quoteData.margins.materials === 20) {
+        console.log('Upgrading old default margin 20% -> 60%')
+        quoteData.margins.materials = 60
+        
+        // Use helper to update all materials that still have the old default
+        quoteData.materials.forEach(element => {
+          element.materials.forEach(material => {
+            if (material.marginPercentage === 20) {
+              material.marginPercentage = 60
+              updateIndividualMargin(material)
+            }
+          })
+        })
+      }
+
       calculateAllTotals()
       console.log('Existing quote data loaded successfully')
     }
@@ -1705,6 +1773,12 @@ const loadExistingQuote = async () => {
 
 // Save quote data (exposed for external use)
 const saveQuote = async () => {
+  // Prevent modification if approved
+  if (quoteData.status === 'approved') {
+    console.log('Quote is approved and cannot be modified.')
+    return
+  }
+
   try {
     await axios.post(`/api/projects/tasks/${props.task.id}/quote`, {
       projectInfo: quoteData.projectInfo,

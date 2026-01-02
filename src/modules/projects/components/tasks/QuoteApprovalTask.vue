@@ -22,6 +22,19 @@
       </nav>
     </div>
 
+    <!-- Global Messages -->
+    <div v-if="successMessage" class="mb-6 p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg">
+      <div class="flex items-center space-x-3">
+        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div>
+          <h5 class="text-sm font-medium text-green-800 dark:text-green-200">Success</h5>
+          <p class="text-xs text-green-600 dark:text-green-300">{{ successMessage }}</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Quote Tab -->
     <div v-if="activeTab === 'quote'">
       <!-- Loading State -->
@@ -49,6 +62,8 @@
           </div>
         </div>
       </div>
+
+
 
       <!-- Quote Summary -->
       <div v-else class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -228,6 +243,7 @@ const emit = defineEmits<{
 const activeTab = ref('quote')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+const successMessage = ref<string | null>(null)
 
 const tabs = [
   { id: 'quote', label: 'Quote Details', icon: '📄' },
@@ -416,14 +432,22 @@ const handleSubmit = async () => {
     if (!approvalData.approval_date) {
       throw new Error('Approval date is required')
     }
-    if (approvalData.quote_amount <= 0) {
-      throw new Error('Quote amount must be greater than 0')
-    }
+    // if (approvalData.quote_amount <= 0) {
+    //   throw new Error('Quote amount must be greater than 0')
+    // }
 
     await axios.post(`/api/projects/tasks/${props.task.id}/approval`, approvalData)
 
-    // Create audit entry
-    await createAuditEntry()
+    // Reload quote data to reflect new status
+    await loadQuoteData()
+    
+    successMessage.value = 'Quote approval submitted successfully!'
+    setTimeout(() => {
+      successMessage.value = null
+    }, 3000)
+
+    // Create audit entry (Endpoint pending)
+    // await createAuditEntry()
 
     console.log('Approval submitted successfully:', approvalData)
 

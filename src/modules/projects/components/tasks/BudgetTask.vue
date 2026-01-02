@@ -80,7 +80,7 @@
               Budget Updated
             </h5>
             <p class="text-sm text-orange-700 dark:text-orange-300">
-              The MATERIAL LIST has been modified since this BUDGET was created. Your BUDGET may contain outdated OR missing items.
+              The MATERIAL LIST has been modified since this BUDGET was created. Click "Refresh" to sync with latest materials (your pricing will be preserved).
             </p>
           </div>
         </div>
@@ -438,7 +438,7 @@ const checkMaterialsUpdateStatus = async () => {
 
 // Refresh from materials (import)
 const refreshFromMaterials = async () => {
-  if (!confirm('This will replace your current budget materials with the latest approved materials. Continue?')) {
+  if (!confirm('This will sync your budget with the latest approved materials.\n\n✅ Your pricing will be PRESERVED\n✅ Quantities will be updated\n✅ New materials will be added\n\nContinue?')) {
     return
   }
   
