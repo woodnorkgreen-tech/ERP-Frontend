@@ -32,28 +32,35 @@
         <div class="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4 text-white">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
+              <div class="flex items-center gap-4 mb-4">
                 <button
-                  @click="$router.push('/universal-tasks')"
-                  class="text-blue-100 hover:text-white transition-colors"
-                  title="Back to tasks"
+                  @click="$router.push('/projects/enquiries')"
+                  class="h-10 w-10 bg-white/20 hover:bg-white/30 text-white rounded-xl backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center group"
+                  title="Return to Enquiries"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
                 </button>
+                <button
+                  @click="$router.push('/universal-tasks')"
+                  class="text-blue-100 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest flex items-center gap-2"
+                >
+                  <i class="mdi mdi-view-list text-lg"></i>
+                  Mission Registry
+                </button>
+              </div>
                 <div class="flex items-center gap-2">
-                  <span v-if="task.parent_task_id" class="px-2 py-1 bg-blue-500 bg-opacity-50 rounded text-xs font-medium">
+                  <span v-if="task.parent_task_id" class="px-2 py-1 bg-blue-500 bg-opacity-50 rounded text-xs font-medium text-white">
                     Subtask
                   </span>
-                  <h1 class="text-2xl md:text-3xl font-bold">{{ task.title }}</h1>
+                  <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">{{ task.title }}</h1>
                 </div>
+                <p v-if="task.description" class="text-blue-100/80 text-sm md:text-base mt-2 font-medium">
+                  {{ task.description }}
+                </p>
               </div>
-              <p v-if="task.description" class="text-blue-100 text-sm md:text-base">
-                {{ task.description }}
-              </p>
-            </div>
-            <div class="flex gap-2 ml-4">
+              <div class="flex gap-2 ml-4 shrink-0">
               <button
                 @click="showEditDialog = true"
                 class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-black rounded-lg transition-colors backdrop-blur-sm"

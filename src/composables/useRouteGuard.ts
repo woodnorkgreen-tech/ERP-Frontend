@@ -342,13 +342,7 @@ export function useRouteGuard() {
             { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' },
             { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
           ]
-        },
-        {
-          department: 'Materials & Inventory',
-          routes: [
-            { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' }
-          ]
-        },
+        }
       )
     }
     // Admin gets admin routes
@@ -387,7 +381,6 @@ export function useRouteGuard() {
       routes.push(
         { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
         { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' },
-        { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' },
       )
     }
 
@@ -505,6 +498,7 @@ export function useRouteGuard() {
     canAccessProjects,
     canAccessClientService,
     canAccessFinance,
+    canAccessMaterialsLibrary: () => isLoggedIn.value,
     redirectToAppropriateRoute,
     getAllowedRoutes,
     getPanelTitle,

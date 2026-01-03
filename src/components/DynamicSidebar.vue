@@ -85,6 +85,52 @@
       </div>
     </nav>
 
+    <!-- Dynamic Bottom Section: Material Library (Always at bottom) -->
+    <div v-if="canAccessMaterialsLibrary()" class="px-3 mb-2 shrink-0 border-t border-slate-100 dark:border-slate-800 pt-4">
+      <div class="relative group">
+        <RouterLink
+          to="/materials-library"
+          :class="[
+            'flex items-center h-11 rounded-xl transition-all duration-200 group ring-inset mx-2',
+            route.path === '/materials-library'
+              ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-md'
+              : 'text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+          ]"
+          :title="collapsed ? 'Materials Library' : ''"
+        >
+          <!-- Active Indicator Bar -->
+          <div 
+            class="absolute left-0 w-1 bg-blue-600 dark:bg-blue-400 rounded-r-full transition-all duration-300"
+            :class="route.path === '/materials-library' ? 'h-6 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+          ></div>
+
+          <!-- Icon Wrapper -->
+          <div class="w-14 flex items-center justify-center shrink-0">
+            <i 
+              :class="[
+                'mdi mdi-library-shelves text-2xl transition-all duration-200',
+                route.path === '/materials-library' ? 'scale-110 opacity-100' : 'opacity-70 group-hover:opacity-100 group-hover:scale-105'
+              ]"
+            ></i>
+          </div>
+
+          <!-- Label -->
+          <span 
+            class="font-bold text-sm whitespace-nowrap transition-all duration-300 overflow-hidden"
+            :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+          >
+            Materials Library
+          </span>
+
+          <!-- Mini Indicator for Active (Collapsed mode) -->
+          <div
+            v-if="collapsed && route.path === '/materials-library'"
+            class="absolute right-2 w-1.5 h-1.5 rounded-full bg-blue-500"
+          ></div>
+        </RouterLink>
+      </div>
+    </div>
+
     <!-- Sidebar Footer / Status -->
     <div class="p-4 mt-auto border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
        <div class="flex items-center gap-3 overflow-hidden">
@@ -126,7 +172,7 @@ const props = defineProps({
 
 defineEmits(['update:collapsed', 'mouseenter', 'mouseleave'])
 
-const { getAllowedRoutes, getPanelTitle } = useRouteGuard()
+const { getAllowedRoutes, getPanelTitle, canAccessMaterialsLibrary } = useRouteGuard()
 const { user } = useAuth()
 const route = useRoute()
 

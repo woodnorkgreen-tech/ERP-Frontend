@@ -1,19 +1,30 @@
 <template>
   <div class="task-list-view">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tasks</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-1">Manage and track your tasks</p>
+    <div class="flex justify-between items-center mb-8">
+      <div class="flex items-center gap-6">
+        <button
+          @click="router.push('/projects/enquiries')"
+          class="h-12 w-12 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center group"
+          title="Back to Enquiries"
+        >
+          <svg class="w-6 h-6 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Strategic Tasks</h1>
+          <p class="text-slate-500 font-medium mt-1">Manage and track your operational deployment missions.</p>
+        </div>
       </div>
       <button
         @click="openCreateDialog"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        class="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center gap-2 transition-all active:scale-95 font-bold shadow-lg shadow-blue-500/20"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Create Task
+        New Deployment Task
       </button>
     </div>
 

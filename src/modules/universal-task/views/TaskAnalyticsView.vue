@@ -1,23 +1,35 @@
 <template>
   <div class="task-analytics-view">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Task Analytics</h1>
-        <p class="text-gray-600 mt-1">Insights and metrics for task management</p>
+    <div class="flex justify-between items-center mb-8">
+      <div class="flex items-center gap-6">
+        <button
+          @click="() => $router.push('/projects/enquiries')"
+          class="h-12 w-12 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center group"
+          title="Back to Enquiries"
+        >
+          <svg class="w-6 h-6 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Mission Analytics</h1>
+          <p class="text-slate-500 font-medium mt-1">Operational performance and deployment intelligence.</p>
+        </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-3">
         <Button
-          label="Export Data"
+          label="Export Intelligence"
           icon="pi pi-download"
           @click="showExportDialog = true"
-          class="bg-green-600 hover:bg-green-700"
+          class="bg-emerald-600 hover:bg-emerald-700 border-none shadow-lg shadow-emerald-500/20 h-11 px-6 font-bold rounded-xl"
         />
         <Button
-          label="Refresh"
+          label="Synchronize"
           icon="pi pi-refresh"
           @click="refreshData"
           :loading="loading"
+          class="h-11 px-6 font-bold rounded-xl shadow-lg border-none"
         />
       </div>
     </div>
