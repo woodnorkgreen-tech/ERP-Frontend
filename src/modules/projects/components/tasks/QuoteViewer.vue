@@ -1,13 +1,10 @@
 <template>
-  <div v-if="isVisible" class="quote-viewer-modal fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 lg:p-8 font-poppins">
-    <!-- Glass Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
-
-    <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl w-full max-w-[1400px] h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-300">
+  <div v-if="isVisible" class="quote-viewer-inline relative z-10 font-poppins bg-white dark:bg-gray-900 flex flex-col min-h-full">
+    <!-- Modal Container (Now filling parent) -->
+    <div class="w-full flex flex-col relative z-20 h-full">
       
-      <!-- Premium Header -->
-      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/40 print:hidden relative">
+      <!-- Premium Header (Sticky within the TaskModal body) -->
+      <div class="sticky top-0 z-30 px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white/95 dark:bg-gray-900/95 backdrop-blur-md print:hidden transition-all">
         <div class="flex items-center space-x-5">
            <div class="p-2.5 bg-emerald-500/10 rounded-xl shadow-inner border border-emerald-500/20">
             <i class="mdi mdi-file-document-outline text-emerald-600 text-2xl"></i>
@@ -19,75 +16,98 @@
         </div>
 
         <!-- Master Action Hub -->
-        <div class="flex items-center gap-4">
-          <!-- Detail Level Toggle -->
-          <div class="hidden sm:flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+        <div class="flex items-center gap-6">
+          <!-- View Toggle Segmented Control -->
+          <div class="hidden sm:flex items-center bg-gray-100/80 dark:bg-gray-800/80 p-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-inner">
             <button
               @click="showDetailedItems = false"
-              :class="[!showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300']"
-              class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+              :class="[!showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400 scale-100' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 scale-95 opacity-70']"
+              class="flex items-center gap-2 px-5 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300"
             >
-              Summary
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+              </svg>
+              <span>Summary</span>
             </button>
             <button
               @click="showDetailedItems = true"
-              :class="[showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300']"
-              class="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all"
+              :class="[showDetailedItems ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600 dark:text-blue-400 scale-100' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 scale-95 opacity-70']"
+              class="flex items-center gap-2 px-5 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300"
             >
-              Detailed
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+              </svg>
+              <span>Detailed</span>
             </button>
           </div>
 
-          <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
-
-          <!-- Controls Group -->
-          <div class="flex items-center gap-2">
-            <!-- Edit Mode -->
+          <!-- Action Buttons Group -->
+          <div class="flex items-center gap-3">
+            <!-- Strategic Edit Action -->
             <button
               v-if="!props.readonly"
               @click="toggleEditMode"
-              :class="[isEditMode ? 'bg-blue-600 text-white shadow-blue-500/20' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-blue-500/50']"
-              class="p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all group relative"
-              :title="isEditMode ? 'Commit Changes' : 'Enable Strategic Editing'"
+              :class="[
+                isEditMode 
+                ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/30 border-blue-500' 
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/10'
+              ]"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300 group font-bold text-xs"
             >
-              <i class="mdi mdi-pencil-outline text-xl" :class="{'animate-pulse': isEditMode}"></i>
+              <div class="relative">
+                <svg class="w-4 h-4" :class="{'animate-bounce': isEditMode}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </div>
+              <span class="uppercase tracking-wider">{{ isEditMode ? 'Commit Changes' : 'Draft Edit' }}</span>
             </button>
 
-            <!-- Bank Details -->
+            <!-- Payment Routing / Bank Details -->
             <button
               v-if="!props.readonly"
               @click="toggleBankDetails"
-              :class="[showBankDetails ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-emerald-500/50']"
-              class="p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all"
-              :title="showBankDetails ? 'Hide Bank Intel' : 'Show Payment Routing'"
+              :class="[
+                showBankDetails 
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-500/30 border-emerald-500' 
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10'
+              ]"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300 font-bold text-xs"
             >
-              <i class="mdi mdi-bank-outline text-xl"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
+              </svg>
+              <span class="uppercase tracking-wider">Bank Details</span>
             </button>
 
-            <!-- Print -->
+            <!-- Deploy to PDF/Printer -->
             <button
-              v-if="!props.readonly"
               @click="printQuote"
-              class="p-2 bg-gray-900 dark:bg-gray-700 text-white rounded-xl shadow-lg shadow-black/10 hover:scale-105 active:scale-95 transition-all"
-              title="Deploy to Printer"
+              class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-gray-700 text-white rounded-xl shadow-xl shadow-black/10 hover:shadow-black/20 hover:scale-105 active:scale-95 transition-all duration-300 font-bold text-xs border border-gray-800 dark:border-gray-600"
             >
-              <i class="mdi mdi-printer-outline text-xl"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+              </svg>
+              <span class="uppercase tracking-wider whitespace-nowrap">Print Prospectus</span>
             </button>
           </div>
 
-          <div class="h-10 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
+          <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
+          <!-- Close Interaction -->
           <button
             @click="$emit('close')"
-            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+            class="group flex items-center justify-center p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all duration-300"
+            title="Exit Preview"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <svg class="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
           </button>
         </div>
       </div>
 
-      <!-- Quote Body with Centered Paper -->
-      <div class="flex-grow overflow-y-auto custom-scrollbar bg-gray-100/50 dark:bg-gray-950 p-4 sm:p-12 print:p-0 print:bg-white">
+      <!-- Quote Body (No internal scroll, let parent handle it) -->
+      <div class="flex-grow bg-gray-100/50 dark:bg-gray-950 p-4 sm:p-12 print:p-0 print:bg-white h-auto overflow-visible">
         <div class="quote-content max-w-5xl mx-auto bg-white shadow-2xl rounded-sm p-10 sm:p-16 print:p-0 print:shadow-none print:max-w-none print:mx-0">
 
         <!-- Header Section -->
@@ -592,43 +612,54 @@
               </div>
 
               <!-- Bank Details -->
-              <div v-if="showBankDetails" class="mt-3 border-t border-gray-200 pt-2">
-                <div class="font-bold text-gray-900 mb-1">
-                  {{ editableDescriptions['bank_cheque_payable'] || 'Cheques payable to Woodnork Green Limited' }}
-                </div>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-gray-800">
-                  <div>
-                    <span class="font-semibold">Account Name:</span> 
-                    {{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}
+              <div v-if="showBankDetails" class="mt-4 break-inside-avoid">
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                  <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
+                    </svg>
+                    <span class="text-xs font-black text-gray-900 uppercase tracking-widest">Electronic Fund Transfer Details</span>
                   </div>
-                  <div>
-                    <span class="font-semibold">Bank Name:</span> 
-                    {{ editableDescriptions['bank_name'] || 'NCBA Bank' }}
-                    <span class="font-semibold ml-1">Code:</span> 
-                    {{ editableDescriptions['bank_code'] || '07000' }}
-                  </div>
-                  <div>
-                    <span class="font-semibold">Branch:</span> 
-                    {{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }}
-                    <span class="font-semibold ml-1">Code:</span> 
-                    {{ editableDescriptions['bank_branch_code'] || '125' }}
-                  </div>
-                  <div>
-                    <span class="font-semibold">Account Number:</span> 
-                    <span class="text-red-600 font-bold">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</span>
-                  </div>
-                  <div>
-                    <span class="font-semibold">SWIFT Code:</span> 
-                    {{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}
-                  </div>
-                  <div class="col-span-2 flex space-x-2">
-                    <div>
-                      <span class="font-semibold">PAYBILL:</span> 
-                      <span class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
+                  
+                  <div class="grid grid-cols-2 gap-y-3 text-[10px]">
+                    <div class="space-y-0.5">
+                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Cheques Payable To</div>
+                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_cheque_payable'] || 'Woodnork Green Limited' }}</div>
                     </div>
-                    <div>
-                      <span class="font-semibold">A/C:</span> 
-                      <span class="text-red-600 font-bold">{{ editableDescriptions['bank_paybill_ac'] || '1002970089' }}</span>
+                    
+                    <div class="space-y-0.5">
+                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Account Name</div>
+                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}</div>
+                    </div>
+
+                    <div class="space-y-0.5">
+                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Financial Institution</div>
+                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_name'] || 'NCBA Bank' }} (Code: {{ editableDescriptions['bank_code'] || '07000' }})</div>
+                    </div>
+
+                    <div class="space-y-0.5">
+                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Branch Information</div>
+                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }} (Code: {{ editableDescriptions['bank_branch_code'] || '125' }})</div>
+                    </div>
+
+                    <div class="col-span-2 mt-4 pt-3 border-t border-gray-200 grid grid-cols-2 gap-4">
+                      <div class="space-y-0.5">
+                        <div class="text-gray-400 font-bold uppercase tracking-tighter">SWIFT / BIC Code</div>
+                        <div class="text-gray-900 font-black">{{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}</div>
+                      </div>
+                      
+                      <div class="space-y-0.5">
+                        <div class="text-gray-400 font-bold uppercase tracking-tighter">Mpesa Paybill</div>
+                        <div class="flex items-center gap-2">
+                          <span class="text-emerald-700 font-black">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
+                          <span class="text-gray-400 font-bold px-1.5 py-0.5 border border-gray-200 rounded text-[8px] uppercase">Business</span>
+                        </div>
+                      </div>
+
+                      <div class="col-span-2 space-y-0.5">
+                        <div class="text-gray-400 font-bold uppercase tracking-tighter">Account Number</div>
+                        <div class="text-sm font-black text-emerald-700 select-all">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -999,26 +1030,17 @@ const handleImageError = (event: Event) => {
 /* Print styles - make it print exactly as it appears */
 @media print {
   /* Hide everything on the page */
-  body > *:not(.quote-viewer-modal) {
+  body > *:not(.quote-viewer-inline) {
     display: none !important;
   }
 
-  /* Ensure only the quote viewer modal is visible */
-  .quote-viewer-modal {
+  /* Ensure only the quote viewer is visible */
+  .quote-viewer-inline {
     display: block !important;
     visibility: visible !important;
-  }
-
-  .quote-viewer-modal * {
-    visibility: visible !important;
-  }
-
-  /* Remove modal overlay styling for print */
-  .quote-viewer-modal {
     position: static !important;
     background: white !important;
     z-index: auto !important;
-    display: block !important;
     width: 100% !important;
     height: auto !important;
     max-width: none !important;
@@ -1027,6 +1049,15 @@ const handleImageError = (event: Event) => {
     padding: 0 !important;
     margin: 0 !important;
     inset: auto !important;
+  }
+
+  .quote-viewer-inline * {
+    visibility: visible !important;
+  }
+
+  /* Hide sticky header for print */
+  .sticky.top-0 {
+    display: none !important;
   }
 
   .quote-viewer-modal .bg-black,

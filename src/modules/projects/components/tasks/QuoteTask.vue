@@ -1,40 +1,43 @@
 <template>
-  <div class="quote-task-content">
-    <!-- Project Header Section -->
-    <div class="mb-6">
+  <div class="quote-task-content relative -m-8 p-8 min-h-full">
+    <div v-if="!showQuoteViewer" class="animate-in fade-in duration-300">
+      <!-- Project Header Section -->
+      <div class="mb-6">
       <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Quote Task - {{ task.title }}
       </h4>
 
-      <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Project Information</h5>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ quoteData.projectInfo.enquiryTitle }}</p>
+      <!-- Project Information Display Card -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm shadow-blue-500/5">
+        <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-50 dark:border-gray-700/50">
+           <h5 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Strategic Project Intelligence</h5>
+           <div class="flex items-center gap-2">
+             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+             <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Live Project Status</span>
+           </div>
+        </div>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Project Concept</label>
+            <p class="text-sm text-gray-900 dark:text-white font-bold leading-tight">{{ quoteData.projectInfo.enquiryTitle }}</p>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ quoteData.projectInfo.projectId }}</p>
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enquiry Ref</label>
+            <p class="text-sm text-blue-600 dark:text-blue-400 font-black tracking-tight">{{ quoteData.projectInfo.projectId }}</p>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ quoteData.projectInfo.clientName }}</p>
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stakeholder</label>
+            <p class="text-sm text-gray-700 dark:text-gray-300 font-semibold">{{ quoteData.projectInfo.clientName }}</p>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ quoteData.projectInfo.eventVenue }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(quoteData.projectInfo.setupDate) }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Quote Status</label>
-            <span :class="getQuoteStatusColor(quoteData.status)" class="px-2 py-1 text-xs rounded-full font-medium">
-              {{ getQuoteStatusLabel(quoteData.status) }}
-            </span>
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Timeline Alignment</label>
+            <p class="text-sm text-gray-900 dark:text-white font-bold flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              {{ formatDate(quoteData.projectInfo.setupDate) }}
+            </p>
           </div>
         </div>
       </div>
@@ -57,26 +60,29 @@
             </p>
           </div>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-3">
           <button 
             @click="exitPreview"
-            class="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-[10px] font-black uppercase tracking-widest rounded-xl backdrop-blur-md border border-white/30 transition-all ring-1 ring-black/5"
           >
             Exit Preview
           </button>
           <button 
             @click="restoreFromPreview"
-            class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+            class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2"
           >
-            Restore This Version
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Restore Session
           </button>
         </div>
       </div>
     </div>
 
 
-    <!-- Versioning Controls (Always Visible) -->
-    <div class="mb-6 flex justify-end space-x-2" v-if="hasExistingQuoteData || quoteVersions.length > 0">
+    <!-- Versioning & Version History HUD -->
+    <div class="mb-6 flex justify-end items-center gap-3" v-if="hasExistingQuoteData || quoteVersions.length > 0">
       <CreateVersionButton
         title="Quote"
         type="quote"
@@ -84,17 +90,12 @@
       />
       <button
         @click="showVersionHistory = true"
-        class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
+        class="group px-4 py-2 text-xs bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl border border-purple-100 dark:border-purple-800/50 shadow-sm transition-all flex items-center gap-2"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
+        <svg class="w-4 h-4 transform group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span>Version History</span>
+        <span>Timeline History</span>
       </button>
     </div>
 
@@ -113,20 +114,20 @@
           </p>
         </div>
       </div>
-      <div class="flex items-center space-x-2 ml-4">
+      <div class="flex items-center gap-4 ml-auto">
         <button
           @click="smartMergeBudget"
           :disabled="isMerging"
-          class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+          class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2 group"
         >
-          <svg v-if="isMerging" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg v-if="isMerging" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg v-else class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          {{ isMerging ? 'Refreshing...' : 'Refresh from Budget' }}
+          <span>{{ isMerging ? 'Syncing...' : 'Sync Budget' }}</span>
         </button>
         <button
           @click="showBudgetWarning = false"
@@ -175,22 +176,50 @@
 
     <!-- Quote Tabs -->
     <div v-if="quoteData.budgetImported || isImporting || hasExistingQuoteData" class="mb-6">
-      <!-- Tab Navigation -->
-      <div class="mb-6">
-        <nav class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+      <!-- Premium Segmented Tab Navigation -->
+      <div class="mb-8">
+        <nav class="flex p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-inner w-full">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
               activeTab === tab.id
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                ? 'bg-blue-600 shadow-lg shadow-blue-500/30 text-white scale-100'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 scale-95 opacity-70'
             ]"
+            class="flex-1 flex flex-col items-center justify-center py-3.5 rounded-xl transition-all duration-300 relative group overflow-hidden"
           >
-            {{ tab.label }}
-            <span v-if="getTabTotal(tab.id) > 0" class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+            <!-- Background pulse for active tab -->
+            <div v-if="activeTab === tab.id" class="absolute inset-0 bg-white/10 animate-pulse"></div>
+            
+            <div class="flex items-center gap-2 relative z-10">
+              <!-- Icons for Tabs -->
+              <svg v-if="tab.id === 'materials'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <svg v-else-if="tab.id === 'labour'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <svg v-else-if="tab.id === 'expenses'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+              </svg>
+              <svg v-else-if="tab.id === 'logistics'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 011 1v2a1 1 0 01-1 1h-1m-4-13H3" />
+              </svg>
+              <svg v-else-if="tab.id === 'summary'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              
+              <span class="text-[11px] font-black uppercase tracking-[0.15em]">{{ tab.label }}</span>
+            </div>
+
+            <!-- Enhanced Tab Totals -->
+            <span v-if="getTabTotal(tab.id) > 0" 
+              :class="activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400'"
+              class="mt-1.5 text-[9px] font-bold px-2.5 py-0.5 rounded-full transition-colors relative z-10"
+            >
               {{ formatCurrency(getTabTotal(tab.id)) }}
             </span>
           </button>
@@ -200,13 +229,15 @@
       <!-- Tab Content -->
       <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         <!-- Materials Tab -->
-        <div v-if="activeTab === 'materials'" class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Materials & Components</h5>
-            <div class="flex items-center space-x-3">
-              <div class="text-sm text-gray-500 dark:text-gray-400">
-                Base: {{ formatCurrency(quoteData.totals.materialsBase) }} |
-                Final: {{ formatCurrency(quoteData.totals.materialsTotal) }}
+        <div v-if="activeTab === 'materials'" class="p-8">
+          <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
+            <h5 class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              Materials & Strategic Assets
+            </h5>
+            <div class="flex items-center gap-4">
+              <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Valuation: <span class="text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.materialsTotal) }}</span>
               </div>
             </div>
           </div>
@@ -214,16 +245,16 @@
           <div v-if="quoteData.materials.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
                   <tr>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Days</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final (KES)</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Asset</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Qty</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Timeline (Days)</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit Valuation</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Total</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Profit Margin %</th>
+                    <th class="text-right py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -290,39 +321,56 @@
         </div>
 
         <!-- Labour Tab -->
-        <div v-if="activeTab === 'labour'" class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Direct Labour and Welfare Costs</h5>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-              Total: {{ formatCurrency(quoteData.totals.labourBase) }}
+        <div v-if="activeTab === 'labour'" class="p-8">
+          <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
+            <h5 class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Labour & Operational Welfare
+            </h5>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+               Valuation: <span class="text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.labourTotal) }}</span>
             </div>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Type</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
-                </tr>
-              </thead>
+                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                  <tr>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Labour Type</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Qty</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Rate</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Amount</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Profit Margin %</th>
+                    <th class="text-right py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Amount</th>
+                  </tr>
+                </thead>
               <tbody>
-                <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-200 dark:border-gray-700">
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.category }}</td>
+                <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
                       <span class="text-sm font-medium text-gray-900 dark:text-white">{{ labour.type }}</span>
-                      <span v-if="labour.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                      <span v-if="labour.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.unit }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ labour.quantity }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ labour.unit }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ labour.quantity }}</td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(labour.unitRate) }}</td>
-                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(labour.amount) }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(labour.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        v-model.number="labour.marginPercentage"
+                        @input="updateIndividualMargin(labour)"
+                        class="w-16 px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all shadow-sm"
+                      >
+                      <span class="text-gray-400 text-[10px] font-bold">%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400 text-right">
+                    {{ formatCurrency(labour.finalPrice) }}
+                  </td>
                 </tr>
                 <tr v-if="quoteData.labour.length === 0">
                   <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
@@ -335,34 +383,52 @@
         </div>
 
         <!-- Expenses Tab -->
-        <div v-if="activeTab === 'expenses'" class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Expenses & Overheads</h5>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-              Base: {{ formatCurrency(quoteData.totals.expensesBase) }} |
-              Final: {{ formatCurrency(quoteData.totals.expensesTotal) }}
+        <div v-if="activeTab === 'expenses'" class="p-8">
+          <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
+            <h5 class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Strategic Expenses & Overheads
+            </h5>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+               Valuation: <span class="text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.expensesTotal) }}</span>
             </div>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Amount (KES)</th>
-                </tr>
-              </thead>
+                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                  <tr>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Expense Allocation</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Category</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Amount</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Profit Margin %</th>
+                    <th class="text-right py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Amount</th>
+                  </tr>
+                </thead>
               <tbody>
-                <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-200 dark:border-gray-700">
+                <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
                       <span class="text-sm font-medium text-gray-900 dark:text-white">{{ expense.description }}</span>
-                      <span v-if="expense.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                      <span v-if="expense.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ expense.category }}</td>
-                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(expense.amount) }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize font-medium">{{ expense.category }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ formatCurrency(expense.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        v-model.number="expense.marginPercentage"
+                        @input="updateIndividualMargin(expense)"
+                        class="w-16 px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all shadow-sm"
+                      >
+                      <span class="text-gray-400 text-[10px] font-bold">%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400 text-right">
+                    {{ formatCurrency(expense.finalPrice) }}
+                  </td>
                 </tr>
                 <tr v-if="quoteData.expenses.length === 0">
                   <td colspan="3" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
@@ -375,40 +441,58 @@
         </div>
 
         <!-- Logistics Tab -->
-        <div v-if="activeTab === 'logistics'" class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Logistics & Transportation</h5>
-            <div class="text-sm text-gray-500 dark:text-gray-400">
-              Base: {{ formatCurrency(quoteData.totals.logisticsBase) }} |
-              Final: {{ formatCurrency(quoteData.totals.logisticsTotal) }}
+        <div v-if="activeTab === 'logistics'" class="p-8">
+          <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
+            <h5 class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+              Logistics & Deployment Protocol
+            </h5>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+               Valuation: <span class="text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</span>
             </div>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Vehicle</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-                  <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
-                </tr>
-              </thead>
+                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                  <tr>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Logistics Protocol</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Vehicle Reg</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Qty</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Rate</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Amount</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Profit Margin %</th>
+                    <th class="text-right py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Amount</th>
+                  </tr>
+                </thead>
               <tbody>
-                <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-200 dark:border-gray-700">
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ logistics.vehicleReg }}</td>
+                <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
                       <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logistics.description }}</span>
-                      <span v-if="logistics.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                      <span v-if="logistics.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.unit }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.quantity }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-bold tracking-tight">{{ logistics.vehicleReg }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ logistics.unit }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ logistics.quantity }}</td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.unitRate) }}</td>
-                  <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(logistics.amount) }}</td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <div class="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        v-model.number="logistics.marginPercentage"
+                        @input="updateIndividualMargin(logistics)"
+                        class="w-16 px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition-all shadow-sm"
+                      >
+                      <span class="text-gray-400 text-[10px] font-bold">%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400 text-right">
+                    {{ formatCurrency(logistics.finalPrice) }}
+                  </td>
                 </tr>
                 <tr v-if="quoteData.logistics.length === 0">
                   <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">
@@ -421,8 +505,16 @@
         </div>
 
         <!-- Summary Tab -->
-        <div v-if="activeTab === 'summary'" class="p-6">
-          <h5 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-6">Quote Summary</h5>
+        <div v-if="activeTab === 'summary'" class="p-8">
+          <div class="flex items-center justify-between mb-8 pb-2 border-b border-gray-50 dark:border-gray-700/50">
+            <h5 class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+              Consolidated Quote Summary
+            </h5>
+            <div class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest animate-pulse">
+               Financial Audit Ready
+            </div>
+          </div>
 
 
 
@@ -430,17 +522,24 @@
           <div class="mb-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <!-- Discount Section -->
-              <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg border border-red-200 dark:border-red-700">
-                <div class="flex items-center justify-between mb-3">
-                  <h6 class="text-sm font-medium text-red-800 dark:text-red-200">Quote Discount</h6>
-                  <div class="text-xs text-red-600 dark:text-red-400">
+              <div class="bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-800 p-6 rounded-2xl border border-red-100 dark:border-red-800/50 shadow-sm">
+                <div class="flex items-center justify-between mb-5">
+                  <div class="flex items-center gap-2">
+                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                      </svg>
+                    </div>
+                    <h6 class="text-xs font-black text-red-800 dark:text-red-300 uppercase tracking-widest">Asset Valuation Adjustment</h6>
+                  </div>
+                  <div class="text-[10px] font-bold text-red-400 uppercase tracking-tighter">
                     Subtotal: {{ formatCurrency(quoteData.totals.subtotal) }}
                   </div>
                 </div>
 
-                <div class="flex items-center space-x-3">
+                <div class="flex items-end gap-6">
                   <div class="flex-1">
-                    <label class="block text-xs text-red-700 dark:text-red-300 mb-1">Discount Amount (KES)</label>
+                    <label class="block text-[10px] font-black text-red-700/60 dark:text-red-400/60 uppercase tracking-widest mb-2">Discount Allocation (KES)</label>
                     <input
                       v-model.number="quoteData.discountAmount"
                       type="number"
@@ -448,83 +547,70 @@
                       :max="quoteData.totals.subtotal"
                       step="100"
                       placeholder="0"
-                      class="w-full px-3 py-2 text-sm border border-red-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                      class="w-full px-4 py-2.5 text-sm font-bold bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800/50 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 shadow-inner"
                       @input="updateDiscount"
                     />
                   </div>
-                  <div class="text-right">
-                    <div class="text-xs text-red-600 dark:text-red-400 mb-1">Discount %</div>
-                    <div class="text-sm font-medium text-red-800 dark:text-red-200">
-                      {{ quoteData.totals.subtotal > 0 ? ((quoteData.discountAmount / quoteData.totals.subtotal) * 100).toFixed(1) : 0 }}%
+                  <div class="pb-2 text-right">
+                    <div class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Impact</div>
+                    <div class="text-xl font-black text-red-600 dark:text-red-400">
+                      -{{ quoteData.totals.subtotal > 0 ? ((quoteData.discountAmount / quoteData.totals.subtotal) * 100).toFixed(1) : 0 }}%
                     </div>
                   </div>
-                </div>
-
-                <div class="mt-3 text-xs text-red-600 dark:text-red-400">
-                  <span v-if="quoteData.discountAmount > 0">
-                    After discount: {{ formatCurrency(quoteData.totals.totalAfterDiscount) }}
-                  </span>
-                  <span v-else>
-                    No discount applied
-                  </span>
                 </div>
               </div>
 
               <!-- VAT Section -->
-              <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-                <div class="flex items-center justify-between mb-3">
-                  <h6 class="text-sm font-medium text-purple-800 dark:text-purple-200">Value Added Tax (16%)</h6>
-                  <div class="flex items-center space-x-2">
-                    <label class="text-xs text-purple-700 dark:text-purple-300">Enable VAT</label>
+              <div class="bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/20 dark:to-gray-800 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/50 shadow-sm">
+                <div class="flex items-center justify-between mb-5">
+                  <div class="flex items-center gap-2">
+                    <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                      </svg>
+                    </div>
+                    <h6 class="text-xs font-black text-purple-800 dark:text-purple-300 uppercase tracking-widest">Regulatory VAT compliance</h6>
+                  </div>
+                  <div class="flex items-center gap-3 bg-white dark:bg-gray-900 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-800/50 shadow-inner">
+                    <label class="text-[9px] font-black text-purple-600 uppercase tracking-widest cursor-pointer" for="vatToggle">Enable VAT</label>
                     <input
+                      id="vatToggle"
                       v-model="quoteData.vatEnabled"
                       type="checkbox"
-                      class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+                      class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded-full focus:ring-purple-500 cursor-pointer"
                       @change="handleVATChange"
                     />
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-end justify-between">
                   <div>
-                    <div class="text-xs text-purple-700 dark:text-purple-300 mb-1">VAT Rate (Fixed)</div>
-                    <div class="text-lg font-bold text-purple-800 dark:text-purple-200">16%</div>
+                    <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Standard Rate</div>
+                    <div class="text-2xl font-black text-purple-800 dark:text-purple-200">16%</div>
                   </div>
                   <div class="text-right">
-                    <div class="text-xs text-purple-600 dark:text-purple-400 mb-1">VAT Amount</div>
-                    <div class="text-lg font-bold text-purple-800 dark:text-purple-200">
+                    <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Tax liability</div>
+                    <div class="text-2xl font-black text-purple-800 dark:text-purple-200 transition-all" :class="{'opacity-20': !quoteData.vatEnabled}">
                       {{ formatCurrency(quoteData.totals.vatAmount) }}
                     </div>
                   </div>
-                </div>
-
-                <div class="mt-3 text-xs text-purple-600 dark:text-purple-400">
-                  <span v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0">
-                    VAT on {{ formatCurrency(quoteData.totals.totalAfterDiscount) }} = {{ formatCurrency(quoteData.totals.vatAmount) }}
-                  </span>
-                  <span v-else-if="!quoteData.vatEnabled">
-                    VAT is disabled for this quote
-                  </span>
-                  <span v-else>
-                    No VAT applicable
-                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Quote Summary Table -->
-          <div class="mb-6">
-            <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Cost Breakdown</h6>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+          <div class="mb-10">
+            <h6 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-4">Strategic Cost breakdown</h6>
+            <div class="overflow-hidden border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                   <tr>
-                    <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
-                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Base Cost</th>
-                    <th class="text-center py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
-                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Margin Amount</th>
-                    <th class="text-right py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Final Total</th>
+                    <th class="text-left py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Operational Category</th>
+                    <th class="text-right py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Base Allocation</th>
+                    <th class="text-center py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Net Margin</th>
+                    <th class="text-right py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Profit Intel</th>
+                    <th class="text-right py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Strategic Valuation</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -639,47 +725,27 @@
             </div>
           </div>
 
-          <!-- Quote Actions -->
-          <div class="mt-8 flex justify-center">
+          <!-- Quote Actions Hub -->
+          <div class="mt-10 flex flex-col items-center gap-4">
             <button
               @click="openQuoteViewer"
-              class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center space-x-2"
+              class="group relative px-10 py-4 bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-black uppercase tracking-[0.2em] rounded-2xl transition-all duration-300 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_15px_35px_-12px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:translate-y-0.5 text-xs flex items-center space-x-3 overflow-hidden"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-[-45deg]"></div>
+              <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
               </svg>
-              <span>View Quote</span>
+              <span class="relative z-10">Generate Final Prospectus</span>
             </button>
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Ready for strategic review</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Quote Viewer Modal -->
-    <QuoteViewer
-      :is-visible="showQuoteViewer"
-      :quote-data="quoteData"
-      :readonly="task.status === 'cancelled'"
-      @close="closeQuoteViewer"
-    />
-
-    <!-- Version History Modal -->
-    <VersionHistoryModal
-      :is-open="showVersionHistory"
-      :versions="quoteVersions"
-      :is-loading="versionsLoading"
-      :error="versionsError"
-      title="Quote"
-      type="quote"
-      @close="showVersionHistory = false"
-      @preview="handlePreviewVersion"
-      @restore="handleRestoreVersion"
-      @refresh="fetchVersions"
-    />
-
     <!-- No Budget Data Message -->
-    <div v-if="!quoteData.budgetImported && !isImporting" class="mb-6">
+    <div v-if="!quoteData.budgetImported && !isImporting" class="mb-6 mt-6">
       <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
         <div class="flex items-center space-x-3">
           <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -694,7 +760,7 @@
     </div>
 
     <!-- Task Status and Actions -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-8 mt-8">
       <div class="flex items-center space-x-2">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
         <span :class="getStatusColor(task.status)" class="px-2 py-1 text-xs rounded-full font-medium">
@@ -706,36 +772,62 @@
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled'"
           @click="$emit('update-status', 'completed')"
-          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+          class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span>Mark Complete</span>
+          <span>Finalize Assignment</span>
         </button>
 
-        <div v-if="task.status === 'completed'" class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2 text-green-600 dark:text-green-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span class="text-sm font-medium">Task Completed</span>
+        <div v-if="task.status === 'completed'" class="flex items-center gap-6">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+            <div class="p-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+               </svg>
+            </div>
+            <span class="text-xs font-black uppercase tracking-widest">Mission Completed</span>
           </div>
 
-          <!-- View Quote Button for completed tasks -->
+          <!-- Master Preview Trigger -->
           <button
             @click="openQuoteViewer"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+            class="px-5 py-2.5 bg-gray-900 dark:bg-gray-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-black/10 hover:scale-105 flex items-center gap-2"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
-            <span>View Quote</span>
+            <span>Review Prospectus</span>
           </button>
         </div>
       </div>
     </div>
+    </div> <!-- End of Task UI v-if -->
+
+    <!-- Inline Quote Viewer -->
+    <QuoteViewer
+      v-else
+      :is-visible="showQuoteViewer"
+      :quote-data="quoteData"
+      :readonly="task.status === 'cancelled' || readonly"
+      @close="closeQuoteViewer"
+    />
+
+    <!-- Shared Modals (Always available) -->
+    <VersionHistoryModal
+      :is-open="showVersionHistory"
+      :versions="quoteVersions"
+      :is-loading="versionsLoading"
+      :error="versionsError"
+      title="Quote"
+      type="quote"
+      @close="showVersionHistory = false"
+      @preview="handlePreviewVersion"
+      @restore="handleRestoreVersion"
+      @refresh="fetchVersions"
+    />
   </div>
 </template>
 
@@ -771,6 +863,8 @@ const CONSTANTS = {
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Whether the task is in readonly mode */
+  readonly?: boolean
 }
 
 /**

@@ -1004,66 +1004,88 @@
          </div>
 
          <!-- Assets Grid -->
-         <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div v-for="asset in designAssets" :key="asset.id" class="group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-               <!-- Thumbnail -->
-               <div class="aspect-w-16 aspect-h-9 bg-gray-100 dark:bg-gray-700 relative" style="padding-top: 56.25%;">
-                  <img 
-                    v-if="isImageAsset(asset)" 
-                    :src="getAssetUrl(asset)" 
-                    :alt="asset.description || asset.file_name"
-                    class="absolute inset-0 object-cover w-full h-full"
-                    loading="lazy"
-                  />
-                  <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400">
-                     <!-- Generic File Icon -->
-                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                     </svg>
+         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div
+              v-for="asset in designAssets"
+              :key="asset.id"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+              @click="openPreview(asset)"
+            >
+              <!-- Asset Preview/Icon -->
+              <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
+                <!-- Image Preview with Loading State -->
+                <template v-if="isImageAsset(asset)">
+                  <!-- Loading Placeholder -->
+                  <div class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-600">
+                    <svg class="animate-spin h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                   </div>
-               </div>
+                  <!-- Actual Image -->
+                  <img
+                    :src="getAssetUrl(asset)"
+                    :alt="asset.file_name || asset.name || asset.original_name"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
+                    @load="(e) => { const parent = (e.target as HTMLElement)?.parentElement?.querySelector('.absolute'); if (parent) parent.remove(); }"
+                  />
+                </template>
+                
+                <!-- PDF Icon -->
+                <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center">
+                  <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-xs text-gray-600 dark:text-gray-300 mt-2 font-medium">PDF DOCUMENT</span>
+                </div>
+                
+                <!-- Generic File Icon -->
+                <div v-else class="flex flex-col items-center">
+                  <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                  </svg>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ asset.category?.toUpperCase() || 'FILE' }}</span>
+                </div>
 
-               <!-- Info -->
-               <div class="p-3">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white truncate" :title="asset.file_name">{{ asset.file_name }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ asset.category ? asset.category.toUpperCase() : 'UNKNOWN' }}</p>
-                  
-                   <!-- Actions -->
-                   <div class="mt-3 flex space-x-2">
-                       <a 
-                         v-if="asset.file_url"
-                         :href="asset.file_url" 
-                         target="_blank" 
-                         class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                         download
-                        >
-                         Download
-                       </a>
-                        <a 
-                         v-if="asset.file_url"
-                         :href="asset.file_url" 
-                         target="_blank" 
-                         class="text-xs bg-gray-50 text-gray-600 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
-                        >
-                         View
-                       </a>
-                   </div>
-               </div>
-               
-               <!-- Status Badge -->
-               <div class="absolute top-2 right-2">
-                   <span 
-                    class="px-2 py-0.5 text-xs rounded-full shadow-sm"
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div class="px-4 py-2 bg-white/90 text-gray-900 text-xs font-bold rounded-lg transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                    CLICK TO PREVIEW
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset Info -->
+              <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-gray-900 dark:text-white truncate text-sm" :title="asset.file_name || asset.name">
+                      {{ asset.file_name || asset.name || asset.original_name }}
+                    </h4>
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-semibold uppercase tracking-wider">
+                      {{ asset.category }}
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Status & Date -->
+                <div class="mt-3 flex items-center justify-between">
+                  <span
                     :class="{
-                        'bg-green-100 text-green-800': asset.status === 'approved',
-                        'bg-yellow-100 text-yellow-800': asset.status === 'pending',
-                        'bg-red-100 text-red-800': asset.status === 'rejected',
-                        'bg-blue-100 text-blue-800': asset.status === 'concept'
+                      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400': asset.status === 'approved',
+                      'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400': asset.status === 'pending',
+                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': asset.status === 'rejected',
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': asset.status === 'revision' || asset.status === 'concept',
                     }"
-                   >
-                     {{ asset.status }}
-                   </span>
-               </div>
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+                  >
+                    {{ asset.status }}
+                  </span>
+                  <span class="text-[10px] text-gray-400 font-medium">
+                    {{ asset.created_at ? new Date(asset.created_at).toLocaleDateString() : 'N/A' }}
+                  </span>
+                </div>
+              </div>
             </div>
          </div>
       </div>
@@ -1179,6 +1201,130 @@
         </button>
       </div>
     </div>
+
+    <!-- Preview Modal -->
+    <Transition name="modal">
+      <div
+        v-if="showPreviewModal && previewAsset"
+        class="fixed inset-0 z-[150] overflow-y-auto"
+        @click.self="closePreview"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity" @click="closePreview"></div>
+
+        <!-- Modal Content -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div
+            class="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in duration-300"
+            @click.stop
+          >
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
+              <div class="flex-1 min-w-0 mr-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">
+                  {{ previewAsset.file_name || previewAsset.name || previewAsset.original_name }}
+                </h3>
+                <div class="flex items-center gap-3 mt-1">
+                   <span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase rounded-md tracking-wider">
+                     {{ previewAsset.category }}
+                   </span>
+                   <span class="text-xs text-gray-400 font-medium">
+                     {{ previewAsset.file_size ? formatFileSize(previewAsset.file_size) : 'Size unknown' }}
+                   </span>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-3">
+                <a
+                  v-if="previewAsset.file_url"
+                  :href="previewAsset.file_url"
+                  download
+                  class="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-black/10"
+                >
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  <span>Download</span>
+                </a>
+                
+                <button
+                  @click="closePreview"
+                  class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-xl transition-all"
+                >
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Content -->
+            <div class="flex-1 overflow-auto bg-gray-50/50 dark:bg-gray-950 p-6 flex items-center justify-center min-h-0">
+              <!-- Image Preview -->
+              <div v-if="isImageAsset(previewAsset)" class="relative group">
+                <img
+                  :src="getAssetUrl(previewAsset)"
+                  :alt="previewAsset.file_name || previewAsset.name"
+                  class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
+                />
+              </div>
+
+              <!-- PDF Preview -->
+              <div v-else-if="isPdfAsset(previewAsset)" class="w-full h-full min-h-[70vh]">
+                <iframe
+                  :src="getAssetUrl(previewAsset)"
+                  class="w-full h-full min-h-[70vh] rounded-xl border border-gray-200 dark:border-gray-800"
+                  frameborder="0"
+                ></iframe>
+              </div>
+
+              <!-- Other File Types -->
+              <div v-else class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 max-w-md w-full mx-auto">
+                <div class="p-6 bg-gray-100 dark:bg-gray-800 rounded-full mb-6 text-gray-400">
+                  <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center text-balance px-4">Preview not available</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8 text-center max-w-xs">We can't display this file type directly in the browser.</p>
+                
+                <a
+                  v-if="previewAsset.file_url"
+                  :href="previewAsset.file_url"
+                  download
+                  class="px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20"
+                >
+                  Download File
+                </a>
+              </div>
+            </div>
+
+            <!-- Asset Details Footer -->
+            <div class="p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+               <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div class="space-y-1">
+                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Description</span>
+                     <p class="text-sm text-gray-600 dark:text-gray-300 font-medium italic">
+                        {{ previewAsset.description || 'No detailed description provided for this asset.' }}
+                     </p>
+                  </div>
+                  <div class="flex items-center gap-8 text-xs">
+                     <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</span>
+                        <div class="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
+                           <div class="w-2 h-2 rounded-full" :class="previewAsset.status === 'approved' ? 'bg-emerald-500' : 'bg-amber-500'"></div>
+                           {{ previewAsset.status.toUpperCase() }}
+                        </div>
+                     </div>
+                     <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Added On</span>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ previewAsset.created_at ? new Date(previewAsset.created_at).toLocaleString() : 'N/A' }}</span>
+                     </div>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -1332,13 +1478,17 @@ const tabs = [
 // Design Asset Interface
 interface DesignAsset {
   id: number
-  file_name: string
+  file_name?: string
+  name?: string
+  original_name?: string
   file_type: string
-  mime_type: string
+  mime_type?: string
   category: string
   status: string
   description: string | null
   file_url?: string
+  file_size?: number
+  created_at?: string
   [key: string]: any
 }
 
@@ -1347,13 +1497,43 @@ const designAssets = ref<DesignAsset[]>([])
 const isLoadingDesignAssets = ref(false)
 const designAssetsError = ref<string | null>(null)
 
+// Preview modal state
+const showPreviewModal = ref(false)
+const previewAsset = ref<DesignAsset | null>(null)
+
 // Helper to get asset URL
 const getAssetUrl = (asset: DesignAsset): string => {
   return asset.file_url || ''
 }
 
 const isImageAsset = (asset: DesignAsset): boolean => {
-  return asset.mime_type?.startsWith('image/') || false
+  const type = asset.mime_type || asset.file_type || ''
+  const name = asset.file_name || asset.name || asset.original_name || ''
+  return type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(name)
+}
+
+const isPdfAsset = (asset: DesignAsset): boolean => {
+  const type = asset.mime_type || asset.file_type || ''
+  const name = asset.file_name || asset.name || asset.original_name || ''
+  return type === 'application/pdf' || name.toLowerCase().endsWith('.pdf')
+}
+
+const formatFileSize = (bytes?: number): string => {
+  if (!bytes || bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+const openPreview = (asset: DesignAsset) => {
+  previewAsset.value = asset
+  showPreviewModal.value = true
+}
+
+const closePreview = () => {
+  showPreviewModal.value = false
+  previewAsset.value = null
 }
 
 const fetchDesignAssets = async () => {
@@ -3414,5 +3594,27 @@ button[role="tab"]:focus {
 
 .issue-item + .issue-item {
   margin-top: 1rem;
+}
+
+/* Modal Transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .relative,
+.modal-leave-active .relative {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-enter-from .relative,
+.modal-leave-to .relative {
+  transform: scale(0.95);
+  opacity: 0;
 }
 </style>
