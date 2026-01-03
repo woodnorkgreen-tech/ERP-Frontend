@@ -1,265 +1,286 @@
 <template>
-  <!-- Custom Modal Dialog -->
-  <div v-if="visible" class="fixed inset-0 z-50 overflow-y-auto">
-    <!-- Backdrop -->
-    <div class="fixed inset-0 transition-opacity" @click="$emit('update:visible', false)"></div>
+  <div v-if="visible" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
+    <!-- Glass Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="$emit('update:visible', false)"></div>
 
-    <!-- Modal Content -->
-    <div class="flex justify-center sm:justify-end min-h-screen pt-4 px-4 pb-20 sm:block sm:p-0">
-      <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg text-left overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all duration-300 ease-out sm:my-8 sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl w-full sm:w-auto sm:ml-auto relative z-10 slide-in-right" role="dialog" aria-modal="true" aria-labelledby="modal-headline" @click.stop>
-        <!-- Close button -->
-        <button @click="$emit('update:visible', false)" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 text-2xl leading-none z-20">&times;</button>
-        <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4" id="modal-headline">
-                {{ isEditing ? 'Edit Task' : 'Create Task' }}
-              </h3>
-              <div class="space-y-6">
-                <!-- Basic Information -->
-                <div class="space-y-4">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h3>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title *</label>
-                    <input
-                      v-model="form.title"
-                      type="text"
-                      placeholder="Enter task title"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-500': errors.title }"
-                    />
-                    <small v-if="errors.title" class="text-red-500 text-xs mt-1">{{ errors.title }}</small>
-                  </div>
+    <!-- Modal Container -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Premium Header -->
+      <div class="px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50 shrink-0">
+        <div class="flex items-center space-x-5">
+           <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
+            <i class="mdi mdi-checkbox-marked-circle-plus-outline text-blue-600 text-2xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+              {{ isEditing ? 'Refine Objective' : 'Initialize Universal Task' }}
+            </h2>
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-1 italic">Operational Planning & Deployment</p>
+          </div>
+        </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                    <textarea
-                      v-model="form.description"
-                      placeholder="Enter task description"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      rows="3"
-                    ></textarea>
-                  </div>
+        <button
+          @click="$emit('update:visible', false)"
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all duration-200"
+        >
+          <i class="mdi mdi-close text-2xl"></i>
+        </button>
+      </div>
 
-                  <!-- Task Details - More Compact Grid -->
-                  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                      <select
-                        v-model="form.status"
-                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select</option>
-                        <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                          {{ option.label }}
-                        </option>
-                      </select>
-                    </div>
+      <!-- Modal Body -->
+      <div class="flex-grow overflow-y-auto custom-scrollbar p-8 bg-gray-50/30 dark:bg-gray-900/40">
+        <div class="space-y-10">
+          
+          <!-- Section: Core Intelligence -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3">
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+              <h3 class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.3em]">Core Intelligence</h3>
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+            </div>
 
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
-                      <select
-                        v-model="form.priority"
-                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select</option>
-                        <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
-                          {{ option.label }}
-                        </option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Task Type</label>
-                      <select
-                        v-model="form.task_type"
-                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select</option>
-                        <option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
-                          {{ option.label }}
-                        </option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Est. Hours</label>
-                      <input
-                        v-model="form.estimated_hours"
-                        type="number"
-                        placeholder="Hours"
-                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        min="0"
-                        max="999"
-                      />
-                    </div>
-
-                    <div>
-                      <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
-                      <input
-                        v-model="form.due_date"
-                        type="date"
-                        class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        :min="new Date().toISOString().split('T')[0]"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Linking (project / office) and Additional Details (tags) - Same Row -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Link To</label>
-                      <div class="flex gap-2 mb-2">
-                        <button
-                          type="button"
-                          @click="linkType = 'project'"
-                          :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            linkType === 'project'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          ]"
-                        >
-                          Project
-                        </button>
-                        <button
-                          type="button"
-                          @click="linkType = 'office'"
-                          :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            linkType === 'office'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          ]"
-                        >
-                          Office
-                        </button>
-                        <button
-                          type="button"
-                          @click="linkType = null; form.taskable_type = undefined; form.taskable_id = undefined"
-                          :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            !linkType
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          ]"
-                        >
-                          None
-                        </button>
-                      </div>
-
-                      <!-- Project/Enquiry Dropdown -->
-                      <select
-                        v-if="linkType === 'project'"
-                        v-model="selectedProject"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        :disabled="loadingProjects"
-                        @change="handleProjectSelect"
-                      >
-                        <option value="">Select project/enquiry</option>
-                        <option v-for="proj in projects" :key="proj.id" :value="proj.id">
-                          {{ proj.title }} ({{ proj.enquiry_number }})
-                        </option>
-                      </select>
-
-                      <!-- Office Input -->
-                      <input
-                        v-if="linkType === 'office'"
-                        v-model="officeName"
-                        type="text"
-                        placeholder="Enter office name or location"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        @input="handleOfficeInput"
-                      />
-                    </div>
-
-                    <!-- Additional Details (tags) -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
-                      <select
-                        v-model="selectedTag"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        @change="addTagFromDropdown"
-                      >
-                        <option value="">Select industry standard tag</option>
-                        <option v-for="tag in industryTags" :key="tag" :value="tag">
-                          {{ tag }}
-                        </option>
-                      </select>
-                      <div v-if="form.tags && form.tags.length > 0" class="mt-2 flex flex-wrap gap-2">
-                        <span
-                          v-for="(tag, index) in form.tags"
-                          :key="index"
-                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                        >
-                          {{ tag }}
-                          <button @click="removeTag(index)" class="ml-1 text-blue-600 hover:text-blue-800">
-                            ×
-                          </button>
-                        </span>
-                      </div>
-                    </div>
-                  </div>                </div>
-
-                <!-- Department (full row) -->
-                <div class="space-y-4">
-                  <h3 class="text-lg font-medium text-gray-900 dark:text-white">Organization</h3>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department *</label>
-                    <select
-                      v-model="form.department_id"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      :class="{ 'border-red-500': errors.department_id }"
-                      :disabled="loadingDepartments"
-                    >
-                      <option value="">Select department</option>
-                      <option v-for="dept in departments" :key="dept.id" :value="dept.id">
-                        {{ dept.name }}
-                      </option>
-                    </select>
-                    <small v-if="errors.department_id" class="text-red-500 text-xs mt-1">{{ errors.department_id }}</small>
-                  </div>
-
-                  <!-- Assignment (full row) -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assignees</label>
-                    <TaskAssignmentManager 
-                      ref="assignmentManagerRef"
-                      :task-id="props.task?.id"
-                      :initial-assignments="props.task?.assignments || []"
-                      @assignments-updated="handleAssignmentsUpdated"
-                    />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="md:col-span-2 space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Objective Title *</label>
+                <div class="relative group">
+                  <input
+                    v-model="form.title"
+                    type="text"
+                    placeholder="Describe the primary mission objective..."
+                    class="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                    :class="{ '!border-red-500 focus:ring-red-500/10': errors.title }"
+                  />
+                  <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500">
+                    <i class="mdi mdi-format-title text-xl"></i>
                   </div>
                 </div>
+                <p v-if="errors.title" class="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-wider flex items-center">
+                  <i class="mdi mdi-alert-circle-outline mr-1"></i> {{ errors.title }}
+                </p>
+              </div>
 
-                <!-- Footer -->
-                <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div class="md:col-span-2 space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Strategic Description</label>
+                <textarea
+                  v-model="form.description"
+                  rows="3"
+                  class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm placeholder:text-gray-300"
+                  placeholder="Provide comprehensive details for successful execution..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Operational Metrics -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3">
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+              <h3 class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.3em]">Operational Metrics</h3>
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Task Category</label>
+                <select
+                  v-model="form.task_type"
+                  class="w-full pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Standard</option>
+                  <option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Execution Status</label>
+                <select
+                  v-model="form.status"
+                  class="w-full pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                >
+                  <option v-for="option in statusOptions" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Priority Weight</label>
+                <select
+                  v-model="form.priority"
+                  class="w-full pl-4 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+                >
+                  <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Est. Duration (Hrs)</label>
+                <input
+                  v-model="form.estimated_hours"
+                  type="number"
+                  class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                  placeholder="0.0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Context & Logic -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3">
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+              <h3 class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.3em]">Context & Logic</h3>
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-4">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Mission Deployment Point</label>
+                <div class="flex p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
                   <button
-                    type="button"
-                    :disabled="saving"
-                    @click="save"
-                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                    v-for="type in (['project', 'office', 'none'] as const)"
+                    :key="type"
+                    @click="linkType = type === 'none' ? null : type"
+                    :class="[
+                      (linkType === type || (type === 'none' && !linkType))
+                        ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                    ]"
+                    class="flex-1 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] rounded-lg transition-all"
                   >
-                    <span v-if="saving" class="mr-2">
-                      <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    </span>
-                    {{ isEditing ? 'Update Task' : 'Create Task' }}
+                    {{ type }}
                   </button>
-                  <button
-                    type="button"
-                    @click="$emit('update:visible', false)"
-                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                </div>
+
+                <div class="animate-in slide-in-from-top-2 duration-300">
+                  <select
+                    v-if="linkType === 'project'"
+                    v-model="selectedProject"
+                    @change="handleProjectSelect"
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                   >
-                    Cancel
-                  </button>
+                    <option value="">Select Target Project...</option>
+                    <option v-for="proj in projects" :key="proj.id" :value="proj.id">
+                      {{ proj.title }} — {{ proj.enquiry_number }}
+                    </option>
+                  </select>
+
+                  <input
+                    v-if="linkType === 'office'"
+                    v-model="officeName"
+                    @input="handleOfficeInput"
+                    type="text"
+                    placeholder="Specify Office/Unit Deployment Site..."
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Deployment Tags</label>
+                <div class="relative">
+                  <select
+                    v-model="selectedTag"
+                    @change="addTagFromDropdown"
+                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
+                  >
+                    <option value="">Apply Identification Signal...</option>
+                    <option v-for="tag in industryTags" :key="tag" :value="tag">{{ tag }}</option>
+                  </select>
+                  <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                    <i class="mdi mdi-tag-plus-outline text-xl"></i>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span
+                    v-for="(tag, index) in form.tags"
+                    :key="index"
+                    class="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-800 flex items-center group shadow-sm transition-all"
+                  >
+                    {{ tag }}
+                    <button @click="removeTag(index)" class="ml-2 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                      <i class="mdi mdi-close-circle"></i>
+                    </button>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Section: Command Center -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3">
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+              <h3 class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.3em]">Command Center</h3>
+              <span class="h-px bg-slate-200 dark:bg-slate-800 flex-grow"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Responsible Division *</label>
+                <select
+                  v-model="form.department_id"
+                  class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none"
+                  :class="{ '!border-red-500 focus:ring-red-500/10': errors.department_id }"
+                >
+                  <option value="">Select Division HQ...</option>
+                  <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                </select>
+                <p v-if="errors.department_id" class="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-wider">{{ errors.department_id }}</p>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Mission Deadline *</label>
+                <div class="relative group">
+                  <input
+                    v-model="form.due_date"
+                    type="date"
+                    class="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                  />
+                  <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500">
+                    <i class="mdi mdi-calendar-clock text-xl"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Personnel Allocation</label>
+                <TaskAssignmentManager 
+                  ref="assignmentManagerRef"
+                  :task-id="props.task?.id"
+                  :initial-assignments="props.task?.assignments || []"
+                  @assignments-updated="handleAssignmentsUpdated"
+                />
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Premium Footer -->
+      <div class="p-8 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center space-x-4 shrink-0">
+        <button
+          type="button"
+          @click="$emit('update:visible', false)"
+          class="px-8 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all"
+        >
+          Abort Initialization
+        </button>
+        <button
+          type="button"
+          :disabled="saving"
+          @click="save"
+          class="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 transition-all active:scale-95 flex items-center space-x-2 disabled:opacity-50 ring-2 ring-white dark:ring-gray-900 border border-blue-400/30"
+        >
+          <div v-if="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+          <i v-else class="mdi mdi-rocket-launch-outline text-base"></i>
+          <span>{{ isEditing ? 'Deploy Updates' : 'Execute Mission' }}</span>
+        </button>
       </div>
     </div>
   </div>

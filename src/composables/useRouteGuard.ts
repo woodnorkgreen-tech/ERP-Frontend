@@ -300,54 +300,53 @@ export function useRouteGuard() {
         {
           department: 'Super Admin',
           routes: [
-            { name: 'super-admin-dashboard', path: '/super-admin', label: 'Super Admin Dashboard', icon: '👑' }
+            { name: 'super-admin-dashboard', path: '/super-admin', label: 'Super Admin Dashboard', icon: 'mdi-crown' }
           ]
         },
         {
           department: 'Administration',
           routes: [
-            { name: 'admin-dashboard', path: '/admin', label: 'Admin Dashboard', icon: '📊' },
-            { name: 'admin-users', path: '/admin/users', label: 'User Management', icon: '👥' },
-            { name: 'admin-employees', path: '/admin/employees', label: 'Employee Management', icon: '👷' },
-            { name: 'admin-roles', path: '/admin/roles', label: 'Role Management', icon: '🔐' },
-            { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: '🏢' }
+            { name: 'admin-dashboard', path: '/admin', label: 'Admin Dashboard', icon: 'mdi-view-dashboard' },
+            { name: 'admin-users', path: '/admin/users', label: 'User Management', icon: 'mdi-account-group' },
+            { name: 'admin-employees', path: '/admin/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
+            { name: 'admin-roles', path: '/admin/roles', label: 'Role Management', icon: 'mdi-shield-check' },
+            { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: 'mdi-office-building' }
           ]
         },
         {
           department: 'Human Resources',
           routes: [
-            { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: '👥' },
-            { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: '👷' }
+            { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
+            { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' }
           ]
         },
         {
           department: 'Projects',
           routes: [
-            { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: '📈' },
-            { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: '📝' }
+            { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
+            { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
           ]
         },
         {
           department: 'Client Service',
           routes: [
-            { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: '📊' },
-            { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: '👥' },
-            { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: '📝' }
+            { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: 'mdi-monitor-dashboard' },
+            { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: 'mdi-account-multiple' },
+            { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: 'mdi-fountain-pen-tip' }
           ]
         },
-
         {
           department: 'Finance',
           routes: [
-            { name: 'finance-dashboard', path: '/finance', label: 'Petty Cash Dashboard', icon: '💰' },
-            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: '💵' },
-            { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: '📊' }
+            { name: 'finance-dashboard', path: '/finance', label: 'Petty Cash Dashboard', icon: 'mdi-wallet' },
+            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' },
+            { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
           ]
         },
         {
           department: 'Materials & Inventory',
           routes: [
-            { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: '🧱' }
+            { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' }
           ]
         },
       )
@@ -355,20 +354,20 @@ export function useRouteGuard() {
     // Admin gets admin routes
     else if (userRoles.includes('Admin')) {
       routes.push(
-        { name: 'admin-dashboard', path: '/admin', label: 'Admin Dashboard', icon: '📊' },
-        { name: 'admin-users', path: '/admin/users', label: 'User Management', icon: '👥' },
-        { name: 'admin-employees', path: '/admin/employees', label: 'Employee Management', icon: '👷' },
-        { name: 'admin-roles', path: '/admin/roles', label: 'Role Management', icon: '🔐' },
-        { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: '🏢' }
+        { name: 'admin-dashboard', path: '/admin', label: 'Admin Dashboard', icon: 'mdi-view-dashboard' },
+        { name: 'admin-users', path: '/admin/users', label: 'User Management', icon: 'mdi-account-group' },
+        { name: 'admin-employees', path: '/admin/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
+        { name: 'admin-roles', path: '/admin/roles', label: 'Role Management', icon: 'mdi-shield-check' },
+        { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: 'mdi-office-building' }
       )
     }
     // HR gets HR routes + Projects access
     else if (userRoles.includes('HR')) {
       routes.push(
-        { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: '👥' },
-        { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: '👷' },
-        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: '📈' },
-        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: '📝' }
+        { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
+        { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
+        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
+        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
       )
     }
     // Department users get department routes
@@ -386,18 +385,18 @@ export function useRouteGuard() {
     // Add projects routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessProjects() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: '📈' },
-        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: '📝' },
-        { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: '🧱' },
+        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
+        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' },
+        { name: 'MaterialsLibrary', path: '/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' },
       )
     }
 
     // Add client service routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessClientService() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: '📊' },
-        { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: '👥' },
-        { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: '📝' }
+        { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: 'mdi-monitor-dashboard' },
+        { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: 'mdi-account-multiple' },
+        { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: 'mdi-fountain-pen-tip' }
       )
     }
 
@@ -406,9 +405,9 @@ export function useRouteGuard() {
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'finance-dashboard', path: '/finance', label: 'Finance Dashboard', icon: '💰' },
-        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash', icon: '💵' },
-        { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: '📊' }
+        { name: 'finance-dashboard', path: '/finance', label: 'Finance Dashboard', icon: 'mdi-wallet' },
+        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash', icon: 'mdi-cash-multiple' },
+        { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
       )
     }
 

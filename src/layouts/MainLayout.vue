@@ -3,37 +3,37 @@
     <!-- Sidebar -->
     <DynamicSidebar
       v-model:collapsed="sidebarCollapsed"
-      :navigation-items="navigationItems"
-      :title="sidebarTitle"
-      :subtitle="sidebarSubtitle"
-      @update:collapsed="handleSidebarToggle"
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
-      class="flex-shrink-0 z-30 shadow-xl"
+      class="flex-shrink-0 z-30 shadow-2xl"
     />
 
     <!-- Main Content Wrapper -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       <!-- Top Header -->
-      <header class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 transition-all duration-300 shadow-sm">
-        <div class="px-4 sm:px-6 py-3 flex items-center justify-between">
-          <!-- Left Section: Toggle & Branding -->
-          <div class="flex items-center gap-4">
+      <header class="bg-white/70 dark:bg-[#0f172a]/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-20 transition-all duration-300 shadow-sm">
+        <div class="px-4 sm:px-8 py-3 flex items-center justify-between h-20">
+          <!-- Left Section: Toggle & Context -->
+          <div class="flex items-center gap-6">
             <button
               @click="sidebarCollapsed = !sidebarCollapsed"
-              class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+              class="group p-2.5 rounded-xl text-gray-500 hover:bg-blue-500/10 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-all focus:outline-none ring-1 ring-transparent hover:ring-blue-500/20"
               aria-label="Toggle Sidebar"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-              </svg>
+              <div class="relative w-6 h-6">
+                <span :class="['absolute h-0.5 bg-current transition-all duration-300 left-0', sidebarCollapsed ? 'w-6 top-1' : 'w-3 top-1']"></span>
+                <span class="absolute h-0.5 w-6 bg-current top-2.5 left-0"></span>
+                <span :class="['absolute h-0.5 bg-current transition-all duration-300 left-0', sidebarCollapsed ? 'w-3 top-4' : 'w-6 top-4']"></span>
+              </div>
             </button>
 
-            <!-- Logo & Title -->
+            <!-- Navigation Context / Breadcrumbs -->
              <div class="flex items-center gap-3">
-                <img src="/wng-logo.png" alt="Logo" class="h-8 w-auto object-contain hidden sm:block" />
-                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2 hidden sm:block"></div>
-                <h1 class="text-lg font-semibold text-gray-800 dark:text-white tracking-tight truncate">
+                <div class="hidden sm:flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+                   <span>System</span>
+                   <i class="mdi mdi-chevron-right text-gray-300"></i>
+                </div>
+                <h1 class="text-lg font-bold text-gray-900 dark:text-white tracking-tight truncate">
                   {{ pageTitle }}
                 </h1>
              </div>
