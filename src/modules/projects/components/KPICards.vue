@@ -1,113 +1,101 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     <!-- Total Enquiries -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
+    <div class="group relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors"></div>
+      <div class="relative z-10 flex flex-col h-full justify-between">
+        <div class="flex items-center justify-between mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-account-group-outline text-2xl"></i>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Enquiries</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ enquiryMetrics?.total_enquiries || 0 }}</p>
+          <div class="text-right">
+            <div class="flex items-center justify-end gap-1" :class="getTrendClass(enquiryMetrics?.monthly_trend)">
+              <i class="mdi" :class="[getTrendDirection(enquiryMetrics?.monthly_trend) === 'up' ? 'mdi-trending-up' : 'mdi-trending-down', 'text-lg']"></i>
+              <span class="text-xs font-black uppercase tracking-widest">{{ getTrendValue(enquiryMetrics?.monthly_trend) }}</span>
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <div class="flex items-center" :class="getTrendClass(enquiryMetrics?.monthly_trend)">
-            <svg class="w-4 h-4 mr-1" :class="getTrendIcon(enquiryMetrics?.monthly_trend)" fill="currentColor" viewBox="0 0 20 20">
-              <path v-if="getTrendDirection(enquiryMetrics?.monthly_trend) === 'up'" fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 00-.001-1.415L6.707 11.293a1 1 0 00-1.414 1.414L7.586 14H5a1 1 0 01-1-1V5a1 1 0 00-2 0v8z" clip-rule="evenodd"></path>
-              <path v-else-if="getTrendDirection(enquiryMetrics?.monthly_trend) === 'down'" fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 011.414-1.414L9 15.586V3a1 1 0 012 0v12.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              <path v-else fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-sm font-medium">{{ getTrendValue(enquiryMetrics?.monthly_trend) }}</span>
+        <div>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Global Enquiries</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ enquiryMetrics?.total_enquiries || 0 }}</h3>
+            <span class="text-xs font-medium text-slate-400">Total Flux</span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{ getTrendLabel(enquiryMetrics?.monthly_trend) }}</p>
         </div>
       </div>
     </div>
 
     <!-- Active Projects -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
+    <div class="group relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-indigo-500/10 transition-colors"></div>
+      <div class="relative z-10 flex flex-col h-full justify-between">
+        <div class="flex items-center justify-between mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-rocket-launch-outline text-2xl"></i>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Projects</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ projectMetrics?.active_projects || 0 }}</p>
+          <div class="text-right">
+            <div class="flex items-center justify-end gap-1" :class="getProjectTrendClass(projectMetrics)">
+              <i class="mdi mdi-chart-donut text-lg"></i>
+              <span class="text-xs font-black uppercase tracking-widest">{{ getProjectTrendValue(projectMetrics) }}</span>
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <div class="flex items-center" :class="getProjectTrendClass(projectMetrics)">
-            <svg class="w-4 h-4 mr-1" :class="getProjectTrendIcon(projectMetrics)" fill="currentColor" viewBox="0 0 20 20">
-              <path v-if="getProjectTrendDirection(projectMetrics) === 'up'" fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 00-.001-1.415L6.707 11.293a1 1 0 00-1.414 1.414L7.586 14H5a1 1 0 01-1-1V5a1 1 0 00-2 0v8z" clip-rule="evenodd"></path>
-              <path v-else-if="getProjectTrendDirection(projectMetrics) === 'down'" fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 011.414-1.414L9 15.586V3a1 1 0 012 0v12.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              <path v-else d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-            </svg>
-            <span class="text-sm font-medium">{{ getProjectTrendValue(projectMetrics) }}</span>
+        <div>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Active Deployments</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ projectMetrics?.active_projects || 0 }}</h3>
+            <span class="text-xs font-medium text-slate-400">Total Ops</span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{ getProjectTrendLabel(projectMetrics) }}</p>
         </div>
       </div>
     </div>
 
     <!-- Task Completion -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+    <div class="group relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors"></div>
+      <div class="relative z-10 flex flex-col h-full justify-between">
+        <div class="flex items-center justify-between mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-progress-check text-2xl"></i>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Task Completion</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ taskMetrics?.completion_rate || 0 }}%</p>
+          <div class="text-right">
+            <div class="flex items-center justify-end gap-1" :class="getTaskTrendClass(taskMetrics)">
+              <i class="mdi mdi-shield-check-outline text-lg"></i>
+              <span class="text-xs font-black uppercase tracking-widest">{{ getTaskTrendValue(taskMetrics) }}</span>
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <div class="flex items-center" :class="getTaskTrendClass(taskMetrics)">
-            <svg class="w-4 h-4 mr-1" :class="getTaskTrendIcon(taskMetrics)" fill="currentColor" viewBox="0 0 20 20">
-              <path v-if="getTaskTrendDirection(taskMetrics) === 'up'" fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 000 16zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-              <path v-else-if="getTaskTrendDirection(taskMetrics) === 'down'" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              <path v-else fill-rule="evenodd" d="M10 18a8 8 0 11-16 0 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L8.586 9.5H5a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
-            </svg>
-            <span class="text-sm font-medium">{{ getTaskTrendValue(taskMetrics) }}</span>
+        <div>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Execution Ratio</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ taskMetrics?.completion_rate || 0 }}<span class="text-2xl opacity-50">%</span></h3>
+            <span class="text-xs font-medium text-slate-400">Efficiency</span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{ getTaskTrendLabel(taskMetrics) }}</p>
         </div>
       </div>
     </div>
 
     <!-- Total Budget -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-            </svg>
+    <div class="group relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-purple-500/10 transition-colors"></div>
+      <div class="relative z-10 flex flex-col h-full justify-between">
+        <div class="flex items-center justify-between mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-currency-usd text-2xl"></i>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Budget</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white">${{ formatCurrency(projectMetrics?.total_budget || 0) }}</p>
+          <div class="text-right">
+            <div class="flex items-center justify-end gap-1" :class="getBudgetTrendClass(projectMetrics)">
+              <i class="mdi mdi-finance text-lg"></i>
+              <span class="text-xs font-black uppercase tracking-widest">{{ getBudgetTrendValue(projectMetrics) }}</span>
+            </div>
           </div>
         </div>
-        <div class="text-right">
-          <div class="flex items-center" :class="getBudgetTrendClass(projectMetrics)">
-            <svg class="w-4 h-4 mr-1" :class="getBudgetTrendIcon(projectMetrics)" fill="currentColor" viewBox="0 0 20 20">
-              <path v-if="getBudgetTrendDirection(projectMetrics) === 'up'" fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-              <path v-else-if="getBudgetTrendDirection(projectMetrics) === 'down'" fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"></path>
-              <path v-else d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-            </svg>
-            <span class="text-sm font-medium">{{ getBudgetTrendValue(projectMetrics) }}</span>
+        <div>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Capital Portfolio</p>
+          <div class="flex items-baseline gap-2">
+            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter"><span class="text-2xl opacity-50">$</span>{{ formatCurrency(projectMetrics?.total_budget || 0) }}</h3>
+            <span class="text-xs font-medium text-slate-400">NAV Value</span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{ getBudgetTrendLabel(projectMetrics) }}</p>
         </div>
       </div>
     </div>

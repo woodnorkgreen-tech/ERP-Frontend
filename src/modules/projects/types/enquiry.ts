@@ -16,6 +16,8 @@ export interface ProjectEnquiry {
   assigned_po?: number;
   follow_up_notes?: string;
   enquiry_number: string;
+  contact_email?: string;
+  contact_phone?: string;
   job_number?: string;
 
   venue?: string;
@@ -153,6 +155,8 @@ export interface CreateProjectEnquiryData {
   project_officer_id?: number | null;
   assigned_po?: number;
   follow_up_notes?: string;
+  contact_email?: string;
+  contact_phone?: string;
   venue?: string;
   site_survey_skipped?: boolean;
   site_survey_skip_reason?: string;

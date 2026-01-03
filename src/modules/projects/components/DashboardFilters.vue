@@ -1,66 +1,68 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Filters & Views</h3>
+  <div class="space-y-10">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Neural Filters</h3>
+      </div>
       <button
         @click="resetFilters"
-        class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
+        class="text-[10px] font-black text-slate-500 hover:text-blue-500 uppercase tracking-widest transition-colors flex items-center gap-2"
       >
-        Reset all
+        <i class="mdi mdi-refresh text-base"></i>
+        Purge Filters
       </button>
     </div>
 
-    <div class="space-y-4">
+    <div class="space-y-8">
       <!-- Search Bar -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search Projects</label>
-        <div class="relative">
+      <div class="space-y-3">
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Global Query Search</label>
+        <div class="relative group">
           <input
             v-model="filters.searchQuery"
             type="text"
-            placeholder="Search by project name, client, or ID..."
-            class="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+            placeholder="Search Project ID, Client, or Mission..."
+            class="w-full h-14 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-12 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
           />
-          <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
+          <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
         </div>
       </div>
 
       <!-- Date Range -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Range</label>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
+      <div class="space-y-3">
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Temporal Range</label>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="relative">
             <input
               v-model="filters.dateFrom"
               type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+              class="w-full h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
             />
           </div>
-          <div>
+          <div class="relative">
             <input
               v-model="filters.dateTo"
               type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
+              class="w-full h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
             />
           </div>
         </div>
       </div>
 
       <!-- Status Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Status</label>
+      <div class="space-y-3">
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Operational Status</label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="status in statusOptions"
             :key="status.value"
             @click="toggleStatus(status.value)"
             :class="[
-              'px-3 py-1 text-xs font-medium rounded-full transition-colors',
+              'px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 border',
               filters.status.includes(status.value)
-                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                ? 'bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/20'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-500/50'
             ]"
           >
             {{ status.label }}
@@ -69,18 +71,18 @@
       </div>
 
       <!-- Priority Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority Level</label>
+      <div class="space-y-3">
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Criticality Level</label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="priority in priorityOptions"
             :key="priority.value"
             @click="togglePriority(priority.value)"
             :class="[
-              'px-3 py-1 text-xs font-medium rounded-full transition-colors',
+              'px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 border',
               filters.priority.includes(priority.value)
                 ? getPriorityActiveClass(priority.value)
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-500/50'
             ]"
           >
             {{ priority.label }}
@@ -88,102 +90,35 @@
         </div>
       </div>
 
-      <!-- Budget Range Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Budget Range</label>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <input
-              v-model.number="filters.budgetRange.min"
-              type="number"
-              placeholder="Min"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-            />
-          </div>
-          <div>
-            <input
-              v-model.number="filters.budgetRange.max"
-              type="number"
-              placeholder="Max"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Department Filter -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Department</label>
-        <select
-          v-model="filters.department"
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm"
-        >
-          <option value="">All Departments</option>
-          <option v-for="dept in departmentOptions" :key="dept.value" :value="dept.value">
-            {{ dept.label }}
-          </option>
-        </select>
-      </div>
-
-      <!-- View Options -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">View Options</label>
-        <div class="space-y-2">
-          <label class="flex items-center">
-            <input
-              v-model="filters.showCharts"
-              type="checkbox"
-              class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show charts</span>
-          </label>
-          <label class="flex items-center">
-            <input
-              v-model="filters.showMetrics"
-              type="checkbox"
-              class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show detailed metrics</span>
-          </label>
-          <label class="flex items-center">
-            <input
-              v-model="filters.showActivities"
-              type="checkbox"
-              class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show activity feed</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Export Options -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Export Data</label>
-        <div class="flex gap-2">
+      <!-- Export Interface -->
+      <div class="space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Digital Dispatch</label>
+        <div class="grid grid-cols-2 gap-4">
           <button
             @click="exportToPDF"
-            class="flex-1 bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors font-medium text-sm"
+            class="group flex items-center justify-center gap-3 h-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-red-500 transition-all active:scale-95"
           >
-            PDF
+            <i class="mdi mdi-file-pdf-box text-2xl text-red-500"></i>
+            <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">PDF Export</span>
           </button>
           <button
             @click="exportToExcel"
-            class="flex-1 bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-medium text-sm"
+            class="group flex items-center justify-center gap-3 h-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 transition-all active:scale-95"
           >
-            Excel
+            <i class="mdi mdi-file-excel text-2xl text-emerald-500"></i>
+            <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Excel Cell</span>
           </button>
         </div>
       </div>
 
-      <!-- Apply Filters Button -->
-      <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-        <button
-          @click="applyFilters"
-          class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
-        >
-          Apply Filters
-        </button>
-      </div>
+      <!-- Tactical Action -->
+      <button
+        @click="applyFilters"
+        class="w-full h-14 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-500/10 transition-all active:scale-95 font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+      >
+        <i class="mdi mdi-filter-variant text-xl"></i>
+        Synchronize Filter State
+      </button>
     </div>
   </div>
 </template>

@@ -1,67 +1,96 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-        Sales Funnel
-      </h3>
-      <div class="flex items-center space-x-2">
-        <span class="text-xs text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded">
-          +{{ conversionRate }}% Conversion
+  <div class="relative overflow-hidden">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
+          Operational Conversion
+        </h3>
+        <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Workflow <span class="text-blue-500 opacity-50">Funnel</span></p>
+      </div>
+      <div class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+          <i class="mdi mdi-trending-up text-base"></i>
+          {{ conversionRate }}% Net Conversion
         </span>
       </div>
     </div>
 
-    <div class="space-y-4">
+    <div class="space-y-8">
       <!-- Funnel Step 1: Enquiries -->
-      <div class="relative group">
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Enquiries</span>
-          <span class="text-sm font-bold text-gray-900 dark:text-white">{{ totalEnquiries }}</span>
+      <div class="group relative p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-transparent hover:border-blue-500/20 transition-all duration-500">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <i class="mdi mdi-inbox-arrow-down text-xl"></i>
+            </div>
+            <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Initial Enquiries</span>
+          </div>
+          <span class="text-xl font-black text-slate-900 dark:text-white">{{ totalEnquiries }}</span>
         </div>
-        <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-          <div class="bg-blue-400 h-2 rounded-full w-full"></div>
+        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-full rounded-full w-full group-hover:scale-x-105 transition-transform origin-left duration-1000 shadow-[0_0_15px_rgba(59,130,246,0.3)]"></div>
         </div>
       </div>
 
       <!-- Funnel Step 2: Quotes -->
-      <div class="relative group pl-4">
-          <div class="absolute left-0 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700 border-dashed border-l"></div>
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Quotes Generated</span>
-            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ quotesGenerated }}</span>
+      <div class="group relative p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-transparent hover:border-indigo-500/20 transition-all duration-500 ml-8">
+          <div class="absolute -left-4 top-1/2 -translate-y-1/2 w-4 h-px bg-slate-300 dark:bg-slate-700"></div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                    <i class="mdi mdi-file-document-edit-outline text-xl"></i>
+                </div>
+                <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Quotes Generated</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xl font-black text-slate-900 dark:text-white">{{ quotesGenerated }}</span>
+                <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{{ getPercentage(quotesGenerated, totalEnquiries) }}% Catch</span>
+            </div>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-            <div class="bg-indigo-400 h-2 rounded-full" :style="{ width: `${getPercentage(quotesGenerated, totalEnquiries)}%` }"></div>
+          <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-400 to-indigo-600 h-full rounded-full group-hover:scale-x-105 transition-transform origin-left duration-1000 shadow-[0_0_15px_rgba(99,102,241,0.3)]" :style="{ width: `${getPercentage(quotesGenerated, totalEnquiries)}%` }"></div>
           </div>
-          <p class="text-xs text-gray-400 mt-1">{{ getPercentage(quotesGenerated, totalEnquiries) }}% of enquiries</p>
       </div>
 
        <!-- Funnel Step 3: Approved -->
-       <div class="relative group pl-8">
-          <div class="absolute left-4 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700 border-dashed border-l"></div>
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Quotes Approved</span>
-            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ quotesApproved }}</span>
+       <div class="group relative p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-transparent hover:border-emerald-500/20 transition-all duration-500 ml-16">
+          <div class="absolute -left-4 top-1/2 -translate-y-1/2 w-4 h-px bg-slate-300 dark:bg-slate-700"></div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <i class="mdi mdi-check-decagram-outline text-xl"></i>
+                </div>
+                <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Mission Approval</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xl font-black text-slate-900 dark:text-white">{{ quotesApproved }}</span>
+                <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{{ getPercentage(quotesApproved, quotesGenerated) }}% Rate</span>
+            </div>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-            <div class="bg-purple-500 h-2 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.4)]" :style="{ width: `${getPercentage(quotesApproved, quotesGenerated)}%` }"></div>
+          <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full group-hover:scale-x-105 transition-transform origin-left duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.3)]" :style="{ width: `${getPercentage(quotesApproved, quotesGenerated)}%` }"></div>
           </div>
-           <p class="text-xs text-gray-400 mt-1">{{ getPercentage(quotesApproved, quotesGenerated) }}% approval rate</p>
       </div>
       
        <!-- Funnel Step 4: Projects -->
-       <div class="relative group pl-12">
-          <div class="absolute left-8 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700 border-dashed border-l"></div>
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Active Projects</span>
-            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ activeProjects }}</span>
+       <div class="group relative p-6 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-transparent hover:border-purple-500/20 transition-all duration-500 ml-24">
+          <div class="absolute -left-4 top-1/2 -translate-y-1/2 w-4 h-px bg-slate-300 dark:bg-slate-700"></div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
+                    <i class="mdi mdi-rocket-launch-outline text-xl"></i>
+                </div>
+                <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Active Projects</span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xl font-black text-slate-900 dark:text-white">{{ activeProjects }}</span>
+                <span class="text-[10px] font-black text-purple-500 uppercase tracking-widest">{{ getPercentage(activeProjects, quotesApproved) }}% Execution</span>
+            </div>
           </div>
-          <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-            <div class="bg-green-500 h-2 rounded-full" :style="{ width: `${getPercentage(activeProjects, quotesApproved)}%` }"></div>
+          <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-full rounded-full group-hover:scale-x-105 transition-transform origin-left duration-1000 shadow-[0_0_15px_rgba(168,85,247,0.3)]" :style="{ width: `${getPercentage(activeProjects, quotesApproved)}%` }"></div>
           </div>
-           <p class="text-xs text-gray-400 mt-1">{{ getPercentage(activeProjects, quotesApproved) }}% execution rate</p>
       </div>
-
     </div>
   </div>
 </template>
@@ -73,11 +102,13 @@ interface Props {
   enquiryMetrics: {
     total_enquiries: number
     status_breakdown: Record<string, number>
-  }
+    [key: string]: any
+  } | null
   projectMetrics: {
     active_projects: number
     completed_projects: number
-  }
+    [key: string]: any
+  } | null
 }
 
 const props = defineProps<Props>()

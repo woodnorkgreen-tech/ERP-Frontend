@@ -1,176 +1,194 @@
 <template>
-  <div class="space-y-6">
-    <!-- Breadcrumb -->
-    <nav class="flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-            <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
-            </svg>
-            Dashboard
-          </router-link>
-        </li>
-        <li>
-          <div class="flex items-center">
-            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-            </svg>
-            <router-link to="/client-service" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
-              Client Service
-            </router-link>
-          </div>
-        </li>
-        <li aria-current="page">
-          <div class="flex items-center">
-            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-            </svg>
-            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Clients</span>
-          </div>
-        </li>
-      </ol>
-    </nav>
-
-    <div class="flex items-center justify-between">
+  <div class="space-y-8 pb-12">
+    <!-- Premium Header & Actions -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Client Management</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Register and manage client information</p>
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+          <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+              <router-link to="/dashboard" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-500 transition-colors">
+                Intelligence Hub
+              </router-link>
+            </li>
+            <li>
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-chevron-right text-slate-300 text-xs"></i>
+                <router-link to="/client-service" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-500 transition-colors">
+                  Deployment
+                </router-link>
+              </div>
+            </li>
+            <li>
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-chevron-right text-slate-300 text-xs"></i>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">Clients</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+        <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+          Partnership <span class="text-blue-500 text-3xl opacity-50">/</span> Management
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Unified repository for global client relations and acquisition tracking.</p>
       </div>
+
       <button
         @click="showCreateModal = true"
-        class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
+        class="flex items-center gap-3 px-8 py-4 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-[1.5rem] shadow-xl shadow-blue-500/10 transition-all font-bold text-sm tracking-tight group"
       >
-        Add Client
+        <i class="mdi mdi-account-plus-outline text-xl transition-transform group-hover:scale-110"></i>
+        ONBOARD PARTNER
       </button>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="Search clients..."
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
-        <select
-          v-model="filters.status"
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        >
-          <option value="">All Clients</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <input
-          v-model="filters.company"
-          type="text"
-          placeholder="Filter by company..."
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
+    <!-- Smart Filter Hub -->
+    <div class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-[2rem] p-4 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="relative group">
+          <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+          <input
+            v-model="filters.search"
+            type="text"
+            placeholder="Search by Identity..."
+            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-slate-900 dark:text-white"
+          />
+        </div>
+        <div class="relative">
+          <i class="mdi mdi-filter-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <select
+            v-model="filters.status"
+            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer text-slate-900 dark:text-white"
+          >
+            <option value="">Global Status</option>
+            <option value="active">Operational Only</option>
+            <option value="inactive">Suspended Only</option>
+          </select>
+        </div>
+        <div class="relative">
+           <i class="mdi mdi-office-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+           <input
+            v-model="filters.company"
+            type="text"
+            placeholder="Identity Filter..."
+            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-slate-900 dark:text-white"
+          />
+        </div>
         <button
           @click="applyFilters"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+          class="py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all"
         >
-          Filter
+          Execute Queries
         </button>
       </div>
     </div>
 
-    <!-- Clients Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-      <div v-if="loading" class="p-8 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Loading clients...</p>
+    <!-- Data Grid -->
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div v-if="loading" class="p-20 flex flex-col items-center gap-6">
+        <div class="relative">
+           <div class="w-16 h-16 rounded-full border-4 border-slate-100 dark:border-slate-800 border-t-blue-500 animate-spin"></div>
+           <i class="mdi mdi-account-sync absolute inset-0 flex items-center justify-center text-blue-500 text-xl"></i>
+        </div>
+        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Synchronizing Partner Cluster</p>
       </div>
 
-      <div v-else-if="error" class="p-8 text-center text-red-600">
-        Error: {{ error }}
+      <div v-else-if="error" class="p-12 text-center space-y-4">
+        <i class="mdi mdi-alert-circle text-5xl text-red-500 opacity-20"></i>
+        <p class="text-sm font-bold text-red-500">CRITICAL SYNC FAILURE: {{ error }}</p>
+        <button @click="fetchClients()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Emergency Re-sync</button>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Client
+      <div v-else class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
+              <th @click="sortClients('FullName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
+                <span class="flex items-center gap-2">
+                   Partner Identity
+                   <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </span>
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Contact
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Contact Vector</th>
+              <th @click="sortClients('companyName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
+                <span class="flex items-center gap-2">
+                   Institutional Hub
+                   <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </span>
               </th>
-              <th @click="sortClients('companyName')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                Company
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Status
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Actions
-              </th>
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Operation Status</th>
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Deployment</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="client in clients" :key="client.id" :class="{ 'opacity-50 text-gray-500': !client.isActive }">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10">
-                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-                      <span class="text-sm font-medium text-white">{{ client.FullName.charAt(0) }}</span>
-                    </div>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="client in clients" :key="client.id" 
+                class="group transition-all hover:bg-slate-50 dark:hover:bg-blue-600/5 cursor-pointer"
+                :class="{ 'opacity-50 grayscale': !client.isActive }">
+              <td class="px-8 py-5">
+                <div class="flex items-center gap-4">
+                  <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                    <span class="text-lg font-black text-white leading-none">{{ client.FullName.charAt(0) }}</span>
                   </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ client.FullName }}</div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ client.registration_date }}</div>
+                  <div>
+                    <div class="text-sm font-black text-slate-900 dark:text-white tracking-tight">{{ client.FullName }}</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">EST. {{ client.registration_date }}</div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                <div>{{ client.ContactPerson }}</div>
-                <div class="text-gray-500 dark:text-gray-400">{{ client.Email }}</div>
-                <div class="text-gray-500 dark:text-gray-400">{{ client.Phone }}</div>
+              <td class="px-8 py-5">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <i class="mdi mdi-account-star text-blue-500"></i>
+                    {{ client.ContactPerson }}
+                  </div>
+                  <div class="flex items-center gap-2 text-[11px] font-medium text-slate-400 truncate max-w-[180px]">
+                    <i class="mdi mdi-email-outline"></i>
+                    {{ client.Email }}
+                  </div>
+                  <div class="flex items-center gap-2 text-[11px] font-medium text-slate-400">
+                    <i class="mdi mdi-phone-outline"></i>
+                    {{ client.Phone }}
+                  </div>
+                </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ client.companyName || 'N/A' }}
+              <td class="px-8 py-5">
+                <div class="flex flex-col">
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{ client.companyName || 'GLOBAL INDIVIDUAL' }}</span>
+                  <span class="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">{{ client.Industry || 'UNDISCLOSED' }}</span>
+                </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  :class="client.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                >
+              <td class="px-8 py-5">
+                <div :class="[
+                  'inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm',
+                  client.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                ]">
+                  <span class="w-1.5 h-1.5 rounded-full mr-2" :class="client.status === 'active' ? 'bg-emerald-500' : 'bg-red-500'"></span>
                   {{ client.status }}
-                </span>
+                </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  v-if="client.isActive"
-                  @click="editClient(client)"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="viewClientDetails(client)"
-                  class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
-                >
-                  View
-                </button>
-                <button
-                  @click="handleToggleClick(client)"
-                  :class="client.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
-                  class="mr-3"
-                >
-                  {{ client.isActive ? 'Deactivate' : 'Activate' }}
-                </button>
-                <button
-                  v-if="canDeleteClients"
-                  @click="handleDeleteClick(client)"
-                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                  title="Delete Client"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                  </svg>
-                </button>
+              <td class="px-8 py-5">
+                 <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <button @click.stop="viewClientDetails(client)" 
+                            class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center"
+                            title="Intelligence Overview">
+                       <i class="mdi mdi-eye-outline text-lg"></i>
+                    </button>
+                    <button v-if="client.isActive" @click.stop="editClient(client)" 
+                            class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center"
+                            title="Modify Profile">
+                       <i class="mdi mdi-pencil-outline text-lg"></i>
+                    </button>
+                    <button @click.stop="handleToggleClick(client)" 
+                            :class="client.isActive ? 'hover:bg-amber-600' : 'hover:bg-emerald-600'"
+                            class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-white transition-all flex items-center justify-center"
+                            :title="client.isActive ? 'Suspend Access' : 'Restore Operations'">
+                       <i :class="['mdi text-lg', client.isActive ? 'mdi-account-off-outline' : 'mdi-account-check-outline']"></i>
+                    </button>
+                    <button v-if="canDeleteClients" @click.stop="handleDeleteClick(client)" 
+                            class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-red-400 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center"
+                            title="Terminate Profile">
+                       <i class="mdi mdi-delete-outline text-lg"></i>
+                    </button>
+                 </div>
               </td>
             </tr>
           </tbody>
@@ -178,418 +196,294 @@
       </div>
     </div>
 
-    <!-- Create/Edit Client Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-          {{ editingClient ? 'Edit Client' : 'Create New Client' }}
-        </h2>
+    <!-- Onboarding / Edit Modal -->
+    <div v-if="showCreateModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div @click="closeModal" class="absolute inset-0 bg-slate-900/40 backdrop-blur-md"></div>
+      
+      <div class="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+        <!-- Decoration -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
 
-        <form @submit.prevent="handleFormSubmit" class="space-y-6">
-          <!-- Row 1: Client Name, Contact Person, Email -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Client Name *</label>
-              <input
-                v-model="clientFormData.FullName"
-                type="text"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Person *</label>
-              <input
-                v-model="clientFormData.ContactPerson"
-                type="text"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email *</label>
-              <input
-                v-model="clientFormData.Email"
-                type="email"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <!-- Row 2: Phone, Alternative Contact, Lead Source -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone *</label>
-              <input
-                v-model="clientFormData.Phone"
-                type="tel"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Alternative Contact</label>
-              <input
-                v-model="clientFormData.AltContact"
-                type="tel"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lead Source *</label>
-              <select
-                v-model="clientFormData.LeadSource"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              >
-                <option value="">Select Lead Source</option>
-                <option value="Website">Website</option>
-                <option value="Google Search">Google Search</option>
-                <option value="Google Ads">Google Ads</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Instagram">Instagram</option>
-                <option value="TikTok">TikTok</option>
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Referral">Referral</option>
-                <option value="Returning Client">Returning Client</option>
-                <option value="Walk-in">Walk-in</option>
-                <option value="Sales Team">Sales Team</option>
-                <option value="WhatsApp">WhatsApp</option>
-                <option value="Event / Activation">Event / Activation</option>
-                <option value="Print Media">Print Media</option>
-                <option value="Others">Others (specify)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Row 3: Address (Full Width - spans all 3 columns) -->
-          <div class="col-span-full">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address *</label>
-            <textarea
-              v-model="clientFormData.Address"
-              required
-              rows="3"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-            ></textarea>
-          </div>
-
-          <!-- Row 4: City, County, Postal Address -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">City *</label>
-              <input
-                v-model="clientFormData.City"
-                type="text"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">County *</label>
-              <input
-                v-model="clientFormData.County"
-                type="text"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Postal Address</label>
-              <input
-                v-model="clientFormData.PostalAddress"
-                type="text"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <!-- Row 4.5: Company Name -->
+        <!-- Header -->
+        <div class="relative p-10 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex items-center justify-between">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name *</label>
-            <input
-              v-model="clientFormData.companyName"
-              type="text"
-              required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-            />
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2 block">Identity Registration</span>
+            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+               {{ editingClient ? 'Profile Reconstruction' : 'New Partner Onboarding' }}
+            </h2>
           </div>
-
-          <!-- Row 5: Preferred Contact, Customer Type, Industry -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Preferred Contact *</label>
-              <select
-                v-model="clientFormData.PreferredContact"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              >
-                <option value="email">Email</option>
-                <option value="phone">Phone</option>
-                <option value="sms">SMS</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Type *</label>
-              <select
-                v-model="clientFormData.CustomerType"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              >
-                <option value="individual">Individual</option>
-                <option value="company">Company</option>
-                <option value="organization">Organization</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Industry</label>
-              <input
-                v-model="clientFormData.Industry"
-                type="text"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-primary focus:border-primary"
-              />
-            </div>
-          </div>
-        </form>
-
-        <div v-if="formError" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
-          {{ formError }}
+          <button @click="closeModal" class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center">
+            <i class="mdi mdi-close text-2xl"></i>
+          </button>
         </div>
 
-        <div v-if="formSuccess" class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
-          {{ formSuccess }}
+        <div class="p-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
+           <form @submit.prevent="handleFormSubmit" class="space-y-10">
+              <!-- Tier 1: Core Identity -->
+              <section class="space-y-6">
+                 <div class="flex items-center gap-3">
+                    <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Core Identity</h3>
+                 </div>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Legal Name *</label>
+                       <input v-model="clientFormData.FullName" type="text" required class="premium-input" placeholder="e.g. Johnathan Arc"/>
+                    </div>
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contact Protocol *</label>
+                       <input v-model="clientFormData.ContactPerson" type="text" required class="premium-input" placeholder="Liaison Name"/>
+                    </div>
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Communication Hub *</label>
+                       <input v-model="clientFormData.Email" type="email" required class="premium-input" placeholder="alias@provider.com"/>
+                    </div>
+                 </div>
+              </section>
+
+              <!-- Tier 2: Vectors & Acquisition -->
+              <section class="space-y-6">
+                 <div class="flex items-center gap-3">
+                    <div class="h-8 w-1 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Intelligence Vectors</h3>
+                 </div>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Matrix *</label>
+                       <input v-model="clientFormData.Phone" type="tel" required class="premium-input" placeholder="+12 345..."/>
+                    </div>
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Institution Identity *</label>
+                       <input v-model="clientFormData.companyName" type="text" required class="premium-input" placeholder="Collective Corp"/>
+                    </div>
+                    <div class="space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Acquisition Source *</label>
+                       <select v-model="clientFormData.LeadSource" required class="premium-input appearance-none">
+                          <option value="">Select Origin</option>
+                          <option value="Website">Digital Web</option>
+                          <option value="Referral">Network Referral</option>
+                          <option value="Walk-in">Direct Engagement</option>
+                          <option value="Sales Team">Internal Sales</option>
+                          <option value="Events">Operational Events</option>
+                       </select>
+                    </div>
+                 </div>
+              </section>
+
+              <!-- Tier 3: Locational Hub -->
+              <section class="space-y-6">
+                 <div class="flex items-center gap-3">
+                    <div class="h-8 w-1 bg-amber-500 rounded-full"></div>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Deployment Coordinates</h3>
+                 </div>
+                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-8 space-y-1.5">
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Physical coordinate Cluster *</label>
+                       <textarea v-model="clientFormData.Address" required rows="2" class="premium-input pt-4" placeholder="Unified Address Strings..."></textarea>
+                    </div>
+                    <div class="lg:col-span-4 grid grid-cols-1 gap-4">
+                       <input v-model="clientFormData.City" type="text" required class="premium-input" placeholder="Primary Node (City)"/>
+                       <input v-model="clientFormData.County" type="text" required class="premium-input" placeholder="Sector (County)"/>
+                    </div>
+                 </div>
+              </section>
+           </form>
         </div>
 
-        <div class="flex justify-end space-x-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <button
-            @click="closeModal"
-            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            :disabled="saving"
-          >
-            Cancel
-          </button>
-          <button
-            @click="handleFormSubmit"
-            :disabled="saving"
-            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <span v-if="saving" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-            {{ saving ? 'Saving...' : (editingClient ? 'Update Client' : 'Create Client') }}
-          </button>
+        <!-- Footer -->
+        <div class="p-10 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between">
+           <div class="flex items-center gap-4">
+              <div v-if="formError" class="flex items-center gap-2 text-red-500 text-[10px] font-black uppercase tracking-widest animate-pulse">
+                 <i class="mdi mdi-alert-circle"></i>
+                 {{ formError }}
+              </div>
+              <div v-if="formSuccess" class="flex items-center gap-2 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                 <i class="mdi mdi-check-circle"></i>
+                 {{ formSuccess }}
+              </div>
+           </div>
+
+           <div class="flex items-center gap-4">
+              <button @click="closeModal" :disabled="saving" class="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Abort</button>
+              <button @click="handleFormSubmit" :disabled="saving" class="premium-button min-w-[200px]">
+                 <span v-if="saving" class="mdi mdi-loading animate-spin text-lg mr-2"></span>
+                 {{ saving ? 'COMMITTING...' : (editingClient ? 'OVERWRITE PROFILE' : 'COMMIT REGISTRATION') }}
+              </button>
+           </div>
         </div>
       </div>
     </div>
 
-    <!-- Confirmation Dialog -->
-    <div v-if="showConfirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Confirm Action</h2>
-        <p class="text-gray-700 dark:text-gray-300 mb-6">
-          Are you sure you want to {{ clientToToggle?.isActive ? 'deactivate' : 'activate' }} this client?
+    <!-- View Client Intelligence Modal -->
+    <div v-if="showViewModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div @click="showViewModal = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-lg"></div>
+      
+      <div class="relative w-full max-w-5xl bg-slate-50 dark:bg-slate-900 rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/10 animate-in fade-in slide-in-from-bottom-10 duration-500">
+         <div v-if="viewLoading" class="p-40 flex flex-col items-center justify-center gap-6">
+            <div class="w-16 h-16 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin"></div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Partner Intel...</p>
+         </div>
+
+         <div v-else-if="viewingClient" class="flex flex-col h-full max-h-[90vh]">
+            <!-- Side Hero -->
+            <div class="relative bg-slate-900 p-12 text-white border-b border-white/5">
+               <div class="absolute top-0 right-0 p-8">
+                  <button @click="showViewModal = false" class="text-white/20 hover:text-white transition-colors">
+                     <i class="mdi mdi-close text-3xl"></i>
+                  </button>
+               </div>
+               
+               <div class="flex flex-col md:flex-row items-center gap-10">
+                  <div class="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-2xl shrink-0">
+                     <span class="text-5xl font-black">{{ viewingClient.FullName.charAt(0) }}</span>
+                  </div>
+                  <div class="text-center md:text-left">
+                     <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[9px] font-black uppercase tracking-[0.3em] border border-blue-500/20">Active Partner</span>
+                     <h2 class="text-5xl font-black tracking-tighter mt-4">{{ viewingClient.FullName }}</h2>
+                     <p class="text-slate-400 font-medium text-lg mt-1">{{ viewingClient.companyName || 'Global Direct Client' }}</p>
+                  </div>
+               </div>
+
+               <div class="flex flex-wrap gap-8 mt-12 bg-white/5 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10">
+                  <div class="flex items-center gap-4">
+                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-blue-400"><i class="mdi mdi-email-check-outline text-2xl"></i></div>
+                     <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Contact Protocol</p>
+                        <p class="text-sm font-bold">{{ viewingClient.Email }}</p>
+                     </div>
+                  </div>
+                  <div class="flex items-center gap-4">
+                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-emerald-400"><i class="mdi mdi-phone-voip text-2xl"></i></div>
+                     <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Identity Matrix</p>
+                        <p class="text-sm font-bold">{{ viewingClient.Phone }}</p>
+                     </div>
+                  </div>
+                  <div class="flex items-center gap-4">
+                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-amber-400"><i class="mdi mdi-map-marker-radius text-2xl"></i></div>
+                     <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Operational Hub</p>
+                        <p class="text-sm font-bold">{{ viewingClient.City }}, {{ viewingClient.County }}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <div class="flex-1 p-12 overflow-y-auto custom-scrollbar">
+               <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                  <div class="lg:col-span-7 space-y-12">
+                     <section>
+                        <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 flex items-center gap-3">
+                           <i class="mdi mdi-text-box-search-outline text-blue-500"></i>
+                           Partner Metadata
+                        </h4>
+                        <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                           <div class="space-y-1">
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Customer Type</p>
+                              <p class="text-sm font-bold text-slate-900 dark:text-white capitalize">{{ viewingClient.CustomerType }} Entity</p>
+                           </div>
+                           <div class="space-y-1">
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Institutional Sector</p>
+                              <p class="text-sm font-bold text-slate-900 dark:text-white">{{ viewingClient.Industry || 'N/A' }}</p>
+                           </div>
+                           <div class="space-y-1">
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Engagement Protocol</p>
+                              <p class="text-sm font-bold text-slate-900 dark:text-white capitalize">{{ viewingClient.PreferredContact }}</p>
+                           </div>
+                           <div class="space-y-1">
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Registration Epoch</p>
+                              <p class="text-sm font-bold text-slate-900 dark:text-white">{{ viewingClient.registration_date }}</p>
+                           </div>
+                        </div>
+                     </section>
+
+                     <section>
+                        <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 flex items-center gap-3">
+                           <i class="mdi mdi-earth text-emerald-500"></i>
+                           Geo-Spatial Identity
+                        </h4>
+                        <div class="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800">
+                           <p class="text-sm font-medium leading-relaxed italic text-slate-600 dark:text-slate-300">"{{ viewingClient.Address }}"</p>
+                           <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-3 gap-4">
+                              <div><p class="text-[9px] font-black text-slate-400 uppercase">Zip/Postal</p><p class="text-xs font-bold">{{ viewingClient.PostalAddress || '---' }}</p></div>
+                              <div><p class="text-[9px] font-black text-slate-400 uppercase">Sector</p><p class="text-xs font-bold">{{ viewingClient.County }}</p></div>
+                              <div><p class="text-[9px] font-black text-slate-400 uppercase">Region</p><p class="text-xs font-bold">EMEA</p></div>
+                           </div>
+                        </div>
+                     </section>
+                  </div>
+
+                  <div class="lg:col-span-5 space-y-8">
+                      <div class="p-8 bg-blue-600 rounded-[2.5rem] text-white shadow-xl shadow-blue-500/20">
+                         <h4 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-8">Performance History</h4>
+                         <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                               <span class="text-sm font-bold uppercase tracking-tighter">Engagement Pulse</span>
+                               <span class="px-2 py-1 bg-white/10 rounded-lg text-xs font-black tracking-widest uppercase">98.2%</span>
+                            </div>
+                            <div class="bg-white/10 h-1.5 rounded-full overflow-hidden">
+                               <div class="h-full bg-white transition-all duration-1000" style="width: 98.2%"></div>
+                            </div>
+                         </div>
+                         <p class="text-[11px] font-medium text-white/60 mt-8 leading-relaxed">System has flagged this partner as 'High Priority' based on acquisition velocity.</p>
+                      </div>
+
+                      <div class="p-8 bg-white dark:bg-slate-800/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
+                         <div class="flex items-center gap-3 mb-6">
+                            <i class="mdi mdi-clock-outline text-slate-400"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Audit Logs</h4>
+                         </div>
+                         <div class="space-y-4">
+                            <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex justify-between">
+                               <span>Identity Logged:</span>
+                               <span class="text-slate-900 dark:text-white">{{ new Date(viewingClient.created_at).toLocaleDateString() }}</span>
+                            </div>
+                            <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex justify-between">
+                               <span>Last Sync:</span>
+                               <span class="text-slate-900 dark:text-white">{{ new Date(viewingClient.updated_at).toLocaleDateString() }}</span>
+                            </div>
+                         </div>
+                      </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- Suspension Protocol Dialog -->
+    <div v-if="showConfirmDialog" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div @click="showConfirmDialog = false" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 shadow-2xl border border-slate-200 dark:border-slate-800 text-center animate-in zoom-in-95">
+        <div class="w-20 h-20 rounded-[2rem] bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-6">
+           <i class="mdi mdi-account-cog text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Status Update Protocol</h2>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-10 leading-relaxed">
+          Are you sure you want to {{ clientToToggle?.isActive ? 'SUSPEND' : 'RESTORE' }} operational access for <span class="text-slate-900 dark:text-white font-black">{{ clientToToggle?.FullName }}</span>? 
         </p>
-        <div class="flex justify-end space-x-3">
-          <button
-            @click="showConfirmDialog = false; clientToToggle = null"
-            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="confirmToggle"
-            :disabled="loading"
-            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <span v-if="loading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-            OK
-          </button>
+        <div class="flex gap-4">
+          <button @click="showConfirmDialog = false; clientToToggle = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Abort</button>
+          <button @click="confirmToggle" class="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">Authorize</button>
         </div>
       </div>
     </div>
 
-    <!-- Delete Confirmation Dialog -->
-    <div v-if="showDeleteDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="flex-shrink-0">
-            <svg class="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3l-6.928-12c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-          </div>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Delete Client</h2>
+    <!-- Termination / Delete Confirmation Dialog -->
+    <div v-if="showDeleteDialog" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div @click="showDeleteDialog = false" class="absolute inset-0 bg-red-900/10 backdrop-blur-sm"></div>
+      <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 shadow-2xl border border-red-500/20 text-center animate-in zoom-in-95">
+        <div class="w-20 h-20 rounded-[2rem] bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6">
+           <i class="mdi mdi-delete-variant text-4xl"></i>
         </div>
-        <p class="text-gray-700 dark:text-gray-300 mb-2">
-          Are you sure you want to permanently delete this client?
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 text-red-600">Permanently Terminate</h2>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-10 leading-relaxed italic">
+          CRITICAL: Unauthorized termination of <span class="text-red-600 font-bold underline">{{ clientToDelete?.FullName }}</span> will delete all associated institutional data. This action is irreversible.
         </p>
-        <p class="text-sm text-red-600 dark:text-red-400 mb-6">
-          <strong>{{ clientToDelete?.FullName }}</strong> - This action cannot be undone!
-        </p>
-        <div class="flex justify-end space-x-3">
-          <button
-            @click="showDeleteDialog = false; clientToDelete = null"
-            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            @click="confirmDelete"
-            :disabled="deleting"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <span v-if="deleting" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-            {{ deleting ? 'Deleting...' : 'Delete Client' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- View Client Details Modal -->
-    <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div v-if="viewLoading" class="text-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p class="mt-2 text-gray-600 dark:text-gray-400">Loading client details...</p>
-        </div>
-
-        <div v-else-if="viewingClient">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Client Details</h2>
-            <button
-              @click="showViewModal = false; viewingClient = null"
-              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Basic Information -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Basic Information</h3>
-
-              <div class="grid grid-cols-1 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.FullName }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Person</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.ContactPerson || 'N/A' }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.Email }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.Phone }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Alternative Contact</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.AltContact || 'N/A' }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.companyName || 'N/A' }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Address & Additional Info -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Address & Additional Information</h3>
-
-              <div class="grid grid-cols-1 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.Address }}</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
-                    <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.City }}</p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">County</label>
-                    <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.County }}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Postal Address</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.PostalAddress || 'N/A' }}</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer Type</label>
-                    <p class="mt-1 text-sm text-gray-900 dark:text-white capitalize">{{ viewingClient.CustomerType }}</p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Preferred Contact</label>
-                    <p class="mt-1 text-sm text-gray-900 dark:text-white capitalize">{{ viewingClient.PreferredContact }}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lead Source</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.LeadSource }}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Industry</label>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.Industry || 'N/A' }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Status & Dates -->
-          <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                <span
-                  :class="viewingClient.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                  class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full mt-1"
-                >
-                  {{ viewingClient.status }}
-                </span>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Registration Date</label>
-                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingClient.registration_date }}</p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Created At</label>
-                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(viewingClient.created_at).toLocaleDateString() }}</p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Updated At</label>
-                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ new Date(viewingClient.updated_at).toLocaleDateString() }}</p>
-              </div>
-            </div>
-          </div>
+        <div class="flex gap-4">
+          <button @click="showDeleteDialog = false; clientToDelete = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Abort</button>
+          <button @click="confirmDelete" class="flex-1 py-4 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transform transition-all hover:scale-105 active:scale-95">DESTRUCT</button>
         </div>
       </div>
     </div>
@@ -816,3 +710,46 @@ onMounted(() => {
   fetchClients()
 })
 </script>
+
+<style scoped>
+@reference "tailwindcss";
+
+.premium-input {
+  @apply w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-slate-900 dark:text-white placeholder:text-slate-400;
+}
+
+.premium-button {
+  @apply px-8 py-4 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-500/10 transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-800 rounded-full hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors;
+}
+
+@keyframes animate-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoom-in-95 {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+  animation: animate-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.zoom-in-95 {
+  animation: zoom-in-95 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+</style>

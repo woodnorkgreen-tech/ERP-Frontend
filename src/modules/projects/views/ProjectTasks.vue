@@ -1,74 +1,71 @@
 <template>
-  <div class="space-y-6">
-    <!-- Breadcrumb -->
-    <nav class="flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <router-link to="/projects" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-            <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
-            </svg>
-            Projects
-          </router-link>
-        </li>
-        <li v-if="enquiryId" class="inline-flex items-center">
-          <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-          </svg>
-          <router-link to="/projects/enquiries" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-            Enquiries
-          </router-link>
-        </li>
-        <li aria-current="page">
-          <div class="flex items-center">
-            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-            </svg>
-            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Tasks</span>
-          </div>
-        </li>
-      </ol>
-    </nav>
-
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          {{ enquiryId ? enquiryTitle : (showAllTasks ? 'Project Tasks' : 'My Assigned Tasks') }}
-        </h1>
-        <p class="text-[13px] font-medium text-slate-500 dark:text-gray-400 mt-1">
-          {{ enquiryId ? 'Operational objective overview for current project' : 'Global task management and operational monitoring' }}
-        </p>
-      </div>
-      <div class="flex items-center space-x-3">
-        <router-link 
-          v-if="enquiryId" 
-          to="/projects/enquiries" 
-          class="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-[11px] uppercase tracking-widest text-gray-700 border border-gray-300 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 transition-all shadow-sm group"
-        >
-          <i class="mdi mdi-arrow-left transition-transform group-hover:-translate-x-1"></i>
-          <span>Back to Enquiries</span>
-        </router-link>
-        <button
-          @click="toggleTaskView"
-          class="px-4 py-2 rounded-lg font-medium transition-colors border shadow-sm flex items-center gap-2"
-          :class="showAllTasks 
-            ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-800' 
-            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600'"
-        >
-          <i :class="showAllTasks ? 'mdi mdi-account-group' : 'mdi mdi-account-circle'"></i>
-          {{ showAllTasks ? 'Team View' : 'My Tasks' }}
-        </button>
-        <div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-          <button
-            v-for="mode in (['board', 'grid', 'table'] as const)"
-            :key="mode"
-            @click="viewMode = mode"
-            :class="viewMode === mode ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-white shadow-sm ring-1 ring-black/5' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'"
-            class="px-4 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider capitalize transition-all"
+  <div class="space-y-6 font-poppins">
+    <!-- Premium Header -->
+    <div class="relative overflow-hidden bg-slate-900 rounded-[3rem] shadow-2xl p-8 md:p-12 border border-slate-800 mb-12">
+      <!-- Background Decoration -->
+      <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full -mr-48 -mt-48"></div>
+      
+      <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div>
+          <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 uppercase tracking-[0.2em] text-sm font-bold">
+              <li>
+                <router-link to="/projects" class="text-blue-500 hover:text-blue-400 transition-colors">Projects</router-link>
+              </li>
+              <li v-if="enquiryId">
+                <div class="flex items-center gap-1 text-slate-600">
+                  <i class="mdi mdi-chevron-right text-xs"></i>
+                  <router-link to="/projects/enquiries" class="text-slate-400 hover:text-slate-300 transition-colors">Enquiries</router-link>
+                </div>
+              </li>
+              <li>
+                <div class="flex items-center gap-1 text-slate-600">
+                  <i class="mdi mdi-chevron-right text-xs"></i>
+                  <span class="text-slate-400">Tasks</span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+          <h1 class="text-6xl font-black text-white tracking-tighter mb-3">
+            {{ enquiryId ? enquiryTitle : (showAllTasks ? 'Team Command' : 'My Objectives') }}
+          </h1>
+          <p class="text-slate-400 text-sm font-medium">
+            {{ enquiryId ? 'Task overview for the current enquiry' : 'Manage and monitor all project tasks' }}
+          </p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-4">
+          <router-link 
+            v-if="enquiryId" 
+            to="/projects/enquiries" 
+            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] text-white border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center gap-3 group"
           >
-            {{ mode }}
+            <i class="mdi mdi-arrow-left transition-transform group-hover:-translate-x-1"></i>
+            <span>Back</span>
+          </router-link>
+
+          <button
+            @click="toggleTaskView"
+            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] transition-all border flex items-center gap-3"
+            :class="showAllTasks 
+              ? 'bg-blue-500/20 text-blue-400 border-blue-500/20 shadow-lg shadow-blue-500/10' 
+              : 'bg-white/5 text-slate-400 border-white/5 hover:bg-white/10'"
+          >
+            <i class="mdi shadow-sm" :class="showAllTasks ? 'mdi-account-group' : 'mdi-account-circle'"></i>
+            {{ showAllTasks ? 'Team View' : 'My Tasks' }}
           </button>
+
+          <div class="flex bg-white/5 backdrop-blur-md rounded-2xl p-1 border border-white/10">
+            <button
+              v-for="mode in (['board', 'grid', 'table'] as const)"
+              :key="mode"
+              @click="viewMode = mode"
+              :class="viewMode === mode ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400 hover:text-white'"
+              class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+            >
+              {{ mode }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -78,8 +75,8 @@
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Completion</p>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white">
+            <p class="text-sm font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Completion</p>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white">
               {{ Math.round((completedTasks.length / (enquiryTasks.length || 1)) * 100) }}%
             </h3>
           </div>
@@ -92,8 +89,8 @@
       <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Urgent</p>
-            <h3 class="text-2xl font-black text-red-600 dark:text-red-400">
+            <p class="text-sm font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Urgent</p>
+            <h3 class="text-2xl font-bold text-red-600 dark:text-red-400">
               {{ tasksByPriority.urgent.length }}
             </h3>
           </div>
@@ -106,8 +103,8 @@
       <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Overdue</p>
-            <h3 class="text-2xl font-black text-orange-600 dark:text-orange-400">
+            <p class="text-sm font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.1em] mb-1">Overdue</p>
+            <h3 class="text-2xl font-bold text-orange-600 dark:text-orange-400">
               {{ enquiryTasks.filter(t => isOverdue(t)).length }}
             </h3>
           </div>
@@ -137,7 +134,7 @@
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
         <!-- Search -->
         <div class="md:col-span-6 lg:col-span-6">
-          <label class="block text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2">Detailed Task Search</label>
+          <label class="block text-sm font-bold text-slate-400 dark:text-gray-500 uppercase tracking-[0.15em] mb-2">Detailed Task Search</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
               <i class="mdi mdi-magnify text-slate-400 text-lg"></i>
@@ -204,8 +201,8 @@
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-2">
                 <div :class="getBoardStatusColors(status).dot" class="w-1.5 h-1.5 rounded-full ring-2 ring-white dark:ring-slate-900"></div>
-                <h3 class="text-xs font-black text-slate-900 dark:text-gray-200 uppercase tracking-[0.15em]">{{ getStatusLabel(status) }}</h3>
-                <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap">({{ filteredTasks.filter(t => t.status === status).length }})</span>
+                <h3 class="text-[11px] font-black text-slate-900 dark:text-gray-200 uppercase tracking-[0.2em]">{{ getStatusLabel(status) }}</h3>
+                <span class="text-[10px] font-bold whitespace-nowrap opacity-60">({{ filteredTasks.filter(t => t.status === status).length }})</span>
               </div>
             </div>
 
@@ -220,13 +217,13 @@
                   <div :class="getTaskTypeIcon(task.type)" class="w-7 h-7 rounded flex items-center justify-center text-white opacity-90">
                     <i :class="getMdiTaskIcon(task.type)" class="text-base"></i>
                   </div>
-                  <div v-if="isOverdue(task)" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-wider">
+                  <div v-if="isOverdue(task)" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider">
                     <i class="mdi mdi-clock-alert animate-bounce"></i>
                     <span>{{ getDaysOverdue(task.due_date!) }} Days Overdue</span>
                   </div>
                   
                   <!-- Quote Approval Details -->
-                  <div v-if="task.type === 'quote' && task.status !== 'completed'" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest mt-1">
+                  <div v-if="task.type === 'quote' && task.status !== 'completed'" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-widest mt-1">
                     <i class="mdi mdi-file-certificate-outline"></i>
                     <span>Awaiting Client Sign-off</span>
                   </div>
@@ -234,8 +231,8 @@
                   <!-- Tech/Finance Approval Dashboard -->
                   <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex flex-col gap-2 mt-3 p-2 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
                     <div class="flex items-center justify-between">
-                       <span class="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest">Sign-off Status</span>
-                       <span class="text-[9px] font-black text-blue-600">{{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }} Complete</span>
+                       <span class="text-[9px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest">Sign-off Status</span>
+                       <span class="text-[9px] font-bold text-blue-600">{{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }} Complete</span>
                     </div>
                     <div class="flex gap-1">
                       <div v-for="(approved, dept) in task.material_approval.departments" :key="dept" 
@@ -244,7 +241,7 @@
                     </div>
                     <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
                        <span v-for="(_, dept) in task.material_approval.departments" :key="dept"
-                             :class="task.material_approval.departments[dept] ? 'text-emerald-600 font-black' : ''">
+                             :class="task.material_approval.departments[dept] ? 'text-emerald-600 font-bold' : ''">
                          {{ dept.substring(0, 3) }}
                        </span>
                     </div>
@@ -252,40 +249,40 @@
                 </div>
 
                 <div class="flex items-center gap-2 mb-3">
-                  <span :class="getStatusBadgeClasses(task.status)" class="text-[9px] font-black uppercase tracking-[0.1em] px-2.5 py-1 rounded-md border shadow-sm">
+                  <span :class="getStatusBadgeClasses(task.status)" class="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border shadow-sm transition-all duration-300">
                     {{ getStatusLabel(task.status) }}
                   </span>
-                  <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
+                  <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
                 </div>
 
-                <h4 class="text-[15px] font-black text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors leading-tight">{{ task.title }}</h4>
-                <p class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-widest truncate mb-3">{{ task.enquiry?.title || 'System Objective' }}</p>
+                <h4 class="text-xl font-black text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors leading-tight tracking-tight">{{ task.title }}</h4>
+                <p class="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.15em] truncate mb-4">{{ task.enquiry?.title || 'System Objective' }}</p>
                 
-                <p v-if="task.task_description" class="text-[12px] text-slate-600 dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed border-l-2 border-slate-100 pl-3 dark:border-slate-800 italic">
+                <p v-if="task.task_description" class="text-xs font-bold dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed border-l-2 border-slate-100 pl-3 dark:border-slate-800 italic">
                   {{ task.task_description }}
                 </p>
 
                 <div class="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-700">
                   <div class="flex items-center space-x-2">
                      <template v-if="!task.assigned_to">
-                       <button @click.stop="claimTask(task)" class="text-[11px] font-bold text-primary hover:underline">Claim Task</button>
+                       <button @click.stop="claimTask(task)" class="text-xs font-bold text-primary hover:underline">Claim Task</button>
                      </template>
                      <div v-else class="flex items-center space-x-1.5">
-                       <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-[9px] font-bold text-blue-600 dark:text-blue-300">
+                       <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-300">
                          {{ getInitials(task.assigned_to?.name) }}
                        </div>
-                       <span class="text-[11px] text-gray-600 dark:text-gray-400">{{ task.assigned_to?.name?.split(' ')[0] || 'Member' }}</span>
+                       <span class="text-xs font-bold dark:text-gray-400">{{ task.assigned_to?.name?.split(' ')[0] || 'Member' }}</span>
                        <button 
                          v-if="task.assigned_to?.id === user?.id || isManager" 
                          @click.stop="handoverTask(task)" 
-                         class="px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-[10px] text-red-600 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-1.5"
+                         class="px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-xs text-red-600 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-1.5"
                          title="Release task back to pool"
                        >
                          Release
                        </button>
                      </div>
                   </div>
-                  <div class="flex items-center space-x-1 text-[10px] text-gray-400">
+                  <div class="flex items-center space-x-1 text-xs font-bold">
                     <i class="mdi mdi-calendar-text"></i>
                     <span>{{ task.due_date ? formatDate(task.due_date) : 'No due date' }}</span>
                   </div>
@@ -307,13 +304,13 @@
               <div :class="getTaskTypeIcon(task.type)" class="w-7 h-7 rounded flex items-center justify-center text-white opacity-90">
                 <i :class="getMdiTaskIcon(task.type)" class="text-base"></i>
               </div>
-              <div v-if="isOverdue(task)" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-wider">
+              <div v-if="isOverdue(task)" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-red-200 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold uppercase tracking-wider">
                 <i class="mdi mdi-clock-alert animate-bounce"></i>
                 <span>{{ getDaysOverdue(task.due_date!) }} Days Overdue</span>
               </div>
               
               <!-- Quote Approval Details -->
-              <div v-if="task.type === 'quote' && task.status !== 'completed'" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest mt-1">
+              <div v-if="task.type === 'quote' && task.status !== 'completed'" class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold uppercase tracking-widest mt-1">
                 <i class="mdi mdi-file-certificate-outline"></i>
                 <span>Awaiting Client Sign-off</span>
               </div>
@@ -322,45 +319,45 @@
             <!-- Tech/Finance Approval Dashboard -->
             <div v-if="task.type === 'materials' && task.material_approval?.needs_approval" class="flex flex-col gap-2 mb-3 p-2 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 mx-4">
               <div class="flex items-center justify-between">
-                 <span class="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest">Sign-off Status</span>
-                 <span class="text-[9px] font-black text-blue-600">{{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }} Complete</span>
+                 <span class="text-sm font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest">Sign-off Status</span>
+                 <span class="text-sm font-bold text-blue-600">{{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }} Complete</span>
               </div>
               <div class="flex gap-1">
                 <div v-for="(approved, dept) in task.material_approval.departments" :key="dept" 
                      :class="approved ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'"
                      class="flex-1 h-1 rounded-full transition-all" :title="dept"></div>
               </div>
-              <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+              <div class="flex justify-between items-center text-sm font-bold text-slate-400 uppercase tracking-tighter">
                  <span v-for="(_, dept) in task.material_approval.departments" :key="dept"
-                       :class="task.material_approval.departments[dept] ? 'text-emerald-600 font-black' : ''">
+                       :class="task.material_approval.departments[dept] ? 'text-emerald-600 font-bold' : ''">
                    {{ dept.substring(0, 3) }}
                  </span>
               </div>
             </div>
                 <div class="flex items-center gap-2 mb-3">
-                  <span :class="getStatusBadgeClasses(task.status)" class="text-[9px] font-black uppercase tracking-[0.1em] px-2.5 py-1 rounded-md border shadow-sm">
+                  <span :class="getStatusBadgeClasses(task.status)" class="text-xs font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-md border shadow-sm">
                     {{ getStatusLabel(task.status) }}
                   </span>
-                  <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
+                  <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
                 </div>
 
-                <h4 class="text-[15px] font-black text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors leading-tight">{{ task.title }}</h4>
-                <p class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-widest truncate mb-3">{{ task.enquiry?.title || 'System Objective' }}</p>
+                <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors leading-tight">{{ task.title }}</h4>
+                <p class="text-sm font-bold text-slate-500 dark:text-gray-400 uppercase tracking-widest truncate mb-3">{{ task.enquiry?.title || 'System Objective' }}</p>
 
-                <p v-if="task.task_description" class="text-[12px] text-slate-600 dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed border-l-2 border-slate-100 pl-3 dark:border-slate-800 italic">
+                <p v-if="task.task_description" class="text-sm text-slate-600 dark:text-gray-400 line-clamp-3 mb-4 leading-relaxed border-l-2 border-slate-100 pl-3 dark:border-slate-800 italic">
                   {{ task.task_description }}
                 </p>
 
             <div class="mt-auto flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-700">
               <div class="flex items-center space-x-2">
                  <template v-if="!task.assigned_to">
-                   <button @click.stop="claimTask(task)" class="text-[11px] font-bold text-primary hover:underline">Claim Task</button>
+                   <button @click.stop="claimTask(task)" class="text-xs font-bold text-primary hover:underline">Claim Task</button>
                  </template>
                  <div v-else class="flex items-center space-x-1.5">
-                   <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-[9px] font-bold text-blue-600 dark:text-blue-300">
+                   <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-300">
                      {{ getInitials(task.assigned_to?.name) }}
                    </div>
-                   <span class="text-[11px] text-gray-600 dark:text-gray-400">{{ task.assigned_to?.name?.split(' ')[0] || 'Member' }}</span>
+                   <span class="text-sm text-gray-600 dark:text-gray-400">{{ task.assigned_to?.name?.split(' ')[0] || 'Member' }}</span>
                    <button 
                      v-if="task.assigned_to?.id === user?.id || isManager" 
                      @click.stop="handoverTask(task)" 
@@ -371,7 +368,7 @@
                    </button>
                  </div>
               </div>
-              <div class="flex items-center space-x-1 text-[10px] text-gray-400">
+              <div class="flex items-center space-x-1 text-xs text-gray-400">
                 <i class="mdi mdi-calendar-text"></i>
                 <span>{{ task.due_date ? formatDate(task.due_date) : 'No due date' }}</span>
               </div>
@@ -385,12 +382,12 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Objective Name</th>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Operational Category</th>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Progress</th>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Liaison Personnel</th>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Weighted Priority</th>
-                  <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Deadline</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Objective Name</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Operational Category</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Progress</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Liaison Personnel</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Weighted Priority</th>
+                  <th class="px-6 py-4 text-left text-sm font-bold text-slate-400 dark:text-gray-400 uppercase tracking-[0.2em]">Deadline</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
@@ -402,8 +399,8 @@
                 >
                   <td class="px-6 py-4">
                     <div class="flex flex-col">
-                      <span class="text-sm font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{{ task.title }}</span>
-                      <span class="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">{{ task.enquiry?.title || 'Core Project' }}</span>
+                      <span class="text-sm font-black text-slate-900 dark:text-white group-hover:text-primary transition-colors">{{ task.title }}</span>
+                      <span class="text-sm font-bold text-slate-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">{{ task.enquiry?.title || 'Core Project' }}</span>
                     </div>
                   </td>
                   <td class="px-6 py-4">
@@ -419,11 +416,11 @@
                                    class="flex items-center gap-1.5 py-1 px-2.5 rounded-lg transition-all"
                                    :class="approved ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-400 bg-transparent'">
                                 <i :class="approved ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle-outline-outline'" class="text-[10px]"></i>
-                                <span class="text-[10px] font-black uppercase tracking-widest">{{ dept }}</span>
+                                <span class="text-xs font-bold uppercase tracking-widest">{{ dept }}</span>
                                 <span class="text-xs ml-1 opacity-50">{{ approved ? 'OK' : '...' }}</span>
                               </div>
                            </div>
-                           <span class="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-lg border border-blue-100 dark:border-blue-800">
+                           <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-lg border border-blue-100 dark:border-blue-800">
                              {{ task.material_approval.approved_count }}/{{ task.material_approval.total_count }} Sign-offs
                            </span>
                          </div>
@@ -432,7 +429,7 @@
                   </td>
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-2">
-                       <span :class="getStatusBadgeClasses(task.status)" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded border shadow-sm min-w-[100px] text-center">
+                       <span :class="getStatusBadgeClasses(task.status)" class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded border shadow-sm min-w-[100px] text-center">
                          {{ getStatusLabel(task.status) }}
                        </span>
                     </div>
@@ -442,14 +439,14 @@
                        <button @click.stop="claimTask(task)" class="text-xs font-bold text-primary hover:underline">Claim</button>
                      </template>
                      <div v-else class="flex items-center space-x-2">
-                       <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[9px] font-bold text-white">
+                       <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
                          {{ getInitials(task.assigned_to?.name) }}
                        </div>
                         <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ task.assigned_to?.name }}</span>
                         <button 
                           v-if="task.assigned_to?.id === user?.id || isManager" 
                           @click.stop="handoverTask(task)" 
-                          class="ml-3 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-[10px] text-red-600 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          class="ml-3 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50 text-xs font-bold dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                         >
                           Release
                         </button>
@@ -464,8 +461,8 @@
                     <div class="flex items-center space-x-2" :class="isOverdue(task) ? 'text-red-600' : 'text-gray-500 dark:text-gray-400'">
                       <i class="mdi mdi-calendar-clock text-base" :class="isOverdue(task) ? 'animate-pulse' : ''"></i>
                       <div class="flex flex-col">
-                        <span class="text-xs font-black uppercase tracking-widest">{{ task.due_date ? formatDate(task.due_date) : 'No due date' }}</span>
-                        <span v-if="isOverdue(task)" class="text-[9px] font-black text-red-500 bg-red-50 px-1 py-0.5 rounded w-fit mt-0.5 uppercase tracking-tighter shadow-sm border border-red-100">
+                        <span class="text-sm font-bold uppercase tracking-widest">{{ task.due_date ? formatDate(task.due_date) : 'No due date' }}</span>
+                        <span v-if="isOverdue(task)" class="text-xs font-bold text-red-500 bg-red-50 px-1 py-0.5 rounded w-fit mt-0.5 uppercase tracking-tighter shadow-sm border border-red-100">
                           {{ getDaysOverdue(task.due_date!) }} Days Delay
                         </span>
                       </div>

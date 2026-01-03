@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 lg:p-8">
+  <div v-if="show" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 lg:p-8 font-poppins">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
 
@@ -12,10 +12,10 @@
           <div class="flex items-center space-x-4 min-w-0">
             <div class="min-w-0">
                <div class="flex items-center gap-3 mb-1">
-                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white truncate">
+                  <h2 class="text-3xl font-black text-gray-900 dark:text-white truncate tracking-tighter">
                     {{ enquiry?.title || 'Project Detail' }}
                   </h2>
-                  <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-800">
+                  <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-bold border border-blue-200 dark:border-blue-800">
                     {{ enquiry.job_number }}
                   </span>
                </div>
@@ -23,11 +23,11 @@
                <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
                   <span class="text-gray-500 font-medium">{{ enquiry.enquiry_number }}</span>
                   <span class="text-gray-300 dark:text-gray-700">|</span>
-                  <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded text-xs font-semibold">
+                  <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded text-sm font-bold">
                     {{ getStatusLabel(enquiry.status) }}
                   </span>
                   <span class="text-gray-300 dark:text-gray-700">|</span>
-                  <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded text-xs font-semibold uppercase">
+                  <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded text-sm font-bold uppercase">
                     {{ enquiry.priority }}
                   </span>
                </div>
@@ -65,36 +65,36 @@
           <!-- Key Performance Indicators -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Project Progress</div>
+              <div class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Project Progress</div>
               <div class="flex items-center gap-4">
                 <div class="flex-1">
                   <div class="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-2 overflow-hidden">
                     <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000" :style="{ width: `${projectProgress}%` }"></div>
                   </div>
                 </div>
-                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ projectProgress }}%</span>
+                <span class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">{{ projectProgress }}%</span>
               </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Task Milestone Status</div>
-              <div class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ tasksMetrics.completed }} / {{ tasksMetrics.total }} <span class="text-xs text-gray-500 font-medium ml-1">Completed</span>
+              <div class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Task Status</div>
+              <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
+                {{ tasksMetrics.completed }} / {{ tasksMetrics.total }} <span class="text-xs text-gray-500 font-bold ml-1 uppercase">Done</span>
               </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Budget Estimate</div>
-              <div class="text-lg font-bold text-gray-900 dark:text-white">
-                <span class="text-xs text-gray-500 font-medium mr-1 font-mono">KES</span>{{ enquiry.estimated_budget?.toLocaleString() || '0' }}
+              <div class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Budget Estimate</div>
+              <div class="text-2xl font-black text-gray-900 dark:text-white tracking-tighter">
+                <span class="text-xs text-gray-500 font-bold mr-1 font-mono uppercase">KES</span>{{ enquiry.estimated_budget?.toLocaleString() || '0' }}
               </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Delivery Deadline</div>
+              <div class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Delivery Deadline</div>
               <div class="flex items-center justify-between">
                 <div class="text-sm font-bold text-gray-900 dark:text-white">{{ formatDate(enquiry.expected_delivery_date ?? null) }}</div>
-                <span :class="calculateDaysRemaining(enquiry.expected_delivery_date ?? null).includes('overdue') ? 'text-red-500' : 'text-emerald-600'" class="text-[10px] font-bold uppercase">
+                <span :class="calculateDaysRemaining(enquiry.expected_delivery_date ?? null).includes('overdue') ? 'text-red-500' : 'text-emerald-600'" class="text-xs font-bold uppercase">
                   {{ calculateDaysRemaining(enquiry.expected_delivery_date ?? null) }}
                 </span>
               </div>
@@ -107,7 +107,7 @@
             <!-- Stakeholder Info -->
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
               <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Stakeholder Information</h3>
+                <h3 class="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em]">Stakeholder Info</h3>
               </div>
               <div class="p-6 space-y-4">
                 <div class="flex justify-between items-start">
@@ -132,7 +132,7 @@
             <!-- Deployment Details -->
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
               <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Logistics</h3>
+                <h3 class="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em]">Project Logistics</h3>
               </div>
               <div class="p-6 space-y-4">
                 <div class="flex justify-between items-start">
@@ -157,7 +157,7 @@
             <!-- Project Scope / Deliverables -->
             <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-full">
               <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
-                <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Deliverables</h3>
+                <h3 class="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.2em]">Project Scope</h3>
               </div>
               <div class="p-6">
                 <ul class="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar">
@@ -188,8 +188,8 @@
           <!-- Detailed Task Matrix -->
           <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Operational Task Board</h3>
-              <router-link :to="`/projects/tasks?enquiry_id=${enquiry.id}`" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Project Tasks</h3>
+              <router-link :to="`/projects/tasks?enquiry_id=${enquiry.id}`" class="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
                 View All Tasks <i class="mdi mdi-arrow-right"></i>
               </router-link>
             </div>

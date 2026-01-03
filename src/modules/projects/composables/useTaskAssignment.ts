@@ -23,14 +23,23 @@ export function useTaskAssignment() {
 
     try {
       const response = await api.get(`/api/projects/enquiries/${enquiryId}/tasks`)
-      console.log('[DEBUG] fetchEnquiryTasks response:', response)
-      console.log('[DEBUG] fetchEnquiryTasks response.data:', response.data)
-      console.log('[DEBUG] fetchEnquiryTasks response.data.data:', response.data.data)
-      enquiryTasks.value = response.data.data || []
+      console.log('[DEBUG] fetchEnquiryTasks full response:', response)
+
+      // Handle potential response structures
+      const tasks = response.data.data || response.data || []
+
+      if (!Array.isArray(tasks)) {
+        console.warn('[DEBUG] fetchEnquiryTasks: response data is not an array:', tasks)
+        enquiryTasks.value = []
+      } else {
+        enquiryTasks.value = tasks
+      }
+
       console.log('[DEBUG] fetchEnquiryTasks enquiryTasks.value set to:', enquiryTasks.value)
       return enquiryTasks.value
-    } catch (err) {
-      error.value = 'Failed to fetch enquiry tasks'
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to fetch enquiry tasks'
+      error.value = errorMsg
       console.error('Error fetching enquiry tasks:', err)
       enquiryTasks.value = []
       throw err

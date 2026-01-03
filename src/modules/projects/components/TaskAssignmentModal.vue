@@ -1,227 +1,220 @@
 <template>
   <div v-if="show" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
     <!-- Glass Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-500" @click="$emit('close')"></div>
 
     <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[95vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl w-full max-w-7xl max-h-[95vh] flex flex-col relative z-20 border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in duration-300">
       
       <!-- Premium Header -->
-      <div class="px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
-        <div class="flex items-center space-x-5">
-           <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
-            <i class="mdi mdi-account-multiple-plus-outline text-blue-600 text-2xl"></i>
+      <div class="px-10 py-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-white to-slate-50 dark:from-slate-950 dark:to-slate-900/30">
+        <div class="flex items-center gap-6">
+           <div class="p-4 bg-blue-500/10 rounded-2xl shadow-inner border border-blue-500/20">
+            <i class="mdi mdi-account-multiple-plus-outline text-blue-600 text-3xl"></i>
           </div>
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-              Task Assignment Hub
-            </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center shrink-0">
-               <span class="opacity-70">Project Context:</span>
-               <span class="ml-1.5 text-blue-600 dark:text-blue-400 font-bold italic">{{ enquiry?.title || 'Global Context' }}</span>
-            </p>
+              Task <span class="text-blue-500">Assignment</span>
+            <div class="flex items-center gap-3 mt-1">
+                <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Enquiry Ref:</span>
+                <span class="px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-sm font-bold uppercase tracking-widest rounded-lg border border-blue-500/20 italic">
+                    {{ enquiry?.title || 'Details' }}
+                </span>
+            </div>
           </div>
         </div>
         <button
           @click="$emit('close')"
-          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all duration-200"
+          class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-all duration-300"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <i class="mdi mdi-close text-2xl"></i>
         </button>
       </div>
 
       <!-- Tab Navigation Section -->
-      <div v-if="enquiryTasks.length > 0" class="px-8 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <nav class="flex space-x-1 overflow-x-auto custom-scrollbar no-scrollbar" aria-label="Tasks">
+      <div v-if="enquiryTasks.length > 0" class="px-10 bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 overflow-hidden">
+        <nav class="flex gap-4 overflow-x-auto custom-scrollbar no-scrollbar py-4" aria-label="Tasks">
           <button
             v-for="task in enquiryTasks"
             :key="task.id"
             @click="activeTab = task.id"
             :class="[
               activeTab === task.id
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-500/5'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50',
-              'whitespace-nowrap pt-4 pb-3 px-6 border-b-2 font-bold text-xs uppercase tracking-widest transition-all'
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 shadow-xl'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700',
+              'whitespace-nowrap py-3 px-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2'
             ]"
           >
-            <i class="mdi mdi-circle-small mr-1 align-middle text-lg" :class="activeTab === task.id ? 'opacity-100' : 'opacity-30'"></i>
+            <i class="mdi mdi-circle text-[8px]" :class="activeTab === task.id ? 'text-blue-400' : 'text-slate-400'"></i>
             {{ task.title }}
           </button>
         </nav>
       </div>
 
       <!-- Modal Body -->
-      <div class="flex-grow overflow-y-auto custom-scrollbar p-8 bg-gray-50/30 dark:bg-gray-900/40">
+      <div class="flex-grow overflow-y-auto custom-scrollbar p-10 bg-slate-50/30 dark:bg-slate-900/20">
         
         <!-- States -->
-        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-          <div class="relative w-12 h-12">
-            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
-            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-          </div>
-          <p class="mt-4 text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Scanning Tasks...</p>
+        <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+          <div class="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6"></div>
+          <p class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Loading Data...</p>
         </div>
 
-        <div v-else-if="error" class="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl flex items-center space-x-4 animate-in slide-in-from-top-4">
-          <div class="p-2 bg-red-500 rounded-lg text-white shadow-lg shadow-red-500/20">
-            <i class="mdi mdi-alert-circle-outline text-xl"></i>
+        <div v-else-if="error" class="bg-red-500/5 border border-red-500/20 p-8 rounded-[2.5rem] flex items-center gap-6 animate-in slide-in-from-top-4">
+          <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500">
+            <i class="mdi mdi-alert-octagon text-3xl"></i>
           </div>
           <div>
-             <h4 class="text-sm font-bold text-red-700 dark:text-red-400">Assignment Error</h4>
-             <p class="text-xs text-red-600/80 dark:text-red-400/70 font-medium">{{ error }}</p>
+             <h4 class="text-sm font-bold text-red-500 uppercase tracking-widest mb-1">An Error Occurred</h4>
+             <p class="text-sm text-slate-500 font-medium">{{ error }}</p>
           </div>
         </div>
 
         <!-- Task Content -->
         <div v-else>
-          <div v-if="enquiryTasks.length === 0" class="flex flex-col items-center justify-center py-24 opacity-40">
-            <i class="mdi mdi-clipboard-text-off-outline text-6xl text-gray-300"></i>
-            <p class="mt-4 text-sm font-bold uppercase tracking-widest">No executable tasks found</p>
+          <div v-if="enquiryTasks.length === 0" class="flex flex-col items-center justify-center py-32 opacity-20">
+            <i class="mdi mdi-inbox-off-outline text-8xl text-slate-400"></i>
+            <p class="mt-6 text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">No Task Data Available</p>
           </div>
 
-          <div v-else-if="!activeTask" class="flex flex-col items-center justify-center py-24 opacity-40">
-            <i class="mdi mdi-gesture-tap text-6xl text-gray-300"></i>
-            <p class="mt-4 text-sm font-bold uppercase tracking-widest">Select target task to deploy</p>
+          <div v-else-if="!activeTask" class="flex flex-col items-center justify-center py-32 opacity-20">
+            <i class="mdi mdi-cursor-default-click-outline text-8xl text-slate-400"></i>
+            <p class="mt-6 text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Selection Required</p>
           </div>
 
-          <div v-else class="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div class="flex flex-col lg:flex-row gap-8">
+          <div v-else class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="flex flex-col lg:flex-row gap-12">
               <!-- Left: Form -->
-              <div class="flex-grow space-y-8">
+              <div class="flex-grow space-y-10">
                 <div class="flex items-start justify-between">
                   <div>
-                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1 block">Active Selection</span>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ activeTask.title }}</h3>
-                    <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mt-1 opacity-70">{{ activeTask.type.replace('_', ' ') }}</p>
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em] mb-2">Task Details</h3>
+                    <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ activeTask.title }}</h3>
+                    <div class="flex items-center gap-3 mt-3">
+                        <span class="px-2 py-0.5 bg-blue-500/10 text-blue-600 text-xs font-bold uppercase tracking-widest rounded-md border border-blue-500/20 italic">
+                            {{ activeTask.type.replace('_', ' ') }}
+                        </span>
+                        <span :class="['text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-widest border', getStatusColor(activeTask.status)]">
+                            {{ getStatusLabel(activeTask.status) }}
+                        </span>
+                    </div>
                   </div>
-                   <span
-                    :class="[
-                      'text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm border',
-                      getStatusColor(activeTask.status),
-                      'bg-opacity-50 backdrop-blur-sm'
-                    ]"
-                  >
-                    {{ getStatusLabel(activeTask.status) }}
-                  </span>
                 </div>
 
                 <!-- Assignment Form -->
-                <form @submit.prevent="assignTask(activeTask)" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <form @submit.prevent="assignTask(activeTask)" class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                   <!-- User Selection -->
-                  <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Responsible Agent *</label>
+                  <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Assign to Project Officer*</label>
                     <div class="relative group">
                       <select
                         v-model="assignmentData[activeTask.id].assigned_user_id"
                         required
                         :disabled="loadingUsers"
-                        class="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-50 shadow-sm"
+                        class="w-full h-14 pl-12 pr-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-50"
                       >
-                        <option value="0">{{ loadingUsers ? 'Populating agents...' : 'Select execution agent' }}</option>
+                        <option value="0">{{ loadingUsers ? 'Loading...' : 'Select Officer' }}</option>
                         <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                          {{ user.name }} {{ user.department ? ` — ${user.department}` : '' }}
+                          {{ user.name.toUpperCase() }} {{ user.department ? ` // ${user.department.toUpperCase()}` : '' }}
                         </option>
                       </select>
-                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500">
-                        <i class="mdi mdi-account-cog-outline text-xl"></i>
+                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                        <i class="mdi mdi-account-cog text-xl"></i>
                       </div>
-                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <i class="mdi mdi-chevron-down text-xl"></i>
                       </div>
                     </div>
-                    <p class="text-[10px] font-medium text-gray-400 flex items-center ml-1">
-                      <i class="mdi mdi-information-outline mr-1"></i>
-                      {{ loadingUsers ? 'Connecting to workforce directory...' : `Identity verified for ${availableUsers.length} available agents` }}
-                    </p>
                   </div>
 
                   <!-- Priority Setup -->
-                   <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Execution Priority</label>
+                   <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Priority</label>
                     <div class="relative group">
                       <select
                         v-model="assignmentData[activeTask.id].priority"
-                        class="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer shadow-sm"
+                        class="w-full h-14 pl-12 pr-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all appearance-none cursor-pointer"
                       >
-                        <option value="low">Standard / Low</option>
-                        <option value="medium">Optimized / Medium</option>
-                        <option value="high">Priority / High</option>
-                        <option value="urgent">Critical / Urgent</option>
+                        <option value="low">LOW</option>
+                        <option value="medium">MEDIUM</option>
+                        <option value="high">HIGH</option>
+                        <option value="urgent">URGENT</option>
                       </select>
-                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-amber-500">
-                        <i class="mdi mdi-lightning-bolt-outline text-xl"></i>
+                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                        <i class="mdi mdi-fire text-xl"></i>
                       </div>
-                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">
+                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <i class="mdi mdi-chevron-down text-xl"></i>
                       </div>
                     </div>
                   </div>
 
                   <!-- Deadline Selection -->
-                   <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Completion Deadline</label>
+                   <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Due Date</label>
                     <div class="relative group">
                       <input
                         v-model="assignmentData[activeTask.id].due_date"
                         type="date"
                         :min="new Date().toISOString().split('T')[0]"
-                        class="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                        class="w-full h-14 pl-12 pr-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                       />
-                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500">
-                        <i class="mdi mdi-calendar-clock-outline text-xl"></i>
+                      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                        <i class="mdi mdi-calendar-clock text-xl"></i>
                       </div>
                     </div>
                   </div>
 
                   <!-- Deployment Notes -->
-                   <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1">Assignment Directive</label>
+                   <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Notes / Instructions</label>
                     <textarea
                       v-model="assignmentData[activeTask.id].notes"
                       rows="1"
-                      class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm placeholder:text-gray-300"
-                      placeholder="Optional technical notes or strategic guidance..."
+                      class="w-full px-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
+                      placeholder="Enter specific instructions..."
                     ></textarea>
                   </div>
 
-                  <div class="md:col-span-2 flex justify-end pt-4 border-t border-gray-200/50 dark:border-gray-800/50">
+                  <div class="md:col-span-2 flex justify-end pt-10 border-t border-slate-200/50 dark:border-slate-800/50">
                     <button
                       type="submit"
                       :disabled="assignmentData[activeTask.id].assigned_user_id === 0 || assigningTask === activeTask.id"
-                      class="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-bold shadow-xl shadow-blue-500/20 transition-all active:scale-95 flex items-center space-x-2 disabled:opacity-50 disabled:scale-100 ring-2 ring-white dark:ring-gray-900 border border-blue-400/30"
+                      class="h-16 px-12 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-sm font-bold uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/40 transition-all active:scale-95 flex items-center gap-3 disabled:opacity-50"
                     >
-                       <div v-if="assigningTask === activeTask.id" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                       <i v-else class="mdi mdi-rocket-launch-outline text-lg"></i>
-                       <span>{{ assigningTask === activeTask.id ? 'Deploying...' : 'Execute Assignment' }}</span>
+                       <div v-if="assigningTask === activeTask.id" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                       <i v-else class="mdi mdi-rocket-launch text-xl"></i>
+                       <span>{{ assigningTask === activeTask.id ? 'Assigning...' : 'Assign Task' }}</span>
                     </button>
                   </div>
                 </form>
               </div>
 
               <!-- Right: History Side Panel -->
-              <div v-if="activeTask.assignmentHistory && activeTask.assignmentHistory.length > 0" class="lg:w-80 shrink-0">
-                 <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm h-full flex flex-col">
-                    <h4 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-6 flex items-center">
-                      <i class="mdi mdi-history mr-2 text-sm"></i>
-                      Log Trail
-                    </h4>
-                    <div class="space-y-6 flex-grow">
+              <div v-if="activeTask.assignmentHistory && activeTask.assignmentHistory.length > 0" class="lg:w-96 shrink-0">
+                 <div class="bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800 h-full flex flex-col">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div class="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+                        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Assignment History</h4>
+                    </div>
+                    <div class="space-y-8 flex-grow">
                       <div
                         v-for="(history, idx) in activeTask.assignmentHistory.slice(0, 3)"
                         :key="history.id"
-                        class="relative pl-6 border-l-2 border-gray-100 dark:border-gray-800 pb-2"
+                        class="relative pl-8 border-l-2 border-slate-200 dark:border-slate-800 pb-2"
                       >
-                         <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></div>
-                         <p class="text-xs font-bold text-gray-700 dark:text-gray-300 leading-tight">Assigned to {{ history.assignedTo?.name }}</p>
-                         <p class="text-[10px] text-gray-400 mt-1 font-medium">{{ formatDate(history.assigned_at) }}</p>
-                         <p v-if="history.notes" class="mt-2 text-[10px] text-gray-500 bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg italic">"{{ history.notes }}"</p>
+                         <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
+                         <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{{ formatDate(history.assigned_at) }}</p>
+                         <p class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Active Duty: <span class="text-blue-500">{{ history.assignedTo?.name }}</span></p>
+                         <p v-if="history.notes" class="mt-3 text-[10px] text-slate-500 font-medium leading-relaxed italic border-l-2 border-slate-200 dark:border-slate-800 pl-3">"{{ history.notes }}"</p>
                       </div>
                       
                       <div
                         v-if="activeTask.assignmentHistory.length > 3"
-                        class="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer flex items-center justify-center pt-2"
+                        class="pt-4 flex items-center justify-center"
                       >
-                        +{{ activeTask.assignmentHistory.length - 3 }} ARCHIVED LOGS
+                        <button class="text-xs font-bold text-slate-400 hover:text-blue-500 uppercase tracking-[0.2em] transition-colors">
+                            +{{ activeTask.assignmentHistory.length - 3 }} Historical Records
+                        </button>
                       </div>
                     </div>
                  </div>
@@ -233,20 +226,20 @@
         <!-- Success Message -->
         <transition 
           enter-active-class="transform transition duration-300 ease-out"
-          enter-from-class="translate-y-4 opacity-0 scale-95"
+          enter-from-class="translate-y-10 opacity-0 scale-90"
           enter-to-class="translate-y-0 opacity-100 scale-100"
           leave-active-class="transform transition duration-200 ease-in"
           leave-from-class="opacity-100 scale-100"
-          leave-to-class="opacity-0 scale-95"
+          leave-to-class="opacity-0 scale-90"
         >
-          <div v-if="successMessage" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[120] w-full max-w-sm">
-            <div class="bg-emerald-500 dark:bg-emerald-600 text-white p-4 rounded-2xl shadow-2xl shadow-emerald-500/30 flex items-center border border-white/20">
-              <div class="p-2 bg-white/20 rounded-xl mr-4 shrink-0">
-                <i class="mdi mdi-check-decagram text-white text-2xl"></i>
+          <div v-if="successMessage" class="fixed bottom-12 left-1/2 -translate-x-1/2 z-[120] w-full max-w-lg">
+            <div class="bg-slate-900 dark:bg-white text-white dark:text-slate-950 p-6 rounded-3xl shadow-2xl border border-white/10 dark:border-slate-200 flex items-center gap-6">
+              <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/40">
+                <i class="mdi mdi-check-decagram text-3xl"></i>
               </div>
               <div>
-                <h5 class="text-sm font-bold">Assignment Successful</h5>
-                <p class="text-xs text-white/80 font-medium">{{ successMessage }}</p>
+                <h5 class="text-sm font-bold uppercase tracking-[0.2em] mb-1">Task Assigned</h5>
+                <p class="text-sm font-medium opacity-80 leading-relaxed">{{ successMessage }}</p>
               </div>
             </div>
           </div>
@@ -255,12 +248,12 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-8 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end space-x-3 items-center">
+      <div class="px-10 py-8 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-end items-center">
         <button
           @click="$emit('close')"
-          class="px-8 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-full transition-all"
+          class="h-12 px-8 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-[0.2em] rounded-xl transition-all"
         >
-          Dismiss Hub
+          Abort Protocol
         </button>
       </div>
     </div>
@@ -379,18 +372,20 @@ const fetchAvailableUsers = async () => {
     console.log('✅ [TaskAssignmentModal] Users response data:', JSON.stringify(response.data, null, 2))
 
     const users = response.data.data || []
-    console.log('✅ [TaskAssignmentModal] Extracted users array:', users)
+    console.log('✅ [TaskAssignmentModal] Extracted raw users array:', users)
     console.log('✅ [TaskAssignmentModal] Users count:', users.length)
 
-    // Validate user data structure
-    if (users.length > 0) {
-      console.log('✅ [TaskAssignmentModal] First user structure:', JSON.stringify(users[0], null, 2))
-      const hasRequiredFields = users.every((user: User) => user.id && user.name)
-      console.log('✅ [TaskAssignmentModal] All users have required fields (id, name):', hasRequiredFields)
-    }
+    // Normalize user data to match interface and template expectations
+    const normalizedUsers = users.map((u: any) => ({
+      id: u.id,
+      name: u.name || u.username || `User ${u.id}`,
+      department: typeof u.department === 'string' 
+        ? u.department 
+        : (u.department?.name || u.department_name || '')
+    }))
 
-    availableUsers.value = users
-    console.log('✅ [TaskAssignmentModal] Available users loaded:', availableUsers.value.length, 'users')
+    availableUsers.value = normalizedUsers
+    console.log('✅ [TaskAssignmentModal] Available users normalized and loaded:', availableUsers.value.length, 'users')
   } catch (err: unknown) {
     const error = err as { name?: string; message?: string; response?: { status?: number; data?: unknown }; config?: unknown }
     console.error('❌ [TaskAssignmentModal] Error fetching available users:', error)
@@ -488,21 +483,29 @@ const getStatusLabel = (status: string) => {
   return labels[status] || status
 }
 
-watch(() => props.show, async (newShow) => {
-  console.log('🔍 [TaskAssignmentModal] Modal visibility changed:', newShow)
-  console.log('🔍 [TaskAssignmentModal] enquiryId:', props.enquiryId)
+watch([() => props.show, () => props.enquiryId], async ([newShow, newId]) => {
+  console.log('🔍 [TaskAssignmentModal] Watch triggered:', { show: newShow, enquiryId: newId })
   
-  if (newShow && props.enquiryId && props.enquiryId > 0) {
-    console.log('🔍 [TaskAssignmentModal] Fetching enquiry tasks for ID:', props.enquiryId)
-    await fetchEnquiryTasks(props.enquiryId)
-    initializeAssignmentData()
-    activeTab.value = enquiryTasks.value[0]?.id || null
-  } else if (newShow && !props.enquiryId) {
-    // If no enquiry ID, we might be opening from a single task
-    // The parent should handle passing the task's enquiry properly
-    console.warn('🔍 [TaskAssignmentModal] Opened without enquiryId - tasks may not load')
+  if (newShow && newId && typeof newId === 'number' && newId > 0) {
+    try {
+      console.log('🔍 [TaskAssignmentModal] Conditions met, fetching tasks for:', newId)
+      await fetchEnquiryTasks(newId)
+      initializeAssignmentData()
+      
+      if (enquiryTasks.value.length > 0) {
+        activeTab.value = enquiryTasks.value[0].id
+        console.log('🔍 [TaskAssignmentModal] Tasks loaded, activeTab set to:', activeTab.value)
+      } else {
+        activeTab.value = null
+        console.warn('🔍 [TaskAssignmentModal] No tasks returned for enquiry:', newId)
+      }
+    } catch (err) {
+      console.error('🔍 [TaskAssignmentModal] Failed to fetch tasks:', err)
+    }
+  } else if (newShow && !newId) {
+    console.warn('🔍 [TaskAssignmentModal] Modal opened but enquiryId is missing or 0')
   }
-})
+}, { immediate: true })
 
 onMounted(async () => {
   console.log('🔍 [TaskAssignmentModal] Component mounted, fetching available users')

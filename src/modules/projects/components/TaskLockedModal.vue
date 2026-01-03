@@ -1,68 +1,65 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center z-[110] p-4 sm:p-6 font-poppins">
     <!-- Glass Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-500" @click="closeModal"></div>
 
     <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col relative z-20 border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in duration-300">
       
       <!-- Premium Header (Red Theme for Warning) -->
-      <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-red-50/30 dark:from-gray-900 dark:to-red-900/10">
-        <div class="flex items-center space-x-4">
-          <div class="p-2.5 bg-red-500/10 rounded-xl shadow-inner border border-red-500/20">
-            <i class="mdi mdi-lock-alert text-red-600 dark:text-red-400 text-xl"></i>
+      <div class="px-10 py-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-white to-red-50/10 dark:from-slate-950 dark:to-red-950/10">
+        <div class="flex items-center gap-6">
+          <div class="p-4 bg-red-500/10 rounded-2xl shadow-inner border border-red-500/20">
+            <i class="mdi mdi-lock-alert text-red-600 dark:text-red-400 text-3xl animate-pulse"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Access Locked</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Task occupancy restricted</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tighter">Sector Locked</h3>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Concurrency Restriction</p>
           </div>
         </div>
-        <button
-          @click="closeModal"
-          class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all duration-200"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
       </div>
 
       <!-- Modal Body -->
-      <div class="p-8 overflow-y-auto custom-scrollbar flex-grow">
-        <div class="bg-red-50/50 dark:bg-red-900/10 p-5 rounded-2xl border border-red-100/50 dark:border-red-900/30 flex items-start space-x-4 mb-8">
-          <div class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 shadow-sm">!</div>
-          <p class="text-xs text-red-700/80 dark:text-red-300 leading-relaxed font-medium">
-            This task is currently being modified by another team member. Concurrent edits are disabled to prevent data collisions.
+      <div class="p-10 overflow-y-auto custom-scrollbar flex-grow bg-slate-50/30 dark:bg-slate-900/10">
+        <div class="bg-red-500/5 p-6 rounded-[2rem] border border-red-500/20 flex items-start gap-4 mb-10">
+          <div class="w-8 h-8 rounded-xl bg-red-500 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-lg shadow-red-500/30 ring-2 ring-white dark:ring-slate-900">!</div>
+          <p class="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed font-bold uppercase tracking-wide">
+            This sector is currently under modification. Concurrent access is restricted to ensure data integrity and prevent collision signatures.
           </p>
         </div>
 
-        <div class="space-y-6">
-          <div class="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/50">
-            <div class="mb-4">
-              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Active Task</span>
-              <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.title }}</p>
+        <div class="space-y-8">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <!-- Glow -->
+            <div class="absolute top-0 right-0 w-24 h-24 blur-3xl rounded-full -mr-12 -mt-12 bg-blue-500 opacity-5"></div>
+
+            <div class="mb-8">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Active Target</span>
+              <p class="text-lg font-black text-slate-900 dark:text-white tracking-tighter">{{ task.title }}</p>
             </div>
             
-            <div class="flex justify-between items-center py-4 border-t border-gray-100 dark:border-gray-800">
+            <div class="flex justify-between items-center py-6 border-y border-slate-100 dark:border-slate-800">
                <div>
-                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Status</span>
-                <span :class="statusClass(task.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2 block">Status</span>
+                <span :class="statusClass(task.status)" class="px-3 py-1 rounded-md text-[8px] font-black uppercase tracking-[0.15em] border">
                   {{ task.status ? task.status.replace('_', ' ') : 'Pending' }}
                 </span>
               </div>
               <div class="text-right">
-                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-2 block">Department</span>
-                <p class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ task.department?.name || 'Central Operations' }}</p>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2 block">Sector</span>
+                <p class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ task.department?.name || 'CENTRAL OPS' }}</p>
               </div>
             </div>
 
-            <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
-              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3 block">Currently Assigned To</span>
-              <div class="flex items-center gap-4">
-                <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-blue-500/20">
+            <div class="pt-8">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-5 block">Authorized Occupant</span>
+              <div class="flex items-center gap-5">
+                <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 flex items-center justify-center text-white dark:text-slate-950 font-black text-sm shadow-xl dark:shadow-white/10 ring-2 ring-slate-100 dark:ring-slate-800">
                   {{ getInitials(task.locked_by_user?.name || 'Unknown') }}
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ task.locked_by_user?.name || 'Unknown Agent' }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 truncate opacity-70">{{ task.locked_by_user?.email || 'N/A' }}</p>
+                  <p class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ task.locked_by_user?.name || 'SYSTEM AGENT' }}</p>
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1 opacity-70">{{ task.locked_by_user?.email || 'N/A' }}</p>
                 </div>
               </div>
             </div>
@@ -71,13 +68,14 @@
       </div>
 
       <!-- Action Footer -->
-      <div class="p-8 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center">
+      <div class="px-10 py-8 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-end items-center">
         <button
           type="button"
-          class="px-10 py-2.5 bg-gray-900 dark:bg-gray-800 hover:bg-black dark:hover:bg-gray-700 text-white rounded-full text-sm font-bold shadow-lg transition-all active:scale-95"
+          class="h-12 px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl dark:shadow-white/5 transition-all active:scale-95 flex items-center gap-2"
           @click="closeModal"
         >
-          Acknowledged
+          <i class="mdi mdi-shield-check text-lg"></i>
+          Acknowledge & Exit
         </button>
       </div>
     </div>

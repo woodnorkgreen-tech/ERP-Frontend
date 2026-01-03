@@ -1,54 +1,53 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Alerts & Notifications</h3>
-        <div class="flex items-center space-x-2">
-          <div v-if="alerts?.length" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{ alerts?.length || 0 }} active</span>
-        </div>
+  <div class="space-y-8">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-1.5 h-6 bg-red-500 rounded-full"></div>
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Critical Intel</h3>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">
+        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ alerts?.length || 0 }} Active Signatures</span>
       </div>
     </div>
-    <div class="p-6">
-      <div v-if="!alerts?.length" class="text-center py-8">
-        <div class="w-16 h-16 mx-auto mb-4 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-          <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </div>
-        <p class="text-gray-500 dark:text-gray-400 font-medium">All systems operational</p>
-        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">No alerts at this time</p>
+
+    <div v-if="!alerts?.length" class="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-[2rem]">
+      <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-500">
+        <i class="mdi mdi-shield-check text-4xl"></i>
       </div>
-      <div v-else class="space-y-4">
-        <div v-for="alert in alerts" :key="alert.id || alert.type"
-             class="p-4 rounded-lg border-l-4 transition-all duration-200 hover:shadow-md"
-             :class="getAlertStyles(alert.severity)">
-          <div class="flex items-start">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                   :class="getAlertIconBg(alert.severity)">
-                <svg class="w-4 h-4" :class="getAlertIconColor(alert.severity)" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-              </div>
+      <p class="text-sm font-black text-slate-400 uppercase tracking-widest">Global Sector Clear</p>
+      <p class="text-xs text-slate-500 font-medium mt-1">No anomalies detected in the ecosystem.</p>
+    </div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div v-for="alert in alerts" :key="alert.id || alert.type"
+           class="group relative overflow-hidden p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all duration-500"
+           :class="getAlertBorderStyles(alert.severity)">
+        
+        <div class="relative z-10 flex flex-col h-full">
+          <div class="flex items-start justify-between mb-6">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 group-hover:scale-110"
+                 :class="getAlertIconColor(alert.severity)">
+              <i class="mdi text-2xl" :class="getAlertIcon(alert.severity)"></i>
             </div>
-            <div class="ml-4 flex-1">
-              <div class="flex items-center justify-between">
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">{{ alert.title }}</h4>
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ formatDate(alert.timestamp || new Date().toISOString()) }}
-                </span>
-              </div>
-              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ alert.message }}</p>
-              <div v-if="alert.action" class="mt-3">
-                <button class="text-xs font-medium px-3 py-1 rounded-md transition-colors"
-                        :class="getActionButtonStyles(alert.severity)">
-                  {{ alert.action }}
-                </button>
-              </div>
-            </div>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              {{ formatDate(alert.timestamp || new Date().toISOString()) }}
+            </span>
+          </div>
+
+          <div class="flex-1">
+             <h4 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-2 group-hover:text-blue-500 transition-colors">{{ alert.title }}</h4>
+             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{{ alert.message }}</p>
+          </div>
+
+          <div v-if="alert.action" class="mt-8">
+            <button class="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all active:scale-95 border"
+                    :class="getActionButtonStyles(alert.severity)">
+              {{ alert.action }}
+            </button>
           </div>
         </div>
+        
+        <div class="absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full -mr-16 -mt-16 opacity-10" :class="getAlertIconBg(alert.severity)"></div>
       </div>
     </div>
   </div>
@@ -63,22 +62,32 @@ interface Props {
 
 defineProps<Props>()
 
-const getAlertStyles = (severity: string) => {
+const getAlertIcon = (severity: string) => {
+  const icons: Record<string, string> = {
+    'high': 'mdi-alert-octagon',
+    'medium': 'mdi-alert',
+    'low': 'mdi-information',
+    'info': 'mdi-text-box-outline'
+  }
+  return icons[severity] || icons.info
+}
+
+const getAlertBorderStyles = (severity: string) => {
   const styles: Record<string, string> = {
-    'high': 'border-l-red-500 bg-red-50 dark:bg-red-900/10',
-    'medium': 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/10',
-    'low': 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/10',
-    'info': 'border-l-gray-500 bg-gray-50 dark:bg-gray-900/10'
+    'high': 'border-red-500/20 bg-red-50/50 dark:bg-red-900/10',
+    'medium': 'border-yellow-500/20 bg-yellow-50/50 dark:bg-yellow-900/10',
+    'low': 'border-blue-500/20 bg-blue-50/50 dark:bg-blue-900/10',
+    'info': 'border-slate-500/20 bg-slate-50/50 dark:bg-slate-900/10'
   }
   return styles[severity] || styles.info
 }
 
 const getAlertIconBg = (severity: string) => {
   const styles: Record<string, string> = {
-    'high': 'bg-red-100 dark:bg-red-900/20',
-    'medium': 'bg-yellow-100 dark:bg-yellow-900/20',
-    'low': 'bg-blue-100 dark:bg-blue-900/20',
-    'info': 'bg-gray-100 dark:bg-gray-900/20'
+    'high': 'bg-red-500',
+    'medium': 'bg-yellow-500',
+    'low': 'bg-blue-500',
+    'info': 'bg-slate-500'
   }
   return styles[severity] || styles.info
 }
@@ -88,17 +97,17 @@ const getAlertIconColor = (severity: string) => {
     'high': 'text-red-600 dark:text-red-400',
     'medium': 'text-yellow-600 dark:text-yellow-400',
     'low': 'text-blue-600 dark:text-blue-400',
-    'info': 'text-gray-600 dark:text-gray-400'
+    'info': 'text-slate-600 dark:text-slate-400'
   }
   return styles[severity] || styles.info
 }
 
 const getActionButtonStyles = (severity: string) => {
   const styles: Record<string, string> = {
-    'high': 'text-red-700 bg-red-100 hover:bg-red-200 dark:text-red-300 dark:bg-red-900/30 dark:hover:bg-red-900/50',
-    'medium': 'text-yellow-700 bg-yellow-100 hover:bg-yellow-200 dark:text-yellow-300 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/50',
-    'low': 'text-blue-700 bg-blue-100 hover:bg-blue-200 dark:text-blue-300 dark:bg-blue-900/30 dark:hover:bg-blue-900/50',
-    'info': 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-900/30 dark:hover:bg-gray-900/50'
+    'high': 'text-red-700 bg-red-100 hover:bg-red-200 border-red-200 dark:text-red-300 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:border-red-900/50',
+    'medium': 'text-yellow-700 bg-yellow-100 hover:bg-yellow-200 border-yellow-200 dark:text-yellow-300 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/50 dark:border-yellow-900/50',
+    'low': 'text-blue-700 bg-blue-100 hover:bg-blue-200 border-blue-200 dark:text-blue-300 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:border-blue-900/50',
+    'info': 'text-slate-700 bg-slate-100 hover:bg-slate-200 border-slate-200 dark:text-slate-300 dark:bg-slate-900/30 dark:hover:bg-slate-900/50 dark:border-slate-900/50'
   }
   return styles[severity] || styles.info
 }

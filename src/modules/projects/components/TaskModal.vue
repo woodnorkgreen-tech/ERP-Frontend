@@ -14,12 +14,12 @@
           </div>
           <div>
             <div class="flex items-center gap-3">
-              <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[400px]">
+              <h2 class="text-3xl font-black text-gray-900 dark:text-white truncate max-w-[600px] tracking-tighter">
                 {{ task.title }}
               </h2>
               <span
                 :class="[
-                  'text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm',
+                  'text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm',
                   getStatusColor(task.status)
                 ]"
               >
@@ -36,13 +36,13 @@
 
         <div class="flex items-center space-x-6 mr-8 border-r border-gray-200 dark:border-gray-700 pr-8 hidden md:flex">
           <div class="text-right">
-            <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Assigned To</p>
-            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ task.assigned_to?.name || 'Unassigned' }}</p>
+            <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Assigned To</p>
+            <p class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ task.assigned_to?.name || 'Unassigned' }}</p>
           </div>
           <div v-if="task.due_date" class="text-right">
-            <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Deadline</p>
+            <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Deadline</p>
             <p 
-              class="text-sm font-bold"
+              class="text-sm font-black"
               :class="isOverdue(task.due_date) ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'"
             >
               {{ formatDate(task.due_date) }}
@@ -69,7 +69,7 @@
               activeTab === tab.id
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-500/5'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50',
-              'whitespace-nowrap pt-4 pb-3 px-6 border-b-2 font-bold text-xs uppercase tracking-widest transition-all'
+              'whitespace-nowrap pt-4 pb-3 px-6 border-b-2 font-bold text-sm uppercase tracking-[0.2em] transition-all'
             ]"
           >
             <i class="mdi mr-2 text-base align-middle" :class="tab.icon"></i>
