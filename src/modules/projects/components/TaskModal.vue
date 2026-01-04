@@ -97,6 +97,7 @@
               <TaskRenderer
                 :task="task"
                 :readonly="readonly"
+                :initial-tab="initialTab"
                 @update-status="handleStatusUpdate"
                 @complete="handleComplete"
                 @save-design-data="handleSaveDesignData"
@@ -125,6 +126,7 @@ interface Props {
   show: boolean
   task: EnquiryTask | null
   readonly?: boolean
+  initialTab?: string | null
 }
 
 const props = defineProps<Props>()

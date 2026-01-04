@@ -396,7 +396,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import type { ProcurementTaskData, ProcurementItem } from '../../services'
 import { useProcurementData } from '@/composables/useProcurementData'
@@ -409,6 +409,7 @@ import api from '@/plugins/axios'
 
 interface Props {
   task: EnquiryTask
+  initialTab?: string | null
 }
 
 const props = defineProps<Props>()
@@ -498,7 +499,14 @@ const confirmHandover = async () => {
 }
 
 // Tab management
-const activeTab = ref('items')
+const activeTab = ref(props.initialTab || 'items')
+
+// Watch initialTab to update activeTab when it changes while open
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) {
+    activeTab.value = newTab
+  }
+})
 const tabs = [
   { id: 'items', label: 'Procurement Progress', icon: '📦' },
   { id: 'report', label: 'Export Data', icon: '📄' }

@@ -865,6 +865,8 @@ interface Props {
   task: EnquiryTask
   /** Whether the task is in readonly mode */
   readonly?: boolean
+  /** The tab to show by default */
+  initialTab?: string
 }
 
 /**
@@ -1133,7 +1135,7 @@ type TimeoutHandle = ReturnType<typeof setTimeout>
 // Reactive state
 const isImporting = ref(false)
 const isMerging = ref(false)
-const activeTab = ref('materials')
+const activeTab = ref(props.initialTab || 'materials')
 const marginUpdateTimeout = ref<TimeoutHandle | null>(null)
 const showQuoteViewer = ref(false)
 

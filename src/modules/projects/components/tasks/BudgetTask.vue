@@ -353,6 +353,7 @@ import api from '@/plugins/axios'
 interface Props {
   task: EnquiryTask
   readonly?: boolean
+  initialTab?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -396,7 +397,7 @@ const {
   calculateLogisticsTotal,
   saveDraft,
   handleSubmit, // Used in template form submission
-} = useBudgetOperations(state, props.task, emit)
+} = useBudgetOperations(state, props.task, emit, props.initialTab)
 
 // Version Management
 const showVersionHistory = ref(false)

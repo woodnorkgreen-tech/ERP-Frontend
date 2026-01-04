@@ -5,89 +5,39 @@
         <!-- Dashboard Header -->
         <DashboardHeader :loading="loading" @refresh="handleRefresh" />
 
-        <!-- Executive Summary Section (Redesigned as Premium Engine) -->
-        <div class="relative overflow-hidden bg-slate-900 rounded-[3rem] shadow-2xl p-8 md:p-12 border border-slate-800">
-          <!-- Background Decoration -->
-          <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full -mr-48 -mt-48"></div>
-          <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/10 blur-[100px] rounded-full -ml-32 -mb-32"></div>
-          
-          <div class="relative z-10">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-              <div>
-                <nav class="flex mb-4" aria-label="Breadcrumb">
-                  <ol class="inline-flex items-center space-x-1 uppercase tracking-[0.2em] text-sm font-bold">
-                    <li class="text-blue-500">Projects</li>
-                    <li class="flex items-center gap-1 text-slate-600">
-                      <i class="mdi mdi-chevron-right text-xs"></i>
-                      Project Summary
-                    </li>
-                  </ol>
-                </nav>
-                <h2 class="text-5xl font-black text-white tracking-tighter mb-3">Project <span class="text-blue-500 opacity-50">Dashboard</span></h2>
-                <p class="text-slate-400 text-sm font-medium">Real-time overview of your projects and enquiries.</p>
-              </div>
-              <div class="flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
-                <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-                <span class="text-sm font-bold text-white uppercase tracking-[0.2em]">Live Tracking Active</span>
-              </div>
+        <!-- Executive Summary Section (Modular KPI Engine) -->
+        <KPICards 
+          :enquiry-metrics="enquiryMetrics" 
+          :project-metrics="projectMetrics" 
+          :task-metrics="taskMetrics"
+          :metadata="metadata"
+        />
+
+        <!-- Section: Operational Intelligence (New) -->
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Operational <span class="text-blue-500 opacity-50">Intelligence</span></h2>
+              <p class="text-sm text-slate-500 font-medium">Proactive tactical recommendations based on system telemetry.</p>
             </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <!-- Enquiries Metric -->
-              <div class="group bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/5 transition-all duration-500">
-                <div class="flex items-center justify-between mb-6">
-                   <div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-500 border border-blue-500/20 group-hover:scale-110 transition-transform">
-                     <i class="mdi mdi-file-document-multiple-outline text-2xl"></i>
-                   </div>
-                   <span class="text-sm font-black text-slate-500 uppercase tracking-widest">Global</span>
-                </div>
-                <p class="text-4xl font-black text-white tracking-tighter mb-1">{{ enquiryMetrics?.total_enquiries || 0 }}</p>
-                <p class="text-sm font-black text-blue-500 uppercase tracking-widest">Total Enquiries</p>
-              </div>
-
-              <!-- Projects Metric -->
-              <div class="group bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/5 transition-all duration-500">
-                <div class="flex items-center justify-between mb-6">
-                   <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-500 border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                     <i class="mdi mdi-rocket-launch-outline text-2xl"></i>
-                   </div>
-                   <span class="text-sm font-black text-slate-500 uppercase tracking-widest">Active</span>
-                </div>
-                <p class="text-4xl font-black text-white tracking-tighter mb-1">{{ projectMetrics?.active_projects || 0 }}</p>
-                <p class="text-sm font-black text-indigo-500 uppercase tracking-widest">Active Projects</p>
-              </div>
-
-              <!-- Completion Metric -->
-              <div class="group bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/5 transition-all duration-500">
-                <div class="flex items-center justify-between mb-6">
-                   <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                     <i class="mdi mdi-progress-check text-2xl"></i>
-                   </div>
-                   <span class="text-sm font-black text-slate-500 uppercase tracking-widest">Ratio</span>
-                </div>
-                <p class="text-4xl font-black text-white tracking-tighter mb-1">{{ taskMetrics?.completion_rate || 0 }}<span class="text-2xl opacity-50">%</span></p>
-                <p class="text-sm font-black text-emerald-500 uppercase tracking-widest">Tasks Done</p>
-              </div>
-
-              <!-- Overdue Alert -->
-              <div class="group bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/5 transition-all duration-500" :class="{'border-red-500/20': overdueCount > 0}">
-                <div class="flex items-center justify-between mb-6">
-                   <div class="w-12 h-12 rounded-2xl flex items-center justify-center border transition-all" :class="overdueCount > 0 ? 'bg-red-500/20 text-red-500 border-red-500/20' : 'bg-slate-500/20 text-slate-500 border-white/5'">
-                     <i class="mdi mdi-clock-alert-outline text-2xl" :class="{'animate-pulse': overdueCount > 0}"></i>
-                   </div>
-                   <span class="text-sm font-black text-slate-500 uppercase tracking-widest">Critical</span>
-                </div>
-                <p class="text-4xl font-black tracking-tighter mb-1" :class="overdueCount > 0 ? 'text-red-500' : 'text-white'">{{ overdueCount }}</p>
-                <p class="text-sm font-black uppercase tracking-widest" :class="overdueCount > 0 ? 'text-red-500' : 'text-slate-500'">Overdue Tasks</p>
-              </div>
+            <div class="flex items-center gap-2">
+               <span class="px-3 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest rounded-lg">AI Assisted</span>
             </div>
           </div>
+          <SuggestionsPanel :suggestions="suggestions" :loading="loading" />
         </div>
 
         <!-- Section: Lifecycle Intelligence -->
         <div v-if="projectMetrics" class="space-y-6">
           <PhaseProgressSection :project-metrics="projectMetrics" />
         </div>
+
+        <!-- Section: Tactical Metrics Grid -->
+        <MetricsGrid 
+          :enquiry-metrics="enquiryMetrics" 
+          :project-metrics="projectMetrics" 
+          :metadata="metadata"
+        />
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-12">
             <!-- Left Column: Main Analysis -->
@@ -139,7 +89,12 @@
                     </div>
                   </div>
                   <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
-                    <DepartmentLoad ref="departmentLoadRef" :loading="loading" />
+                    <DepartmentLoad 
+                      ref="departmentLoadRef" 
+                      :loading="loading" 
+                      :command-center-data="commandCenterData"
+                      :metadata="metadata"
+                    />
                   </div>
                 </div>
 
@@ -199,6 +154,8 @@
               <ProjectPipelineFunnel
                 :enquiry-metrics="enquiryMetrics"
                 :project-metrics="projectMetrics"
+                :command-center-data="commandCenterData"
+                :metadata="metadata"
               />
           </div>
         </div>
@@ -231,8 +188,22 @@ import ActivityFeed from '../components/ActivityFeed.vue'
 import DashboardFilters from '../components/DashboardFilters.vue'
 import DepartmentLoad from '../components/DepartmentLoad.vue'
 import PhaseProgressSection from '../components/PhaseProgressSection.vue'
+import SuggestionsPanel from '../components/SuggestionsPanel.vue'
+import KPICards from '../components/KPICards.vue'
+import MetricsGrid from '../components/MetricsGrid.vue'
 
-const { dashboardMetrics, enquiryMetrics, taskMetrics, projectMetrics, financialMetrics, loading, fetchDashboardMetrics } = useProjectsDashboard()
+const { 
+  dashboardMetrics, 
+  enquiryMetrics, 
+  taskMetrics, 
+  projectMetrics, 
+  financialMetrics, 
+  suggestions,
+  commandCenterData,
+  metadata,
+  loading, 
+  fetchDashboardMetrics 
+} = useProjectsDashboard()
 
 const overdueCount = computed(() => taskMetrics.value?.overdue_tasks || 0)
 const departmentLoadRef = ref<InstanceType<typeof DepartmentLoad> | null>(null)

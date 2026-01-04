@@ -2,8 +2,8 @@ import { ref } from 'vue'
 import { BudgetService } from '../services/budgetService'
 import type { BudgetData, BudgetMaterialItem, LabourType } from '../services/budgetService'
 
-export function useBudgetOperations(state: any, task: any, emit: any) {
-  const activeTab = ref('materials')
+export function useBudgetOperations(state: any, task: any, emit: any, initialTab?: string) {
+  const activeTab = ref(initialTab || 'materials')
 
   const tabs = [
     { key: 'materials', label: 'Materials' },

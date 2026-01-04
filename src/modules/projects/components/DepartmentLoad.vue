@@ -5,6 +5,14 @@
       <div class="flex items-center gap-3">
         <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
         <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Sector Load</h3>
+        <div class="group/tooltip relative">
+          <i class="mdi mdi-information-outline text-slate-300 hover:text-indigo-500 cursor-help transition-colors"></i>
+          <div class="absolute left-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] font-normal leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+            <div class="font-black uppercase tracking-widest mb-2 text-indigo-400">Data Criteria</div>
+            Calculates operational pressure per department by analyzing the ratio of 'Active Units' to the 'Nominal Capacity' (default 15). Includes all pending and in-progress tasks.
+            <div class="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+          </div>
+        </div>
       </div>
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
@@ -173,6 +181,8 @@ import api from '@/plugins/axios'
 
 interface Props {
   loading?: boolean
+  commandCenterData?: any
+  metadata?: any
 }
 
 interface Enquiry {
@@ -193,25 +203,31 @@ interface DepartmentLoad {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false
+  loading: false,
+  commandCenterData: null,
+  metadata: null
 })
 
 const departmentLoads = ref<DepartmentLoad[]>([])
 const expandedDepartments = ref<string[]>([])
 const isLoading = ref(true)
 
-const departments = [
-  'Client Service',
-  'Design/Creatives',
-  'Procurement',
-  'Accounts/Finance',
-  'Costing',
-  'Production',
-  'Logistics',
-  'Stores',
-  'Projects',
-  'Teams'
-]
+const departments = computed(() => {
+  if (props.commandCenterData?.department_pulse) {
+    return props.commandCenterData.department_pulse.map((d: any) => d.name)
+  }
+  return [
+    'Client Service',
+    'Design/Creatives',
+    'Procurement',
+    'Accounts/Finance',
+    'Costing',
+    'Production',
+    'Logistics',
+    'Stores',
+    'Projects'
+  ]
+})
 
 const fetchDepartmentLoads = async () => {
   isLoading.value = true
@@ -224,13 +240,14 @@ const fetchDepartmentLoads = async () => {
       }
     })
 
-    const enquiries = response.data.data || []
+    const resData = response.data.data
+    const enquiries = Array.isArray(resData) ? resData : (resData?.data || [])
 
     // Group enquiries by department
     const departmentMap = new Map<string, DepartmentLoad>()
 
     // Initialize all departments
-    departments.forEach(dept => {
+    departments.value.forEach((dept: string) => {
       departmentMap.set(dept, {
         name: dept,
         activeEnquiries: 0,
@@ -264,15 +281,15 @@ const fetchDepartmentLoads = async () => {
       }
     })
 
-    // Calculate load percentages (assuming max 20 projects per department is 100%)
-    const maxProjects = 20
+    // Calculate load percentages
+    const workloadThreshold = props.metadata?.thresholds?.workload || 20
     departmentMap.forEach(dept => {
-      dept.loadPercentage = Math.min(Math.round((dept.activeEnquiries / maxProjects) * 100), 100)
+      dept.loadPercentage = Math.min(Math.round((dept.activeEnquiries / workloadThreshold) * 100), 100)
     })
 
     // Convert to array and sort by load
     departmentLoads.value = Array.from(departmentMap.values())
-      .sort((a, b) => b.activeEnquiries - a.activeEnquiries)
+      .sort((a, b) => b.loadPercentage - a.loadPercentage)
 
   } catch (error) {
     console.error('Error fetching department loads:', error)
@@ -363,6 +380,10 @@ const getStatusClass = (status: string) => {
 }
 
 const getStatusLabel = (status: string) => {
+  if (props.metadata?.status_labels?.[status]) {
+    return props.metadata.status_labels[status]
+  }
+  // Fallback for safety
   const labels: Record<string, string> = {
     'client_registered': 'Registered',
     'enquiry_logged': 'Logged',

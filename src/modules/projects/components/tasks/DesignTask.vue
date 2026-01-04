@@ -780,6 +780,7 @@ import imageCompression from 'browser-image-compression'
 interface Props {
   task: EnquiryTask
   readonly?: boolean
+  initialTab?: string | null
 }
 
 const props = defineProps<Props>()
@@ -790,7 +791,14 @@ const emit = defineEmits<{
 }>()
 
 // Active tab for navigation
-const activeTab = ref<'upload' | 'gallery' | 'approvals'>('upload')
+const activeTab = ref<string>(props.initialTab || 'upload')
+
+// Watch initialTab to update activeTab when it changes while open
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) {
+    activeTab.value = newTab
+  }
+})
 
 // Assets state
 const assets = ref<DesignAsset[]>([])

@@ -283,19 +283,23 @@ export interface DashboardMetrics {
     department_distribution: Record<string, number>;
   };
   task_metrics: {
-    // Consolidated task metrics - all tasks now use the same system
-    tasks: Record<string, number>;
+    enquiry_tasks: Record<string, number>;
+    departmental_tasks: Record<string, number>;
     total_tasks: number;
     overdue_tasks: number;
     tasks_by_department: Record<string, number>;
-    tasks_by_type: Record<string, number>;
+    performance_matrix: Record<string, {
+      efficiency: number;
+      punctuality: number;
+      volume: number;
+    }>;
     completion_rate: number;
   };
   project_metrics: {
     total_projects: number;
     active_projects: number;
     completed_projects: number;
-
+    converted_enquiries: number;
     total_budget: number;
     projects_by_status: Record<string, number>;
     average_duration_days: number | null;
@@ -327,5 +331,38 @@ export interface DashboardMetrics {
     cost: number;
     profit: number;
     margin: number;
+  };
+  suggestions?: Array<{
+    type: string;
+    priority: 'high' | 'medium' | 'urgent';
+    title: string;
+    message: string;
+    icon: string;
+    action_label: string;
+    action_url: string;
+  }>;
+  command_center_data?: {
+    pipeline: {
+      stages: Record<string, string>;
+      counts: Record<string, number>;
+    };
+    department_pulse: Array<{
+      id: number;
+      name: string;
+      pending: number;
+      in_progress: number;
+      total_load: number;
+    }>;
+    bottlenecks: any[];
+    timestamp: string;
+  };
+  metadata?: {
+    status_labels: Record<string, string>;
+    priority_labels: Record<string, string>;
+    currency: {
+      symbol: string;
+      code: string;
+    };
+    thresholds: Record<string, number>;
   };
 }

@@ -360,7 +360,7 @@
     </div>
 
     <!-- Department Approvals Section -->
-    <div class="mb-8">
+    <div class="mb-8 department-approvals-section">
       <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
         <div 
           @click="showApprovals = !showApprovals" 
@@ -804,6 +804,8 @@ import api from '@/plugins/axios'
 interface Props {
   /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
+  /** Initial tab or section to focus */
+  initialTab?: string | null
 }
 
 /**
@@ -1214,6 +1216,18 @@ const approveForDepartment = async (department: 'design' | 'production' | 'finan
 onMounted(() => {
   loadMaterialsData()
   loadApprovalStatus()
+
+  // Handle initial tab navigation
+  if (props.initialTab === 'approvals') {
+    showApprovals.value = true
+    // Scroll to approvals section
+    setTimeout(() => {
+      const approvalsSection = document.querySelector('.department-approvals-section')
+      if (approvalsSection) {
+        approvalsSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 500)
+  }
 })
 
 // Version Management Handlers

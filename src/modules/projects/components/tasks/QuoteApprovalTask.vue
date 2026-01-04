@@ -230,6 +230,7 @@ import { useAuth } from '@/composables/useAuth'
 
 interface Props {
   task: EnquiryTask
+  initialTab?: string
 }
 
 const props = defineProps<Props>()
@@ -240,7 +241,7 @@ const emit = defineEmits<{
   'complete': []
 }>()
 
-const activeTab = ref('quote')
+const activeTab = ref(props.initialTab || 'quote')
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const successMessage = ref<string | null>(null)

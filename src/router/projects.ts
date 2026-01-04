@@ -13,14 +13,14 @@ export const projectsRoutes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'projects-dashboard',
-        component: () => import('../modules/projects/views/ProjectsCommandCenter.vue'),
-        meta: { title: 'Command Center' }
+        component: () => import('../modules/projects/views/ProjectsDashboard.vue'),
+        meta: { title: 'Project Dashboard' }
       },
       {
-        path: 'legacy-dashboard',
-        name: 'projects-legacy-dashboard',
-        component: () => import('../modules/projects/views/ProjectsDashboard.vue'),
-        meta: { title: 'Legacy Dashboard' }
+        path: 'command-center',
+        name: 'projects-command-center',
+        component: () => import('../modules/projects/views/ProjectsCommandCenter.vue'),
+        meta: { title: 'Command Center' }
       },
       {
         path: 'enquiries',

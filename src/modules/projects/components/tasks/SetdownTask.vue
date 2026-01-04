@@ -771,6 +771,8 @@ interface Props {
   readonly?: boolean
   /** Initial data to populate the component (avoids fetching) */
   initialData?: any
+  /** Initial tab to display */
+  initialTab?: string | null
 }
 
 /**
@@ -783,7 +785,8 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   readonly: false,
-  initialData: null
+  initialData: null,
+  initialTab: null
 })
 const emit = defineEmits<Emits>()
 
@@ -900,7 +903,14 @@ const {
 const { user } = useAuth()
 
 // Component setup
-const activeTab = ref('documentation')
+const activeTab = ref(props.initialTab || 'documentation')
+
+// Watch initialTab to update activeTab when it changes while open
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) {
+    activeTab.value = newTab
+  }
+})
 
 const tabs = [
   { id: 'documentation', label: 'Documentation', icon: '📸', description: 'Upload photos and record setdown notes' },

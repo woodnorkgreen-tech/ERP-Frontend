@@ -39,6 +39,7 @@ export function useProjectsDashboard() {
             total_tasks: 0,
             overdue_tasks: 0,
             tasks_by_department: {},
+            performance_matrix: {},
             completion_rate: 0
           },
           project_metrics: {
@@ -124,6 +125,7 @@ export function useProjectsDashboard() {
             total_tasks: 0,
             overdue_tasks: 0,
             tasks_by_department: {},
+            performance_matrix: {},
             completion_rate: 0
           },
           project_metrics: response.data.data
@@ -142,6 +144,9 @@ export function useProjectsDashboard() {
   const taskMetrics = computed(() => dashboardMetrics.value?.task_metrics || null)
   const projectMetrics = computed(() => dashboardMetrics.value?.project_metrics || null)
   const financialMetrics = computed(() => dashboardMetrics.value?.financial_metrics || null)
+  const suggestions = computed(() => dashboardMetrics.value?.suggestions || [])
+  const commandCenterData = computed(() => dashboardMetrics.value?.command_center_data || null)
+  const metadata = computed(() => dashboardMetrics.value?.metadata || null)
 
   return {
     dashboardMetrics,
@@ -151,6 +156,9 @@ export function useProjectsDashboard() {
     taskMetrics,
     projectMetrics,
     financialMetrics,
+    suggestions,
+    commandCenterData,
+    metadata,
     fetchDashboardMetrics,
     fetchEnquiryMetrics,
     fetchTaskMetrics,

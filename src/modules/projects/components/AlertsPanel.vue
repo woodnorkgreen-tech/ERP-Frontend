@@ -4,6 +4,14 @@
       <div class="flex items-center gap-3">
         <div class="w-1.5 h-6 bg-red-500 rounded-full"></div>
         <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Critical Intel</h3>
+        <div class="group/tooltip relative">
+          <i class="mdi mdi-information-outline text-slate-300 hover:text-red-500 cursor-help transition-colors"></i>
+          <div class="absolute left-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] font-normal leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+            <div class="font-black uppercase tracking-widest mb-2 text-red-400">Data Criteria</div>
+            Scans the entire ecosystem for anomalies including overdue milestones, high-risk delays, and unassigned critical roles. Signals are prioritized by impact severity.
+            <div class="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+          </div>
+        </div>
       </div>
       <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">
         <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ alerts?.length || 0 }} Active Signatures</span>

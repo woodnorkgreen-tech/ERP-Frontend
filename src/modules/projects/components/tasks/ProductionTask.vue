@@ -1446,6 +1446,8 @@ interface Props {
   task: EnquiryTask
   /** Whether the task is in read-only mode */
   readonly?: boolean
+  /** Initial tab to display */
+  initialTab?: string | null
 }
 
 /**
@@ -1464,9 +1466,17 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Tab navigation with enhanced functionality
-const activeTab = ref('production-elements')
+// Initialize activeTab with initialTab if provided, otherwise default to 'production-elements'
+const activeTab = ref(props.initialTab || 'production-elements')
 
+// Watch initialTab to update activeTab when it changes while open
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) {
+    activeTab.value = newTab
+  }
+})
+
+// Tab navigation with enhanced functionality
 const tabs = [
   { id: 'production-elements', label: 'Production Elements', description: 'View and manage production elements' },
   { id: 'procurement-status', label: 'Procurement Status', description: 'View procurement and stock status' },
@@ -2257,7 +2267,7 @@ const exportQualityReport = () => {
       qualityScore: checkpoint.qualityScore,
       inspector: checkpoint.checkedBy,
       notes: checkpoint.notes,
-      checkedAt: checkpoint.checkedAt?.toISOString(),
+      checkedAt: checkpoint.checkedAt ? new Date(checkpoint.checkedAt).toISOString() : null,
       priority: checkpoint.priority
     }))
   }

@@ -1083,6 +1083,7 @@ import imageCompression from 'browser-image-compression'
 interface Props {
   task: EnquiryTask
   readonly?: boolean
+  initialTab?: string | null
 }
 
 const props = defineProps<Props>()
@@ -1137,7 +1138,14 @@ const attendeesText = ref('')
 const actionItemsText = ref('')
 const error = ref('')
 const successMessage = ref('')
-const activeTab = ref('basic')
+const activeTab = ref(props.initialTab || 'basic')
+
+// Watch initialTab to update activeTab when it changes while open
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) {
+    activeTab.value = newTab
+  }
+})
 const isLoading = ref(false)
 const isSavingDraft = ref(false)
 const isLoadingExistingData = ref(false)

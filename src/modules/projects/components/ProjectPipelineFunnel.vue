@@ -2,9 +2,19 @@
   <div class="relative overflow-hidden">
     <div class="flex items-center justify-between mb-10">
       <div>
-        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
-          Operational Conversion
-        </h3>
+        <div class="flex items-center gap-3">
+          <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
+            Operational Conversion
+          </h3>
+          <div class="group/tooltip relative">
+            <i class="mdi mdi-information-outline text-slate-300 hover:text-blue-500 cursor-help transition-colors"></i>
+            <div class="absolute left-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] font-normal leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+              <div class="font-black uppercase tracking-widest mb-2 text-blue-400">Data Criteria</div>
+              Measures the 'Catch Rate' of the sales funnel. Focuses on the transition from initial Enquiries to Approved Quotes and finally to Active Projects.
+              <div class="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+            </div>
+          </div>
+        </div>
         <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Workflow <span class="text-blue-500 opacity-50">Funnel</span></p>
       </div>
       <div class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -109,23 +119,31 @@ interface Props {
     completed_projects: number
     [key: string]: any
   } | null
+  commandCenterData?: any
 }
 
 const props = defineProps<Props>()
 
 const totalEnquiries = computed(() => props.enquiryMetrics?.total_enquiries || 0)
 
+const pipelineCounts = computed(() => props.commandCenterData?.pipeline?.counts || {})
+
 const quotesGenerated = computed(() => {
-  const breakdown = props.enquiryMetrics?.status_breakdown || {}
-  // Sum of all statuses after quote preparation
-  const relevantStatuses = ['quote_prepared', 'quote_approved', 'planning', 'in_progress', 'completed']
-  return relevantStatuses.reduce((acc, status) => acc + (breakdown[status] || 0), 0)
+  // Sum of Quoting and further
+  const counts = pipelineCounts.value
+  return (counts['quote_prepared'] || 0) + 
+         (counts['quote_approved'] || 0) + 
+         (counts['materials_specified'] || 0) + 
+         (counts['in_progress'] || 0) + 
+         (counts['completed'] || 0)
 })
 
 const quotesApproved = computed(() => {
-   const breakdown = props.enquiryMetrics?.status_breakdown || {}
-   const relevantStatuses = ['quote_approved', 'planning', 'in_progress', 'completed']
-   return relevantStatuses.reduce((acc, status) => acc + (breakdown[status] || 0), 0)
+   const counts = pipelineCounts.value
+   return (counts['quote_approved'] || 0) + 
+          (counts['materials_specified'] || 0) + 
+          (counts['in_progress'] || 0) + 
+          (counts['completed'] || 0)
 })
 
 const activeProjects = computed(() => props.projectMetrics?.active_projects || 0)

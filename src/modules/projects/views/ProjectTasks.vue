@@ -128,6 +128,58 @@
         </div>
       </div>
     </div>
+    <!-- Mission Intelligence (Progression Path) -->
+    <div v-if="enquiryId" class="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[2.5rem] p-8 border border-white/10 mb-8 relative overflow-hidden group">
+      <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-8">
+           <div class="flex items-center gap-4">
+             <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+               <i class="mdi mdi-map-marker-path text-2xl"></i>
+             </div>
+             <div>
+               <h3 class="text-xl font-black text-white uppercase tracking-tight">Mission Intelligence</h3>
+               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Execution Path Tracking</p>
+             </div>
+           </div>
+           
+           <div class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-indigo-400 uppercase tracking-widest">
+             Level: {{ enquiryTasks.length }} Operational Units
+           </div>
+        </div>
+
+        <!-- Progression Timeline -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+           <div v-for="(milestone, index) in missionMilestones" :key="milestone.status" 
+                class="relative p-5 rounded-2xl transition-all duration-300 border"
+                :class="getMilestoneClasses(milestone)">
+             
+             <!-- Connector Line -->
+             <div v-if="index < 4" class="hidden md:block absolute top-1/2 -right-2 w-4 h-[1px] bg-white/10 z-0"></div>
+
+             <div class="flex items-center justify-between mb-3">
+               <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="milestone.completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700/50 text-slate-500'">
+                 <i class="mdi" :class="milestone.completed ? 'mdi-check-bold' : milestone.isNext ? 'mdi-bullseye-arrow animate-pulse' : 'mdi-lock-outline'"></i>
+               </div>
+               <span class="text-[9px] font-black uppercase tracking-[0.2em]" :class="milestone.completed ? 'text-emerald-500' : 'text-slate-500'">
+                 {{ milestone.completed ? 'Achieved' : milestone.isNext ? 'Target' : 'Pending' }}
+               </span>
+             </div>
+             
+             <h4 class="text-xs font-black uppercase tracking-widest mb-1" :class="milestone.completed ? 'text-white' : 'text-slate-400'">{{ milestone.label }}</h4>
+             
+             <div v-if="milestone.isNext && milestone.missingTasks.length" class="mt-4 space-y-1.5 border-t border-white/5 pt-3">
+               <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Requirements:</p>
+               <div v-for="taskType in milestone.missingTasks" :key="taskType" class="flex items-center gap-1 text-[9px] font-bold text-orange-400/80">
+                 <i class="mdi mdi-alert-circle-outline"></i>
+                 <span>{{ formatTaskType(taskType) }}</span>
+               </div>
+             </div>
+           </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Filters Section -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 mb-8">
@@ -485,13 +537,21 @@
     />
 
     <!-- Task Modal -->
-    <TaskModal
-      :show="showTaskModal"
-      :task="selectedTask"
-      :readonly="isReadonly"
-      @close="closeTaskModal"
-      @update-status="handleTaskModalStatusUpdate"
-      @saved="fetchAllTasks"
+      <TaskModal
+        :show="showTaskModal"
+        :task="selectedTask"
+        :readonly="isReadonly"
+        :initial-tab="targetTab"
+        @close="closeTaskModal"
+        @update-status="handleTaskModalStatusUpdate"
+        @complete="handleTaskModalComplete"
+        @assign="handleTaskAssigned"
+      />
+    <!-- Task Locked Modal -->
+    <TaskLockedModal
+      :is-open="showTaskLockedModal"
+      :task="lockedTask"
+      @close="closeTaskLockedModal"
     />
   </div>
 </template>
@@ -534,13 +594,77 @@ watch(filters, () => {
   applyFilters()
 }, { deep: true })
 
-const showTaskAssignmentModal = ref(false)
+const selectedTask = ref<EnquiryTask | null>(null)
 const showTaskModal = ref(false)
 const isReadonly = ref(false)
-const selectedTask = ref<EnquiryTask | null>(null)
+const targetTab = ref<string | null>(null)
+const showTaskAssignmentModal = ref(false)
+const showTaskLockedModal = ref(false)
+const lockedTask = ref<EnquiryTask | null>(null)
+
+// Performance Optimizations
 const viewMode = ref<'grid' | 'table' | 'board'>('board')
 const showAllTasks = ref(false)
 const availableUsers = ref<Array<{ id: number; name: string; department?: string }>>([])
+
+// Mission Milestones Logic
+const missionMilestones = computed(() => {
+  const completedTaskTypes = completedTasks.value.map(t => t.type)
+  const milestones = [
+    { 
+      label: 'Site Survey', 
+      status: 'site_survey_completed', 
+      requires: ['site-survey'],
+      completed: completedTaskTypes.includes('site-survey')
+    },
+    { 
+      label: 'Design Ready', 
+      status: 'design_completed', 
+      requires: ['site-survey', 'design'],
+      completed: completedTaskTypes.includes('site-survey') && completedTaskTypes.includes('design')
+    },
+    { 
+      label: 'Resource Spec', 
+      status: 'materials_specified', 
+      requires: ['site-survey', 'design', 'materials'],
+      completed: completedTaskTypes.includes('site-survey') && completedTaskTypes.includes('design') && completedTaskTypes.includes('materials')
+    },
+    { 
+      label: 'Budget Set', 
+      status: 'budget_created', 
+      requires: ['site-survey', 'design', 'materials', 'budget'],
+      completed: completedTaskTypes.includes('site-survey') && completedTaskTypes.includes('design') && completedTaskTypes.includes('materials') && completedTaskTypes.includes('budget')
+    },
+    { 
+      label: 'Quote Live', 
+      status: 'quote_prepared', 
+      requires: ['site-survey', 'design', 'materials', 'budget', 'quote'],
+      completed: completedTaskTypes.includes('site-survey') && completedTaskTypes.includes('design') && completedTaskTypes.includes('materials') && completedTaskTypes.includes('budget') && completedTaskTypes.includes('quote')
+    }
+  ]
+
+  let nextFound = false
+  return milestones.map(m => {
+    const isNext = !m.completed && !nextFound
+    if (isNext) nextFound = true
+
+    return {
+      ...m,
+      isNext,
+      missingTasks: m.requires.filter(r => !completedTaskTypes.includes(r))
+    }
+  })
+})
+
+const getMilestoneClasses = (m: any) => {
+  if (m.completed) return 'bg-emerald-500/5 border-emerald-500/20 shadow-lg shadow-emerald-500/5'
+  if (m.isNext) return 'bg-indigo-500/10 border-indigo-500/40 shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500/20 scale-[1.02]'
+  return 'bg-slate-800/20 border-white/5 opacity-50'
+}
+
+const formatTaskType = (type: string) => {
+  return type.replace('-', ' ').replace('_', ' ').toUpperCase()
+}
 
 const isManager = computed(() => {
   const userRoles = user.value?.roles || []
@@ -737,8 +861,52 @@ const updateTaskStatus = async (task: EnquiryTask, status: EnquiryTask['status']
     if (taskIndex > -1) {
       enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], status }
     }
-  } catch (error) {
+    return true
+  } catch (error: any) {
+    const errorMsg = error.response?.data?.message || 'Failed to update task status'
+    
+    // Detect "Hard Gate" Context for Quick Fix navigation
+    let suggestion = null
+    let suggestedTab = null
+    
+    if (errorMsg.includes('survey photo') || errorMsg.includes('survey record') || errorMsg.includes('at least one survey photo')) {
+      suggestion = 'Would you like to go to the Photos tab to upload evidence?'
+      suggestedTab = 'photos'
+    } else if (errorMsg.includes('design asset') || errorMsg.includes('conceptual layout')) {
+      suggestion = 'Would you like to go to the Upload tab to attach design files?'
+      suggestedTab = 'upload'
+    } else if (errorMsg.includes('unresolved issues') || errorMsg.includes('documentation photos')) {
+      suggestion = 'Would you like to go to the Documentation tab to check photos or the Issues tab?'
+      suggestedTab = errorMsg.includes('issues') ? 'issues' : 'documentation'
+    } else if (errorMsg.includes('material approvals')) {
+      suggestion = 'Would you like to go to the Approvals section?'
+      suggestedTab = 'approvals'
+    } else if (errorMsg.includes('procurement') || errorMsg.includes('pending receipt')) {
+      suggestion = 'Would you like to check the procurement progress?'
+      suggestedTab = 'items'
+    } else if (errorMsg.includes('Mandatory criteria unmet')) {
+      suggestion = 'Would you like to go to the Quality Control tab to check requirements?'
+      suggestedTab = 'quality-control'
+    } else if (errorMsg.includes('Budget data is missing') || errorMsg.includes('greater than zero')) {
+      suggestion = 'Would you like to go to the Budget section?'
+      suggestedTab = 'materials'
+    } else if (errorMsg.includes('Quote data is missing') || errorMsg.includes('Budget data has not been imported')) {
+      suggestion = 'Would you like to go to the Quote section?'
+      suggestedTab = 'materials'
+    } else if (errorMsg.includes('final decision (Approved/Rejected) is required')) {
+      suggestion = 'Would you like to go to the Review tab?'
+      suggestedTab = 'review'
+    }
+
+    if (suggestion && confirm(`Operational Error: ${errorMsg}\n\nQuick Fix: ${suggestion}`)) {
+      targetTab.value = suggestedTab
+      openTaskModal(task)
+    } else if (!suggestion) {
+      alert(`Operational Error: ${errorMsg}`)
+    }
+
     console.error('Error updating task status:', error)
+    return false
   }
 }
 
@@ -835,27 +1003,36 @@ const closeTaskModal = () => {
   applyFilters()
 }
 
+const closeTaskLockedModal = () => {
+  showTaskLockedModal.value = false
+  lockedTask.value = null
+}
+
 const handleTaskModalStatusUpdate = async (status: EnquiryTask['status']) => {
   if (selectedTask.value) {
-    await updateTaskStatus(selectedTask.value, status)
-    // Update the selectedTask to reflect the new status
-    selectedTask.value = { ...selectedTask.value, status }
+    const success = await updateTaskStatus(selectedTask.value, status)
+    if (success) {
+      // Update the selectedTask to reflect the new status
+      selectedTask.value = { ...selectedTask.value, status }
 
-    // Also update the task in the main tasks list
-    const taskIndex = enquiryTasks.value.findIndex(t => t.id === selectedTask.value!.id)
-    if (taskIndex > -1) {
-      enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], status }
+      // Also update the task in the main tasks list
+      const taskIndex = enquiryTasks.value.findIndex(t => t.id === selectedTask.value!.id)
+      if (taskIndex > -1) {
+        enquiryTasks.value[taskIndex] = { ...enquiryTasks.value[taskIndex], status }
+      }
     }
   }
 }
 
 const handleTaskModalComplete = async () => {
   if (selectedTask.value) {
-    await updateTaskStatus(selectedTask.value, 'completed')
-    // Update the selectedTask to reflect the new status
-    selectedTask.value = { ...selectedTask.value, status: 'completed' }
+    const success = await updateTaskStatus(selectedTask.value, 'completed')
+    if (success) {
+      // Update the selectedTask to reflect the new status
+      selectedTask.value = { ...selectedTask.value, status: 'completed' }
+      closeTaskModal()
+    }
   }
-  closeTaskModal()
 }
 
 const getStatusColor = (status: string) => {
