@@ -195,7 +195,12 @@
               <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="flex flex-col">
-                    <span class="text-base font-black text-blue-600 tracking-tight mb-0.5">{{ enquiry.job_number || 'No Job #' }}</span>
+                    <span 
+                      class="text-base font-black tracking-tight mb-0.5 transition-colors duration-300"
+                      :class="enquiry.job_number ? 'text-blue-600' : 'text-red-500 italic font-black'"
+                    >
+                      {{ enquiry.job_number || 'No Job #' }}
+                    </span>
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ref: {{ enquiry.enquiry_number }}</span>
                   </div>
                 </td>

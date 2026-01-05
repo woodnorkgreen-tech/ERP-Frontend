@@ -22,7 +22,7 @@
       </nav>
     </div>
 
-    <!-- Global Messages -->
+    <!-- Success Message -->
     <div v-if="successMessage" class="mb-6 p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg">
       <div class="flex items-center space-x-3">
         <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,6 +31,27 @@
         <div>
           <h5 class="text-sm font-medium text-green-800 dark:text-green-200">Success</h5>
           <p class="text-xs text-green-600 dark:text-green-300">{{ successMessage }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Number Banner -->
+    <div v-if="quoteData.projectInfo?.jobNumber" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg animate-pulse-subtle">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-full">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-blue-900 dark:text-blue-100">Project Activated</h5>
+            <p class="text-xs text-blue-700 dark:text-blue-300">Job Number Assignment Finalized</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">Reference ID</span>
+          <div class="text-xl font-black text-blue-900 dark:text-blue-100 tracking-widest font-mono">{{ quoteData.projectInfo.jobNumber }}</div>
         </div>
       </div>
     </div>
@@ -211,12 +232,35 @@
             Complete Approval
           </button>
         </div>
-        <button
-          type="submit"
-          class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-        >
-          Save Approval Data
-        </button>
+        <div class="flex space-x-3">
+          <button
+            v-if="formData.approval_status === 'approved' && !quoteData.projectInfo?.jobNumber"
+            type="button"
+            @click="handleConvertToProject"
+            :disabled="isConverting || isLoading"
+            class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:scale-105 flex items-center space-x-2"
+          >
+             <svg v-if="isConverting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>{{ isConverting ? 'Converting...' : 'Convert to Project' }}</span>
+          </button>
+          
+          <button
+            type="submit"
+            :disabled="isLoading || isConverting"
+            class="px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-light transition-colors flex items-center space-x-2"
+          >
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+            </svg>
+            <span>Save Approval Data</span>
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -242,6 +286,7 @@ const emit = defineEmits<{
 }>()
 
 const activeTab = ref(props.initialTab || 'quote')
+const isConverting = ref(false)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
@@ -268,7 +313,8 @@ const quoteData = ref({
     clientName: '',
     eventVenue: '',
     setupDate: '',
-    setDownDate: ''
+    setDownDate: '',
+    jobNumber: ''
   },
   budgetImported: false,
   materials: [],
@@ -334,7 +380,8 @@ const loadQuoteData = async () => {
         clientName: enquiry.client?.full_name || enquiry.client_name || 'Client Name',
         eventVenue: enquiry.venue || enquiry.event_venue || 'Venue TBC',
         setupDate: enquiry.setup_date || enquiry.event_date || new Date().toISOString(),
-        setDownDate: enquiry.setdown_date || 'TBC'
+        setDownDate: enquiry.setdown_date || 'TBC',
+        jobNumber: enquiry.job_number || ''
       }
       console.log('Project enquiry data loaded:', quoteData.value.projectInfo)
     }
@@ -481,6 +528,64 @@ const handleSubmit = async () => {
     console.error('Final error message set:', error.value)
   } finally {
     isLoading.value = false
+  }
+}
+
+/**
+ * Handle Convert to Project action
+ * This triggers the backend to generate the WNG job number and create a formal Project record
+ */
+const handleConvertToProject = async () => {
+  if (!props.task.project_enquiry_id) {
+    error.value = 'No enquiry ID found for this task'
+    return
+  }
+
+  // Confirmation dialog
+  if (!confirm('This will formalize the project, generate a Job Number, and create the main Project record. Proceed?')) {
+    return
+  }
+
+  isConverting.value = true
+  error.value = null
+
+  try {
+    // 1. First ensure approval data is saved if they haven't saved it yet
+    if (formData.value.approval_status === 'approved') {
+       const approvalData = {
+          approval_status: formData.value.approval_status,
+          rejection_reason: null,
+          comments: formData.value.comments || null,
+          approval_date: formData.value.approval_date,
+          approved_by: formData.value.approved_by,
+          quote_amount: quoteData.value.totals?.grandTotal || 0,
+          quote_data: quoteData.value
+        }
+        await axios.post(`/api/projects/tasks/${props.task.id}/approval`, approvalData)
+    }
+
+    // 2. Call the enquiry's approve-quote endpoint which handles conversion
+    const response = await axios.post(`/api/projects/enquiries/${props.task.project_enquiry_id}/approve-quote`)
+    
+    if (response.data.data) {
+      const enquiry = response.data.data
+      // Update local state with the newly minted job number
+      quoteData.value.projectInfo.jobNumber = enquiry.job_number
+      
+      successMessage.value = `Conversion successful! Project activated with Job Number: ${enquiry.job_number}`
+      
+      // Update task status and complete
+      updateStatus('completed')
+      
+      setTimeout(() => {
+        successMessage.value = null
+      }, 5000)
+    }
+  } catch (err: any) {
+    console.error('Conversion failed:', err)
+    error.value = err.response?.data?.message || 'Failed to convert to project'
+  } finally {
+    isConverting.value = false
   }
 }
 

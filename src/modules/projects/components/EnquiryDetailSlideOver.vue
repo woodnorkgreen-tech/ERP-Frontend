@@ -18,6 +18,9 @@
                   <span v-if="enquiry?.job_number" class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-bold border border-blue-200 dark:border-blue-800">
                     {{ enquiry.job_number }}
                   </span>
+                  <span v-else class="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 text-sm font-bold border border-red-200 dark:border-red-800 italic">
+                    No Job #
+                  </span>
                </div>
                
                <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">

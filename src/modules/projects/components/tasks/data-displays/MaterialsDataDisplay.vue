@@ -416,7 +416,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import type { EnquiryTask } from '../../types/enquiry'
+import type { EnquiryTask } from '../../../types/enquiry'
 import { MaterialsService } from '../../../services/materialsService'
 
 /**
@@ -502,7 +502,7 @@ const initializeProjectInfo = (): ProjectInfo => {
   const enquiry = props.task.enquiry
 
   return {
-    projectId: enquiry?.enquiry_number || `WNG-11-2025-${String(props.task.id).padStart(3, '0')}`,
+    projectId: enquiry?.enquiry_number || `ENQ-01-2026-${String(props.task.id).padStart(3, '0')}`,
     enquiryTitle: enquiry?.title || 'Untitled Project',
     clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Unknown Client',
     eventVenue: enquiry?.venue || 'Venue TBC',
