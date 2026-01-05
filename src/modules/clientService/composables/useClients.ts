@@ -5,6 +5,12 @@ import api from '@/plugins/axios'
 const clients = ref<Client[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+const pagination = ref<{
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+} | null>(null)
 
 export function useClients() {
   const getErrorMessage = (err: any): string => {
@@ -27,7 +33,7 @@ export function useClients() {
     }
   }
 
-  const fetchClients = async (filters?: { search?: string; status?: string }) => {
+  const fetchClients = async (filters?: { search?: string; status?: string; paginate?: boolean; page?: number; per_page?: number }) => {
     loading.value = true
     error.value = null
 
@@ -40,33 +46,74 @@ export function useClients() {
     console.log('Fetching clients with token:', localStorage.getItem('auth_token'))
 
     try {
-      const response = await api.get('/api/clientservice/clients', { params: filters })
-      const backendClients = response.data.data?.data || response.data.data || response.data
+      const params = { ...filters }
+      const response = await api.get('/api/clientservice/clients', { params })
 
-      const mappedClients: Client[] = backendClients.map((backendClient: any) => ({
-        id: backendClient.id,
-        FullName: backendClient.full_name,
-        ContactPerson: backendClient.contact_person,
-        Email: backendClient.email,
-        Phone: backendClient.phone,
-        AltContact: backendClient.alt_contact,
-        Address: backendClient.address,
-        City: backendClient.city,
-        County: backendClient.county,
-        PostalAddress: backendClient.postal_address,
-        CustomerType: backendClient.customer_type,
-        LeadSource: backendClient.lead_source,
-        PreferredContact: backendClient.preferred_contact,
-        Industry: backendClient.industry,
-        companyName: backendClient.company_name,
-        isActive: backendClient.is_active,
-        registration_date: backendClient.registration_date,
-        status: backendClient.status,
-        created_at: backendClient.created_at,
-        updated_at: backendClient.updated_at
-      }))
+      // Check if response is paginated
+      if (response.data.data && typeof response.data.data === 'object' && 'data' in response.data.data) {
+        // Paginated response
+        const paginationData = response.data.data
+        const mappedClients: Client[] = paginationData.data.map((backendClient: any) => ({
+          id: backendClient.id,
+          FullName: backendClient.full_name,
+          ContactPerson: backendClient.contact_person,
+          Email: backendClient.email,
+          Phone: backendClient.phone,
+          AltContact: backendClient.alt_contact,
+          Address: backendClient.address,
+          City: backendClient.city,
+          County: backendClient.county,
+          PostalAddress: backendClient.postal_address,
+          CustomerType: backendClient.customer_type,
+          LeadSource: backendClient.lead_source,
+          PreferredContact: backendClient.preferred_contact,
+          Industry: backendClient.industry,
+          companyName: backendClient.company_name,
+          isActive: backendClient.is_active,
+          registration_date: backendClient.registration_date,
+          status: backendClient.status,
+          created_at: backendClient.created_at,
+          updated_at: backendClient.updated_at
+        }))
 
-      clients.value = mappedClients
+        clients.value = mappedClients
+        // Store pagination info
+        pagination.value = {
+          current_page: paginationData.current_page,
+          last_page: paginationData.last_page,
+          per_page: paginationData.per_page,
+          total: paginationData.total
+        }
+      } else {
+        // Non-paginated response
+        const backendClients = response.data.data?.data || response.data.data || response.data
+        const mappedClients: Client[] = backendClients.map((backendClient: any) => ({
+          id: backendClient.id,
+          FullName: backendClient.full_name,
+          ContactPerson: backendClient.contact_person,
+          Email: backendClient.email,
+          Phone: backendClient.phone,
+          AltContact: backendClient.alt_contact,
+          Address: backendClient.address,
+          City: backendClient.city,
+          County: backendClient.county,
+          PostalAddress: backendClient.postal_address,
+          CustomerType: backendClient.customer_type,
+          LeadSource: backendClient.lead_source,
+          PreferredContact: backendClient.preferred_contact,
+          Industry: backendClient.industry,
+          companyName: backendClient.company_name,
+          isActive: backendClient.is_active,
+          registration_date: backendClient.registration_date,
+          status: backendClient.status,
+          created_at: backendClient.created_at,
+          updated_at: backendClient.updated_at
+        }))
+
+        clients.value = mappedClients
+        // Clear pagination info
+        pagination.value = null
+      }
     } catch (err: any) {
       error.value = getErrorMessage(err)
       console.error('Error fetching clients:', err)
@@ -349,6 +396,7 @@ export function useClients() {
 
   return {
     clients,
+    pagination,
     loading,
     error,
     fetchClients,

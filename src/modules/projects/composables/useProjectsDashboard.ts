@@ -17,6 +17,16 @@ export function useProjectsDashboard() {
     } catch (err) {
       error.value = 'Failed to fetch dashboard metrics'
       console.error('Error fetching dashboard metrics:', err)
+      // Detailed error logging
+      console.error('Dashboard fetch error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        response: (err as any)?.response?.data,
+        status: (err as any)?.response?.status,
+        statusText: (err as any)?.response?.statusText,
+        config: (err as any)?.config,
+        timestamp: new Date().toISOString()
+      })
     } finally {
       loading.value = false
     }

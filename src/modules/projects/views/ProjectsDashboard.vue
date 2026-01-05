@@ -53,21 +53,51 @@
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div class="group relative p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                       <div class="absolute top-0 right-0 w-24 h-24 blur-3xl rounded-full -mr-12 -mt-12 bg-emerald-500 opacity-5"></div>
-                      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Total Revenue</h3>
+                      <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Total Revenue</h3>
+                        <div class="group/tooltip relative">
+                          <i class="mdi mdi-information-outline text-slate-300 hover:text-emerald-500 cursor-help transition-colors"></i>
+                          <div class="absolute right-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+                            <div class="font-black uppercase tracking-widest mb-2 text-emerald-400">Data Criteria</div>
+                            Combined projected revenue from estimated budgets and approved quotes for all active projects. Prioritizes approved quotes when available, falls back to project estimates.
+                            <div class="absolute bottom-[-6px] right-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+                          </div>
+                        </div>
+                      </div>
                       <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                         <span class="text-slate-400 text-lg mr-1">$</span>{{ financialMetrics?.revenue?.toLocaleString() || 0 }}
                       </p>
                     </div>
                     <div class="group relative p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                       <div class="absolute top-0 right-0 w-24 h-24 blur-3xl rounded-full -mr-12 -mt-12 bg-red-500 opacity-5"></div>
-                      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Operational Cost</h3>
+                      <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Operational Cost</h3>
+                        <div class="group/tooltip relative">
+                          <i class="mdi mdi-information-outline text-slate-300 hover:text-red-500 cursor-help transition-colors"></i>
+                          <div class="absolute right-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+                            <div class="font-black uppercase tracking-widest mb-2 text-red-400">Data Criteria</div>
+                            Total budgeted costs from detailed project budgets and task-level cost breakdowns. Uses task-specific budgets when available, otherwise falls back to project-level budget estimates.
+                            <div class="absolute bottom-[-6px] right-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+                          </div>
+                        </div>
+                      </div>
                       <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                         <span class="text-slate-400 text-lg mr-1">$</span>{{ financialMetrics?.cost?.toLocaleString() || 0 }}
                       </p>
                     </div>
                     <div class="group relative p-8 bg-black dark:bg-emerald-500 rounded-[2.5rem] shadow-xl overflow-hidden">
                       <div class="absolute top-0 right-0 w-24 h-24 blur-3xl rounded-full -mr-12 -mt-12 bg-white opacity-20"></div>
-                      <h3 class="text-sm font-bold text-slate-300 dark:text-emerald-950 uppercase tracking-[0.3em] mb-4">Net Profitability</h3>
+                      <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-300 dark:text-emerald-950 uppercase tracking-[0.3em]">Net Profitability</h3>
+                        <div class="group/tooltip relative">
+                          <i class="mdi mdi-information-outline text-white/70 hover:text-white cursor-help transition-colors"></i>
+                          <div class="absolute right-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
+                            <div class="font-black uppercase tracking-widest mb-2 text-emerald-400">Data Criteria</div>
+                            Net profit calculated as total revenue minus operational costs. Margin percentage shows profitability ratio. Green indicates healthy margins, red suggests cost optimization needed.
+                            <div class="absolute bottom-[-6px] right-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
+                          </div>
+                        </div>
+                      </div>
                       <p class="text-3xl font-black text-white dark:text-emerald-950 tracking-tighter">
                         <span class="opacity-50 text-lg mr-1">$</span>{{ financialMetrics?.profit?.toLocaleString() || 0 }}
                       </p>

@@ -133,7 +133,7 @@
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Capital Portfolio</p>
           <div class="flex items-baseline gap-2">
-            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter"><span class="text-2xl opacity-50">{{ metadata?.currency?.symbol || '$' }}</span>{{ formatCurrency(projectMetrics?.total_budget || 0) }}</h3>
+            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter"><span class="text-2xl opacity-50">{{ metadata?.currency?.symbol || 'Ksh' }}</span>{{ formatCurrency(projectMetrics?.total_budget || 0) }}</h3>
             <span class="text-xs font-medium text-slate-400">Project Value</span>
           </div>
         </div>
@@ -350,7 +350,7 @@ const getBudgetTrendIcon = (metrics: any) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getBudgetTrendValue = (metrics: any) => {
-  if (!metrics) return '$0'
+  if (!metrics) return 'Ksh0'
   const avgBudget = (metrics.total_budget || 0) / (metrics.total_projects || 1)
   return formatCurrency(avgBudget)
 }

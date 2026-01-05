@@ -27,9 +27,9 @@
           </ol>
         </nav>
         <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
-          Partnership <span class="text-blue-500 text-3xl opacity-50">/</span> Management
+          Clients <span class="text-blue-500 text-3xl opacity-50">/</span> Management
         </h1>
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Unified repository for global client relations and acquisition tracking.</p>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Unified repository for global client relations and Lead tracking.</p>
       </div>
 
       <button
@@ -37,7 +37,7 @@
         class="flex items-center gap-3 px-8 py-4 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-[1.5rem] shadow-xl shadow-blue-500/10 transition-all font-bold text-sm tracking-tight group"
       >
         <i class="mdi mdi-account-plus-outline text-xl transition-transform group-hover:scale-110"></i>
-        ONBOARD PARTNER
+        ONBOARD CLIENT
       </button>
     </div>
 
@@ -89,13 +89,13 @@
            <div class="w-16 h-16 rounded-full border-4 border-slate-100 dark:border-slate-800 border-t-blue-500 animate-spin"></div>
            <i class="mdi mdi-account-sync absolute inset-0 flex items-center justify-center text-blue-500 text-xl"></i>
         </div>
-        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Synchronizing Partner Cluster</p>
+        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Synchronizing Clients Cluster</p>
       </div>
 
       <div v-else-if="error" class="p-12 text-center space-y-4">
         <i class="mdi mdi-alert-circle text-5xl text-red-500 opacity-20"></i>
         <p class="text-sm font-bold text-red-500">CRITICAL SYNC FAILURE: {{ error }}</p>
-        <button @click="fetchClients()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Emergency Re-sync</button>
+        <button @click="fetchClients({ paginate: true, per_page: 15 })" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Emergency Re-sync</button>
       </div>
 
       <div v-else class="overflow-x-auto custom-scrollbar">
@@ -104,14 +104,14 @@
             <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
               <th @click="sortClients('FullName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
                 <span class="flex items-center gap-2">
-                   Partner Identity
+                   Client Identity
                    <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </span>
               </th>
               <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Contact Vector</th>
               <th @click="sortClients('companyName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
                 <span class="flex items-center gap-2">
-                   Institutional Hub
+                   Client Hub
                    <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </span>
               </th>
@@ -194,6 +194,53 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="pagination && pagination.total > 0" class="flex items-center justify-between px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
+        <div class="text-sm font-medium text-slate-500 dark:text-slate-400">
+          Showing {{ ((pagination.current_page - 1) * pagination.per_page + 1) }} to
+          {{ Math.min(pagination.current_page * pagination.per_page, pagination.total) }}
+          of {{ pagination.total }} clients
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            @click="changePage(pagination.current_page - 1)"
+            :disabled="pagination.current_page <= 1"
+            class="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <i class="mdi mdi-chevron-left"></i>
+            Previous
+          </button>
+
+          <div class="flex items-center gap-1">
+            <template v-for="page in getVisiblePages()" :key="page">
+              <button
+                v-if="page > 0"
+                @click="changePage(page)"
+                :class="[
+                  'px-3 py-2 text-sm font-medium rounded-lg transition-all',
+                  page === pagination.current_page
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                ]"
+              >
+                {{ page }}
+              </button>
+              <span v-else class="px-2 py-2 text-slate-400">...</span>
+            </template>
+          </div>
+
+          <button
+            @click="changePage(pagination.current_page + 1)"
+            :disabled="pagination.current_page >= pagination.last_page"
+            class="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            Next
+            <i class="mdi mdi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Onboarding / Edit Modal -->
@@ -210,7 +257,7 @@
           <div>
             <span class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2 block">Identity Registration</span>
             <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-               {{ editingClient ? 'Profile Reconstruction' : 'New Partner Onboarding' }}
+               {{ editingClient ? 'Profile Reconstruction' : 'New Client Onboarding' }}
             </h2>
           </div>
           <button @click="closeModal" class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center">
@@ -258,7 +305,7 @@
                        <input v-model="clientFormData.companyName" type="text" required class="premium-input" placeholder="Collective Corp"/>
                     </div>
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Acquisition Source *</label>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Lead Source *</label>
                        <select v-model="clientFormData.LeadSource" required class="premium-input appearance-none">
                           <option value="">Select Origin</option>
                           <option value="Website">Digital Web</option>
@@ -284,7 +331,7 @@
                     </div>
                     <div class="lg:col-span-4 grid grid-cols-1 gap-4">
                        <input v-model="clientFormData.City" type="text" required class="premium-input" placeholder="Primary Node (City)"/>
-                       <input v-model="clientFormData.County" type="text" required class="premium-input" placeholder="Sector (County)"/>
+                       <input v-model="clientFormData.County" type="text" required class="premium-input" placeholder="(County)"/>
                     </div>
                  </div>
               </section>
@@ -322,7 +369,7 @@
       <div class="relative w-full max-w-5xl bg-slate-50 dark:bg-slate-900 rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/10 animate-in fade-in slide-in-from-bottom-10 duration-500">
          <div v-if="viewLoading" class="p-40 flex flex-col items-center justify-center gap-6">
             <div class="w-16 h-16 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin"></div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Partner Intel...</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Client Intel...</p>
          </div>
 
          <div v-else-if="viewingClient" class="flex flex-col h-full max-h-[90vh]">
@@ -339,7 +386,7 @@
                      <span class="text-5xl font-black">{{ viewingClient.FullName.charAt(0) }}</span>
                   </div>
                   <div class="text-center md:text-left">
-                     <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[9px] font-black uppercase tracking-[0.3em] border border-blue-500/20">Active Partner</span>
+                     <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-[9px] font-black uppercase tracking-[0.3em] border border-blue-500/20">Active Client</span>
                      <h2 class="text-5xl font-black tracking-tighter mt-4">{{ viewingClient.FullName }}</h2>
                      <p class="text-slate-400 font-medium text-lg mt-1">{{ viewingClient.companyName || 'Global Direct Client' }}</p>
                   </div>
@@ -376,7 +423,7 @@
                      <section>
                         <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 flex items-center gap-3">
                            <i class="mdi mdi-text-box-search-outline text-blue-500"></i>
-                           Partner Metadata
+                           Client Metadata
                         </h4>
                         <div class="grid grid-cols-2 gap-x-12 gap-y-8">
                            <div class="space-y-1">
@@ -426,7 +473,7 @@
                                <div class="h-full bg-white transition-all duration-1000" style="width: 98.2%"></div>
                             </div>
                          </div>
-                         <p class="text-[11px] font-medium text-white/60 mt-8 leading-relaxed">System has flagged this partner as 'High Priority' based on acquisition velocity.</p>
+                         <p class="text-[11px] font-medium text-white/60 mt-8 leading-relaxed">System has flagged this client as 'High Priority' based on lead velocity.</p>
                       </div>
 
                       <div class="p-8 bg-white dark:bg-slate-800/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
@@ -496,7 +543,7 @@ import type { Client, CreateClientData, UpdateClientData } from '../types/client
 import { useClients } from '../composables/useClients'
 import { useAuth } from '@/composables/useAuth'
 
-const { clients, loading, error, fetchClients, createClient, updateClient, toggleClientStatus, fetchClient, deleteClient } = useClients()
+const { clients, pagination, loading, error, fetchClients, createClient, updateClient, toggleClientStatus, fetchClient, deleteClient } = useClients()
 const { user } = useAuth()
 const filters = ref({ search: '', status: '', company: '' })
 const showCreateModal = ref(false)
@@ -559,7 +606,49 @@ const clientFormData = ref<CreateClientData>({
 })
 
 const applyFilters = () => {
-  fetchClients(filters.value)
+  fetchClients({
+    ...filters.value,
+    paginate: true,
+    page: 1, // Reset to first page when applying filters
+    per_page: pagination.value?.per_page || 15
+  })
+}
+
+const changePage = (page: number) => {
+  fetchClients({
+    ...filters.value,
+    paginate: true,
+    page,
+    per_page: pagination.value?.per_page || 15
+  })
+}
+
+const getVisiblePages = () => {
+  const paginationData = pagination.value
+  if (!paginationData) return []
+
+  const current = paginationData.current_page
+  const last = paginationData.last_page
+  const pages: number[] = []
+
+  // Always show first page
+  if (1 < current - 2) {
+    pages.push(1)
+    if (2 < current - 2) pages.push(-1) // Ellipsis
+  }
+
+  // Show pages around current page
+  for (let i = Math.max(1, current - 2); i <= Math.min(last, current + 2); i++) {
+    pages.push(i)
+  }
+
+  // Always show last page
+  if (last > current + 2) {
+    if (last - 1 > current + 2) pages.push(-1) // Ellipsis
+    pages.push(last)
+  }
+
+  return pages
 }
 
 const editClient = (client: Client) => {
@@ -605,7 +694,12 @@ const confirmToggle = async () => {
   if (!clientToToggle.value) return
   try {
     await toggleClientStatus(clientToToggle.value.id)
-    await fetchClients()
+    await fetchClients({
+      ...filters.value,
+      paginate: true,
+      page: pagination.value?.current_page || 1,
+      per_page: pagination.value?.per_page || 15
+    })
   } catch (err) {
     console.error('Error toggling client status:', err)
   } finally {
@@ -624,7 +718,12 @@ const confirmDelete = async () => {
   deleting.value = true
   try {
     await deleteClient(clientToDelete.value.id)
-    await fetchClients()
+    await fetchClients({
+      ...filters.value,
+      paginate: true,
+      page: pagination.value?.current_page || 1,
+      per_page: pagination.value?.per_page || 15
+    })
   } catch (err) {
     console.error('Error deleting client:', err)
     formError.value = 'Failed to delete client. Please try again.'
@@ -684,8 +783,13 @@ const handleFormSubmit = async () => {
       formSuccess.value = 'Client created successfully!'
     }
 
-    // Refresh client list
-    await fetchClients()
+    // Refresh client list with current pagination
+    await fetchClients({
+      ...filters.value,
+      paginate: true,
+      page: pagination.value?.current_page || 1,
+      per_page: pagination.value?.per_page || 15
+    })
 
     // Close modal after a short delay
     setTimeout(() => {
@@ -707,7 +811,7 @@ const handleFormSubmit = async () => {
 }
 
 onMounted(() => {
-  fetchClients()
+  fetchClients({ paginate: true, per_page: 15 })
 })
 </script>
 

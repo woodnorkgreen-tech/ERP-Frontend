@@ -48,7 +48,7 @@
             class="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-base shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
           >
             <i class="mdi mdi-plus-circle-outline text-xl"></i>
-            New Strategic Enquiry
+            New Enquiry
           </button>
         </div>
       </div>
@@ -182,7 +182,7 @@
             <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Reference</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Project Details</th>
-              <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Officer</th>
+              <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">PO & Contact person</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Created</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Target Delivery</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Priority</th>
@@ -279,7 +279,7 @@
                       </button>
                       
                       <!-- Premium Dropdown Menu -->
-                      <div class="absolute right-0 bottom-full mb-3 w-64 opacity-0 invisible translate-y-2 group-hover/menu:opacity-100 group-hover/menu:visible group-hover/menu:translate-y-0 transition-all duration-300 z-50">
+                      <div class="absolute right-0 bottom-full mb-3 w-64 opacity-0 invisible translate-y-2 group-hover/menu:opacity-100 group-hover/menu:visible group-hover/menu:translate-y-0 transition-all duration-300">
                         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 overflow-hidden backdrop-blur-xl">
                           <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
                             <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Management Options</p>
