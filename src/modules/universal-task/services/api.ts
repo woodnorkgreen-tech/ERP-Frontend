@@ -26,8 +26,9 @@ class TaskApiService {
   private client: AxiosInstance;
 
   constructor() {
+    const apiBaseUrl = (import.meta as any).env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
     this.client = axios.create({
-      baseURL: 'http://127.0.0.1:8000/api/universal-tasks',
+      baseURL: `${apiBaseUrl}/api/universal-tasks`,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -53,7 +54,16 @@ class TaskApiService {
         if (error.response?.status === 401) {
           // Handle unauthorized access
           localStorage.removeItem('auth_token');
-          window.location.href = '/login';
+          // Redirect to login using correct base path
+          const basePath = (import.meta as any).env.BASE_URL || '/';
+          const loginUri = 'login';
+          const loginPath = basePath.endsWith('/')
+            ? `${basePath}${loginUri}`
+            : `${basePath}/${loginUri}`;
+
+          if (window.location.pathname !== loginPath) {
+            window.location.href = loginPath;
+          }
         }
         return Promise.reject(error);
       }
@@ -77,71 +87,71 @@ class TaskApiService {
     // Backend returns Laravel paginator in raw.data; normalize to PaginatedResponse<Task>
     const paginator = raw?.data;
     const items: Task[] = Array.isArray(paginator?.data) ? paginator.data : [];
-    
+
     // Extract users data if available at the root level
     const usersData = raw?.data?.users || raw?.users || [];
 
     // Ensure relationships are properly loaded in each task item
     const processedItems = items.map(item => {
       // Process assignments to ensure user data is properly structured
-      const processedAssignments = Array.isArray(item.assignments) 
+      const processedAssignments = Array.isArray(item.assignments)
         ? item.assignments.map(assignment => {
-            // Process assignment data
-            
-            // Try to normalize user data
-            let user = assignment.user || assignment.assigned_user || assignment.assignee || undefined;
-            let assignedBy = assignment.assignedBy || assignment.assigned_by || assignment.assigner || undefined;
-            
-            // Handle case where user might be just an ID
-            if (typeof user === 'number' && (item.users || usersData)) {
-              const userPool = item.users || usersData;
-              user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
-            }
-            
-            if (typeof assignedBy === 'number' && (item.users || usersData)) {
-              const userPool = item.users || usersData;
-              assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
-            }
-            
-            // Handle case where user might be just a string
-            if (typeof user === 'string' && user.trim() !== '') {
-              user = { name: user };
-            }
-            
-            if (typeof assignedBy === 'string' && assignedBy.trim() !== '') {
-              assignedBy = { name: assignedBy };
-            }
-            
-            const normalizedAssignment = {
-              ...assignment,
-              user: user,
-              assignedBy: assignedBy
-            };
-            
+          // Process assignment data
 
-            return normalizedAssignment;
-          })
+          // Try to normalize user data
+          let user = (assignment as any).user || (assignment as any).assigned_user || (assignment as any).assignee || undefined;
+          let assignedBy = (assignment as any).assignedBy || (assignment as any).assigned_by || (assignment as any).assigner || undefined;
+
+          // Handle case where user might be just an ID
+          if (typeof user === 'number' && ((item as any).users || usersData)) {
+            const userPool = (item as any).users || usersData;
+            user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
+          }
+
+          if (typeof assignedBy === 'number' && ((item as any).users || usersData)) {
+            const userPool = (item as any).users || usersData;
+            assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
+          }
+
+          // Handle case where user might be just a string
+          if (typeof user === 'string' && (user as string).trim() !== '') {
+            user = { name: user } as any;
+          }
+
+          if (typeof assignedBy === 'string' && (assignedBy as string).trim() !== '') {
+            assignedBy = { name: assignedBy } as any;
+          }
+
+          const normalizedAssignment = {
+            ...assignment,
+            user: user,
+            assignedBy: assignedBy
+          };
+
+
+          return normalizedAssignment;
+        })
         : [];
 
       return {
         ...item,
         // Ensure assignedUser is available even if null
-        assignedUser: item.assignedUser || item.assigned_user || item.assignee || undefined,
-        department: item.department || undefined,
-        creator: item.creator || undefined,
-        parentTask: item.parentTask || undefined,
+        assignedUser: (item as any).assignedUser || (item as any).assigned_user || (item as any).assignee || undefined,
+        department: (item as any).department || undefined,
+        creator: (item as any).creator || undefined,
+        parentTask: (item as any).parentTask || undefined,
         assignments: processedAssignments
-      };
+      } as Task;
     });
 
     const meta = paginator
       ? {
-          pagination: {
-            page: paginator.current_page ?? paginator.currentPage ?? 1,
-            per_page: paginator.per_page ?? paginator.perPage ?? processedItems.length ?? 0,
-            total: paginator.total ?? processedItems.length ?? 0
-          }
+        pagination: {
+          page: paginator.current_page ?? paginator.currentPage ?? 1,
+          per_page: paginator.per_page ?? paginator.perPage ?? processedItems.length ?? 0,
+          total: paginator.total ?? processedItems.length ?? 0
         }
+      }
       : undefined;
 
     return {
@@ -155,52 +165,52 @@ class TaskApiService {
   async getTask(id: number): Promise<ApiResponse<Task>> {
     const response = await this.client.get(`${API_ENDPOINTS.TASKS}/${id}`);
     const raw = response.data as any;
-    
+
 
 
     // Process the task data similar to getTasks
     if (raw.success && raw.data) {
       // Extract users data if available
       const usersData = raw?.data?.users || raw?.users || [];
-      
-      // Process assignments to ensure user data is properly structured
-      const processedAssignments = Array.isArray(raw.data.assignments) 
-        ? raw.data.assignments.map(assignment => {
-            // Process assignment data
-            
-            // Try to normalize user data
-            let user = assignment.user || assignment.assigned_user || assignment.assignee || undefined;
-            let assignedBy = assignment.assignedBy || assignment.assigned_by || assignment.assigner || undefined;
-            
-            // Handle case where user might be just an ID
-            if (typeof user === 'number' && (raw.data.users || usersData)) {
-              const userPool = raw.data.users || usersData;
-              user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
-            }
-            
-            if (typeof assignedBy === 'number' && (raw.data.users || usersData)) {
-              const userPool = raw.data.users || usersData;
-              assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
-            }
-            
-            // Handle case where user might be just a string
-            if (typeof user === 'string' && user.trim() !== '') {
-              user = { name: user };
-            }
-            
-            if (typeof assignedBy === 'string' && assignedBy.trim() !== '') {
-              assignedBy = { name: assignedBy };
-            }
-            
-            const normalizedAssignment = {
-              ...assignment,
-              user: user,
-              assignedBy: assignedBy
-            };
-            
 
-            return normalizedAssignment;
-          })
+      // Process assignments to ensure user data is properly structured
+      const processedAssignments = Array.isArray(raw.data.assignments)
+        ? raw.data.assignments.map(assignment => {
+          // Process assignment data
+
+          // Try to normalize user data
+          let user = assignment.user || assignment.assigned_user || assignment.assignee || undefined;
+          let assignedBy = assignment.assignedBy || assignment.assigned_by || assignment.assigner || undefined;
+
+          // Handle case where user might be just an ID
+          if (typeof user === 'number' && (raw.data.users || usersData)) {
+            const userPool = raw.data.users || usersData;
+            user = userPool.find((u: any) => u.id === user) || { id: user, name: `User #${user}` };
+          }
+
+          if (typeof assignedBy === 'number' && (raw.data.users || usersData)) {
+            const userPool = raw.data.users || usersData;
+            assignedBy = userPool.find((u: any) => u.id === assignedBy) || { id: assignedBy, name: `User #${assignedBy}` };
+          }
+
+          // Handle case where user might be just a string
+          if (typeof user === 'string' && user.trim() !== '') {
+            user = { name: user };
+          }
+
+          if (typeof assignedBy === 'string' && assignedBy.trim() !== '') {
+            assignedBy = { name: assignedBy };
+          }
+
+          const normalizedAssignment = {
+            ...assignment,
+            user: user,
+            assignedBy: assignedBy
+          };
+
+
+          return normalizedAssignment;
+        })
         : [];
 
       const task = {
@@ -391,12 +401,12 @@ class TaskApiService {
 
     const meta = paginator
       ? {
-          pagination: {
-            page: paginator.current_page ?? paginator.currentPage ?? 1,
-            per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
-            total: paginator.total ?? items.length ?? 0
-          }
+        pagination: {
+          page: paginator.current_page ?? paginator.currentPage ?? 1,
+          per_page: paginator.per_page ?? paginator.perPage ?? items.length ?? 0,
+          total: paginator.total ?? items.length ?? 0
         }
+      }
       : undefined;
 
     return {

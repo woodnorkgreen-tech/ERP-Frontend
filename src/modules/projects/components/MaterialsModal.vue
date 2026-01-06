@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
 
     <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col relative z-10 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[92vh] flex flex-col relative z-10 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
       
       <!-- Premium Header -->
       <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
@@ -34,7 +34,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           <!-- Left Column: Element Info -->
-          <div class="lg:col-span-4 space-y-6">
+          <div class="lg:col-span-3 space-y-6">
             <div class="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800">
               <h4 class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-4">Core Specifications</h4>
               
@@ -50,26 +50,36 @@
                     + Custom Type
                   </button>
                 </div>
-                <div class="relative">
-                  <select
-                    v-model="elementForm.elementType"
-                    class="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white text-sm appearance-none shadow-sm"
+                <div class="relative" ref="typeSuggestionsTarget">
+                  <input
+                    v-model="typeSearchQuery"
+                    type="text"
+                    @focus="showTypeSuggestions = true"
+                    @input="onTypeInput"
+                    placeholder="Search or type element type..."
+                    class="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white text-sm shadow-sm"
                     :class="{ 'border-red-500 text-red-600': errors.elementType }"
-                  >
-                    <option value="">Choose element type...</option>
-                    <option v-for="type in apiElementTypes" :key="type.id" :value="type.name">
-                      {{ type.display_name }}
-                    </option>
-                  </select>
-                  <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </div>
+                  />
                   
+                  <!-- Suggestions Dropdown -->
+                  <div v-if="showTypeSuggestions && filteredTypes.length > 0" 
+                       class="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-800 border-0 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[100] max-h-60 overflow-y-auto ring-1 ring-black/5 animate-in slide-in-from-top-2 duration-200">
+                    <ul class="py-2">
+                       <li v-for="type in filteredTypes" :key="type.id"
+                           @click="selectTypeSuggestion(type)"
+                           class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-600/10 cursor-pointer text-sm text-gray-700 dark:text-gray-200 flex items-center justify-between"
+                       >
+                         <span>{{ type.display_name }}</span>
+                         <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase">{{ type.category }}</span>
+                       </li>
+                    </ul>
+                  </div>
+
                   <button
                     v-if="elementForm.elementType && isCustomType(elementForm.elementType)"
                     @click.stop="confirmDeleteElementType(elementForm.elementType)"
                     type="button"
-                    class="absolute -right-2 -top-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:scale-110 active:scale-95 transition-all"
+                    class="absolute -right-2 -top-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:scale-110 active:scale-95 transition-all z-10"
                   >
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
@@ -136,7 +146,7 @@
           </div>
 
           <!-- Right Column: Materials List -->
-          <div class="lg:col-span-8 flex flex-col h-full">
+          <div class="lg:col-span-9 flex flex-col h-full">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-2">
                 <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight">Bill of Materials</h4>
@@ -358,8 +368,46 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import api from '@/plugins/axios'
 import { useElementTypes, type ElementType as APIElementType } from '@/composables/useElementTypes'
+
+/**
+ * Material item structure (matching the main component)
+ */
+interface MaterialItem {
+  id: string
+  libraryMaterialId?: number | null
+  description: string
+  unitOfMeasurement: string
+  quantity: number
+  unitCost?: number | null
+  isIncluded: boolean
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * Project element structure (matching the main component)
+ */
+interface ProjectElement {
+  id: string
+  templateId: string
+  elementType: string
+  name: string
+  category: 'production' | 'hire' | 'outsourced'
+  dimensions: {
+    length: string
+    width: string
+    height: string
+    [key: string]: string
+  }
+  isIncluded: boolean
+  materials: MaterialItem[]
+  notes?: string
+  addedAt: Date
+}
 
 /**
  * Props interface for the MaterialsModal component
@@ -412,43 +460,6 @@ interface ElementForm {
   materials: MaterialForm[]
 }
 
-/**
- * Project element structure (matching the main component)
- */
-interface ProjectElement {
-  id: string
-  templateId: string
-  elementType: string
-  name: string
-  category: 'production' | 'hire' | 'outsourced'
-  dimensions: {
-    length: string
-    width: string
-    height: string
-    [key: string]: string
-  }
-  isIncluded: boolean
-  materials: MaterialItem[]
-  notes?: string
-  addedAt: Date
-}
-
-/**
- * Material item structure (matching the main component)
- */
-interface MaterialItem {
-  id: string
-  libraryMaterialId?: number | null
-  description: string
-  unitOfMeasurement: string
-  quantity: number
-  unitCost?: number | null
-  isIncluded: boolean
-  notes?: string
-  createdAt: Date
-  updatedAt: Date
-}
-
 // Component setup
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
@@ -498,6 +509,36 @@ const newElementType = reactive({
 const errors = reactive<Record<string, string>>({})
 const newElementTypeErrors = reactive<Record<string, string>>({})
 
+// Type Search Logic
+const showTypeSuggestions = ref(false)
+const typeSearchQuery = ref('')
+const typeSuggestionsTarget = ref<HTMLElement | null>(null)
+
+onClickOutside(typeSuggestionsTarget, () => {
+  showTypeSuggestions.value = false
+})
+
+const filteredTypes = computed(() => {
+  if (!typeSearchQuery.value) return apiElementTypes.value
+  const query = typeSearchQuery.value.toLowerCase()
+  return apiElementTypes.value.filter(t => 
+    t.display_name.toLowerCase().includes(query) || 
+    t.name.toLowerCase().includes(query)
+  )
+})
+
+const onTypeInput = () => {
+  showTypeSuggestions.value = true
+  // Sync raw value. If it's a known type, the watch will trigger later when selected.
+  elementForm.elementType = typeSearchQuery.value
+}
+
+const selectTypeSuggestion = (type: any) => {
+  elementForm.elementType = type.name
+  typeSearchQuery.value = type.display_name
+  showTypeSuggestions.value = false
+}
+
 // Computed properties
 const isEditMode = computed(() => !!props.editElement)
 
@@ -522,6 +563,7 @@ const isNewElementTypeValid = computed(() => {
 const initializeForm = () => {
   elementForm.category = ''
   elementForm.elementType = ''
+  typeSearchQuery.value = ''
   elementForm.dimensions = { length: '', width: '', height: '' }
   elementForm.description = ''
   elementForm.materials = [createEmptyMaterial()]
@@ -738,6 +780,11 @@ const closeModal = () => {
 const loadElementForEdit = (element: ProjectElement) => {
   elementForm.category = element.category || 'production'
   elementForm.elementType = element.elementType || ''
+  
+  // Find display name for search query
+  const type = apiElementTypes.value.find(t => t.name === element.elementType)
+  typeSearchQuery.value = type?.display_name || element.elementType || ''
+  
   elementForm.dimensions = element.dimensions || { length: '', width: '', height: '' }
   elementForm.description = element.notes || ''
   elementForm.materials = element.materials.map(material => ({
@@ -805,6 +852,7 @@ const saveNewElementType = async () => {
     
     // Select the new type in the main form
     elementForm.elementType = newType.name
+    typeSearchQuery.value = newType.display_name || newType.name
     
     closeAddElementTypeModal()
   } catch (error) {

@@ -233,6 +233,15 @@
           </button>
         </div>
         <div class="flex space-x-3">
+          <div v-if="quoteData.projectInfo?.jobNumber" class="flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 rounded-lg border border-emerald-100 dark:border-emerald-800">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+              Project Converted (Job #: {{ quoteData.projectInfo.jobNumber }})
+            </span>
+          </div>
+          
           <button
             v-if="formData.approval_status === 'approved' && !quoteData.projectInfo?.jobNumber"
             type="button"
@@ -352,6 +361,11 @@ const quoteData = ref({
     overallMarginPercentage: 0
   },
   status: 'draft',
+  approvedBy: null,
+  approvalDate: null,
+  rejectionReason: null,
+  approvalComments: null,
+  quoteAmount: 0,
   createdAt: new Date(),
   updatedAt: new Date()
 })
@@ -408,6 +422,23 @@ const loadQuoteData = async () => {
       quoteData.value.projectInfo = preservedProjectInfo
 
       console.log('Quote data loaded successfully:', quoteData.value)
+
+      // Initialize form with existing data if available
+      if (quoteData.value.status && quoteData.value.status !== 'draft') {
+        formData.value.approval_status = quoteData.value.status
+      }
+      if (quoteData.value.approvalComments) {
+        formData.value.comments = quoteData.value.approvalComments
+      }
+      if (quoteData.value.approvedBy) {
+        formData.value.approved_by = quoteData.value.approvedBy
+      }
+      if (quoteData.value.approvalDate) {
+        formData.value.approval_date = quoteData.value.approvalDate
+      }
+      if (quoteData.value.rejectionReason) {
+        formData.value.rejection_reason = quoteData.value.rejectionReason
+      }
     } else {
       error.value = 'Quote data not found or incomplete'
     }
