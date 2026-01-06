@@ -1,498 +1,231 @@
 <template>
-  <div class="task-detail-view">
+  <div class="task-detail-container">
     <!-- Loading State -->
-    <div v-if="loading.task" class="flex items-center justify-center min-h-screen">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p class="text-gray-600 dark:text-gray-400">Loading task details...</p>
-      </div>
+    <div v-if="loading.task" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading task...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="flex items-center justify-center min-h-screen">
-      <div class="text-center max-w-md">
-        <div class="text-red-600 dark:text-red-400 text-6xl mb-4">⚠️</div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error Loading Task</h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-4">{{ error }}</p>
-        <button
-          @click="$router.push('/universal-tasks')"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
-          Back to Tasks
-        </button>
-      </div>
+    <div v-else-if="error" class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h2 class="error-title">Unable to Load Task</h2>
+      <p class="error-message">{{ error }}</p>
+      <button @click="$router.push('/universal-tasks')" class="btn-back">
+        Return to Tasks
+      </button>
     </div>
 
-    <!-- Task Detail Content -->
-    <div v-if="!loading.task && task" class="space-y-6">
-     
-      <!-- Enhanced Header Section -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <!-- Header Banner -->
-        <div class="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4 text-white">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-center gap-4 mb-4">
-                <button
-                  @click="$router.push('/projects/enquiries')"
-                  class="h-10 w-10 bg-white/20 hover:bg-white/30 text-white rounded-xl backdrop-blur-sm transition-all active:scale-95 flex items-center justify-center group"
-                  title="Return to Enquiries"
-                >
-                  <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                </button>
-                <button
-                  @click="$router.push('/universal-tasks')"
-                  class="text-blue-100 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest flex items-center gap-2"
-                >
-                  <i class="mdi mdi-view-list text-lg"></i>
-                  Mission Registry
-                </button>
-              </div>
-                <div class="flex items-center gap-2">
-                  <span v-if="task.parent_task_id" class="px-2 py-1 bg-blue-500 bg-opacity-50 rounded text-xs font-medium text-white">
-                    Subtask
-                  </span>
-                  <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">{{ task.title }}</h1>
-                </div>
-                <p v-if="task.description" class="text-blue-100/80 text-sm md:text-base mt-2 font-medium">
-                  {{ task.description }}
-                </p>
-              </div>
-              <div class="flex gap-2 ml-4 shrink-0">
-              <button
-                @click="showEditDialog = true"
-                class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-black rounded-lg transition-colors backdrop-blur-sm"
-                title="Edit task"
-              >
-                <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit
-              </button>
-              <button
-                v-if="canDelete"
-                @click="confirmDelete"
-                class="px-4 py-2 bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white rounded-lg transition-colors backdrop-blur-sm"
-                title="Delete task"
-              >
-                <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Stats Row -->
-        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ task.completion_percentage || 0 }}%</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Progress</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ task.subtasks?.length || 0 }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtasks</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ task.issues?.length || 0 }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Issues</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ task.attachments?.length || 0 }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Files</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Status and Priority Row -->
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-          <div class="flex flex-wrap items-center gap-4">
-            <!-- Status Badge -->
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Status:</span>
-              <span
-                class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full"
-                :class="getStatusBadgeClass(task.status)"
-              >
-                <span class="w-2 h-2 rounded-full mr-2" :class="getStatusDotClass(task.status)"></span>
-                {{ getStatusLabel(task.status) }}
-              </span>
-            </div>
-
-            <!-- Priority Badge -->
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Priority:</span>
-              <span
-                class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full"
-                :class="getPriorityBadgeClass(task.priority)"
-              >
-                <svg class="w-3 h-3 mr-1" :class="getPriorityIconClass(task.priority)" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-                {{ getPriorityLabel(task.priority) }}
-              </span>
-            </div>
-
-            <!-- Task Type -->
-            <div v-if="task.task_type" class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Type:</span>
-              <span class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full">
-                {{ getTaskTypeLabel(task.task_type) }}
-              </span>
-            </div>
-
-            <!-- Department -->
-            <div v-if="task.department?.name" class="flex items-center gap-2">
-              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Department:</span>
-              <span class="px-3 py-1 text-sm bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full">
-                {{ task.department.name }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Progress Bar (if has subtasks) -->
-        <div v-if="task.subtasks && task.subtasks.length > 0" class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Subtask Progress</span>
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ task.completion_percentage || 0 }}% Complete</span>
-          </div>
-          <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
-            <div
-              class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
-              :style="{ width: `${task.completion_percentage || 0}%` }"
-            ></div>
-          </div>
-          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-            <span>{{ getCompletedSubtasksCount() }} completed</span>
-            <span>{{ task.subtasks.length }} total</span>
-          </div>
-        </div>
-
-        <!-- Additional Info Row -->
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-600">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Assignment -->
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  <template v-if="getAssigneeInfo(task).name">
-                    {{ getAssigneeInfo(task).name }}
-                  </template>
-                  <template v-else>
-                    Unassigned
-                  </template>
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Assignee</div>
-              </div>
-            </div>
-
-            <!-- Due Date -->
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <svg class="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ task.due_date ? formatDate(task.due_date) : 'No due date' }}
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Due Date</div>
-              </div>
-            </div>
-
-            <!-- Creator -->
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <div>
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  {{ task.creator?.name || 'Unknown' }}
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Created by</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Blocked Reason Alert -->
-        <div v-if="task.status === 'blocked' && task.blocked_reason" class="px-6 py-3 bg-red-50 dark:bg-red-900/20 border-t border-red-200 dark:border-red-800">
-          <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+    <!-- Main Content -->
+    <div v-else-if="task" class="task-content">
+      <!-- Header -->
+      <div class="task-header">
+        <div class="header-top">
+          <button @click="$router.push('/universal-tasks')" class="btn-back-simple">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round"stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <div>
-              <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Task Blocked</h4>
-              <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ task.blocked_reason }}</p>
-            </div>
+            <span>Back to Tasks</span>
+          </button>
+          <div class="header-actions">
+            <button @click="showEditDialog = true" class="btn-edit">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit
+            </button>
+            <button v-if="canDelete" @click="confirmDelete" class="btn-delete">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
           </div>
         </div>
 
-        <!-- Time Tracking Summary -->
-        <div v-if="task.estimated_hours || task.actual_hours" class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-6">
-              <div class="text-center">
-                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.estimated_hours || 0 }}h</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Estimated</div>
-              </div>
-              <div class="text-center">
-                <div class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.actual_hours || 0 }}h</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Actual</div>
-              </div>
-              <div class="text-center">
-                <div class="text-lg font-semibold" :class="getVarianceClass(task.estimated_hours, task.actual_hours)">
-                  {{ calculateVariance(task.estimated_hours, task.actual_hours) }}
-                </div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Variance</div>
-              </div>
-            </div>
-            <div v-if="task.started_at || task.completed_at" class="text-right">
-              <div v-if="task.started_at" class="text-sm text-gray-600 dark:text-gray-400">
-                Started: {{ formatDateTime(task.started_at) }}
-              </div>
-              <div v-if="task.completed_at" class="text-sm text-gray-600 dark:text-gray-400">
-                Completed: {{ formatDateTime(task.completed_at) }}
-              </div>
-            </div>
+        <div class="header-content">
+          <div class="title-section">
+            <span v-if="task.parent_task_id" class="subtask-badge">Subtask</span>
+            <h1 class="task-title">{{ task.title }}</h1>
+            <p v-if="task.description" class="task-description">{{ task.description }}</p>
           </div>
-        </div>
-      </div>
 
-      <!-- Context Information Cards -->
-      <div v-if="hasContextData()" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Logistics Context -->
-        <LogisticsContextCard v-if="task.logisticsContext" :context="task.logisticsContext" />
-        
-        <!-- Design Context -->
-        <DesignContextCard v-if="task.designContext" :context="task.designContext" />
-        
-        <!-- Finance Context -->
-        <FinanceContextCard v-if="task.financeContext" :context="task.financeContext" />
-      </div>
-
-      <!-- Parent Task Information -->
-      <div v-if="task.parentTask" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-          </svg>
-          Parent Task
-        </h3>
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <h4 class="font-medium text-gray-900 dark:text-white mb-1">{{ task.parentTask.title }}</h4>
-              <p v-if="task.parentTask.description" class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                {{ task.parentTask.description }}
-              </p>
-              <div class="flex items-center gap-4 text-sm">
-                <span class="flex items-center gap-1">
-                  <span
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                    :class="getStatusBadgeClass(task.parentTask.status)"
-                  >
-                    {{ getStatusLabel(task.parentTask.status) }}
-                  </span>
-                </span>
-                <span class="flex items-center gap-1">
-                  <span
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                    :class="getPriorityBadgeClass(task.parentTask.priority)"
-                  >
-                    {{ getPriorityLabel(task.parentTask.priority) }}
-                  </span>
-                </span>
-              </div>
-            </div>
-            <router-link
-              :to="`/universal-tasks/${task.parentTask.id}`"
-              class="ml-4 px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-            >
-              View Parent
-            </router-link>
+          <div class="status-badges">
+            <span class="badge-status" :class="getStatusBadgeClass(task.status)">
+              <span class="status-dot" :class="getStatusDotClass(task.status)"></span>
+              {{ getStatusLabel(task.status) }}
+            </span>
+            <span class="badge-priority" :class="getPriorityBadgeClass(task.priority)">
+              {{ getPriorityLabel(task.priority) }}
+            </span>
+            <span v-if="task.task_type" class="badge-type">
+              {{ getTaskTypeLabel(task.task_type) }}
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- Dependencies Information -->
-      <div v-if="task.dependencies && task.dependencies.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          Dependencies
-        </h3>
-        <div class="space-y-3">
-          <div
-            v-for="dependency in task.dependencies"
-            :key="dependency.id"
-            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-          >
-            <div class="flex items-center gap-3">
-              <div class="w-2 h-2 rounded-full" :class="getDependencyStatusColor(dependency)"></div>
-              <div>
-                <div class="font-medium text-gray-900 dark:text-white">{{ dependency.dependsOnTask?.title || 'Unknown Task' }}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">{{ getDependencyTypeLabel(dependency.dependency_type) }}</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span
-                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                :class="getStatusBadgeClass(dependency.dependsOnTask?.status)"
-              >
-                {{ getStatusLabel(dependency.dependsOnTask?.status) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Assignments -->
-      <div v-if="task.assignments && task.assignments.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          Task Assignments
-        </h3>
-        <div class="space-y-3">
-          <div
-            v-for="assignment in task.assignments"
-            :key="assignment.id"
-            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-          >
-
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <span class="text-xs font-medium text-blue-800 dark:text-blue-200">
-                  {{ getUserInitials(assignment.user || assignment.assigned_user || assignment) }}
-                </span>
-              </div>
-              <div>
-                <div class="font-medium text-gray-900 dark:text-white">{{ getUserName(assignment.user || assignment.assigned_user || assignment) }}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                  <span v-if="(assignment.user || assignment.assigned_user) && getUserName(assignment.user || assignment.assigned_user) !== 'Unknown User'">
-                    {{ getUserName(assignment.user || assignment.assigned_user) }}
-                  </span>
-                  <span v-else-if="assignment.role">
-                    {{ assignment.role }}
-                  </span>
-                  <span v-if="assignment.is_primary" class="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs">
-                    Primary
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-gray-500 dark:text-gray-400">Assigned by {{ getUserName(assignment.assignedBy || assignment.assigned_by || assignment.assigner || assignment) }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ formatDateTime(assignment.assigned_at) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Tags -->
-      <div v-if="task.tags && task.tags.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-          </svg>
-          Tags
-        </h3>
-        <div class="flex flex-wrap gap-2">
-          <span
-            v-for="tag in task.tags"
-            :key="tag"
-            class="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full flex items-center gap-1"
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+      <!-- Quick Stats -->
+      <div class="quick-stats">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-blue">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            {{ tag }}
-          </span>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ task.completion_percentage || 0 }}%</div>
+            <div class="stat-label">Progress</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-green">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ task.subtasks?.length || 0 }}</div>
+            <div class="stat-label">Subtasks</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-orange">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ task.issues?.length || 0 }}</div>
+            <div class="stat-label">Issues</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-purple">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ task.attachments?.length || 0 }}</div>
+            <div class="stat-label">Files</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Assigned To</div>
+            <div class="info-value">{{ getAssigneeInfo(task).name || 'Unassigned' }}</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Due Date</div>
+            <div class="info-value">{{ task.due_date ? formatDate(task.due_date) : 'No date set' }}</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Department</div>
+            <div class="info-value">{{ task.department?.name || 'Not assigned' }}</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Estimated</div>
+            <div class="info-value">{{ task.estimated_hours || 0 }}h</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blocked Alert -->
+      <div v-if="task.status === 'blocked' && task.blocked_reason" class="alert-blocked">
+        <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <div>
+          <h4 class="alert-title">Task Blocked</h4>
+          <p class="alert-message">{{ task.blocked_reason }}</p>
         </div>
       </div>
 
       <!-- Tabs -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div class="border-b border-gray-200 dark:border-gray-700">
-          <nav class="flex -mb-px overflow-x-auto">
-            <button
-              v-for="tab in tabs"
-              :key="tab.id"
-              @click="activeTab = tab.id"
-              :class="[
-                'px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2',
-                activeTab === tab.id
-                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
-              ]"
-            >
-              <span>{{ tab.label }}</span>
-              <span
-                v-if="tab.count !== undefined && tab.count > 0"
-                class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-              >
-                {{ tab.count }}
-              </span>
-            </button>
-          </nav>
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            :class="['tab-button', { 'tab-active': activeTab === tab.id }]"
+          >
+            {{ tab.label }}
+            <span v-if="tab.count !== undefined && tab.count > 0" class="tab-count">
+              {{ tab.count }}
+            </span>
+          </button>
         </div>
 
-        <!-- Tab Content -->
-        <div class="p-6">
+        <div class="tab-content">
           <!-- Overview Tab -->
-          <div v-if="activeTab === 'overview'" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <!-- Task Details -->
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Task Details
-                </h3>
-                <dl class="space-y-4">
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Task Type</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ task.task_type || 'N/A' }}</dd>
+          <div v-if="activeTab === 'overview'" class="overview-tab">
+            <div class="overview-grid">
+              <!-- Details Card -->
+              <div class="detail-card">
+                <h3 class="card-title">Task Details</h3>
+                <dl class="detail-list">
+                  <div class="detail-item">
+                    <dt>Task Type</dt>
+                    <dd>{{ task.task_type || 'N/A' }}</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Department</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ task.department?.name || 'N/A' }}</dd>
+                  <div class="detail-item">
+                    <dt>Department</dt>
+                    <dd>{{ task.department?.name || 'N/A' }}</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created By</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ task.creator?.name || 'Unknown' }}</dd>
+                  <div class="detail-item">
+                    <dt>Created By</dt>
+                    <dd>{{ task.creator?.name || 'Unknown' }}</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created At</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ formatDateTime(task.created_at) }}</dd>
+                  <div class="detail-item">
+                    <dt>Created At</dt>
+                    <dd>{{ formatDateTime(task.created_at) }}</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ formatDateTime(task.updated_at) }}</dd>
+                  <div class="detail-item">
+                    <dt>Last Updated</dt>
+                    <dd>{{ formatDateTime(task.updated_at) }}</dd>
                   </div>
-                  <div v-if="task.parent_task_id" class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Parent Task</dt>
-                    <dd class="text-sm">
-                      <router-link 
-                        :to="`/universal-tasks/${task.parent_task_id}`"
-                        class="text-blue-600 dark:text-blue-400 hover:underline"
-                      >
+                  <div v-if="task.parent_task_id" class="detail-item">
+                    <dt>Parent Task</dt>
+                    <dd>
+                      <router-link :to="`/universal-tasks/${task.parent_task_id}`" class="link">
                         {{ task.parentTask?.title || 'View Parent' }}
                       </router-link>
                     </dd>
@@ -500,123 +233,82 @@
                 </dl>
               </div>
 
-              <!-- Time Tracking -->
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Time Tracking
-                </h3>
-                <dl class="space-y-4">
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Estimated Hours</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white font-medium">{{ task.estimated_hours || 0 }}h</dd>
+              <!-- Time Tracking Card -->
+              <div class="detail-card">
+                <h3 class="card-title">Time Tracking</h3>
+                <dl class="detail-list">
+                  <div class="detail-item">
+                    <dt>Estimated Hours</dt>
+                    <dd class="font-semibold">{{ task.estimated_hours || 0 }}h</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Actual Hours</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white font-medium">{{ task.actual_hours || 0 }}h</dd>
+                  <div class="detail-item">
+                    <dt>Actual Hours</dt>
+                    <dd class="font-semibold">{{ task.actual_hours || 0 }}h</dd>
                   </div>
-                  <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Variance</dt>
-                    <dd
-                      class="text-sm font-semibold"
-                      :class="getVarianceClass(task.estimated_hours, task.actual_hours)"
-                    >
+                  <div class="detail-item">
+                    <dt>Variance</dt>
+                    <dd :class="['font-semibold', getVarianceClass(task.estimated_hours, task.actual_hours)]">
                       {{ calculateVariance(task.estimated_hours, task.actual_hours) }}
                     </dd>
                   </div>
-                  <div v-if="task.started_at" class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Started At</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ formatDateTime(task.started_at) }}</dd>
+                  <div v-if="task.started_at" class="detail-item">
+                    <dt>Started At</dt>
+                    <dd>{{ formatDateTime(task.started_at) }}</dd>
                   </div>
-                  <div v-if="task.completed_at" class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed At</dt>
-                    <dd class="text-sm text-gray-900 dark:text-white">{{ formatDateTime(task.completed_at) }}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Client Information (only show for client-related tasks) -->
-            <div v-if="task.taskable_type === 'App\\Modules\\ClientService\\Models\\Client'" class="mt-8">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Client Information
-              </h3>
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Client Name</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.full_name || 'N/A' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Company</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.company_name || 'N/A' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Contact Person</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.contact_person || 'N/A' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.email || 'N/A' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.phone || 'N/A' }}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Client Status</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ task.taskable?.status || 'N/A' }}</dd>
+                  <div v-if="task.completed_at" class="detail-item">
+                    <dt>Completed At</dt>
+                    <dd>{{ formatDateTime(task.completed_at) }}</dd>
                   </div>
                 </dl>
               </div>
             </div>
 
-            <!-- Metadata -->
-            <div v-if="task.metadata && Object.keys(task.metadata).length > 0" class="mt-8">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Additional Information
-              </h3>
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div v-for="(value, key) in task.metadata" :key="key">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">{{ key.replace(/_/g, ' ') }}</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-white">{{ value || 'N/A' }}</dd>
+            <!-- Tags -->
+            <div v-if="task.tags && task.tags.length > 0" class="tags-section">
+              <h3 class="card-title">Tags</h3>
+              <div class="tags-list">
+                <span v-for="tag in task.tags" :key="tag" class="tag">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Assignments -->
+            <div v-if="task.assignments && task.assignments.length > 0" class="assignments-section">
+              <h3 class="card-title">Team Members</h3>
+              <div class="assignments-list">
+                <div v-for="assignment in task.assignments" :key="assignment.id" class="assignment-item">
+                  <div class="assignment-avatar">
+                    {{ getUserInitials(assignment.user || assignment.assigned_user || assignment) }}
                   </div>
-                </dl>
+                  <div class="assignment-info">
+                    <div class="assignment-name">
+                      {{ getUserName(assignment.user || assignment.assigned_user || assignment) }}
+                    </div>
+                    <div class="assignment-meta">
+                      Assigned by {{ getUserName(assignment.assignedBy || assignment.assigned_by || assignment.assigner || assignment) }}
+                      <span v-if="assignment.is_primary" class="primary-badge">Primary</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Subtasks Tab -->
           <div v-if="activeTab === 'subtasks'">
-            <SubtaskTree
+            <SubtaskTable
               v-if="task.id"
               :task-id="task.id"
               :editable="true"
               :show-progress="true"
               @subtask-updated="handleSubtaskUpdated"
             />
-            <div v-else class="text-center py-8 text-gray-500">
-              Task ID not available
-            </div>
           </div>
 
           <!-- Issues Tab -->
           <div v-if="activeTab === 'issues'">
             <TaskIssuePanel :task-id="task.id" @issue-updated="handleIssueUpdated" />
-          </div>
-
-          <!-- Experience Logs Tab -->
-          <div v-if="activeTab === 'logs'">
-            <ExperienceLogPanel :task-id="task.id" @log-updated="handleLogUpdated" />
           </div>
 
           <!-- Comments Tab -->
@@ -627,16 +319,6 @@
           <!-- Attachments Tab -->
           <div v-if="activeTab === 'attachments'">
             <TaskAttachmentPanel :task-id="task.id" @attachment-added="handleAttachmentAdded" />
-          </div>
-
-          <!-- Time Tracking Tab -->
-          <div v-if="activeTab === 'time'">
-            <TaskTimeTrackingPanel :task-id="task.id" @time-entry-added="handleTimeEntryAdded" />
-          </div>
-
-          <!-- History Tab -->
-          <div v-if="activeTab === 'history'">
-            <TaskHistoryPanel :task-id="task.id" />
           </div>
         </div>
       </div>
@@ -650,46 +332,23 @@
       @saved="handleTaskUpdated"
     />
 
-    <!-- Delete Confirmation Dialog -->
-    <div
-      v-if="showDeleteDialog"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Delete Task</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Are you sure you want to delete this task? This action cannot be undone.
-              </p>
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-3">
-            <button
-              @click="showDeleteDialog = false"
-              class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              @click="handleDelete"
-              class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-            >
-              Delete
-            </button>
-          </div>
+    <!-- Delete Confirmation -->
+    <div v-if="showDeleteDialog" class="modal-overlay" @click.self="showDeleteDialog = false">
+      <div class="modal-content">
+        <div class="modal-icon">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h3 class="modal-title">Delete Task</h3>
+        <p class="modal-message">Are you sure you want to delete this task? This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button @click="showDeleteDialog = false" class="btn-cancel">
+            Cancel
+          </button>
+          <button @click="handleDelete" class="btn-confirm-delete">
+            Delete
+          </button>
         </div>
       </div>
     </div>
@@ -707,17 +366,11 @@ import type { Task } from '../types'
 import { formatDate, formatDateTime } from '../utils/dateUtils'
 
 // Components
-import SubtaskTree from '../components/SubtaskTree.vue'
+import SubtaskTable from '../components/SubtaskTable.vue'
 import TaskIssuePanel from '../components/TaskIssuePanel.vue'
 import TaskFormDialog from '../components/TaskFormDialog.vue'
 import TaskCommentPanel from '../components/TaskCommentPanel.vue'
 import TaskAttachmentPanel from '../components/TaskAttachmentPanel.vue'
-import TaskTimeTrackingPanel from '../components/TaskTimeTrackingPanel.vue'
-import TaskHistoryPanel from '../components/TaskHistoryPanel.vue'
-import ExperienceLogPanel from '../components/ExperienceLogPanel.vue'
-import LogisticsContextCard from '../components/LogisticsContextCard.vue'
-import DesignContextCard from '../components/DesignContextCard.vue'
-import FinanceContextCard from '../components/FinanceContextCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -734,114 +387,80 @@ const canDelete = computed(() => {
 })
 
 const getAssigneeInfo = (task: any) => {
-  // Check for assignments first (newer structure)
   if (task.assignments && task.assignments.length > 0) {
-    const primary = task.assignments.find((a: any) => a.is_primary);
-    const assignment = primary || task.assignments[0];
-    const user = assignment.user;
+    const primary = task.assignments.find((a: any) => a.is_primary)
+    const assignment = primary || task.assignments[0]
+    const user = assignment.user
     if (user && user.name) {
       return {
         name: user.name,
         initials: user.name.charAt(0).toUpperCase()
-      };
+      }
     }
   }
   
-  // Fallback to assignedUser (older structure)
   if (task.assignedUser && task.assignedUser.name) {
     return {
       name: task.assignedUser.name,
       initials: task.assignedUser.name.charAt(0).toUpperCase()
-    };
+    }
   }
   
-  // Fallback to assigned_user relationship
   if (task.assigned_user && task.assigned_user.name) {
     return {
       name: task.assigned_user.name,
       initials: task.assigned_user.name.charAt(0).toUpperCase()
-    };
-  }
-  
-  return { name: '', initials: '' };
-}
-
-const getUserName = (user: any) => {
-  // Handle null/undefined case
-  if (!user) return 'Unknown User';
-  
-  // Handle direct string values
-  if (typeof user === 'string' && user.trim() !== '') return user;
-  
-  // Handle numeric IDs
-  if (typeof user === 'number') return `User #${user}`;
-  
-  // Handle direct properties
-  if (user.name) return user.name;
-  if (user.email) return user.email;
-  if (user.full_name) return user.full_name;
-  if (user.first_name || user.last_name) {
-    return `${user.first_name || ''} ${user.last_name || ''}`.trim();
-  }
-  
-  // Special handling for assignment objects
-  // If this is an assignment object, try to get the user from the expected properties
-  if (user.user && typeof user.user === 'object') {
-    return getUserName(user.user);
-  }
-  
-  if (user.assignedBy && typeof user.assignedBy === 'object') {
-    return getUserName(user.assignedBy);
-  }
-  
-  // Handle ID references
-  if (user.user_id || user.userId) {
-    const id = user.user_id || user.userId;
-    return `User #${id}`;
-  }
-  
-  // Handle different property names for user objects
-  const userObj = user.assigned_user || user.assignee || user.created_by || user.assigner;
-  if (userObj && typeof userObj === 'object') {
-    return getUserName(userObj);
-  }
-  
-  // If we have an object but can't extract name, show its keys for debugging
-  if (typeof user === 'object' && user !== null) {
-    const keys = Object.keys(user);
-    if (keys.length > 0) {
-      // Special handling for assignment objects that might have user data in unexpected places
-      if (user.assignee_name) return user.assignee_name;
-      if (user.assigner_name) return user.assigner_name;
-      
-      // For debugging purposes, return the user ID if available
-      if (user.id && user.id !== undefined) {
-        return `User #${user.id}`;
-      }
-      
-      // Return a more informative debug message
-      return `Unknown User (${keys.join(', ')})`;
     }
   }
   
-  return 'Unknown User';
-};
+  return { name: '', initials: '' }
+}
 
-const getUserInitials = (user: any) => {
-  const name = getUserName(user);
-  if (name === 'Unknown User' || name.startsWith('User #')) return 'U';
-  
-  // Extract initials from name (handle multiple words)
-  const words = name.split(' ').filter(word => word.length > 0);
-  if (words.length === 0) return 'U';
-  
-  if (words.length === 1) {
-    return words[0].charAt(0).toUpperCase();
+const getUserName = (user: any) => {
+  if (!user) return 'Unknown User'
+  if (typeof user === 'string' && user.trim() !== '') return user
+  if (typeof user === 'number') return `User #${user}`
+  if (user.name) return user.name
+  if (user.email) return user.email
+  if (user.full_name) return user.full_name
+  if (user.first_name || user.last_name) {
+    return `${user.first_name || ''} ${user.last_name || ''}`.trim()
   }
   
-  // For two or more words, take first letter of first and last word
-  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-};
+  if (user.user && typeof user.user === 'object') {
+    return getUserName(user.user)
+  }
+  
+  if (user.assignedBy && typeof user.assignedBy === 'object') {
+    return getUserName(user.assignedBy)
+  }
+  
+  if (user.user_id || user.userId) {
+    const id = user.user_id || user.userId
+    return `User #${id}`
+  }
+  
+  const userObj = (user as any).assigned_user || (user as any).assignee || (user as any).created_by || (user as any).assigner
+  if (userObj && typeof userObj === 'object') {
+    return getUserName(userObj)
+  }
+  
+  return 'Unknown User'
+}
+
+const getUserInitials = (user: any) => {
+  const name = getUserName(user)
+  if (name === 'Unknown User' || name.startsWith('User #')) return 'U'
+  
+  const words = name.split(' ').filter((word: string) => word.length > 0)
+  if (words.length === 0) return 'U'
+  
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase()
+  }
+  
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase()
+}
 
 const activeTab = ref('overview')
 const showEditDialog = ref(false)
@@ -876,24 +495,18 @@ watch(() => task.value, (newTask) => {
   }
 }, { immediate: true })
 
-/**
- * Fetches task data from the store
- */
 const fetchTask = async () => {
   const taskId = parseInt(route.params.id as string)
   if (isNaN(taskId)) {
-    error.value = 'Invalid task ID'
     return
   }
 
   await taskStore.fetchTask(taskId)
 
   if (!task.value && !loading.value.task) {
-    // Task not found, redirect to list
     router.push('/universal-tasks')
   }
 }
-
 
 // Utility functions
 const getStatusLabel = (status?: string | null) => {
@@ -916,71 +529,38 @@ const getTaskTypeLabel = (type?: string | null) => {
 
 const getStatusBadgeClass = (status: string): string => {
   const classMap: Record<string, string> = {
-    completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    blocked: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-    cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-    review: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+    completed: 'badge-completed',
+    in_progress: 'badge-in-progress',
+    pending: 'badge-pending',
+    blocked: 'badge-blocked',
+    overdue: 'badge-overdue',
+    cancelled: 'badge-cancelled',
+    review: 'badge-review'
   }
-  return classMap[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+  return classMap[status] || 'badge-default'
 }
 
 const getStatusDotClass = (status: string): string => {
   const classMap: Record<string, string> = {
-    completed: 'bg-green-500',
-    in_progress: 'bg-blue-500',
-    pending: 'bg-yellow-500',
-    blocked: 'bg-red-500',
-    overdue: 'bg-red-500',
-    cancelled: 'bg-gray-500',
-    review: 'bg-purple-500'
+    completed: 'dot-completed',
+    in_progress: 'dot-in-progress',
+    pending: 'dot-pending',
+    blocked: 'dot-blocked',
+    overdue: 'dot-overdue',
+    cancelled: 'dot-cancelled',
+    review: 'dot-review'
   }
-  return classMap[status] || 'bg-gray-500'
+  return classMap[status] || 'dot-default'
 }
 
 const getPriorityBadgeClass = (priority: string): string => {
   const classMap: Record<string, string> = {
-    low: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-    medium: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    high: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-    urgent: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+    low: 'badge-low',
+    medium: 'badge-medium',
+    high: 'badge-high',
+    urgent: 'badge-urgent'
   }
-  return classMap[priority] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
-}
-
-const getPriorityIconClass = (priority: string): string => {
-  const classMap: Record<string, string> = {
-    low: 'text-green-500',
-    medium: 'text-blue-500',
-    high: 'text-orange-500',
-    urgent: 'text-red-500'
-  }
-  return classMap[priority] || 'text-gray-500'
-}
-
-const getDependencyTypeLabel = (type?: string) => {
-  const typeMap: Record<string, string> = {
-    blocks: 'Blocks',
-    relates_to: 'Relates To',
-    blocked_by: 'Blocked By'
-  }
-  return typeMap[type || ''] || type || 'Unknown'
-}
-
-const getDependencyStatusColor = (dependency: any) => {
-  const status = dependency.dependsOnTask?.status || 'unknown'
-  const classMap: Record<string, string> = {
-    completed: 'bg-green-500',
-    in_progress: 'bg-blue-500',
-    pending: 'bg-yellow-500',
-    blocked: 'bg-red-500',
-    overdue: 'bg-red-500',
-    cancelled: 'bg-gray-500',
-    unknown: 'bg-gray-500'
-  }
-  return classMap[status] || 'bg-gray-500'
+  return classMap[priority] || 'badge-default'
 }
 
 const calculateVariance = (estimated?: number, actual?: number) => {
@@ -990,24 +570,11 @@ const calculateVariance = (estimated?: number, actual?: number) => {
 }
 
 const getVarianceClass = (estimated?: number, actual?: number) => {
-  if (!estimated || !actual) return 'text-gray-600 dark:text-gray-400'
+  if (!estimated || !actual) return 'text-gray-600'
   const variance = actual - estimated
-  if (variance > 0) return 'text-red-600 dark:text-red-400'
-  if (variance < 0) return 'text-green-600 dark:text-green-400'
-  return 'text-gray-600 dark:text-gray-400'
-}
-
-const getCompletedSubtasksCount = () => {
-  if (!task.value?.subtasks) return 0
-  return task.value.subtasks.filter(subtask => subtask.status === 'completed').length
-}
-
-const hasContextData = () => {
-  return task.value && (
-    task.value.logisticsContext ||
-    task.value.designContext ||
-    task.value.financeContext
-  )
+  if (variance > 0) return 'text-red-600'
+  if (variance < 0) return 'text-green-600'
+  return 'text-gray-600'
 }
 
 // Event handlers
@@ -1032,14 +599,6 @@ const handleCommentAdded = async () => {
   await fetchTask()
 }
 
-const handleLogUpdated = async () => {
-  await fetchTask()
-}
-
-const handleTimeEntryAdded = async () => {
-  await fetchTask()
-}
-
 const confirmDelete = () => {
   showDeleteDialog.value = true
 }
@@ -1059,55 +618,1004 @@ const handleDelete = async () => {
 </script>
 
 <style scoped>
-.task-detail-view {
+/* Container */
+.task-detail-container {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background: linear-gradient(to bottom, #f8fafc 0%, #e2e8f0 100%);
+  padding: 2rem;
+  color: #0f172a;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.dark .task-detail-view {
-  background-color: #111827;
+/* Dark Mode Container */
+.dark .task-detail-container {
+  background: linear-gradient(to bottom, #0f172a 0%, #1e293b 100%);
+  color: #f1f5f9;
 }
 
-/* Custom scrollbar for tabs */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 4px;
+@media (max-width: 768px) {
+  .task-detail-container {
+    padding: 1rem;
+  }
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.dark .loading-spinner {
+  border-color: #334155;
+  border-top-color: #60a5fa;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.dark .loading-text {
+  color: #94a3b8;
+}
+
+/* Error State */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.dark .error-title {
+  color: #f1f5f9;
+}
+
+.error-message {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.dark .error-message {
+  color: #94a3b8;
+}
+
+.btn-back {
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Task Content */
+.task-content {
+  max-width: 90rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.task-header {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.dark .task-header {
+  background: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: #64748b;
   background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
+.dark .btn-back-simple {
+  color: #94a3b8;
 }
 
-.dark .overflow-x-auto::-webkit-scrollbar-thumb {
+.btn-back-simple:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.dark .btn-back-simple:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-edit, .btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.title-section {
+  flex: 1;
+}
+
+.subtask-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.dark .subtask-badge {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+.task-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.dark .task-title {
+  color: #f1f5f9;
+}
+
+.task-description {
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.dark .task-description {
+  color: #94a3b8;
+}
+
+.status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.badge-status, .badge-priority, .badge-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+/* Status Badge Colors - Dark Mode Support */
+.badge-completed { background: #dcfce7; color: #166534; }
+.dark .badge-completed { background: #064e3b; color: #dcfce7; }
+
+.badge-in-progress { background: #dbeafe; color: #1e40af; }
+.dark .badge-in-progress { background: #1e3a8a; color: #dbeafe; }
+
+.badge-pending { background: #fef3c7; color: #92400e; }
+.dark .badge-pending { background: #78350f; color: #fef3c7; }
+
+.badge-blocked { background: #fee2e2; color: #991b1b; }
+.dark .badge-blocked { background: #7f1d1d; color: #fee2e2; }
+
+.badge-overdue { background: #fee2e2; color: #991b1b; }
+.dark .badge-overdue { background: #7f1d1d; color: #fee2e2; }
+
+.badge-cancelled { background: #f1f5f9; color: #475569; }
+.dark .badge-cancelled { background: #334155; color: #e2e8f0; }
+
+.badge-review { background: #f3e8ff; color: #6b21a8; }
+.dark .badge-review { background: #581c87; color: #f3e8ff; }
+
+.badge-default { background: #f1f5f9; color: #475569; }
+.dark .badge-default { background: #334155; color: #94a3b8; }
+
+/* Priority Badge Colors - Dark Mode Support */
+.badge-low { background: #dcfce7; color: #166534; }
+.dark .badge-low { background: #064e3b; color: #dcfce7; }
+
+.badge-medium { background: #dbeafe; color: #1e40af; }
+.dark .badge-medium { background: #1e3a8a; color: #dbeafe; }
+
+.badge-high { background: #fed7aa; color: #9a3412; }
+.dark .badge-high { background: #7c2d12; color: #fed7aa; }
+
+.badge-urgent { background: #fee2e2; color: #991b1b; }
+.dark .badge-urgent { background: #7f1d1d; color: #fee2e2; }
+
+/* Type Badge */
+.badge-type {
+  background: #f1f5f9;
+  color: #475569;
+}
+.dark .badge-type {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* Status Dots */
+.dot-completed { background: #22c55e; }
+.dot-in-progress { background: #3b82f6; }
+.dot-pending { background: #f59e0b; }
+.dot-blocked { background: #ef4444; }
+.dot-overdue { background: #ef4444; }
+.dot-cancelled { background: #94a3b8; }
+.dot-review { background: #a855f7; }
+.dot-default { background: #94a3b8; }
+
+/* Quick Stats */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.dark .stat-card {
+  background: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-icon-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+.stat-icon-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.stat-icon-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.stat-icon-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.dark .stat-value {
+  color: #f1f5f9;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.dark .stat-label {
+  color: #94a3b8;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.dark .info-card {
+  background: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.info-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dark .info-icon {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.dark .info-label {
+  color: #94a3b8;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.dark .info-value {
+  color: #f1f5f9;
+}
+
+/* Alert */
+.alert-blocked {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-left: 4px solid #ef4444;
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.dark .alert-blocked {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+  border-left-color: #ef4444;
+}
+
+.alert-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.dark .alert-icon {
+  color: #fca5a5;
+}
+
+.alert-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 0.25rem;
+}
+
+.dark .alert-title {
+  color: #fecaca;
+}
+
+.alert-message {
+  font-size: 0.875rem;
+  color: #7f1d1d;
+}
+
+.dark .alert-message {
+  color: #fee2e2;
+}
+
+/* Tabs */
+.tabs-container {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.dark .tabs-container {
+  background: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.dark .tabs-header {
+  border-bottom-color: #334155;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dark .tab-button {
+  color: #94a3b8;
+}
+
+.tab-button:hover {
+  color: #3b82f6;
+  background: #f8fafc;
+}
+
+.dark .tab-button:hover {
+  color: #60a5fa;
+  background: #253346; /* Slightly lighter than card bg */
+}
+
+.tab-active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.dark .tab-active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+  background: #253346;
+}
+
+.tab-count {
+  padding: 0.125rem 0.5rem;
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.dark .tab-count {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.tab-active .tab-count {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dark .tab-active .tab-count {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+.tab-content {
+  padding: 2rem;
+}
+
+/* Overview Tab */
+.overview-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-card {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.dark .detail-card {
+  background: #253346; /* Lighter than main bg */
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dark .card-title {
+  color: #f1f5f9;
+}
+
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .detail-item {
+  border-bottom-color: #334155;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-item dt {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dark .detail-item dt {
+  color: #94a3b8;
+}
+
+.detail-item dd {
+  font-size: 0.875rem;
+  color: #0f172a;
+  font-weight: 500;
+  text-align: right;
+}
+
+.dark .detail-item dd {
+  color: #f1f5f9;
+}
+
+.link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.dark .link {
+  color: #60a5fa;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Tags Section */
+.tags-section {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.dark .tags-section {
+  background: #253346;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #3b82f6;
+  border: 1px solid #dbeafe;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.dark .tag {
+  background: #1e293b;
+  color: #60a5fa;
+  border-color: #1e3a8a;
+}
+
+/* Assignments Section */
+.assignments-section {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.dark .assignments-section {
+  background: #253346;
+}
+
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.assignment-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+
+.dark .assignment-item {
+  background: #1e293b;
+}
+
+.assignment-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.assignment-info {
+  flex: 1;
+}
+
+.assignment-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.875rem;
+}
+
+.dark .assignment-name {
+  color: #f1f5f9;
+}
+
+.assignment-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.125rem;
+}
+
+.dark .assignment-meta {
+  color: #94a3b8;
+}
+
+.primary-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.dark .primary-badge {
+  background: #1e3a8a;
+  color: #dbeafe;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 28rem;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dark .modal-content {
+  background: #1e293b;
+}
+
+.modal-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.dark .modal-icon {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dark .modal-title {
+  color: #f1f5f9;
+}
+
+.modal-message {
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.dark .modal-message {
+  color: #94a3b8;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-cancel, .btn-confirm-delete {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.dark .btn-cancel {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+}
+
+.dark .btn-cancel:hover {
   background: #475569;
 }
 
-/* Smooth transitions */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+.btn-confirm-delete {
+  background: #ef4444;
+  color: white;
 }
 
-/* Gradient animation */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.btn-confirm-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient 3s ease infinite;
+/* Utilities */
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+.dark .text-red-600 {
+  color: #f87171;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+.dark .text-green-600 {
+  color: #4ade80;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+.dark .text-gray-600 {
+  color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .task-header {
+    padding: 1.5rem;
+  }
+
+  .task-title {
+    font-size: 1.5rem;
+  }
+
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-edit, .btn-delete {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .quick-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
 }
 </style>
