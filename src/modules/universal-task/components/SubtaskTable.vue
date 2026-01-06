@@ -144,6 +144,20 @@
             <td v-if="editable" class="td-cell whitespace-nowrap text-right">
               <div class="action-buttons">
                 <button
+                  @click="toggleSubtaskCompletion(subtask)"
+                  class="btn-icon"
+                  :class="subtask.status === 'completed' ? 'btn-icon-orange' : 'btn-icon-green'"
+                  :title="subtask.status === 'completed' ? 'Reopen subtask' : 'Mark as complete'"
+                >
+                  <svg v-if="subtask.status === 'completed'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <button
                   @click="editSubtask(subtask)"
                   class="btn-icon btn-icon-blue"
                   title="Edit subtask"
@@ -283,6 +297,30 @@ async function confirmDelete(subtask: Task) {
     toast.error(error.message || 'Failed to delete subtask')
   }
 }
+
+async function toggleSubtaskCompletion(subtask: Task) {
+  try {
+    const { taskApi } = await import('../services/api')
+    const newStatus = subtask.status === 'completed' ? 'pending' : 'completed'
+    const response = await taskApi.updateTaskStatus(subtask.id, newStatus)
+    
+    if (response.success && response.data) {
+      // Update local state
+      const index = subtasks.value.findIndex(s => s.id === subtask.id)
+      if (index !== -1) {
+        subtasks.value[index] = response.data
+      }
+      toast.success(`Subtask marked as ${newStatus}`)
+      emit('update', response.data)
+    } else {
+      toast.error(response.error?.message || 'Failed to update subtask status')
+    }
+  } catch (error: any) {
+    console.error('Error updating subtask status:', error)
+    toast.error(error.message || 'Failed to update subtask status')
+  }
+}
+
 
 async function loadSubtasks() {
   loading.value = true
@@ -749,6 +787,15 @@ onMounted(() => {
 .btn-icon-red { color: #ef4444; }
 .btn-icon-red:hover { background: #fef2f2; }
 .dark .btn-icon-red:hover { background: #7f1d1d; }
+
+.btn-icon-green { color: #16a34a; }
+.btn-icon-green:hover { background: #dcfce7; }
+.dark .btn-icon-green:hover { background: #064e3b; }
+
+.btn-icon-orange { color: #f59e0b; }
+.btn-icon-orange:hover { background: #fef3c7; }
+.dark .btn-icon-orange:hover { background: #78350f; }
+
 
 /* Summary */
 .progress-summary {

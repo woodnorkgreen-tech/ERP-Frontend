@@ -504,7 +504,7 @@
                     class="w-full h-14 pl-16 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white uppercase tracking-widest appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                   >
                     <option value="low">Low Priority</option>
-                    <option value="normal">Standard Priority</option>
+
                     <option value="high">High Priority</option>
                     <option value="urgent">Urgent Ops</option>
                   </select>
@@ -1243,7 +1243,7 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   title: '',
   description: '',
   project_scope: [],
-  priority: 'medium',
+  priority: 'low',
   status: 'enquiry_logged',
   contact_person: '',
   contact_email: '',
@@ -1322,7 +1322,7 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     title: enquiry.title || '',
     description: enquiry.description || '',
     project_scope: enquiry.project_scope || [],
-    priority: enquiry.priority || 'medium',
+    priority: enquiry.priority || 'low',
     status: enquiry.status || 'enquiry_logged',
     contact_person: enquiry.contact_person || '',
     project_officer_id: enquiry.project_officer_id || null,
@@ -1620,7 +1620,7 @@ const closeModal = () => {
     title: '',
     description: '',
     project_scope: [],
-    priority: 'medium',
+    priority: 'low',
     status: 'enquiry_logged',
     contact_person: '',
     project_officer_id: null,
@@ -1635,6 +1635,7 @@ const closeModal = () => {
 }
 
 const handleFormSubmit = async () => {
+  formError.value = ''
   try {
     saving.value = true
     if (editingEnquiry.value) {
@@ -1650,8 +1651,18 @@ const handleFormSubmit = async () => {
 
     // Refresh enquiries after save
     await fetchEnquiries()
-  } catch {
-    // Error is handled by the composable
+  } catch (e: any) {
+    console.error('Form submission failed:', e)
+    if (e.response?.data?.message) {
+      formError.value = e.response.data.message
+      // If validation errors exist, append them
+      if (e.response.data.errors) {
+        const errors = Object.values(e.response.data.errors).flat().join(', ')
+        formError.value += `: ${errors}`
+      }
+    } else {
+      formError.value = error.value || 'An error occurred while saving. Please check your connection.'
+    }
   } finally {
     saving.value = false
   }

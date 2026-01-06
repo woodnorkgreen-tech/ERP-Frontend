@@ -34,6 +34,19 @@
               </svg>
               Edit
             </button>
+            <button 
+              @click="handleToggleCompletion" 
+              class="btn-action"
+              :class="task.status === 'completed' ? 'btn-reopen' : 'btn-complete'"
+            >
+              <svg v-if="task.status === 'completed'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ task.status === 'completed' ? 'Reopen' : 'Complete' }}
+            </button>
             <button v-if="canDelete" @click="confirmDelete" class="btn-delete">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -601,7 +614,22 @@ const handleCommentAdded = async () => {
 
 const confirmDelete = () => {
   showDeleteDialog.value = true
+
 }
+
+const handleToggleCompletion = async () => {
+  if (!task.value) return
+
+  try {
+    const newStatus = task.value.status === 'completed' ? 'pending' : 'completed'
+    await taskStore.updateTaskStatus(task.value.id, newStatus)
+    await fetchTask()
+  } catch (error: any) {
+    console.error('Error updating status:', error)
+    alert(error.message || 'Failed to update status')
+  }
+}
+
 
 const handleDelete = async () => {
   if (!task.value) return
@@ -794,39 +822,91 @@ const handleDelete = async () => {
   gap: 0.75rem;
 }
 
-.btn-edit, .btn-delete {
+.btn-edit, .btn-delete, .btn-action {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: none;
+  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  border: none;
 }
 
 .btn-edit {
-  background: #3b82f6;
-  color: white;
+  color: #3b82f6;
+  background: #eff6ff;
 }
 
 .btn-edit:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  background: #dbeafe;
+}
+
+.dark .btn-edit {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dark .btn-edit:hover {
+  background: rgba(59, 130, 246, 0.2);
 }
 
 .btn-delete {
-  background: #ef4444;
-  color: white;
+  color: #ef4444;
+  background: #fef2f2;
 }
 
 .btn-delete:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  background: #fee2e2;
 }
+
+.dark .btn-delete {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.dark .btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.btn-complete {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.btn-complete:hover {
+  background: #bbf7d0;
+}
+
+.dark .btn-complete {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.dark .btn-complete:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.btn-reopen {
+  color: #f59e0b;
+  background: #fef3c7;
+}
+
+.btn-reopen:hover {
+  background: #fde68a;
+}
+
+.dark .btn-reopen {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.dark .btn-reopen:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+
 
 .header-content {
   display: flex;
