@@ -42,44 +42,64 @@
     </div>
 
     <!-- Smart Filter Hub -->
-    <div class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-[2rem] p-4 shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div class="relative group">
-          <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
-          <input
-            v-model="filters.search"
-            type="text"
-            placeholder="Search by Identity..."
-            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-slate-900 dark:text-white"
-          />
-        </div>
-        <div class="relative">
-          <i class="mdi mdi-filter-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <select
-            v-model="filters.status"
-            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer text-slate-900 dark:text-white"
-          >
-            <option value="">Global Status</option>
-            <option value="active">Operational Only</option>
-            <option value="inactive">Suspended Only</option>
-          </select>
-        </div>
-        <div class="relative">
-           <i class="mdi mdi-office-building absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-           <input
-            v-model="filters.company"
-            type="text"
-            placeholder="Identity Filter..."
-            class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-slate-900 dark:text-white"
-          />
-        </div>
-        <button
-          @click="applyFilters"
-          class="py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all"
-        >
-          Execute Queries
-        </button>
-      </div>
+    <div class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm">
+       <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+          <div class="flex items-center gap-3 w-full xl:w-auto">
+             <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <i class="mdi mdi-filter-variant text-xl"></i>
+             </div>
+             <div>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Intelligence Filters</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Refine Client Database</p>
+             </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 xl:flex items-center gap-4 w-full xl:w-auto">
+             <!-- Search -->
+             <div class="relative group w-full md:w-auto xl:w-80">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                   <i class="mdi mdi-magnify text-slate-400 group-focus-within:text-blue-500 transition-colors text-lg"></i>
+                </div>
+                <input
+                   v-model="filters.search"
+                   type="text"
+                   placeholder="Search Identity..."
+                   class="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm group-hover:shadow-md"
+                />
+             </div>
+
+             <!-- Status Filter -->
+             <div class="relative w-full md:w-auto xl:w-48">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                   <i class="mdi mdi-list-status text-slate-400 text-lg"></i>
+                </div>
+                <select
+                   v-model="filters.status"
+                   class="w-full pl-11 pr-10 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                >
+                   <option value="">All Statuses</option>
+                   <option value="active">Active Operations</option>
+                   <option value="inactive">Suspended</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                   <i class="mdi mdi-chevron-down text-slate-400"></i>
+                </div>
+             </div>
+
+             <!-- Company Filter -->
+             <div class="relative w-full md:w-auto xl:w-64">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                   <i class="mdi mdi-domain text-slate-400 text-lg"></i>
+                </div>
+                <input
+                   v-model="filters.company"
+                   type="text"
+                   placeholder="Filter by Hub..."
+                   class="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                />
+             </div>
+          </div>
+       </div>
     </div>
 
     <!-- Data Grid -->
@@ -538,7 +558,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import type { Client, CreateClientData, UpdateClientData } from '../types/client'
 import { useClients } from '../composables/useClients'
 import { useAuth } from '@/composables/useAuth'
@@ -613,6 +633,16 @@ const applyFilters = () => {
     per_page: pagination.value?.per_page || 15
   })
 }
+
+// Watch filters for automatic filtering with debounce
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+watch(filters, () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  
+  debounceTimer = setTimeout(() => {
+    applyFilters()
+  }, 500)
+}, { deep: true })
 
 const changePage = (page: number) => {
   fetchClients({
@@ -798,12 +828,20 @@ const handleFormSubmit = async () => {
 
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'response' in err) {
-      const axiosError = err as { response?: { data?: { message?: string } } }
-      formError.value = axiosError.response?.data?.message || 'An error occurred'
+      const axiosError = err as { response?: { status: number, data?: { message?: string, errors?: Record<string, string[]> } } }
+      
+      if (axiosError.response?.status === 422 && axiosError.response.data?.errors) {
+         // Validation errors
+         const errors = axiosError.response.data.errors
+         const errorMessages = Object.values(errors).flat()
+         formError.value = errorMessages[0] || 'Validation failed. Please check your entries.'
+      } else {
+         formError.value = axiosError.response?.data?.message || 'An error occurred during submission.'
+      }
     } else if (err instanceof Error) {
       formError.value = err.message
     } else {
-      formError.value = 'An error occurred'
+      formError.value = 'An unexpected error occurred.'
     }
   } finally {
     saving.value = false
