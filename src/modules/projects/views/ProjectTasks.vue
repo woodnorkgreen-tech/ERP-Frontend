@@ -128,55 +128,54 @@
         </div>
       </div>
     </div>
-    <!-- Mission Intelligence (Progression Path) -->
-    <div v-if="enquiryId" class="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[2.5rem] p-8 border border-white/10 mb-8 relative overflow-hidden group">
-      <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
-      <div class="relative z-10">
-        <div class="flex items-center justify-between mb-8">
-           <div class="flex items-center gap-4">
-             <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
-               <i class="mdi mdi-map-marker-path text-2xl"></i>
-             </div>
-             <div>
-               <h3 class="text-xl font-black text-white uppercase tracking-tight">Mission Intelligence</h3>
-               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Execution Path Tracking</p>
-             </div>
-           </div>
-           
-           <div class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-indigo-400 uppercase tracking-widest">
-             Level: {{ enquiryTasks.length }} Operational Units
-           </div>
+    <!-- Mission Intelligence (Minimal) -->
+    <div v-if="enquiryId" class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-900 dark:text-white">
+            <i class="mdi mdi-map-marker-path text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Project Roadmap</h3>
+            <p class="text-xs text-slate-500 font-medium">{{ enquiryTasks.length }} Tasks Total</p>
+          </div>
         </div>
-
-        <!-- Progression Timeline -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-           <div v-for="(milestone, index) in missionMilestones" :key="milestone.status" 
-                class="relative p-5 rounded-2xl transition-all duration-300 border"
-                :class="getMilestoneClasses(milestone)">
-             
-             <!-- Connector Line -->
-             <div v-if="index < 4" class="hidden md:block absolute top-1/2 -right-2 w-4 h-[1px] bg-white/10 z-0"></div>
-
-             <div class="flex items-center justify-between mb-3">
-               <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="milestone.completed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700/50 text-slate-500'">
-                 <i class="mdi" :class="milestone.completed ? 'mdi-check-bold' : milestone.isNext ? 'mdi-bullseye-arrow animate-pulse' : 'mdi-lock-outline'"></i>
-               </div>
-               <span class="text-[9px] font-black uppercase tracking-[0.2em]" :class="milestone.completed ? 'text-emerald-500' : 'text-slate-500'">
-                 {{ milestone.completed ? 'Achieved' : milestone.isNext ? 'Target' : 'Pending' }}
-               </span>
+        
+        <!-- Simple Progress Bar -->
+        <div class="hidden md:flex items-center gap-3">
+          <div class="w-32 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+             <div class="h-full bg-slate-900 dark:bg-white transition-all duration-500" 
+                  :style="{ width: `${(missionMilestones.filter((m: any) => m.completed).length / missionMilestones.length) * 100}%` }">
              </div>
-             
-             <h4 class="text-xs font-black uppercase tracking-widest mb-1" :class="milestone.completed ? 'text-white' : 'text-slate-400'">{{ milestone.label }}</h4>
-             
-             <div v-if="milestone.isNext && milestone.missingTasks.length" class="mt-4 space-y-1.5 border-t border-white/5 pt-3">
-               <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Requirements:</p>
-               <div v-for="taskType in milestone.missingTasks" :key="taskType" class="flex items-center gap-1 text-[9px] font-bold text-orange-400/80">
-                 <i class="mdi mdi-alert-circle-outline"></i>
-                 <span>{{ formatTaskType(taskType) }}</span>
-               </div>
-             </div>
-           </div>
+          </div>
+          <span class="text-xs font-bold text-slate-900 dark:text-white">
+            {{ Math.round((missionMilestones.filter((m: any) => m.completed).length / missionMilestones.length) * 100) }}%
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div v-for="(milestone, index) in missionMilestones" :key="milestone.status" 
+             class="p-4 rounded-xl border transition-all"
+             :class="milestone.completed 
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent' 
+                : milestone.isNext 
+                  ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 ring-2 ring-slate-900/5 dark:ring-white/10' 
+                  : 'bg-slate-50 dark:bg-slate-800/50 border-transparent opacity-60'">
+          
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-black uppercase tracking-wider opacity-60">Step 0{{ index + 1 }}</span>
+            <i class="mdi text-base" 
+               :class="milestone.completed ? 'mdi-check-circle' : milestone.isNext ? 'mdi-loading mdi-spin' : 'mdi-circle-outline'"></i>
+          </div>
+          
+          <h4 class="text-xs font-bold leading-tight">{{ milestone.label }}</h4>
+          
+          <div v-if="milestone.isNext && milestone.missingTasks.length" class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700/50">
+             <p class="text-[9px] font-medium text-slate-500 truncate">
+               Pending: {{ formatTaskType(milestone.missingTasks[0]) }}
+             </p>
+          </div>
         </div>
       </div>
     </div>
