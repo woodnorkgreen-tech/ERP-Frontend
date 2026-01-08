@@ -457,6 +457,14 @@
 
       <div class="flex flex-col sm:flex-row gap-3">
         <button
+          v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled' && !isReadonly"
+          @click="showSkipModal = true"
+          class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+        >
+          Skip Task
+        </button>
+
+        <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled' && !isReadonly"
           @click="$emit('update-status', 'completed')"
           class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
@@ -474,12 +482,31 @@
           <span class="text-sm font-medium">Task Completed</span>
         </div>
 
-        <!-- Readonly Indicator -->\n        <div v-if="isReadonly && task.status !== 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-blue-600 dark:text-blue-400">
+        <!-- Readonly Indicator -->
+        <div v-if="isReadonly && task.status !== 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-blue-600 dark:text-blue-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
           <span class="text-sm font-medium">Readonly Mode</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skip Task Modal -->
+    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Please provide a reason for skipping this task.</p>
+        <textarea
+            v-model="skipReason"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
+            placeholder="Reason for skipping..."
+        ></textarea>
+        <div class="flex justify-end space-x-3">
+            <button @click="showSkipModal = false" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
+            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}</button>
         </div>
       </div>
     </div>
@@ -491,6 +518,7 @@ import type { EnquiryTask } from '../../types/enquiry'
 import { useTeams } from '../../composables/useTeams'
 import { usePermissions } from '@/modules/finance/petty-cash/composables/usePermissions'
 import TaskDataViewer from './TaskDataViewer.vue'
+import api from '@/plugins/axios'
 
 /**
  * Props interface for the TeamsTask component
@@ -583,6 +611,31 @@ const isEditMode = ref(false)
  * Modal state
  */
 const showAddTeamModal = ref(false)
+
+// Skip Task Logic
+const showSkipModal = ref(false)
+const skipReason = ref('')
+const isSkipping = ref(false)
+
+const handleSkipTask = async () => {
+    if (!skipReason.value.trim()) return
+    isSkipping.value = true
+    try {
+        await api.put(`/api/projects/tasks/${props.task.id}/status`, {
+            status: 'skipped',
+            notes: skipReason.value
+        })
+        emit('update-status', 'skipped')
+        showSkipModal.value = false
+        skipReason.value = ''
+        addFeedbackMessage('success', 'Task skipped successfully')
+    } catch (err: any) {
+        console.error('Skip task error:', err)
+        addFeedbackMessage('error', err.response?.data?.message || 'Failed to skip task')
+    } finally {
+        isSkipping.value = false
+    }
+}
 
 /**
  * Computed readonly state - readonly if prop is true OR (task is completed AND not in edit mode)

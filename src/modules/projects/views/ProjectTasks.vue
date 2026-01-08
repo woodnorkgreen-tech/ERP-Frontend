@@ -211,6 +211,7 @@
             <option value="pending">Pending</option>
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
+            <option value="skipped">Skipped</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -249,7 +250,7 @@
       <div v-else>
         <!-- Board View -->
         <div v-if="viewMode === 'board'" class="flex overflow-x-auto pb-8 gap-6 scroll-smooth custom-scrollbar">
-          <div v-for="status in ['pending', 'in_progress', 'completed', 'cancelled']" :key="status" class="flex-shrink-0 w-80">
+          <div v-for="status in ['pending', 'in_progress', 'completed', 'skipped', 'cancelled']" :key="status" class="flex-shrink-0 w-80">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-2">
                 <div :class="getBoardStatusColors(status).dot" class="w-1.5 h-1.5 rounded-full ring-2 ring-white dark:ring-slate-900"></div>
@@ -302,7 +303,7 @@
 
                 <div class="flex items-center gap-2 mb-3">
                   <span :class="getStatusBadgeClasses(task.status)" class="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border shadow-sm transition-all duration-300">
-                    {{ getStatusLabel(task.status) }}
+                    {{ task.status === 'skipped' && task.notes ? 'Skipped: ' + task.notes : getStatusLabel(task.status) }}
                   </span>
                   <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
                 </div>
@@ -388,7 +389,7 @@
             </div>
                 <div class="flex items-center gap-2 mb-3">
                   <span :class="getStatusBadgeClasses(task.status)" class="text-xs font-bold uppercase tracking-[0.1em] px-2.5 py-1 rounded-md border shadow-sm">
-                    {{ getStatusLabel(task.status) }}
+                    {{ task.status === 'skipped' && task.notes ? 'Skipped: ' + task.notes : getStatusLabel(task.status) }}
                   </span>
                   <div v-if="task.priority === 'urgent'" class="text-orange-600 dark:text-orange-400 text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-md border border-orange-200 dark:border-orange-900/50 bg-orange-50/50 shadow-sm">Urgent Priority</div>
                 </div>
@@ -482,7 +483,7 @@
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-2">
                        <span :class="getStatusBadgeClasses(task.status)" class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded border shadow-sm min-w-[100px] text-center">
-                         {{ getStatusLabel(task.status) }}
+                         {{ task.status === 'skipped' && task.notes ? 'Skipped: ' + task.notes : getStatusLabel(task.status) }}
                        </span>
                     </div>
                   </td>
@@ -1050,6 +1051,7 @@ const getStatusLabel = (status: string) => {
     'pending': 'Pending',
     'in_progress': 'In Progress',
     'completed': 'Completed',
+    'skipped': 'Skipped',
     'cancelled': 'Cancelled',
   }
   return labels[status] || status
@@ -1073,6 +1075,8 @@ const getStatusBadgeClasses = (status: string) => {
       return 'bg-amber-50 border-amber-200 text-amber-600 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400'
     case 'completed':
       return 'bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400'
+    case 'skipped':
+      return 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-400'
     case 'cancelled':
       return 'bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-900/20 dark:border-slate-800 dark:text-slate-400'
     default:
@@ -1148,6 +1152,7 @@ const getBoardStatusColors = (status: string) => {
     'pending': { dot: 'bg-yellow-400' },
     'in_progress': { dot: 'bg-blue-500' },
     'completed': { dot: 'bg-emerald-500' },
+    'skipped': { dot: 'bg-gray-500' },
     'cancelled': { dot: 'bg-red-500' },
   }
   return colors[status] || colors.pending

@@ -3,14 +3,23 @@
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
 
-      <!-- Task Completion Toggle -->
+      <!-- Task Status and Skip -->
       <div class="flex items-center space-x-3">
+        <!-- Skip Button -->
+        <button
+          v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled'"
+          @click="showSkipModal = true"
+          class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition-colors mr-2"
+        >
+          Skip Task
+        </button>
+
         <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
         <div class="flex items-center space-x-2">
-          <span :class="task.status === 'completed' ? 'text-green-600' : 'text-gray-500'" class="text-sm font-medium">
-            {{ task.status === 'completed' ? 'Completed' : 'In Progress' }}
+          <span :class="task.status === 'completed' ? 'text-green-600' : task.status === 'skipped' ? 'text-gray-600' : 'text-gray-500'" class="text-sm font-medium">
+            {{ task.status === 'completed' ? 'Completed' : task.status === 'skipped' ? 'Skipped' : 'In Progress' }}
           </span>
-          <label class="relative inline-flex items-center cursor-pointer">
+          <label v-if="task.status !== 'skipped'" class="relative inline-flex items-center cursor-pointer">
             <input
               v-model="isCompleted"
               type="checkbox"
@@ -705,6 +714,134 @@
           </p>
         </div>
       </div>
+      <!-- Tab 8: Analysis & Insights -->
+      <div v-if="activeTab === 'analysis'" class="space-y-6">
+        <div class="flex justify-between items-center mb-6">
+          <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+            <span>📊</span>
+            <span>Project Analysis & Insights</span>
+          </h4>
+          <button
+            @click="handleGenerateAnalysis"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            :disabled="loading || !formData.id"
+          >
+            <span v-if="loading" class="mr-2">...</span>
+            <span v-else class="mr-2">🔄</span>
+            Refresh Analysis
+          </button>
+        </div>
+
+        <div v-if="!formData.id" class="p-8 text-center text-gray-500 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+          <p>Please save the report first to generate analysis.</p>
+        </div>
+
+        <div v-else-if="!analysisResults && !loading" class="p-8 text-center text-gray-500 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+          <p>Click "Refresh Analysis" to generate insights based on the report data.</p>
+        </div>
+
+        <div v-else-if="analysisResults" class="space-y-6 animate-fade-in">
+          <!-- Summary Score Card -->
+          <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex justify-between items-center">
+              <div>
+                <h5 class="text-lg font-semibold opacity-90">Project Health Score</h5>
+                <p class="text-sm opacity-75 mt-1">Automated assessment based on performance metrics</p>
+              </div>
+              <div class="text-4xl font-bold bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                {{ analysisResults.summary_score }}/100
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Action Plan -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div class="bg-red-50 dark:bg-red-900/20 px-4 py-3 border-b border-red-100 dark:border-red-800/30 flex items-center">
+                <span class="text-red-600 dark:text-red-400 mr-2">⚡</span>
+                <h5 class="font-semibold text-gray-900 dark:text-white">Recommended Action Plan</h5>
+              </div>
+              <div class="p-4">
+                <ul v-if="analysisResults.action_plan.length > 0" class="space-y-2">
+                  <li v-for="(item, i) in analysisResults.action_plan" :key="i" class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                    <span class="mr-2 text-red-500">•</span>
+                    {{ item }}
+                  </li>
+                </ul>
+                <p v-else class="text-sm text-gray-500 italic">No immediate actions required.</p>
+              </div>
+            </div>
+
+            <!-- Root Causes -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div class="bg-orange-50 dark:bg-orange-900/20 px-4 py-3 border-b border-orange-100 dark:border-orange-800/30 flex items-center">
+                <span class="text-orange-600 dark:text-orange-400 mr-2">🔍</span>
+                <h5 class="font-semibold text-gray-900 dark:text-white">Identified Root Causes</h5>
+              </div>
+              <div class="p-4">
+                <ul v-if="analysisResults.root_causes.length > 0" class="space-y-2">
+                  <li v-for="(item, i) in analysisResults.root_causes" :key="i" class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                    <span class="mr-2 text-orange-500">•</span>
+                    {{ item }}
+                  </li>
+                </ul>
+                <p v-else class="text-sm text-gray-500 italic">No significant issues identified.</p>
+              </div>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div class="bg-green-50 dark:bg-green-900/20 px-4 py-3 border-b border-green-100 dark:border-green-800/30 flex items-center">
+                <span class="text-green-600 dark:text-green-400 mr-2">🌟</span>
+                <h5 class="font-semibold text-gray-900 dark:text-white">Best Practices & Wins</h5>
+              </div>
+              <div class="p-4">
+                <ul v-if="analysisResults.best_practices.length > 0" class="space-y-2">
+                  <li v-for="(item, i) in analysisResults.best_practices" :key="i" class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                    <span class="mr-2 text-green-500">✓</span>
+                    {{ item }}
+                  </li>
+                </ul>
+                <p v-else class="text-sm text-gray-500 italic">No specific highlights recorded.</p>
+              </div>
+            </div>
+
+            <!-- Lessons Learnt -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border-b border-blue-100 dark:border-blue-800/30 flex items-center">
+                <span class="text-blue-600 dark:text-blue-400 mr-2">💡</span>
+                <h5 class="font-semibold text-gray-900 dark:text-white">Lessons Learnt</h5>
+              </div>
+              <div class="p-4">
+                <ul v-if="analysisResults.lessons_learnt.length > 0" class="space-y-2">
+                  <li v-for="(item, i) in analysisResults.lessons_learnt" :key="i" class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                    <span class="mr-2 text-blue-500">•</span>
+                    {{ item }}
+                  </li>
+                </ul>
+                <p v-else class="text-sm text-gray-500 italic">No specific lessons recorded.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="bg-purple-50 dark:bg-purple-900/20 px-4 py-3 border-b border-purple-100 dark:border-purple-800/30 flex items-center">
+              <span class="text-purple-600 dark:text-purple-400 mr-2">🚀</span>
+              <h5 class="font-semibold text-gray-900 dark:text-white">Strategic Recommendations</h5>
+            </div>
+            <div class="p-4">
+              <ul v-if="analysisResults.recommendations.length > 0" class="space-y-2">
+                <li v-for="(item, i) in analysisResults.recommendations" :key="i" class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                  <span class="mr-2 text-purple-500">➔</span>
+                  <span class="whitespace-pre-line">{{ item }}</span>
+                </li>
+              </ul>
+              <p v-else class="text-sm text-gray-500 italic">No additional recommendations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -769,6 +906,24 @@
         </div>
       </div>
     </div>
+
+    <!-- Skip Task Modal -->
+    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Please provide a reason for skipping this task.</p>
+        <textarea
+            v-model="skipReason"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
+            placeholder="Reason for skipping..."
+        ></textarea>
+        <div class="flex justify-end space-x-3">
+            <button @click="showSkipModal = false" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
+            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -817,7 +972,7 @@ const emit = defineEmits<{
   'complete': []
 }>()
 
-const { loading, error, getReport, createReport, updateReport, autoPopulate, downloadPdf } = useArchivalReport()
+const { loading, error, getReport, createReport, updateReport, autoPopulate, downloadPdf, analyzeReport } = useArchivalReport()
 
 const activeTab = ref('project-info')
 const successMessage = ref('')
@@ -838,7 +993,8 @@ const tabs = [
   { id: 'handover', label: 'Client Handover', icon: '✅' },
   { id: 'setdown', label: 'Set-Down & Debrief', icon: '📥' },
   { id: 'attachments', label: 'Attachments', icon: '📎' },
-  { id: 'signatures', label: 'Signatures', icon: '✍️' }
+  { id: 'signatures', label: 'Signatures', icon: '✍️' },
+  { id: 'analysis', label: 'Analysis & Insights', icon: '📊' }
 ]
 
 const isCompleted = computed({
@@ -1268,6 +1424,31 @@ const loadArchivalReport = async () => {
   }
 }
 
+// Skip Task Logic
+const showSkipModal = ref(false)
+const skipReason = ref('')
+const isSkipping = ref(false)
+
+const handleSkipTask = async () => {
+    if (!skipReason.value.trim()) return
+    isSkipping.value = true
+    try {
+        await api.put(`/api/projects/tasks/${props.task.id}/status`, {
+            status: 'skipped',
+            notes: skipReason.value
+        })
+        emit('update-status', 'skipped')
+        showSkipModal.value = false
+        skipReason.value = ''
+        successMessage.value = 'Task skipped successfully'
+    } catch (err: any) {
+        console.error('Skip task error:', err)
+        errorMessage.value = err.response?.data?.message || 'Failed to skip task'
+    } finally {
+        isSkipping.value = false
+    }
+}
+
 const updateStatus = (status: EnquiryTask['status']) => {
   emit('update-status', status)
   if (status === 'completed') {
@@ -1421,6 +1602,20 @@ const addItemPlacement = () => {
 const removeItemPlacement = (index: number) => {
   if (formData.item_placements) {
     formData.item_placements.splice(index, 1)
+  }
+}
+
+const analysisResults = ref<any>(null)
+
+const handleGenerateAnalysis = async () => {
+  if (!formData.id) return
+  
+  try {
+    analysisResults.value = await analyzeReport(props.task.id, formData.id)
+    successMessage.value = 'Analysis generated successfully!'
+    setTimeout(() => successMessage.value = '', 3000)
+  } catch (err: any) {
+    errorMessage.value = error.value || 'Failed to generate analysis'
   }
 }
 

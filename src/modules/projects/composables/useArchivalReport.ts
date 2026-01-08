@@ -247,6 +247,21 @@ export function useArchivalReport() {
         }
     }
 
+    const analyzeReport = async (taskId: number, reportId: number): Promise<any> => {
+        loading.value = true
+        error.value = null
+
+        try {
+            const response = await api.get(`/api/projects/tasks/${taskId}/archival/${reportId}/analyze`)
+            return response.data.data
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Failed to analyze report'
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         error,
@@ -258,5 +273,6 @@ export function useArchivalReport() {
         autoPopulate,
         changeStatus,
         downloadPdf,
+        analyzeReport,
     }
 }

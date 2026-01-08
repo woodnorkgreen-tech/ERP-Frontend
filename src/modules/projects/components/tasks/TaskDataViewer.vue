@@ -17,6 +17,21 @@
       <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ error }}</p>
     </div>
 
+    <!-- Skipped State -->
+    <div v-else-if="task.status === 'skipped'" class="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div class="flex items-start space-x-3">
+        <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Task Skipped</h3>
+          <p class="mt-1 text-gray-600 dark:text-gray-400">
+             {{ task.notes || 'No reason provided.' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Data Display -->
     <div v-else-if="taskData" class="space-y-6">
       <!-- Task Header -->

@@ -6,7 +6,7 @@
       :is="taskComponent"
       :task="task"
       :initial-tab="initialTab"
-      :readonly="readonly || task.status === 'completed'"
+      :readonly="readonly || (task.status === 'completed' && task.type?.toLowerCase() !== 'quote')"
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"

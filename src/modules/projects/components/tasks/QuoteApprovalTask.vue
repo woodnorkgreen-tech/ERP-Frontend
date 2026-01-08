@@ -218,6 +218,13 @@
       <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex space-x-2">
           <button
+            v-if="task.status === 'pending' || task.status === 'in_progress'"
+            @click="showSkipModal = true"
+            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors mr-2"
+          >
+            Skip Task
+          </button>
+          <button
             v-if="task.status === 'pending'"
             @click="updateStatus('in_progress')"
             class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -272,6 +279,24 @@
         </div>
       </div>
     </form>
+    
+    <!-- Skip Task Modal -->
+    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">Please provide a reason for skipping this task.</p>
+        <textarea
+            v-model="skipReason"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
+            placeholder="Reason for skipping..."
+        ></textarea>
+        <div class="flex justify-end space-x-3">
+            <button @click="showSkipModal = false" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
+            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -298,6 +323,31 @@ const activeTab = ref(props.initialTab || 'quote')
 const isConverting = ref(false)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+
+// Skip Task Logic
+const showSkipModal = ref(false)
+const skipReason = ref('')
+const isSkipping = ref(false)
+
+const handleSkipTask = async () => {
+    if (!skipReason.value.trim()) return
+    isSkipping.value = true
+    try {
+        await axios.put(`/api/projects/tasks/${props.task.id}/status`, {
+            status: 'skipped',
+            notes: skipReason.value
+        })
+        emit('update-status', 'skipped')
+        showSkipModal.value = false
+        skipReason.value = ''
+        successMessage.value = 'Task skipped successfully'
+    } catch (err: any) {
+        console.error('Skip task error:', err)
+        error.value = err.response?.data?.message || 'Failed to skip task'
+    } finally {
+        isSkipping.value = false
+    }
+}
 const successMessage = ref<string | null>(null)
 
 const tabs = [

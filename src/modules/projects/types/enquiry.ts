@@ -75,7 +75,7 @@ export interface EnquiryTask {
   title: string;
   task_description?: string;
   type: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'skipped';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   estimated_hours?: number;
   actual_hours?: number;
