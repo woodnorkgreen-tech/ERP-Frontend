@@ -715,6 +715,8 @@ interface Props {
 interface Emits {
   /** Emitted when modal should be closed */
   'close': []
+  /** Emitted when changes are committed */
+  'save': [data: { descriptions: Record<string, string>, overrides: Record<string, any> }]
 }
 
 // Props and emits
@@ -778,9 +780,17 @@ const toggleDetailLevel = () => {
  * Toggle edit mode
  */
 const toggleEditMode = () => {
+  if (isEditMode.value) {
+    // Commit changes
+    emit('save', {
+      descriptions: { ...editableDescriptions.value },
+      overrides: { ...overrides.value }
+    })
+  }
+
   isEditMode.value = !isEditMode.value
 
-  // Initialize editable descriptions when entering edit mode
+  // Initialize editable descriptions when entering edit mode, if empty
   if (isEditMode.value && Object.keys(editableDescriptions.value).length === 0) {
     initializeEditableDescriptions()
   }
@@ -844,16 +854,30 @@ const initializeEditableDescriptions = () => {
   editableDescriptions.value['bank_swift'] = 'CBAFKENX'
   editableDescriptions.value['bank_paybill'] = '880100'
   editableDescriptions.value['bank_paybill_ac'] = '1002970089'
+  editableDescriptions.value['bank_paybill'] = '880100'
+  editableDescriptions.value['bank_paybill_ac'] = '1002970089'
+}
+
+// Load saved settings if available
+if (props.quoteData?.viewerSettings) {
+  if (props.quoteData.viewerSettings.descriptions) {
+    Object.assign(editableDescriptions.value, props.quoteData.viewerSettings.descriptions)
+  }
+  if (props.quoteData.viewerSettings.overrides) {
+    Object.assign(overrides.value, props.quoteData.viewerSettings.overrides)
+  }
 }
 
 /**
  * Get description (editable or default)
  */
 const getDescription = (elementId: string, element?: any): string => {
-  if (isEditMode.value && editableDescriptions.value[elementId]) {
+  // If we have an explicit description (edited or saved), use it
+  if (editableDescriptions.value[elementId]) {
     return editableDescriptions.value[elementId]
   }
-  return element ? getElementDescription(element) : editableDescriptions.value[elementId] || ''
+  // Otherwise fall back to generated description
+  return element ? getElementDescription(element) : ''
 }
 
 /**

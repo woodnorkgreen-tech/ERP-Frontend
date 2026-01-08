@@ -278,34 +278,13 @@
                       <span class="text-xs font-black uppercase tracking-widest">Assign</span>
                     </button>
 
-                    <div class="relative inline-block text-left group/menu">
-                      <button class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center">
-                        <i class="mdi mdi-dots-horizontal text-xl"></i>
-                      </button>
-                      
-                      <!-- Premium Dropdown Menu -->
-                      <div class="absolute right-0 bottom-full mb-3 w-64 opacity-0 invisible translate-y-2 group-hover/menu:opacity-100 group-hover/menu:visible group-hover/menu:translate-y-0 transition-all duration-300">
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 overflow-hidden backdrop-blur-xl">
-                          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
-                            <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Management Options</p>
-                          </div>
-                          
-                          <button @click="editEnquiry(enquiry)" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-all group/item">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
-                              <i class="mdi mdi-pencil-outline text-lg"></i>
-                            </div>
-                            <span>Edit Strategic Data</span>
-                          </button>
-
-                          <button @click="confirmDelete(enquiry)" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-red-500 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group/item">
-                            <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500">
-                              <i class="mdi mdi-trash-can-outline text-lg"></i>
-                            </div>
-                            <span>Purge Record</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <button 
+                      @click="(event) => toggleMenu(event, enquiry)"
+                      class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center transform active:scale-95"
+                      :class="{ 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white': activeMenuEnquiry?.id === enquiry.id }"
+                    >
+                      <i class="mdi mdi-dots-horizontal text-xl"></i>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -1091,6 +1070,49 @@
       @edit="handleEditFromSlideOver"
     />
 
+    <!-- Teleported Floating Action Menu -->
+    <Teleport to="body">
+      <div v-if="activeMenuEnquiry" class="fixed inset-0 z-[9999] bg-transparent" @click="activeMenuEnquiry = null"></div>
+      
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0"
+      >
+        <div 
+          v-if="activeMenuEnquiry" 
+          :style="{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }" 
+          class="fixed z-[10000] w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 backdrop-blur-xl origin-top-right"
+        >
+          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Management Options</p>
+          </div>
+          
+          <button 
+            @click="editEnquiry(activeMenuEnquiry); activeMenuEnquiry = null" 
+            class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-all group/item"
+          >
+            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover/item:scale-110 transition-transform">
+              <i class="mdi mdi-pencil-outline text-lg"></i>
+            </div>
+            <span>Edit Strategic Data</span>
+          </button>
+
+          <button 
+            @click="confirmDelete(activeMenuEnquiry); activeMenuEnquiry = null" 
+            class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-red-500 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group/item"
+          >
+            <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 group-hover/item:scale-110 transition-transform">
+              <i class="mdi mdi-trash-can-outline text-lg"></i>
+            </div>
+            <span>Purge Record</span>
+          </button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -1162,6 +1184,41 @@ const showDetailSlideOver = ref(false)
 
 // Available Project Officers
 const availableProjectOfficers = ref<Array<{id: number, name: string, email: string}>>([])
+
+// Floating Menu State
+const activeMenuEnquiry = ref<ProjectEnquiry | null>(null)
+const menuPosition = ref({ top: 0, left: 0 })
+
+const toggleMenu = (event: MouseEvent, enquiry: ProjectEnquiry) => {
+  if (activeMenuEnquiry.value?.id === enquiry.id) {
+    activeMenuEnquiry.value = null
+    return
+  }
+  
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  
+  // Calculate best position (defaulting to bottom-left aligned with button's right edge, to keep inside viewport usually)
+  // Check if close to bottom of screen
+  const spaceBelow = window.innerHeight - rect.bottom
+  const menuHeight = 160 // Approx height
+  
+  if (spaceBelow < menuHeight) {
+     // Pop Up
+     menuPosition.value = {
+      top: rect.top - menuHeight + 10,
+      left: rect.right - 256 // w-64 is 256px
+    }
+  } else {
+    // Pop Down
+     menuPosition.value = {
+      top: rect.bottom + 8,
+      left: rect.right - 256
+    }
+  }
+  
+  activeMenuEnquiry.value = enquiry
+}
 
 // Logistics Entry Type
 interface LogisticsEntry {

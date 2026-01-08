@@ -247,7 +247,7 @@
               <table class="w-full text-sm">
                 <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
                   <tr>
-                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Strategic Asset</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Item</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Qty</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Timeline (Days)</th>
@@ -277,7 +277,6 @@
                     <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td class="py-3 px-4 pl-8">
                         <div class="flex items-center space-x-2">
-                          <span class="text-sm text-gray-600 dark:text-gray-300">{{ material.description }}</span>
                           <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
                         </div>
                       </td>
@@ -336,7 +335,7 @@
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
                 <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
                   <tr>
-                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Labour Type</th>
+                    <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Labour Item</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Qty</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Base Rate</th>
@@ -349,7 +348,6 @@
                 <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
-                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ labour.type }}</span>
                       <span v-if="labour.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
@@ -409,7 +407,6 @@
                 <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
-                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ expense.description }}</span>
                       <span v-if="expense.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
@@ -470,7 +467,6 @@
                 <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-2">
-                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logistics.description }}</span>
                       <span v-if="logistics.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
@@ -818,8 +814,9 @@
       v-else
       :is-visible="showQuoteViewer"
       :quote-data="quoteData"
-      :readonly="task.status === 'cancelled' || readonly"
+      :readonly="readonly"
       @close="closeQuoteViewer"
+      @save="handleQuoteViewerSave"
     />
 
     <!-- Shared Modals (Always available) -->
@@ -1148,6 +1145,11 @@ interface QuoteData {
   createdAt: Date
   /** Last update timestamp */
   updatedAt: Date
+  /** Viewer settings (overrides, descriptions) */
+  viewerSettings?: {
+    descriptions: Record<string, string>
+    overrides: Record<string, any>
+  }
 }
 
 // Props and emits
@@ -1369,7 +1371,11 @@ const quoteData = reactive<QuoteData>({
   totals: initializeTotals(),
   status: 'draft',
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
+  viewerSettings: {
+    descriptions: {},
+    overrides: {}
+  }
 })
 
 // Auto-save functionality
@@ -1919,6 +1925,15 @@ const loadExistingQuote = async () => {
   }
 }
 
+// Handle save from QuoteViewer
+const handleQuoteViewerSave = async (data: { descriptions: Record<string, string>, overrides: Record<string, any> }) => {
+  if (!quoteData.viewerSettings) {
+    quoteData.viewerSettings = { descriptions: {}, overrides: {} }
+  }
+  Object.assign(quoteData.viewerSettings, data)
+  await saveQuote()
+}
+
 // Save quote data (exposed for external use)
 const saveQuote = async () => {
   // Prevent modification if approved
@@ -1940,7 +1955,8 @@ const saveQuote = async () => {
       vatPercentage: quoteData.vatPercentage,
       vatEnabled: quoteData.vatEnabled,
       totals: quoteData.totals,
-      status: quoteData.status
+      status: quoteData.status,
+      viewerSettings: quoteData.viewerSettings
     })
 
     quoteData.updatedAt = new Date()
@@ -2004,3 +2020,4 @@ defineExpose({
 <style scoped>
 /* Component-specific styles will be added as needed */
 </style>
+
