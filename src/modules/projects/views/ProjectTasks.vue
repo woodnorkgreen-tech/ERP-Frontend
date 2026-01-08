@@ -34,39 +34,7 @@
           </p>
         </div>
         
-        <div class="flex flex-wrap items-center gap-4">
-          <router-link 
-            v-if="enquiryId" 
-            to="/projects/enquiries" 
-            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] text-white border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center gap-3 group"
-          >
-            <i class="mdi mdi-arrow-left transition-transform group-hover:-translate-x-1"></i>
-            <span>Back</span>
-          </router-link>
-
-          <button
-            @click="toggleTaskView"
-            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] transition-all border flex items-center gap-3"
-            :class="showAllTasks 
-              ? 'bg-blue-500/20 text-blue-400 border-blue-500/20 shadow-lg shadow-blue-500/10' 
-              : 'bg-white/5 text-slate-400 border-white/5 hover:bg-white/10'"
-          >
-            <i class="mdi shadow-sm" :class="showAllTasks ? 'mdi-account-group' : 'mdi-account-circle'"></i>
-            {{ showAllTasks ? 'Team View' : 'My Tasks' }}
-          </button>
-
-          <div class="flex bg-white/5 backdrop-blur-md rounded-2xl p-1 border border-white/10">
-            <button
-              v-for="mode in (['board', 'grid', 'table'] as const)"
-              :key="mode"
-              @click="viewMode = mode"
-              :class="viewMode === mode ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400 hover:text-white'"
-              class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
-            >
-              {{ mode }}
-            </button>
-          </div>
-        </div>
+        
       </div>
     </div>
 
@@ -231,6 +199,40 @@
         </div>
       </div>
     </div>
+
+    <div class="flex flex-wrap items-center gap-4">
+          <router-link 
+            v-if="enquiryId" 
+            to="/projects/enquiries" 
+            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] text-white border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center gap-3 group"
+          >
+            <i class="mdi mdi-arrow-left transition-transform group-hover:-translate-x-1"></i>
+            <span>Back</span>
+          </router-link>
+
+          <button
+            @click="toggleTaskView"
+            class="h-14 px-6 rounded-2xl font-bold text-sm uppercase tracking-[0.2em] transition-all border flex items-center gap-3"
+            :class="showAllTasks 
+              ? 'bg-blue-500/20 text-blue-400 border-blue-500/20 shadow-lg shadow-blue-500/10' 
+              : 'bg-white/5 text-slate-400 border-white/5 hover:bg-white/10'"
+          >
+            <i class="mdi shadow-sm" :class="showAllTasks ? 'mdi-account-group' : 'mdi-account-circle'"></i>
+            {{ showAllTasks ? 'Team View' : 'My Tasks' }}
+          </button>
+
+          <div class="flex bg-white/5 backdrop-blur-md rounded-2xl p-1 border border-white/10">
+            <button
+              v-for="mode in (['board', 'grid', 'table'] as const)"
+              :key="mode"
+              @click="viewMode = mode"
+              :class="viewMode === mode ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400 hover:text-white'"
+              class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+            >
+              {{ mode }}
+            </button>
+          </div>
+        </div>
     <!-- Dynamic View Containers -->
     <div class="min-h-[400px]">
       <div v-if="loading" class="flex flex-col items-center justify-center py-24">

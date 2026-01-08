@@ -202,7 +202,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs font-bold w-full"
                       />
                     </div>
-                    <div v-if="!isEditMode" class="text-gray-600">{{ getDescription(element.id, element) }}</div>
+                    <div v-if="!isEditMode && getDescription(element.id, element)" class="text-gray-600">{{ getDescription(element.id, element) }}</div>
                     <textarea
                       v-else
                       v-model="editableDescriptions[element.id]"
@@ -240,7 +240,10 @@
                   <tr class="bg-gray-100 border-b border-gray-300">
                     <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
                     <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
-                      <div v-if="!isEditMode">{{ element.name }} - {{ getDescription(element.id, element) }}</div>
+                      <div v-if="!isEditMode">
+                        {{ element.name }}
+                        <span v-if="getDescription(element.id, element)"> - {{ getDescription(element.id, element) }}</span>
+                      </div>
                       <div v-else class="flex items-center space-x-2">
                         <span>{{ element.name }} - </span>
                         <input
@@ -1007,34 +1010,7 @@ const formatCurrency = (amount: number): string => {
  * Get element description for client view
  */
 const getElementDescription = (element: any): string => {
-  const materialCount = element.materials.length
-  const descriptions = [
-    'Professional grade materials and components',
-    'Complete setup and configuration included',
-    `Includes ${materialCount} specialized components`
-  ]
-
-  // Return a relevant description based on element type
-  switch (element.templateId) {
-    case 'stage':
-      return 'Modular stage platform system with professional-grade components'
-    case 'backdrop':
-      return 'Custom backdrop system with premium fabric and mounting hardware'
-    case 'lighting':
-      return 'Professional lighting system with LED fixtures and control equipment'
-    case 'sound':
-      return 'Audio system with speakers, amplifiers and mixing equipment'
-    case 'furniture':
-      return 'Event furniture and seating arrangements'
-    case 'decoration':
-      return 'Decorative elements and styling components'
-    case 'catering':
-      return 'Catering equipment and service items'
-    case 'security':
-      return 'Security and safety equipment'
-    default:
-      return descriptions[Math.floor(Math.random() * descriptions.length)]
-  }
+  return ''
 }
 
 /**
