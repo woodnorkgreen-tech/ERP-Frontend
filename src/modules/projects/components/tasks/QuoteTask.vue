@@ -116,7 +116,7 @@
 
       <button
         @click="saveQuote({ isManual: true })"
-        :disabled="isSavingQuote || quoteData.status === 'approved'"
+        :disabled="isSavingQuote"
         class="relative overflow-hidden px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-black/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 flex items-center gap-2 group"
       >
         <div v-if="isSavingQuote" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -316,7 +316,12 @@
                     <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                       <td colspan="8" class="py-2 px-4">
                         <div class="flex items-center justify-between">
-                          <span class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{{ element.name }}</span>
+                          <input 
+                            v-model="element.name" 
+                            @input="markDirty()"
+                            :readonly="props.readonly"
+                            class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm flex-1 mr-4"
+                          >
                           <div class="flex items-center gap-4">
                             <div class="flex items-center bg-white/50 dark:bg-gray-800/50 rounded-lg px-2 py-1 border border-gray-100 dark:border-gray-700">
                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mr-2">Qty:</span>
@@ -324,20 +329,22 @@
                                  type="number" 
                                  v-model.number="element.quantity" 
                                  min="1"
+                                 :readonly="props.readonly"
                                  @input="updateMaterialElementTotals(); calculateAllTotals(); markDirty()"
-                                 class="w-12 px-1 py-0.5 text-xs text-center border-none bg-transparent focus:ring-0 font-bold text-blue-600"
+                                 class="w-12 px-1 py-0.5 text-xs text-center border-none bg-transparent focus:ring-0 font-bold text-blue-600 disabled:opacity-50"
                                >
                             </div>
                             <span class="text-xs text-gray-500 dark:text-gray-400">
-                              {{ element.materials.length }} items | 
-                              Base: {{ formatCurrency(element.baseTotal) }} → 
-                              Final: {{ formatCurrency(element.finalTotal) }}
+                              {{ (element.materials || []).length }} items | 
+                              Base: {{ formatCurrency(element.baseTotal || 0) }} → 
+                              Final: {{ formatCurrency(element.finalTotal || 0) }}
                             </span>
                           </div>
                         </div>
                         <input 
                           type="text" 
                           v-model="element.description" 
+                          :readonly="props.readonly"
                           @input="markDirty()"
                           placeholder="Add description for this element (e.g. 'Main stage structure and support')..."
                           class="mt-1 w-full text-xs text-gray-600 dark:text-gray-300 bg-transparent border-0 border-b border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-0 px-0 placeholder-gray-400 transition-colors"
@@ -938,7 +945,7 @@
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled'"
           @click="handleSubmit"
-          :disabled="isSavingQuote || quoteData.status === 'approved'"
+          :disabled="isSavingQuote"
           class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 group disabled:opacity-50"
         >
           <div v-if="isSavingQuote" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -1669,6 +1676,7 @@ const autoSaveQuote = async () => {
   
   // Set new timeout to save after 2 seconds of inactivity
   autoSaveTimeout.value = setTimeout(async () => {
+    console.log('[Quote Autosave] Debounce completed, checking state...')
     // If already saving, queue a pending request and exit
     if (isSavingQuote.value) {
       console.log('Save already in progress, queuing pending request')
@@ -1676,7 +1684,7 @@ const autoSaveQuote = async () => {
       return
     }
 
-    if (!quoteData.budgetImported || isPreviewingVersion.value || quoteData.status === 'approved') {
+    if (!quoteData.budgetImported || isPreviewingVersion.value) {
       return 
     }
     
@@ -1911,13 +1919,25 @@ const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExp
  * Update material element totals based on individual material margins
  */
 const updateMaterialElementTotals = () => {
+  if (!quoteData.materials) return
+  
   quoteData.materials.forEach(element => {
     // Ensure quantity is at least 1
-    if (!element.quantity || element.quantity < 1) element.quantity = 1
+    if (element.quantity === undefined || element.quantity === null || element.quantity < 1) {
+      element.quantity = 1
+    }
+    
+    // Ensure description is at least empty string
+    if (element.description === undefined || element.description === null) {
+      element.description = ''
+    }
+
+    // Ensure materials array exists
+    if (!element.materials) element.materials = []
     
     // Sum of individual items
-    const sumBase = element.materials.reduce((sum, material) => sum + material.totalPrice, 0)
-    const sumMargin = element.materials.reduce((sum, material) => sum + material.marginAmount, 0)
+    const sumBase = element.materials.reduce((sum, material) => sum + (material.totalPrice || 0), 0)
+    const sumMargin = element.materials.reduce((sum, material) => sum + (material.marginAmount || 0), 0)
     
     // Apply element quantity multiplier
     element.baseTotal = sumBase * element.quantity
@@ -2025,10 +2045,12 @@ const closeQuoteViewer = () => {
  * Fetch budget data from the backend API
  */
 const fetchBudgetData = async (options = { showLoading: false, skipIfExists: false }) => {
-  // Prevent modification if approved
+  // No longer blocking budget fetch if approved as per user request
+  /*
   if (quoteData.status === 'approved') {
     return
   }
+  */
 
   // Skip if budget is already imported and we want to skip
   if (options.skipIfExists && quoteData.budgetImported) {
@@ -2077,6 +2099,9 @@ const fetchBudgetData = async (options = { showLoading: false, skipIfExists: fal
  * Calculate all quote totals based on individual item margins
  */
 const calculateAllTotals = () => {
+  // Ensure element-level quantity multipliers are applied first
+  updateMaterialElementTotals()
+
   // Helper function to round to 2 decimal places
   const roundCurrency = (amount: number): number => Math.round(amount * 100) / 100
 
@@ -2216,6 +2241,48 @@ const loadExistingQuote = async () => {
   }
 }
 
+// Prepare structured payload for backend to ensure consistency
+const prepareQuotePayload = () => {
+  const payload = {
+    projectInfo: quoteData.projectInfo,
+    budgetImported: quoteData.budgetImported,
+    materials: (quoteData.materials || []).map(el => ({
+      ...el,
+      id: el.id,
+      name: el.name,
+      description: el.description || '',
+      quantity: typeof el.quantity === 'number' ? el.quantity : 1,
+      materials: (el.materials || []).map(m => ({ ...m }))
+    })),
+    labour: (quoteData.labour || []).map(item => ({ ...item })),
+    expenses: (quoteData.expenses || []).map(item => ({ ...item })),
+    logistics: (quoteData.logistics || []).map(item => ({ ...item })),
+    margins: quoteData.margins,
+    customMargins: quoteData.customMargins || {},
+    discountAmount: quoteData.discountAmount || 0,
+    vatPercentage: quoteData.vatPercentage || 16,
+    vatEnabled: quoteData.vatEnabled ?? true,
+    totals: quoteData.totals,
+    status: quoteData.status,
+    viewerSettings: quoteData.viewerSettings || { descriptions: {}, overrides: {} }
+  }
+
+  console.log('[Quote Payload] Structured payload ready:', {
+    materialsCount: payload.materials.length,
+    labourCount: payload.labour.length,
+    expensesCount: payload.expenses.length,
+    logisticsCount: payload.logistics.length,
+    grandTotal: payload.totals.grandTotal
+  })
+
+  // Log descriptions for validation
+  if (payload.materials.length > 0) {
+    console.log('[Quote Validation] Element Descriptions:', payload.materials.map(m => ({ name: m.name, desc: m.description, qty: m.quantity })))
+  }
+
+  return payload
+}
+
 // Handle save from QuoteViewer
 const handleQuoteViewerSave = async (data: { descriptions: Record<string, string>, overrides: Record<string, any> }) => {
   if (!quoteData.viewerSettings) {
@@ -2227,30 +2294,23 @@ const handleQuoteViewerSave = async (data: { descriptions: Record<string, string
 
 // Save quote data (exposed for external use)
 const saveQuote = async (options: { isManual?: boolean, isSubmit?: boolean } = { isManual: false }) => {
-  // Prevent modification if approved
+  // No longer blocking save if approved as per user request
+  /*
   if (quoteData.status === 'approved' && !options.isSubmit) {
     console.log('Quote is approved and cannot be modified.')
     return
   }
+  */
 
   isSavingQuote.value = true
   try {
     console.log(`Starting ${options.isManual ? 'MANUAL' : 'AUTO'} save for taskId: ${props.task.id}`)
-    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote`, {
-      projectInfo: quoteData.projectInfo,
-      budgetImported: quoteData.budgetImported,
-      materials: quoteData.materials,
-      labour: quoteData.labour,
-      expenses: quoteData.expenses,
-      logistics: quoteData.logistics,
-      margins: quoteData.margins,
-      discountAmount: quoteData.discountAmount,
-      vatPercentage: quoteData.vatPercentage,
-      vatEnabled: quoteData.vatEnabled,
-      totals: quoteData.totals,
-      status: quoteData.status,
-      viewerSettings: quoteData.viewerSettings
-    })
+    
+    // Prepare the sanitized payload
+    const payload = prepareQuotePayload()
+    
+    console.log('[Quote API] Sending POST request to:', `/api/projects/tasks/${props.task.id}/quote`)
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote`, payload)
 
     if (response.data?.data?.id) {
       quoteData.id = response.data.data.id
@@ -2259,7 +2319,11 @@ const saveQuote = async (options: { isManual?: boolean, isSubmit?: boolean } = {
     quoteData.updatedAt = new Date()
     lastSavedAt.value = new Date()
     hasUnsavedChanges.value = false
-    console.log('Quote saved successfully!')
+    console.log('[Quote API] Save SUCCESS:', {
+      id: response.data?.data?.id,
+      message: response.data?.message,
+      timestamp: new Date().toLocaleTimeString()
+    })
 
     if (options.isManual) {
       toast.add({
