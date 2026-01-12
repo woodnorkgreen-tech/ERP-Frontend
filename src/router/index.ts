@@ -26,6 +26,12 @@ const routes: RouteRecordRaw[] = [
 
   // Public Routes
   {
+    path: '/leads/new',
+    name: 'public-lead-capture',
+    component: () => import('../views/public/PublicLeadForm.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
     path: '/handover/:token',
     name: 'client-handover',
     component: () => import('../views/public/ClientHandoverView.vue'),

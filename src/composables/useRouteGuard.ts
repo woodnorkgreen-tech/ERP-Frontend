@@ -285,6 +285,7 @@ export function useRouteGuard() {
           routes: [
             { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: 'mdi-monitor-dashboard' },
             { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: 'mdi-account-multiple' },
+            { name: 'client-service-leads', path: '/client-service/leads', label: 'Public Leads', icon: 'mdi-magnet' },
             { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: 'mdi-fountain-pen-tip' }
           ]
         },
@@ -353,6 +354,7 @@ export function useRouteGuard() {
       routes.push(
         { name: 'client-service-dashboard', path: '/client-service', label: 'Client Service Dashboard', icon: 'mdi-monitor-dashboard' },
         { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: 'mdi-account-multiple' },
+        { name: 'client-service-leads', path: '/client-service/leads', label: 'Public Leads', icon: 'mdi-magnet' },
         { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: 'mdi-fountain-pen-tip' }
       )
     }

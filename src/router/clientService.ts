@@ -35,6 +35,12 @@ export const clientServiceRoutes: RouteRecordRaw[] = [
         },
         meta: { title: 'Enquiry Management' }
       },
+      {
+        path: 'leads',
+        name: 'client-service-leads',
+        component: () => import('../modules/clientService/views/LeadCaptureManagement.vue'),
+        meta: { title: 'Lead Capture Management' }
+      },
     ],
   },
 ]

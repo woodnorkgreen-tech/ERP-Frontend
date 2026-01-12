@@ -2094,5 +2094,15 @@ onMounted(async () => {
   await fetchClients()
   await fetchAvailableProjectOfficers()
   await fetchLogisticsDrivers()
+
+  // Handle direct ID navigation from external links (like from Lead Capture panel)
+  const queryId = router.currentRoute.value.query.id
+  if (queryId) {
+    const enquiryId = parseInt(queryId as string)
+    const target = enquiries.value.find(e => e.id === enquiryId)
+    if (target) {
+      viewEnquiryDetails(target)
+    }
+  }
 })
 </script>
