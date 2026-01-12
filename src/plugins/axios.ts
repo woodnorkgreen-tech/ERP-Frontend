@@ -68,6 +68,11 @@ api.interceptors.response.use(
       console.log('401 Unauthorized - clearing auth token');
       removeAuthToken();
 
+      // Don't redirect if the request was to a public endpoint
+      if (error.config?.url?.includes('/public/')) {
+        return Promise.reject(error);
+      }
+
       // Redirect to login using correct base path
       const basePath = (import.meta as any).env.BASE_URL || '/';
       // Ensure we don't double slash if base ends with / and path starts with /

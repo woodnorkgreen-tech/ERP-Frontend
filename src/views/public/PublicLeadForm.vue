@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/plugins/axios'
 
 interface Service {
   id: number
@@ -148,7 +148,7 @@ const submitted = ref(false)
 
 const fetchServices = async () => {
   try {
-    const res = await axios.get('/api/public/services')
+    const res = await api.get('/api/public/services')
     services.value = res.data
   } catch (err) {
     console.error('Failed to fetch services:', err)
@@ -164,7 +164,7 @@ const submitLead = async () => {
       form.value.source = urlParams.get('source') as string
     }
 
-    await axios.post('/api/public/leads', form.value)
+    await api.post('/api/public/leads', form.value)
     submitted.value = true
   } catch (err: any) {
     console.error('Lead submission failed:', err)

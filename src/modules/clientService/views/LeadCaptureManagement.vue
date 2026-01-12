@@ -98,16 +98,19 @@
               <td class="px-8 py-6">
                 <div class="flex items-center gap-4">
                   <div class="h-12 w-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-lg shadow-sm">
-                    {{ (lead.client?.full_name || lead.client?.FullName || 'A').charAt(0) }}
+                    {{ (lead.full_name || 'A').charAt(0) }}
                   </div>
                   <div>
                     <div class="text-sm font-black text-slate-900 dark:text-white tracking-tight">
-                      {{ lead.client?.full_name || lead.client?.FullName || 'Anonymous Lead' }}
+                      {{ lead.full_name }}
                     </div>
                     <div class="flex items-center gap-2 mt-1">
-                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ lead.client?.phone || 'No Phone' }}</span>
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ lead.phone || 'No Phone' }}</span>
                       <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest lowercase">{{ lead.client?.email || 'no-email' }}</span>
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest lowercase">{{ lead.email || 'no-email' }}</span>
+                    </div>
+                    <div v-if="lead.company_name" class="text-[9px] font-medium text-slate-400 mt-0.5">
+                      {{ lead.company_name }}
                     </div>
                   </div>
                 </div>
@@ -115,10 +118,10 @@
               <td class="px-8 py-6">
                 <div class="max-w-xs transition-all">
                   <div class="text-xs font-bold text-slate-700 dark:text-slate-300 line-clamp-1 group-hover:line-clamp-none transition-all">
-                    {{ lead.title }}
+                    {{ lead.source?.toUpperCase() || 'DIRECT CAPTURE' }}
                   </div>
                   <div class="text-[10px] text-slate-400 mt-1 line-clamp-1 italic">
-                    "{{ lead.description || 'No description provided' }}"
+                    "{{ lead.description || 'No specific details provided' }}"
                   </div>
                 </div>
               </td>
@@ -173,7 +176,7 @@ const loading = ref(false)
 
 // Lead Sharing
 const showShareModal = ref(false)
-const leadFormUrl = ref(`${window.location.origin}/leads/new?source=lead_management`)
+const leadFormUrl = ref(`${window.location.origin}/erp/leads/new?source=lead_management`)
 
 const copyLink = () => {
   navigator.clipboard.writeText(leadFormUrl.value)
@@ -182,21 +185,8 @@ const copyLink = () => {
 const fetchLeads = async () => {
   loading.value = true
   try {
-    // We fetch enquiries and specifically filter for those with lead sources
-    // In a real app we might have a dedicated endpoint but filtering enquiries works perfectly
-    const response = await api.get('/api/clientservice/enquiries')
-    const allEnquiries = response.data.data.data || response.data.data || []
-    
-    // Filter for enquiries where the client has a lead source like Public Form or Social Media
-    // Also include enquiries with 'client_registered' status as these are typically initial leads
-    leads.value = allEnquiries.filter((e: any) => {
-      const source = (e.client?.lead_source || '').toLowerCase()
-      return source.includes('public') || source.includes('social') || source.includes('dashboard') || e.status === 'client_registered'
-    })
-
-    // Sort by latest first
-    leads.value.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    
+    const response = await api.get('/api/clientservice/leads')
+    leads.value = response.data.data || []
   } catch (err) {
     console.error('Failed to fetch leads:', err)
   } finally {
@@ -206,30 +196,47 @@ const fetchLeads = async () => {
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    'client_registered': 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-    'enquiry_logged': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    'cancelled': 'bg-red-500/10 text-red-500 border-red-500/20'
+    'new': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    'processed': 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+    'ignored': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+    'archived': 'bg-orange-500/10 text-orange-500 border-orange-500/20'
   }
   return colors[status] || 'bg-slate-500/10 text-slate-500 border-slate-500/20'
 }
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    'client_registered': 'New Captive',
-    'enquiry_logged': 'Logged',
-    'cancelled': 'Rejected'
+    'new': 'Unprocessed',
+    'processed': 'Converted',
+    'ignored': 'Rejected',
+    'archived': 'Archived'
   }
-  return labels[status] || status.replace(/_/g, ' ')
+  return labels[status] || status.toUpperCase()
 }
 
 const viewLead = (lead: any) => {
-  // Navigate to enquiries management with this lead
-  router.push(`/client-service/enquiries?id=${lead.id}`)
+  if (lead.status === 'processed' && lead.converted_enquiry_id) {
+    router.push(`/client-service/enquiries?id=${lead.converted_enquiry_id}`)
+  } else {
+    // Show a modal with more info? For now just alert or log
+    console.log('Lead Details:', lead)
+  }
 }
 
-const processLead = (lead: any) => {
-  // Direct jump to process the lead
-  router.push(`/client-service/enquiries?id=${lead.id}&action=process`)
+const processLead = async (lead: any) => {
+  if (lead.status === 'processed' && lead.converted_enquiry_id) {
+    router.push(`/client-service/enquiries?id=${lead.converted_enquiry_id}&action=process`)
+    return
+  }
+
+  // If new, convert it first
+  try {
+    const res = await api.post(`/api/clientservice/leads/${lead.id}/convert`)
+    // After conversion, go to the enquiry
+    router.push(`/client-service/enquiries?id=${res.data.enquiry.id}&action=process`)
+  } catch (err) {
+    console.error('Failed to convert lead:', err)
+  }
 }
 
 onMounted(() => {

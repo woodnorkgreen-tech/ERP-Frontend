@@ -14,17 +14,7 @@ import procurementStoresRoutes from '@/modules/procurement-stores/routes'
 
 // Combine all routes
 const routes: RouteRecordRaw[] = [
-  ...mainRoutes,
-  ...adminRoutes,
-  ...hrRoutes,
-  ...projectsRoutes,
-  ...clientServiceRoutes,
-
-  ...financeRoutes,
-  ...materialsLibraryRoutes,
-  ...procurementStoresRoutes,
-
-  // Public Routes
+  // Public Routes (Prioritized to avoid auth-guards redirecting them)
   {
     path: '/leads/new',
     name: 'public-lead-capture',
@@ -36,7 +26,17 @@ const routes: RouteRecordRaw[] = [
     name: 'client-handover',
     component: () => import('../views/public/ClientHandoverView.vue'),
     meta: { requiresAuth: false }
-  }
+  },
+
+  ...mainRoutes,
+  ...adminRoutes,
+  ...hrRoutes,
+  ...projectsRoutes,
+  ...clientServiceRoutes,
+
+  ...financeRoutes,
+  ...materialsLibraryRoutes,
+  ...procurementStoresRoutes,
 ]
 
 const router = createRouter({
