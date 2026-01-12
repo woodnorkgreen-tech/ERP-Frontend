@@ -1265,7 +1265,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
-const filters = ref({ search: '', status: '', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false })
+const filters = ref({ search: '', status: '', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -1512,6 +1512,11 @@ const applyFilters = () => {
   fetchEnquiries({ ...filters.value, page: 1 }) // Reset to page 1 when applying filters
 }
 
+watch(currentView, (newValue) => {
+  filters.value.view = newValue
+  applyFilters()
+})
+
 // Automatic filtering with debounce
 let debounceTimer: any = null
 watch(filters, () => {
@@ -1523,7 +1528,7 @@ watch(filters, () => {
 }, { deep: true })
 
 const handlePageChange = async (page: number) => {
-  await goToPage(page)
+  await fetchEnquiries({ ...filters.value, page })
 }
 
 const editEnquiry = (enquiry: ProjectEnquiry) => {

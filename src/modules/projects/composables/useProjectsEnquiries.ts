@@ -24,6 +24,7 @@ export function useProjectsEnquiries() {
     sort_by?: string;
     sort_order?: string;
     assigned_to_me?: boolean;
+    view?: string;
   }) => {
     loading.value = true
     error.value = null
