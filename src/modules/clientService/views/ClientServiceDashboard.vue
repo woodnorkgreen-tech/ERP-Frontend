@@ -7,14 +7,11 @@
       
       <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
         <div>
-          <span class="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-black uppercase tracking-[0.2em] text-blue-400 mb-4">
-            Intelligence Engine
-          </span>
           <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
-            Client Service <span class="text-blue-500">&</span> Marketing
+            Client Services
           </h1>
           <p class="text-slate-400 max-w-xl text-lg font-medium leading-relaxed">
-            Welcome back. Monitor your sales pipeline, track high-priority enquiries, and manage client relations through our centralized deployment hub.
+            Manage your clients, enquiries, and sales pipeline.
           </p>
         </div>
         
@@ -25,7 +22,7 @@
           </button>
           <button @click="router.push('/client-service/clients')" class="flex items-center gap-3 px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl border border-slate-700 transition-all font-bold text-sm">
             <i class="mdi mdi-account-plus-outline text-xl"></i>
-            REGISTER CLIENT
+            ADD CLIENT
           </button>
         </div>
       </div>
@@ -42,7 +39,7 @@
           <span class="text-xs font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">+{{ (totalClients * 0.05).toFixed(0) }} NEW</span>
         </div>
         <div class="space-y-1">
-          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Partnership Base</span>
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Clients</span>
           <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalClients }}</p>
         </div>
       </div>
@@ -56,7 +53,7 @@
           <span class="text-xs font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">ACTIVE</span>
         </div>
         <div class="space-y-1">
-          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Live Deployments</span>
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Active Projects</span>
           <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ projectsStore.activeProjects.length }}</p>
         </div>
       </div>
@@ -70,7 +67,7 @@
           <span class="text-xs font-black text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-500/20">PENDING</span>
         </div>
         <div class="space-y-1">
-          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">New Service Requests</span>
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">New Enquiries</span>
           <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ newEnquiries.length }}</p>
         </div>
       </div>
@@ -81,10 +78,10 @@
           <div class="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-2xl text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
             <i class="mdi mdi-trending-up text-2xl"></i>
           </div>
-          <span class="text-xs font-black text-purple-500 bg-purple-500/10 px-2.5 py-1.5 rounded-lg border border-purple-500/20">MARKET SHARE</span>
+          <span class="text-xs font-black text-purple-500 bg-purple-500/10 px-2.5 py-1.5 rounded-lg border border-purple-500/20">RATE</span>
         </div>
         <div class="space-y-1">
-          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Conversion Growth</span>
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Conversion Rate</span>
           <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalEnquiries ? ((convertedEnquiries.length / totalEnquiries) * 100).toFixed(1) : 0 }}%</p>
         </div>
       </div>
@@ -97,7 +94,7 @@
           </div>
         </div>
         <div class="space-y-1">
-          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Global Enquiry Volume</span>
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Enquiries</span>
           <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalEnquiries }}</p>
         </div>
       </div>
@@ -110,13 +107,13 @@
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
           <div class="flex items-center justify-between mb-8">
             <div>
-              <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Conversion Pipeline</h2>
-              <p class="text-sm text-slate-500 font-medium">Visualizing lifecycle of current enquiries</p>
+              <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Pipeline</h2>
+              <p class="text-sm text-slate-500 font-medium">Enquiry lifecycle status</p>
             </div>
             <div class="flex gap-2">
                    <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">
                       <div class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></div>
-                      <span class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Stable</span>
+                      <span class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Live</span>
                    </div>
             </div>
           </div>
@@ -185,23 +182,23 @@
           <!-- Quick Action Hub -->
           <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
             <div class="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
-            <h3 class="text-lg font-black uppercase tracking-widest mb-6 opacity-80">Quick Protocol Hub</h3>
+            <h3 class="text-lg font-black uppercase tracking-widest mb-6 opacity-80">Quick Actions</h3>
             <div class="grid grid-cols-2 gap-3">
               <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
                 <i class="mdi mdi-file-chart-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Generate Sales<br/>Report</span>
+                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Sales<br/>Report</span>
               </button>
               <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
                 <i class="mdi mdi-account-star-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">VIP Client<br/>Focus</span>
+                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">VIP<br/>Clients</span>
               </button>
               <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
                 <i class="mdi mdi-clock-alert-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Follow-up<br/>Alerts</span>
+                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Follow<br/>Ups</span>
               </button>
               <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
                  <i class="mdi mdi-help-circle-outline text-3xl"></i>
-                 <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Service<br/>Support</span>
+                 <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Help<br/>Support</span>
               </button>
             </div>
           </div>
@@ -211,7 +208,7 @@
              <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3 font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 text-xs">
                   <i class="mdi mdi-chart-donut text-blue-500 text-xl"></i>
-                  Acquisition Analytics
+                  Lead Sources
                 </div>
              </div>
              
@@ -225,7 +222,7 @@
 
              <div class="mt-6 space-y-3">
                 <div class="flex items-center justify-between text-xs font-black">
-                   <span class="text-slate-500 uppercase tracking-widest">Highest Converting:</span>
+                   <span class="text-slate-500 uppercase tracking-widest">Top Source:</span>
                    <span class="text-blue-500 uppercase tracking-widest">Digital Channels</span>
                 </div>
                 <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
@@ -240,7 +237,7 @@
       <div class="lg:col-span-4 space-y-6">
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col h-full min-h-[600px]">
           <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
-            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Deployment Feed</h3>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Recent Activity</h3>
             <span class="px-3 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-black uppercase tracking-[0.2em]">LIVE</span>
           </div>
 
@@ -288,7 +285,7 @@
 
           <div class="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
              <button @click="router.push('/client-service/enquiries')" class="w-full py-4 text-sm font-black uppercase tracking-[0.2em] text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center justify-center gap-3 transition-all">
-                Access Central Intelligence
+                View All Enquiries
                 <i class="mdi mdi-arrow-right text-lg"></i>
              </button>
           </div>

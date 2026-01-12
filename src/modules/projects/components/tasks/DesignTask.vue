@@ -17,16 +17,87 @@
         </span>
       </div>
 
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Completion Notice -->
       <div
         v-if="readonly || task.status === 'completed'"
-        class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+        class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl flex items-center gap-3"
       >
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">This task has been completed. You can view all assets below.</span>
+        <div class="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+           </svg>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-emerald-800 dark:text-emerald-200">Objective Complete</h4>
+          <p class="text-xs font-medium text-emerald-600 dark:text-emerald-300">This design task is finished. Assets are locked for viewing.</p>
         </div>
       </div>
 
@@ -52,64 +123,27 @@
         <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
       </div>
 
-      <!-- Tab Navigation - Always visible -->
-      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <nav class="flex space-x-8" aria-label="Tabs">
-          <!-- Upload Tab -->
+      <!-- Tab Navigation -->
+      <div class="mb-6">
+        <div class="flex p-1 bg-slate-100 dark:bg-slate-800/50 rounded-xl w-fit">
           <button
-            @click="activeTab = 'upload'"
-            :class="[
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-              activeTab === 'upload'
-                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+            v-for="tab in [
+              { id: 'upload', label: 'Upload Assets', icon: 'mdi-cloud-upload' },
+              { id: 'gallery', label: `Gallery (${stats.total})`, icon: 'mdi-view-grid' },
+              { id: 'approvals', label: 'Approvals', icon: 'mdi-check-decagram', count: pendingAssets.length }
             ]"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+            :class="activeTab === tab.id 
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
           >
-            <span class="flex items-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-              </svg>
-              <span>Upload</span>
-            </span>
+            <i class="mdi text-lg" :class="tab.icon"></i>
+            <span>{{ tab.label }}</span>
+            <span v-if="tab.count" class="ml-1 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ tab.count }}</span>
           </button>
-          
-          <button
-            @click="activeTab = 'gallery'"
-            :class="[
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-              activeTab === 'gallery'
-                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-            ]"
-          >
-            <span class="flex items-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span>Gallery ({{ stats.total }})</span>
-            </span>
-          </button>
-          
-          <button
-            @click="activeTab = 'approvals'"
-            :class="[
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-              activeTab === 'approvals'
-                ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-            ]"
-          >
-            <span class="flex items-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span>Approvals</span>
-              <span v-if="pendingAssets.length > 0" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-purple-600 rounded-full">
-                {{ pendingAssets.length }}
-              </span>
-            </span>
-          </button>
-        </nav>
+        </div>
       </div>
     </div>
 
@@ -126,299 +160,222 @@
       </div>
 
       <!-- Upload Tab -->
-      <div v-show="activeTab === 'upload'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-        <div class="flex items-center space-x-2 mb-6">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Upload Design Assets</h3>
+      <div v-show="activeTab === 'upload'" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Metadata Side -->
+        <div class="lg:col-span-4 space-y-4">
+             <div class="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-xl border border-slate-100 dark:border-slate-700">
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                   <i class="mdi mdi-information-outline text-blue-500"></i>
+                   Asset Context
+                </h4>
+                
+                <!-- Category Selection -->
+                <div class="mb-4">
+                  <label for="category" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
+                  <select
+                    id="category"
+                    v-model="uploadData.category"
+                    class="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  >
+                    <option value="concept">Concept</option>
+                    <option value="mockup">Mockup</option>
+                    <option value="artwork">Artwork</option>
+                    <option value="logo">Logo</option>
+                    <option value="ui-ux">UI/UX</option>
+                    <option value="illustration">Illustration</option>
+                    <option value="prototype">Prototype</option>
+                    <option value="presentation">Presentation</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                  <label for="description" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Description</label>
+                  <textarea
+                    id="description"
+                    v-model="uploadData.description"
+                    rows="3"
+                    class="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
+                    placeholder="Briefly describe these assets..."
+                  ></textarea>
+                </div>
+
+                <!-- Tags -->
+                <div>
+                  <label for="tags" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tags</label>
+                  <input
+                    id="tags"
+                    v-model="tagsText"
+                    type="text"
+                    class="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
+                    placeholder="e.g. v1, urgent, hero-image"
+                    @input="parseTags"
+                  />
+                </div>
+             </div>
         </div>
 
-        <div class="space-y-6">
-          <!-- Category Selection -->
-          <div>
-            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Asset Category
-            </label>
-            <select
-              id="category"
-              v-model="uploadData.category"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-            >
-              <option value="concept">Concept</option>
-              <option value="mockup">Mockup</option>
-              <option value="artwork">Artwork</option>
-              <option value="logo">Logo</option>
-              <option value="ui-ux">UI/UX</option>
-              <option value="illustration">Illustration</option>
-              <option value="prototype">Prototype</option>
-              <option value="presentation">Presentation</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description (Optional)
-            </label>
-            <textarea
-              id="description"
-              v-model="uploadData.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Describe these design assets"
-            ></textarea>
-          </div>
-
-          <!-- Tags -->
-          <div>
-            <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tags (Optional)
-            </label>
-            <input
-              id="tags"
-              v-model="tagsText"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter tags separated by commas"
-              @input="parseTags"
-            />
-          </div>
-
-          <!-- File Upload Section -->
-          <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
-            <div class="text-center">
-              <div v-if="isCompressing" class="py-4">
-                <svg class="animate-spin h-8 w-8 mx-auto text-purple-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="text-sm font-medium text-purple-600">Compressing images...</p>
-              </div>
-              <div v-else>
-                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                <div class="mt-4">
-                  <label for="file-upload" class="cursor-pointer">
-                    <span class="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Click to upload design assets</span>
-                    <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept=".jpeg,.png,.gif,.webp,.pdf,.ai,.psd,.sketch,.fig,.xd" @change="handleFileUpload" />
-                  </label>
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF, WebP, PDF, AI, PSD, Sketch, Figma, XD up to 50MB each</p>
+        <!-- Dropzone Side -->
+        <div class="lg:col-span-8 flex flex-col">
+            <div class="border-3 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 transition-colors hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex flex-col items-center justify-center text-center group h-full min-h-[300px]">
+                <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-full text-blue-500 group-hover:scale-110 transition-transform">
+                   <i class="mdi mdi-cloud-upload text-4xl"></i>
                 </div>
-              </div>
+                <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Drop your design files here</h4>
+                <p class="text-sm text-slate-500 mb-6 max-w-xs mx-auto">Supports JPG, PNG, PDF, AI, PSD, FIGMA & more. Max 50MB per file.</p>
+                
+                <label for="file-upload" class="cursor-pointer">
+                  <span class="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all">
+                    Browse Files
+                  </span>
+                  <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept=".jpeg,.png,.gif,.webp,.pdf,.ai,.psd,.sketch,.fig,.xd" @change="handleFileUpload" />
+                </label>
             </div>
-          </div>
-
-          <!-- Selected Files List -->
-          <div v-if="selectedFiles.length > 0" class="space-y-3">
-            <h4 class="text-sm font-medium text-gray-900 dark:text-white">Selected Files ({{ selectedFiles.length }})</h4>
-            <div v-for="(file, index) in selectedFiles" :key="index" class="flex items-center justify-between p-3 bg-white dark:bg-gray-600 rounded-md">
-              <div class="flex items-center space-x-3">
-                <!-- File type icon -->
-                <div v-if="isImageFile(file.type)" class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center">
-                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
+            
+            <!-- Upload Queue -->
+            <div v-if="selectedFiles.length > 0" class="mt-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-100 dark:border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                  <h5 class="text-sm font-bold text-slate-700 dark:text-slate-200">Ready to Upload ({{ selectedFiles.length }})</h5>
+                  <button @click="handleUpload" :disabled="isUploading" class="px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+                     <i v-if="isUploading" class="mdi mdi-loading mdi-spin"></i>
+                     {{ isUploading ? 'Uploading...' : 'Confirm Upload' }}
+                  </button>
                 </div>
-                <div v-else-if="file.type.includes('pdf')" class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded flex items-center justify-center">
-                  <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
+                
+                <div class="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                   <div v-for="(file, index) in selectedFiles" :key="index" class="flex items-center justify-between p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-100 dark:border-slate-600">
+                      <div class="flex items-center gap-3 overflow-hidden">
+                         <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500">
+                            <i class="mdi mdi-file-outline text-lg"></i>
+                         </div>
+                         <div class="flex flex-col min-w-0">
+                            <span class="text-sm font-bold text-slate-700 dark:text-white truncate">{{ file.name }}</span>
+                            <span class="text-xs text-slate-400">{{ formatFileSize(file.size) }}</span>
+                         </div>
+                      </div>
+                      <button @click="removeFile(index)" class="text-slate-400 hover:text-red-500 transition-colors">
+                         <i class="mdi mdi-close"></i>
+                      </button>
+                   </div>
                 </div>
-                <div v-else class="w-8 h-8 bg-gray-100 dark:bg-gray-600 rounded flex items-center justify-center">
-                  <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
+                
+                 <!-- Upload Progress -->
+                <div v-if="isUploading" class="mt-4">
+                  <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                    <span>Processing...</span>
+                    <span>{{ uploadProgress }}%</span>
+                  </div>
+                  <div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-blue-500 h-full transition-all duration-300 rounded-full" :style="{ width: uploadProgress + '%' }"></div>
+                  </div>
                 </div>
-                <div>
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ file.name }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(file.size) }} • {{ file.type || 'Unknown' }}</p>
-                </div>
-              </div>
-              <button @click="removeFile(index)" class="text-red-500 hover:text-red-700 p-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
             </div>
-          </div>
-
-          <!-- Upload Progress -->
-          <div v-if="isUploading" class="space-y-2">
-            <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-              <span>Uploading...</span>
-              <span>{{ uploadProgress }}%</span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" :style="{ width: uploadProgress + '%' }"></div>
-            </div>
-          </div>
-
-          <!-- Upload Button -->
-          <button
-            @click="handleUpload"
-            :disabled="selectedFiles.length === 0 || isUploading"
-            class="w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span v-if="isUploading" class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Uploading...
-            </span>
-            <span v-else>Upload Selected Files</span>
-          </button>
         </div>
       </div>
 
       <!-- Gallery Tab -->
       <div v-show="activeTab === 'gallery'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
         <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center space-x-2">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Design Assets Gallery</h3>
-          </div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
-            {{ stats.total }} asset{{ stats.total !== 1 ? 's' : '' }}
-          </div>
+           <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="mdi mdi-view-grid text-blue-500"></i>
+              Gallery
+           </h3>
+           <div class="text-sm font-medium text-slate-500">
+             {{ stats.total }} asset{{ stats.total !== 1 ? 's' : '' }} total
+           </div>
         </div>
 
-        <div v-if="assets.length === 0" class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No assets</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by uploading design files.</p>
-          <div class="mt-6">
-            <button
-              @click="activeTab = 'upload'"
-              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
-            >
-              <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
-              Upload Assets
-            </button>
+        <div v-if="assets.length === 0" class="text-center py-16 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+          <div class="w-16 h-16 bg-slate-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+             <i class="mdi mdi-image-off-outline text-3xl"></i>
           </div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">No assets yet</h3>
+          <p class="text-sm text-slate-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">Upload design files to populate the gallery.</p>
+          <button
+              @click="activeTab = 'upload'"
+              class="mt-6 px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+            >
+              <i class="mdi mdi-cloud-upload"></i>
+              Upload Assets
+          </button>
         </div>
 
         <!-- Assets Grid -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
             v-for="asset in assets"
             :key="asset.id"
-            class="bg-white dark:bg-gray-600 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500 overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all cursor-pointer group"
             @click="openPreview(asset)"
           >
             <!-- Asset Preview/Icon -->
-            <div class="h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
-              <!-- Image Preview with Loading State -->
+            <div class="h-48 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
+              <!-- Image Preview -->
               <template v-if="isImageAsset(asset)">
-                <!-- Loading Placeholder -->
-                <div class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-600">
-                  <svg class="animate-spin h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </div>
-                <!-- Actual Image -->
                 <img
                   :src="getAssetUrl(asset)"
-                  :alt="asset.name || asset.original_name"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
-                  @load="(e) => { const parent = (e.target as HTMLElement)?.parentElement?.querySelector('.absolute'); if (parent) parent.remove(); }"
-                  @error="(e) => { 
-                    const img = e.target as HTMLImageElement;
-                    const parent = img.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `
-                        <div class='flex flex-col items-center text-gray-400'>
-                          <svg class='w-12 h-12 mb-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'></path>
-                          </svg>
-                          <span class='text-xs'>Image failed to load</span>
-                        </div>
-                      `;
-                    }
-                  }"
+                  :alt="asset.name"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
                 />
               </template>
               
               <!-- PDF Icon -->
-              <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center">
-                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-xs text-gray-600 dark:text-gray-300 mt-2 font-medium">PDF</span>
+              <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center p-6 text-center">
+                 <i class="mdi mdi-file-pdf-box text-5xl text-red-500 mb-2"></i>
+                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">PDF Document</span>
               </div>
               
               <!-- Generic File Icon -->
-              <div v-else class="flex flex-col items-center">
-                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
-                </svg>
-                <span class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ asset.category }}</span>
+              <div v-else class="flex flex-col items-center p-6 text-center">
+                <i class="mdi mdi-file-outline text-5xl text-slate-400 mb-2"></i>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ asset.category || 'File' }}</span>
               </div>
 
-              <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center space-x-2">
+              <!-- Hover Overlay Actions -->
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
                 <button 
                   @click.stop="openPreview(asset)"
-                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-white hover:text-blue-600 transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300"
+                  class="w-10 h-10 bg-white text-slate-800 rounded-full flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300"
                   title="Preview"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
+                  <i class="mdi mdi-eye"></i>
                 </button>
                 <button
                   @click.stop="deleteAsset(asset)"
-                  class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
+                  class="w-10 h-10 bg-white text-red-500 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-colors shadow-lg transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
                   title="Delete"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
+                  <i class="mdi mdi-trash-can-outline"></i>
                 </button>
               </div>
             </div>
 
             <!-- Asset Info -->
-            <div class="p-4">
-              <h4 class="font-medium text-gray-900 dark:text-white truncate" :title="asset.name || asset.original_name">
-                {{ asset.name || asset.original_name }}
-              </h4>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ asset.category }}</p>
-              
-              <!-- Status Badge -->
-              <div class="mt-2">
-                <span
+            <div class="p-4 border-t border-slate-100 dark:border-slate-700/50">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                  <h4 class="font-bold text-slate-900 dark:text-white truncate text-sm" :title="asset.name">
+                    {{ asset.name || asset.original_name }}
+                  </h4>
+                  
+                  <span
                   :class="{
-                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': asset.status === 'pending',
-                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': asset.status === 'approved',
-                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': asset.status === 'rejected',
-                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': asset.status === 'revision',
+                    'bg-yellow-100 text-yellow-700': asset.status === 'pending',
+                    'bg-green-100 text-green-700': asset.status === 'approved',
+                    'bg-red-100 text-red-700': asset.status === 'rejected',
+                    'bg-blue-100 text-blue-700': asset.status === 'revision',
                   }"
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                  class="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide"
                 >
                   {{ asset.status }}
                 </span>
               </div>
-
-              <!-- Asset Meta -->
-              <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                <div>{{ new Date(asset.created_at).toLocaleDateString() }}</div>
-                <div v-if="asset.file_size">{{ formatFileSize(asset.file_size) }}</div>
+              
+              <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
+                  <span>{{ asset.category }}</span>
+                  <span v-if="asset.file_size">{{ formatFileSize(asset.file_size) }}</span>
               </div>
             </div>
           </div>
@@ -428,12 +385,10 @@
       <!-- Approvals Tab  -->
       <div v-show="activeTab === 'approvals'" class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
         <div class="flex items-center space-x-2 mb-6">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-            <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Asset Approvals</h3>
+           <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+             <i class="mdi mdi-check-decagram"></i>
+           </div>
+           <h3 class="text-lg font-bold text-slate-900 dark:text-white">Pending Approvals</h3>
         </div>
 
         <div v-if="pendingAssets.length === 0" class="text-center py-12">
@@ -578,43 +533,51 @@
       </div>
 
       <!-- Task Status Actions -->
-      <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-        <div class="flex space-x-2">
-          <button
+      <div class="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        
+        <!-- Stats Summary (Left) -->
+        <div class="flex items-center gap-4 text-sm font-medium bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center gap-2">
+             <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+             <span class="text-slate-600 dark:text-slate-400">{{ stats.total }} Total</span>
+          </div>
+          <div class="flex items-center gap-2 border-l border-slate-300 dark:border-slate-600 pl-4">
+             <div class="w-2 h-2 rounded-full bg-green-500"></div>
+             <span class="text-green-600 dark:text-green-400">{{ stats.approved }} Approved</span>
+          </div>
+          <div class="flex items-center gap-2 border-l border-slate-300 dark:border-slate-600 pl-4">
+             <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+             <span class="text-orange-600 dark:text-orange-400">{{ stats.pending }} Pending</span>
+          </div>
+        </div>
+
+        <!-- Main Actions (Right) -->
+        <div class="flex items-center gap-3">
+           <button
             v-if="task.status !== 'skipped' && task.status !== 'completed'"
             @click="showSkipModal = true"
-            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center"
+            class="px-4 py-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors"
           >
             Skip Task
           </button>
+          
           <button
             v-if="task.status === 'pending'"
             @click="updateStatus('in_progress')"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center"
+            class="px-6 py-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm font-bold inline-flex items-center"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <i class="mdi mdi-play mr-2 text-lg"></i>
             Start Design Task
           </button>
+          
           <button
             v-if="task.status === 'in_progress'"
             @click="updateStatus('completed')"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors inline-flex items-center"
+            class="px-6 py-2.5 bg-green-600 text-white rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm font-bold inline-flex items-center"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Complete Design Task
+            <i class="mdi mdi-check-all mr-2 text-lg"></i>
+            Complete Task
           </button>
-        </div>
-        
-        <!-- Stats Summary -->
-        <div class="text-sm text-gray-600 dark:text-gray-400">
-          <span class="font-medium">{{ stats.total }}</span> assets •
-          <span class="text-green-600 dark:text-green-400 font-medium">{{ stats.approved }}</span> approved •
-          <span class="text-yellow-600 dark:text-yellow-400 font-medium">{{ stats.pending }}</span> pending
         </div>
       </div>
     </div>
@@ -827,6 +790,32 @@ const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
 }>()
+
+const projectInfo = computed(() => {
+  const enquiry = props.task.enquiry
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    enquiryTitle: enquiry?.title || 'Untitled Project',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
+    eventVenue: enquiry?.venue || 'TBC',
+    setupDate: enquiry?.expected_delivery_date || 'TBC'
+  }
+})
+
+const formatDate = (dateValue: string | Date | null | undefined) => {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return 'TBC'
+  }
+}
 
 // Active tab for navigation
 const activeTab = ref<string>(props.initialTab || 'upload')

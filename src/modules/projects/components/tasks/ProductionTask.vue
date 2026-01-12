@@ -8,126 +8,143 @@
         Production Task - {{ task.title }}
       </h4>
 
-      <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between mb-3">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Information</h5>
-          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full">
-            Production Task
-          </span>
-        </div>
-        <!-- Project Information Grid - Responsive layout -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <!-- Project Title -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold mt-1 break-words">
-              {{ projectInfo.enquiryTitle || 'Untitled Project' }}
-            </p>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Enquiry Number -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1 font-mono">
-              {{ projectInfo.projectId }}
-            </p>
-          </div>
-
-          <!-- Client Name -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              {{ projectInfo.clientName }}
-            </p>
-          </div>
-
-          <!-- Event Venue -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              {{ projectInfo.eventVenue }}
-            </p>
-          </div>
-
-          <!-- Expected Delivery Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Expected Delivery</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setupDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setupDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                TBC
-              </span>
-            </p>
-          </div>
-
-          <!-- Set Down Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Set Down Date</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setDownDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setDownDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                TBC
-              </span>
-            </p>
-          </div>
-
-          <!-- Estimated Budget (conditional) -->
-          <div v-if="projectInfo.estimatedBudget" class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Estimated Budget</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1">
-              <span class="text-green-600 dark:text-green-400">KES {{ formatCurrency(projectInfo.estimatedBudget) }}</span>
-            </p>
-          </div>
-
-          <!-- Contact Person -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contact Person</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              {{ projectInfo.contactPerson }}
-            </p>
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Tab Navigation -->
-    <div class="mb-6">
-      <nav
-        class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto"
-        role="tablist"
-        aria-label="Production task navigation"
-      >
+    <div class="mb-8">
+      <nav class="flex space-x-2 p-1 bg-gray-100 dark:bg-gray-700/50 rounded-xl overflow-x-auto" aria-label="Tabs">
         <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          @click="setActiveTab(tab.id)"
-          @keydown="handleTabKeydown($event, tabs.indexOf(tab))"
-          :id="`tab-${tab.id}`"
-          role="tab"
-          :aria-selected="activeTab === tab.id"
-          :aria-controls="`tab-panel-${tab.id}`"
-          :tabindex="activeTab === tab.id ? 0 : -1"
+          @click="activeTab = 'production-management'"
           :class="[
-            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-            activeTab === tab.id
-              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+            activeTab === 'production-management'
+              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xl shadow-blue-500/10 ring-1 ring-blue-500/20'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
+            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
           ]"
         >
-          {{ tab.label }}
-          <span
-            v-if="getTabBadgeCount(tab.id) > 0"
-            :class="[
-              'ml-2 px-2 py-0.5 text-xs rounded-full',
-              getTabBadgeClass(tab.id)
-            ]"
-          >
-            {{ getTabBadgeCount(tab.id) }}
+          <i class="mdi mdi-factory mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-blue-500': activeTab === 'production-management' }"></i>
+          <span>Fabrication</span>
+        </button>
+
+        <button
+          @click="activeTab = 'procurement-status'"
+          :class="[
+            activeTab === 'procurement-status'
+              ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-xl shadow-amber-500/10 ring-1 ring-amber-500/20'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
+            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+          ]"
+        >
+          <i class="mdi mdi-truck-delivery mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-amber-500': activeTab === 'procurement-status' }"></i>
+          <span>Inventory</span>
+        </button>
+
+        <button
+          @click="activeTab = 'quality'"
+          :class="[
+            activeTab === 'quality'
+              ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/20'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
+            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+          ]"
+        >
+          <i class="mdi mdi-shield-check mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-emerald-500': activeTab === 'quality' }"></i>
+          <span>QA Checks</span>
+        </button>
+
+        <button
+          @click="activeTab = 'design'"
+          :class="[
+            activeTab === 'design'
+              ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xl shadow-indigo-500/10 ring-1 ring-indigo-500/20'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
+            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+          ]"
+        >
+          <i class="mdi mdi-palette-swatch mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-indigo-500': activeTab === 'design' }"></i>
+          <span>Blueprints</span>
+        </button>
+
+        <button
+          @click="activeTab = 'issues'"
+          :class="[
+            activeTab === 'issues'
+              ? 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-xl shadow-rose-500/10 ring-1 ring-rose-500/20'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
+            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+          ]"
+        >
+          <i class="mdi mdi-alert-octagon mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-rose-500': activeTab === 'issues' }"></i>
+          <span>Troubleshoot</span>
+          <span v-if="getTabBadgeCount('issues') > 0" class="ml-2 bg-rose-500 text-white py-0.5 px-2 rounded-full text-[10px] font-black shadow-lg shadow-rose-500/20">
+            {{ getTabBadgeCount('issues') }}
           </span>
         </button>
       </nav>
@@ -135,254 +152,393 @@
 
     <!-- Tab Content Container -->
     <div class="tab-content-container">
-      <!-- Production Elements Tab -->
+      <!-- Production Management Tab -->
       <div
-        v-show="activeTab === 'production-elements'"
-        class="production-elements-section tab-panel"
-        :id="`tab-panel-production-elements`"
-        role="tabpanel"
-        :aria-labelledby="`tab-production-elements`"
-        :class="{ 'animate-fade-in': activeTab === 'production-elements' }"
+        v-show="activeTab === 'production-management'"
+        class="tab-panel animate-fade-in"
       >
-        <!-- Materials Import Status -->
-        <div v-if="isImportingMaterials || materialsImportError || lastMaterialsImport" class="mb-6 p-4 rounded-lg border">
-          <!-- Loading State -->
-          <div v-if="isImportingMaterials" class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
-            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-            <span class="text-sm font-medium">Importing materials from Materials Task...</span>
-          </div>
-
-          <!-- Error State -->
-          <div v-else-if="materialsImportError" class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-            <div class="flex items-start justify-between">
-              <div class="flex items-start space-x-3">
-
-                <div class="flex-1">
-                  <p class="text-sm font-medium text-red-800 dark:text-red-200">Failed to Import Materials</p>
-                  <p class="text-xs text-red-600 dark:text-red-300 mt-1">{{ materialsImportError }}</p>
-                </div>
+        <!-- Production Dashboard Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+           <!-- Total Scope -->
+           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-blue-500">
+              <div class="flex flex-col h-full">
+                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Fabrication Units</p>
+                 <div class="flex items-end justify-between mt-auto">
+                   <div class="flex items-baseline gap-1">
+                     <span class="text-3xl font-black text-slate-900 dark:text-white">{{ productionData.productionElements.length }}</span>
+                     <span class="text-xs font-bold text-slate-500 uppercase">Items</span>
+                   </div>
+                   <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-110">
+                     <i class="mdi mdi-cube-send text-xl"></i>
+                   </div>
+                 </div>
               </div>
-              <button
-                @click="retryMaterialsImport"
-                class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
+           </div>
 
-          <!-- Success State -->
-          <div v-else-if="lastMaterialsImport" class="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-            <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-
-              <div>
-                <p class="text-sm font-medium">Materials imported successfully</p>
-                <p class="text-xs text-green-500 dark:text-green-300">
-                  {{ productionData.productionElements.length }} production elements imported at {{ lastMaterialsImport.toLocaleTimeString() }}
-                </p>
+           <!-- Readiness -->
+           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-emerald-500">
+              <div class="flex flex-col h-full">
+                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Material Readiness</p>
+                 <div class="flex items-end justify-between mt-auto">
+                   <div class="flex items-baseline gap-1">
+                     <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400">{{ readyForAssemblyPercentage }}%</span>
+                     <span class="text-xs font-bold text-slate-500 uppercase">Ready</span>
+                   </div>
+                   <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 transition-transform group-hover:scale-110">
+                     <i class="mdi mdi-check-circle-outline text-xl"></i>
+                   </div>
+                 </div>
               </div>
-            </div>
-          </div>
+           </div>
+
+           <!-- QC Load -->
+           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-amber-500">
+              <div class="flex flex-col h-full">
+                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">QA Backlog</p>
+                 <div class="flex items-end justify-between mt-auto">
+                   <div class="flex items-baseline gap-1">
+                     <span class="text-3xl font-black text-amber-600 dark:text-amber-400">{{ productionData.qualityControl.filter(q => q.status === 'pending').length }}</span>
+                     <span class="text-xs font-bold text-slate-500 uppercase">Pending</span>
+                   </div>
+                   <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 transition-transform group-hover:scale-110">
+                     <i class="mdi mdi-clipboard-text-clock-outline text-xl"></i>
+                   </div>
+                 </div>
+              </div>
+           </div>
+
+           <!-- High Priority Issues -->
+           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-red-500">
+              <div class="flex flex-col h-full">
+                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Active Bottlenecks</p>
+                 <div class="flex items-end justify-between mt-auto">
+                   <div class="flex items-baseline gap-1">
+                     <span class="text-3xl font-black text-red-600 dark:text-red-400">{{ productionData.issues.filter(i => i.status !== 'resolved').length }}</span>
+                     <span class="text-xs font-bold text-slate-500 uppercase">Issues</span>
+                   </div>
+                   <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 transition-transform group-hover:scale-110">
+                     <i class="mdi mdi-alert-decagram-outline text-xl"></i>
+                   </div>
+                 </div>
+              </div>
+           </div>
         </div>
 
-        <!-- Production Elements Content -->
-        <div v-if="productionData.productionElements.length > 0">
-          <!-- Summary Header -->
-          <div class="mb-6 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div class="flex justify-between items-center mb-4">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Production Elements</h4>
-              <div class="flex items-center space-x-2">
-                <button
-                  @click="toggleAllCategories"
-                  class="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded transition-colors"
-                >
-                  {{ allCategoriesCollapsed ? 'Expand All' : 'Collapse All' }}
-                </button>
-                <button
-                  @click="retryMaterialsImport"
-                  class="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded transition-colors"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 gap-4 text-xs text-gray-600 dark:text-gray-400">
-              <div>
-                <span class="font-medium">{{ productionData.productionElements.length }}</span> Elements
-              </div>
-              <div>
-                <span class="font-medium">{{ categoriesWithElements.length }}</span> Categories
-              </div>
-              <div>
-                <span class="font-medium">{{ getTotalQuantity() }}</span> Items
-              </div>
-              <div>
-                <span class="font-medium">{{ getUniqueUnits().length }}</span> Units
-              </div>
-            </div>
-          </div>
-
-          <!-- Elements by Category -->
-          <div class="space-y-4">
-            <div v-for="category in categoriesWithElements" :key="category.id" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <div v-if="productionData.productionElements.length > 0" class="space-y-6">
+           <div v-for="category in categoriesWithElements" :key="category.id" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
               <!-- Category Header -->
-              <div
-                class="p-3 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors border-b border-gray-200 dark:border-gray-700"
-                @click="toggleCategoryCollapse(category.id)"
+              <div 
+                 class="px-6 py-5 cursor-pointer flex justify-between items-center transition-all"
+                 :class="[
+                    isCategoryCollapsed(category.id) ? 'bg-slate-50 dark:bg-slate-900/40' : 'bg-white dark:bg-slate-800',
+                 ]"
+                 @click="toggleCategoryCollapse(category.id)"
               >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-2">
-                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ category.displayName }}</h3>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ getElementsByCategory(category.id).length }} items
-                    </span>
+                  <div class="flex items-center gap-5">
+                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg text-xl" :class="getCategoryBgClass(category.id)">
+                        <i class="mdi mdi-layers-triple"></i>
+                     </div>
+                     <div>
+                        <h3 class="text-lg font-black text-slate-900 dark:text-white leading-none">{{ category.displayName }}</h3>
+                        <div class="flex items-center gap-3 mt-2">
+                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getElementsByCategory(category.id).length }} Fabrication Units</span>
+                           <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getCategoryTotalQuantity(category.id) }} Total Quantity</span>
+                        </div>
+                     </div>
                   </div>
-                  <div class="flex items-center space-x-3">
-                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ getCategoryTotalQuantity(category.id) }} total
-                    </span>
-                    <svg
-                      :class="['w-4 h-4 text-gray-500 transition-transform', { 'rotate-180': !isCategoryCollapsed(category.id) }]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                  <div class="flex items-center gap-4">
+                     <div v-if="isCategoryCollapsed(category.id)" class="hidden sm:flex -space-x-2">
+                        <div v-for="n in Math.min(3, getElementsByCategory(category.id).length)" :key="n" class="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
+                           {{ getElementsByCategory(category.id)[n-1].name.substring(0,2).toUpperCase() }}
+                        </div>
+                     </div>
+                     <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shadow-sm">
+                        <i 
+                           class="mdi mdi-chevron-down text-xl text-slate-400 transition-transform duration-500"
+                           :class="{ 'rotate-180': !isCategoryCollapsed(category.id) }"
+                        ></i>
+                     </div>
                   </div>
-                </div>
               </div>
 
-              <!-- Category Elements (Expandable) -->
-              <div v-if="!isCategoryCollapsed(category.id)" class="bg-white dark:bg-gray-800">
-                <table class="w-full text-sm">
-                  <thead class="border-b border-gray-200 dark:border-gray-700">
-                    <tr class="text-left text-xs text-gray-600 dark:text-gray-400 uppercase">
-                      <th class="px-4 py-2 font-medium">Name</th>
-                      <th class="px-4 py-2 font-medium">Description</th>
-                      <th class="px-4 py-2 font-medium text-right">Quantity</th>
-                      <th class="px-4 py-2 font-medium">Unit</th>
-                      <th class="px-4 py-2 font-medium text-right">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="element in getElementsByCategory(category.id)"
-                      :key="element.id"
-                      class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750"
-                    >
-                      <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
-                        {{ element.name || element.description }}
-                      </td>
-                      <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {{ element.description }}
-                      </td>
-                      <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">
-                        {{ element.quantity }}
-                      </td>
-                      <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {{ element.unitOfMeasurement || element.unit }}
-                      </td>
-                      <td class="px-4 py-3 text-right text-xs text-gray-500 dark:text-gray-400">
-                        {{ formatDate(element.createdAt?.toString() || element.created_at) }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <!-- Modern Production Table -->
+              <div v-if="!isCategoryCollapsed(category.id)" class="border-t border-slate-100 dark:border-slate-700 overflow-x-auto">
+                 <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
+                    <thead class="bg-slate-50/50 dark:bg-slate-900/30">
+                       <tr>
+                          <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                          <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory</th>
+                          <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                          <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Control</th>
+                       </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
+                       <tr v-for="element in getElementsByCategory(category.id)" :key="element.id" class="hover:bg-blue-50/20 dark:hover:bg-blue-900/5 transition-colors group">
+                          <!-- Item Identity -->
+                          <td class="px-6 py-5">
+                             <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 shrink-0 border border-slate-200/50 dark:border-slate-600/50">
+                                   <i class="mdi mdi-cube-send text-xl"></i>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                   <span class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ element.name || element.description }}</span>
+                                   <div class="flex items-center gap-2 mt-1">
+                                      <span class="text-[10px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded-md border border-blue-100 dark:border-blue-800 uppercase tracking-tighter">
+                                         Qty: {{ element.quantity }} {{ element.unitOfMeasurement || element.unit }} REQUIRED
+                                      </span>
+                                   </div>
+                                </div>
+                             </div>
+                          </td>
 
-              <!-- Collapsed Category Summary -->
-              <div
-                v-else
-                class="bg-gray-50 dark:bg-gray-800 p-2 text-xs text-gray-500 dark:text-gray-400 text-center"
-              >
-                Click to expand {{ getElementsByCategory(category.id).length }} elements
+                          <!-- Real-time Inventory -->
+                          <td class="px-6 py-5 text-center">
+                             <div 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all shadow-sm"
+                                :class="getInventoryStatusClass(element.id)"
+                             >
+                                <span class="w-2 h-2 rounded-full animate-pulse" :class="getInventoryStatusDotClass(element.id)"></span>
+                                <span class="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{{ getInventoryStatusLabel(element.id).replace('_', ' ') }}</span>
+                             </div>
+                          </td>
+
+                          <!-- Direct Status Control -->
+                          <td class="px-6 py-5 text-center">
+                             <select 
+                                v-model="element.status"
+                                @change="updateElementStatus(element.id, element.status)"
+                                class="text-[10px] font-black uppercase tracking-widest rounded-xl px-4 py-2 border outline-none transition-all cursor-pointer hover:shadow-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-inner"
+                                :class="getQCStatusClass(element.id)"
+                             >
+                                <option value="pending">Pending</option>
+                                <option value="in progress">Processing</option>
+                                <option value="completed">Finished</option>
+                                <option value="qc_passed">QA Passed</option>
+                                <option value="qc_failed">QA Failed</option>
+                             </select>
+                          </td>
+
+                          <!-- Actions -->
+                          <td class="px-6 py-5 text-right">
+                             <div class="flex justify-end items-center gap-2">
+                                <button
+                                   @click="openIssueModal(element)"
+                                   class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100 dark:border-red-800"
+                                   title="Report Production Issue"
+                                >
+                                   <i class="mdi mdi-alert-outline text-lg"></i>
+                                </button>
+                                <button
+                                   class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-200 dark:border-slate-600"
+                                   title="View Technical Details"
+                                >
+                                   <i class="mdi mdi-scan-helper text-lg"></i>
+                                </button>
+                             </div>
+                          </td>
+                       </tr>
+                    </tbody>
+                 </table>
               </div>
-            </div>
-          </div>
+           </div>
         </div>
 
-        <!-- No Materials State -->
-        <div v-else-if="!isImportingMaterials" class="text-center py-12">
-          <div class="mb-4">
-
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Production Elements Available</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">
-            Production elements will be automatically imported from the Materials Task.
-          </p>
-          <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-            <p>• Complete the Materials Task first</p>
-            <p>• Ensure materials are properly configured</p>
-            <p>• Elements will sync automatically</p>
-          </div>
-          <button
-            @click="retryMaterialsImport"
-            class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Try Import Again
-          </button>
+        <!-- Premium Empty State -->
+        <div v-else class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+           <div class="w-24 h-24 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-8 relative rotate-3 hover:rotate-0 transition-transform duration-500">
+              <i class="mdi mdi-factory text-5xl text-blue-500"></i>
+              <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800">
+                 <i class="mdi mdi-plus text-xl"></i>
+              </div>
+           </div>
+           
+           <div class="text-center max-w-lg px-8">
+              <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Initialize Fabrication Line</h3>
+              <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg">
+                 Load your validated material bill from the <strong>Materials Task</strong> to begin tracking production progress, quality checkpoints, and assembly readiness.
+              </p>
+              
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                 <button
+                   @click="retryMaterialsImport"
+                   class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                 >
+                   <i class="mdi mdi-import text-lg"></i>
+                   Sync Materials
+                 </button>
+                 <button
+                   class="px-10 py-5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
+                 >
+                   <i class="mdi mdi-help-circle-outline text-lg"></i>
+                   Learn More
+                 </button>
+              </div>
+              
+              <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-8 text-left">
+                 <div class="flex gap-3">
+                    <i class="mdi mdi-shield-check text-blue-500"></i>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automated QC Point generation</p>
+                 </div>
+                 <div class="flex gap-3">
+                    <i class="mdi mdi-truck-fast text-emerald-500"></i>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Real-time Procurement Sync</p>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
 
-        <!-- Procurement Status Tab -->
-        <div v-if="activeTab === 'procurement-status'" class="space-y-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-               <h3 class="text-lg font-medium text-gray-900 dark:text-white">Procurement & Stock Status</h3>
-               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">View the status of materials from the Procurement task.</p>
-            </div>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
-                   <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item / Description</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock Status</th>
-                      <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Procurement Status</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock Qty</th>
-                      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Req. Qty</th>
-                   </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                   <tr v-for="(item, index) in productionData.relatedProcurementItems" :key="index">
-                      <td class="px-6 py-4">
-                         <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.elementName }}</div>
-                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.description }}</div>
-                      </td>
-                       <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                          {{ item.category }}
-                       </td>
-                       <td class="px-6 py-4 text-center">
-                          <span :class="['px-2 py-1 text-xs rounded-full border', getStockStatusClass(item.stockStatus)]">
-                             {{ (item.stockStatus || 'pending_check').replace(/_/g, ' ').toUpperCase() }}
-                          </span>
-                       </td>
-                       <td class="px-6 py-4 text-center">
-                          <span :class="['px-2 py-1 text-xs rounded-full border', getProcurementStatusClass(item.procurementStatus)]">
-                             {{ (item.procurementStatus || 'not_needed').replace(/_/g, ' ').toUpperCase() }}
-                          </span>
-                       </td>
-                       <td class="px-6 py-4 text-right text-sm text-gray-900 dark:text-white">
-                          {{ item.stockQuantity }}
-                       </td>
-                       <td class="px-6 py-4 text-right text-sm text-gray-900 dark:text-white">
-                          {{ item.quantity }}
-                       </td>
-                   </tr>
-                   <tr v-if="!productionData.relatedProcurementItems || productionData.relatedProcurementItems.length === 0">
-                      <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                         No procurement data available.
-                      </td>
-                   </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <!-- Procurement Status Tab -->
+      <div v-show="activeTab === 'procurement-status'" class="tab-panel animate-fade-in">
+               <!-- Procurement Dashboard Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+           <!-- In Stock -->
+           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div class="relative z-10">
+                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Items In Stock</p>
+                 <div class="flex items-center gap-2">
+                   <p class="text-3xl font-black text-emerald-600 dark:text-emerald-400">
+                      {{ productionData.relatedProcurementItems.filter((i: any) => i.stockStatus === 'in_stock' || i.stock_status === 'in_stock').length }}
+                   </p>
+                   <span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Available</span>
+                 </div>
+              </div>
+              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+                 <i class="mdi mdi-warehouse text-7xl text-emerald-600"></i>
+              </div>
+              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
+           </div>
+           
+           <!-- Procurement Orders -->
+           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div class="relative z-10">
+                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Active Orders</p>
+                 <div class="flex items-center gap-2">
+                   <p class="text-3xl font-black text-blue-600 dark:text-blue-400">
+                      {{ productionData.relatedProcurementItems.filter((i: any) => i.procurementStatus === 'ordered' || i.procurement_status === 'ordered').length }}
+                   </p>
+                   <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">In Transit</span>
+                 </div>
+              </div>
+              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+                 <i class="mdi mdi-cart-arrow-down text-7xl text-blue-600"></i>
+              </div>
+              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+           </div>
+
+           <!-- Low Stock -->
+           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div class="relative z-10">
+                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Shortages</p>
+                 <div class="flex items-center gap-2">
+                   <p class="text-3xl font-black text-red-600 dark:text-red-400">
+                      {{ productionData.relatedProcurementItems.filter((i: any) => i.stockStatus === 'out_of_stock' || i.stock_status === 'out_of_stock').length }}
+                   </p>
+                   <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Urgent</span>
+                 </div>
+              </div>
+              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+                 <i class="mdi mdi-alert-box-outline text-7xl text-red-600"></i>
+              </div>
+              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
+           </div>
+
+           <!-- Total Required -->
+           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div class="relative z-10">
+                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total SKU Items</p>
+                 <div class="flex items-center gap-2">
+                   <p class="text-3xl font-black text-slate-800 dark:text-white">
+                      {{ productionData.relatedProcurementItems.length }}
+                   </p>
+                   <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Materials</span>
+                 </div>
+              </div>
+              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+                 <i class="mdi mdi-format-list-bulleted-type text-7xl text-slate-500"></i>
+              </div>
+              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-slate-400 to-slate-500"></div>
+           </div>
         </div>
 
-      <!-- Quality Control Tab -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+             <div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Procurement & Stock Status</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Real-time status of materials required for this production</p>
+             </div>
+             <button class="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1">
+                <i class="mdi mdi-refresh"></i> Refresh Data
+             </button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+              <thead class="bg-slate-50 dark:bg-slate-900/50">
+                 <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item Details</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Availability</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Procurement</th>
+                    <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Required Qty</th>
+                 </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                 <tr v-for="(item, index) in productionData.relatedProcurementItems" :key="index" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td class="px-6 py-4">
+                       <div class="flex flex-col">
+                          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ item.elementName || item.item_name }}</span>
+                          <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{{ item.description }}</span>
+                          <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded self-start mt-1 font-mono">
+                             {{ item.category }}
+                          </span>
+                       </div>
+                    </td>
+                     <td class="px-6 py-4 text-center">
+                        <span 
+                           class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm"
+                           :class="getStockStatusClass(item.stockStatus || item.stock_status)"
+                        >
+                           <i 
+                              class="mdi mr-1.5 text-lg" 
+                              :class="{
+                                 'mdi-check-circle': item.stockStatus === 'in_stock',
+                                 'mdi-alert-circle': item.stockStatus === 'out_of_stock',
+                                 'mdi-information': !['in_stock', 'out_of_stock'].includes(item.stockStatus)
+                              }"
+                           ></i>
+                           {{ (item.stockStatus || 'pending_check').replace(/_/g, ' ').toUpperCase() }}
+                        </span>
+                        <div class="mt-1 text-xs text-slate-500 font-mono">
+                           SOH: {{ item.stockQuantity || item.stock_quantity || 0 }}
+                        </div>
+                     </td>
+                     <td class="px-6 py-4 text-center">
+                        <span 
+                           class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm"
+                           :class="getProcurementStatusClass(item.procurementStatus || item.procurement_status)"
+                        >
+                           {{ (item.procurementStatus || 'not_needed').replace(/_/g, ' ').toUpperCase() }}
+                        </span>
+                     </td>
+                     <td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-white">
+                        {{ item.quantity }}
+                     </td>
+                 </tr>
+                 <tr v-if="!productionData.relatedProcurementItems || productionData.relatedProcurementItems.length === 0">
+                    <td colspan="4" class="px-6 py-12 text-center">
+                       <div class="flex flex-col items-center justify-center text-slate-400">
+                          <i class="mdi mdi-clipboard-text-off-outline text-4xl mb-2"></i>
+                          <p class="font-medium">No procurement data available.</p>
+                          <p class="text-xs mt-1">Make sure the Materials and Procurement tasks are initiated.</p>
+                       </div>
+                    </td>
+                 </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div
         v-show="activeTab === 'quality'"
         class="quality-control-section tab-panel"
@@ -391,242 +547,337 @@
         :aria-labelledby="`tab-quality`"
         :class="{ 'animate-fade-in': activeTab === 'quality' }"
       >
-        <!-- Quality Control Header -->
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h4 class="text-lg font-medium text-gray-900 dark:text-white">Quality Control Management</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Monitor and validate production quality across all categories
-            </p>
+         <!-- Quality Control Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm gap-4">
+          <div class="flex items-center gap-4">
+             <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <i class="mdi mdi-check-decagram text-3xl"></i>
+             </div>
+             <div>
+                <h4 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Quality Assurance</h4>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                  <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Project integrity & fabrication standards monitoring
+                </p>
+             </div>
           </div>
-          <div class="flex items-center space-x-3" v-if="!isReadOnly">
+          
+          <div class="flex items-center gap-3 w-full md:w-auto">
             <button
+              v-if="!isReadOnly"
               @click="generateQualityCheckpoints"
-              class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+              class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-sm transition-all"
             >
-              Regenerate Checkpoints
+              <i class="mdi mdi-refresh"></i>
+              Regenerate
             </button>
             <button
               @click="exportQualityReport"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all"
             >
-              Export Report
-            </button>
-          </div>
-          <div class="flex items-center space-x-3" v-else>
-             <button
-              @click="exportQualityReport"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >
-              Export Report
+              <i class="mdi mdi-file-export-outline"></i>
+              QA Report
             </button>
           </div>
         </div>
 
         <!-- Quality Control Summary -->
-        <div v-if="productionData.qualityControl.length > 0" class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Quality Control Summary</h5>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ productionData.qualityControl.length }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Total Checkpoints</div>
+        <div v-if="productionData.qualityControl.length > 0" class="mb-10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Scope -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-blue-500">
+               <div class="flex flex-col h-full">
+                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Audit Scope</p>
+                  <div class="flex items-end justify-between mt-auto">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-3xl font-black text-slate-900 dark:text-white">{{ productionData.qualityControl.length }}</span>
+                      <span class="text-xs font-bold text-slate-500 uppercase">Points</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-110">
+                      <i class="mdi mdi-clipboard-check-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
             </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getQualityStatusCount('passed') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Passed</div>
+
+            <!-- Passed Checks -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-emerald-500">
+               <div class="flex flex-col h-full">
+                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Compliance Rate</p>
+                  <div class="flex items-end justify-between mt-auto">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400 transition-all group-hover:scale-105 inline-block">{{ getQualityStatusCount('passed') }}</span>
+                      <span class="text-xs font-bold text-slate-500 uppercase">Verified</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 transition-transform group-hover:scale-110">
+                      <i class="mdi mdi-check-circle-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
             </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ getQualityStatusCount('failed') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Failed</div>
+
+            <!-- Failed/Issues -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-red-500">
+               <div class="flex flex-col h-full">
+                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Non-Conformance</p>
+                  <div class="flex items-end justify-between mt-auto">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-3xl font-black" :class="getQualityStatusCount('failed') > 0 ? 'text-red-600 animate-pulse' : 'text-slate-900 dark:text-white'">{{ getQualityStatusCount('failed') }}</span>
+                      <span class="text-xs font-bold text-slate-500 uppercase">Findings</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 transition-transform group-hover:scale-110">
+                      <i class="mdi mdi-alert-octagon-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
             </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ getQualityStatusCount('pending') + getQualityStatusCount('in_progress') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Pending</div>
+
+            <!-- Completion Progress -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-indigo-500">
+               <div class="flex flex-col h-full">
+                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Final Readiness</p>
+                  <div class="flex items-end justify-between mt-auto">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400">{{ qualityProgressPercentage }}%</span>
+                      <span class="text-xs font-bold text-slate-500 uppercase">Ready</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-110">
+                      <i class="mdi mdi-rocket-launch-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
             </div>
           </div>
 
-          <!-- Overall Quality Progress -->
-          <div class="mt-4">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Quality Progress</span>
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ qualityProgressPercentage }}%</span>
-            </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-              <div
-                class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
-                :style="{ width: qualityProgressPercentage + '%' }"
-              ></div>
-            </div>
+          <!-- Overall Progress Bar Detailed -->
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative">
+             <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <i class="mdi mdi-shield-check text-8xl"></i>
+             </div>
+             <div class="relative z-10">
+                <div class="flex justify-between items-center mb-4">
+                  <div>
+                    <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Audit Progress</span>
+                    <span class="text-xs text-slate-500">System validates fabrication against project design specifications</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ qualityProgressPercentage }}%</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block tracking-tighter">Certified Finish</span>
+                  </div>
+                </div>
+                <div class="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-4 overflow-hidden p-1 shadow-inner border border-slate-200/50 dark:border-slate-700/50">
+                  <div
+                    class="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                    :class="qualityProgressPercentage === 100 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20' : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500'"
+                    :style="{ width: qualityProgressPercentage + '%' }"
+                  >
+                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                     <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                </div>
+                <div class="flex justify-between mt-3 px-1">
+                   <span class="text-[10px] font-bold text-slate-400 uppercase">Project Initiation</span>
+                   <span class="text-[10px] font-bold text-emerald-500 uppercase">Ready for Setup</span>
+                </div>
+             </div>
           </div>
         </div>
 
-        <!-- Quality Control Checkpoints -->
-        <div v-if="productionData.qualityControl.length > 0" class="space-y-4">
+         <!-- Quality Control Checkpoints -->
+        <div v-if="productionData.qualityControl.length > 0" class="space-y-6">
           <div
             v-for="checkpoint in productionData.qualityControl"
             :key="checkpoint.id"
-            class="quality-checkpoint border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-            :class="getCheckpointBorderClass(checkpoint.status)"
+            class="group bg-white dark:bg-slate-800 rounded-2xl border transition-all duration-300 overflow-hidden"
+            :class="[
+              isCheckpointDetailsExpanded(checkpoint.id) ? 'shadow-xl ring-2 ring-blue-500/20 border-blue-200 dark:border-blue-800' : 'shadow-sm border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600',
+              checkpoint.priority === 'high' ? 'border-l-4 border-l-red-500' : ''
+            ]"
           >
-            <!-- Checkpoint Header -->
-            <div class="checkpoint-header p-4 bg-white dark:bg-gray-800">
-              <div class="flex justify-between items-start mb-3">
-                <div class="flex-1">
-                  <div class="flex items-center space-x-3 mb-2">
-                    <h4 class="font-medium text-gray-900 dark:text-white">{{ checkpoint.categoryName }}</h4>
-                    <span :class="getQualityStatusBadgeClass(checkpoint.status)" class="px-2 py-1 text-xs rounded-full font-medium">
-                      {{ getQualityStatusIcon(checkpoint.status) }} {{ checkpoint.status.replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </div>
-                  <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>{{ checkpoint.elementCount }} production elements</span>
-                    <span v-if="checkpoint.checkedBy">Checked by: {{ checkpoint.checkedBy }}</span>
-                    <span v-if="checkpoint.checkedAt">{{ formatDate(checkpoint.checkedAt) }}</span>
-                  </div>
-                </div>
-
-                <!-- Status Controls -->
-                <div class="flex items-center space-x-3">
-                  <select
-                    v-model="checkpoint.status"
-                    @change="updateQualityStatus(checkpoint.id, checkpoint.status)"
+            <!-- Checkpoint Row -->
+            <div class="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+               <div class="flex items-start gap-4 flex-1">
+                  <!-- Status Circle -->
+                  <div 
+                    class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner"
                     :class="[
-                      'status-select px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                      'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                      getQualityStatusSelectClass(checkpoint.status)
+                      checkpoint.status === 'passed' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30' : 
+                      checkpoint.status === 'failed' ? 'bg-red-50 text-red-600 dark:bg-red-900/30 animate-pulse' :
+                      checkpoint.status === 'in_progress' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30' :
+                      'bg-slate-50 text-slate-400 dark:bg-slate-900/30'
                     ]"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="passed">Passed</option>
-                    <option value="failed">Failed</option>
-                  </select>
+                    <i :class="getQualityStatusIconMdi(checkpoint.status)"></i>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                     <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <h4 class="font-bold text-slate-900 dark:text-white truncate">{{ checkpoint.categoryName }}</h4>
+                        <span 
+                          v-if="checkpoint.priority === 'high'" 
+                          class="px-2 py-0.5 text-[9px] font-black bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 rounded-full uppercase tracking-tighter border border-red-200 dark:border-red-800"
+                        >
+                          Critical
+                        </span>
+                        <div class="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800">
+                           <span class="w-1.5 h-1.5 rounded-full" :class="checkpoint.status === 'passed' ? 'bg-emerald-500' : 'bg-slate-300'"></span>
+                           <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">{{ checkpoint.status.replace('_', ' ') }}</span>
+                        </div>
+                     </div>
+                     
+                     <div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-1">
+                          <i class="mdi mdi-layers-outline"></i>
+                          {{ checkpoint.elementCount }} Items
+                        </span>
+                        <span class="flex items-center gap-1" v-if="checkpoint.checklist">
+                          <i class="mdi mdi-check-all"></i>
+                          {{ checkpoint.checklist.filter(i => i.checked).length }}/{{ checkpoint.checklist.length }} Tasks
+                        </span>
+                        <span class="flex items-center gap-1" v-if="checkpoint.qualityScore">
+                           <i class="mdi mdi-star-outline"></i>
+                           {{ checkpoint.qualityScore }}% Quality
+                        </span>
+                     </div>
+                  </div>
+               </div>
 
-                  <button
-                    @click="toggleCheckpointDetails(checkpoint.id)"
-                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                    :aria-label="isCheckpointDetailsExpanded(checkpoint.id) ? 'Hide details' : 'Show details'"
+               <!-- Row Actions -->
+               <div class="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-700">
+                  <div class="hidden md:flex flex-col items-end mr-2 text-right">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ownership</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ checkpoint.checkedBy || 'Unassigned' }}</span>
+                  </div>
+
+                  <button 
+                    v-if="!isReadOnly && checkpoint.status !== 'passed'"
+                    @click="fastPassCheckpoint(checkpoint.id)"
+                    class="h-10 px-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                    title="Quick Approve"
                   >
-                    <svg
-                      :class="['w-5 h-5 transition-transform', { 'rotate-180': isCheckpointDetailsExpanded(checkpoint.id) }]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    <i class="mdi mdi-check-all text-sm"></i>
+                    <span class="sm:hidden lg:inline">Quick Pass</span>
                   </button>
-                </div>
-              </div>
+
+                  <button 
+                    @click="toggleCheckpointDetails(checkpoint.id)"
+                    class="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition-all shadow-inner"
+                    :class="{ 'bg-blue-600 text-white': isCheckpointDetailsExpanded(checkpoint.id) }"
+                  >
+                    <i class="mdi" :class="isCheckpointDetailsExpanded(checkpoint.id) ? 'mdi-chevron-up' : 'mdi-cog-outline'"></i>
+                  </button>
+               </div>
             </div>
 
-            <!-- Checkpoint Details (Expandable) -->
-            <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="checkpoint-details bg-gray-50 dark:bg-gray-700 p-4 border-t border-gray-200 dark:border-gray-600">
-              <!-- Checklist Items -->
-              <div v-if="checkpoint.checklist" class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Checklist Items
-                </label>
-                <div class="space-y-2">
-                  <div
-                    v-for="item in checkpoint.checklist"
-                    :key="item.id"
-                    class="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      :id="`${checkpoint.id}-${item.id}`"
-                      v-model="item.checked"
-                      @change="updateChecklistItem(checkpoint.id, item.id, item.checked)"
-                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                    <label
-                      :for="`${checkpoint.id}-${item.id}`"
-                      class="flex-1 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                      :class="{ 'line-through text-gray-500 dark:text-gray-500': item.checked }"
-                    >
-                      {{ item.label }}
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Notes Section -->
-              <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Quality Control Notes
-                </label>
-                <textarea
-                  v-model="checkpoint.notes"
-                  @input="updateCheckpointNotes(checkpoint.id, checkpoint.notes)"
-                  rows="3"
-                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  placeholder="Add quality control notes, observations, or issues found..."
-                ></textarea>
-              </div>
-
-              <!-- Quality Metrics -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="quality-metric">
-                  <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Quality Score</label>
-                  <div class="flex items-center space-x-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      v-model="checkpoint.qualityScore"
-                      @input="updateQualityScore(checkpoint.id, checkpoint.qualityScore)"
-                      class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600"
-                    />
-                    <span class="text-sm font-medium text-gray-900 dark:text-white w-12">{{ checkpoint.qualityScore || 0 }}%</span>
-                  </div>
+            <!-- Detailed Panel -->
+            <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="px-5 pb-5 animate-fade-in-down border-t border-slate-100 dark:border-slate-700 pt-5 bg-slate-50/50 dark:bg-slate-900/20">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Checklist Side -->
+                <div>
+                   <div class="flex items-center justify-between mb-4">
+                      <h5 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                         <i class="mdi mdi-format-list-checks text-blue-500"></i>
+                         Verification Checklist
+                      </h5>
+                      <span class="text-[10px] font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">MUST COMPLETE ALL</span>
+                   </div>
+                   
+                   <div class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      <div 
+                        v-for="item in checkpoint.checklist" 
+                        :key="item.id"
+                        class="group/item flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer"
+                        :class="item.checked ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-800/50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-300'"
+                        @click="item.checked = !item.checked; updateChecklistItem(checkpoint.id, item.id, item.checked)"
+                      >
+                         <div 
+                           class="w-6 h-6 rounded-lg flex items-center justify-center transition-all border-2"
+                           :class="item.checked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 dark:border-slate-600 group-hover/item:border-blue-400'"
+                         >
+                            <i v-if="item.checked" class="mdi mdi-check text-sm"></i>
+                         </div>
+                         <span class="text-sm font-medium transition-all" :class="item.checked ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-70' : 'text-slate-700 dark:text-slate-300'">
+                           {{ item.label }}
+                         </span>
+                      </div>
+                   </div>
                 </div>
 
-                <div class="quality-metric">
-                  <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Inspector</label>
-                  <input
-                    type="text"
-                    v-model="checkpoint.checkedBy"
-                    @input="updateInspector(checkpoint.id, checkpoint.checkedBy)"
-                    class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    placeholder="Inspector name"
-                  />
-                </div>
+                <!-- Controls Side -->
+                <div class="space-y-6">
+                   <!-- Final Verdict -->
+                   <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Audit Outcome</label>
+                      <div class="flex gap-2">
+                        <button 
+                          v-for="status in (['pending', 'in_progress', 'passed', 'failed'] as const)"
+                          :key="status"
+                          @click="updateQualityStatus(checkpoint.id, status as any)"
+                          class="flex-1 py-3 rounded-xl border-2 transition-all font-bold text-[10px] uppercase flex flex-col items-center gap-1"
+                          :class="[
+                            checkpoint.status === status ? 
+                            (status === 'passed' ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 
+                             status === 'failed' ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' :
+                             status === 'in_progress' ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20' :
+                             'bg-slate-500 border-slate-500 text-white shadow-lg shadow-slate-500/20') :
+                            'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-300'
+                          ]"
+                        >
+                          <i :class="getQualityStatusIconMdi(status)" class="text-lg"></i>
+                          {{ status.replace('_', ' ') }}
+                        </button>
+                      </div>
+                   </div>
 
-                <div class="quality-metric">
-                  <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Priority</label>
-                  <select
-                    v-model="checkpoint.priority"
-                    @change="updateCheckpointPriority(checkpoint.id, checkpoint.priority)"
-                    class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-              </div>
+                   <!-- Notes & Scoring -->
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div class="md:col-span-2">
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Internal Audit Notes</label>
+                         <textarea 
+                           v-model="checkpoint.notes"
+                           @change="updateCheckpointNotes(checkpoint.id, checkpoint.notes)"
+                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px]"
+                           placeholder="Describe any defects, materials variance or exceptional fabrication standards observed..."
+                         ></textarea>
+                      </div>
+                      
+                      <div>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 flex justify-between">
+                           Quality Score 
+                           <span class="text-blue-500">{{ checkpoint.qualityScore || 0 }}%</span>
+                         </label>
+                         <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <input 
+                              type="range" 
+                              v-model="checkpoint.qualityScore" 
+                              @change="updateQualityScore(checkpoint.id, checkpoint.qualityScore)"
+                              class="w-full accent-blue-500 cursor-pointer"
+                            />
+                         </div>
+                      </div>
 
-              <!-- Action Buttons -->
-              <div class="flex justify-between items-center">
-                <div class="flex space-x-2">
-                  <button
-                    v-if="checkpoint.status === 'failed'"
-                    @click="retryQualityCheck(checkpoint.id)"
-                    class="px-3 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors"
-                  >
-                    Retry Check
-                  </button>
-                  <button
-                    @click="duplicateCheckpoint(checkpoint.id)"
-                    class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
-                  >
-                    Duplicate
-                  </button>
-                </div>
+                      <div>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Assigned Inspector</label>
+                         <input 
+                           type="text" 
+                           v-model="checkpoint.checkedBy"
+                           @change="updateInspector(checkpoint.id, checkpoint.checkedBy)"
+                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Name/ID"
+                         />
+                      </div>
+                   </div>
 
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  Last updated: {{ checkpoint.checkedAt ? formatDate(checkpoint.checkedAt) : 'Never' }}
+                   <!-- Footer Actions -->
+                   <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                      <div class="flex gap-2">
+                         <button @click="retryQualityCheck(checkpoint.id)" class="px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-white transition-all">Clear & Reset</button>
+                         <button @click="duplicateCheckpoint(checkpoint.id)" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">Duplicate</button>
+                      </div>
+                      <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]" v-if="checkpoint.updatedAt">
+                        Synced: {{ formatDate(checkpoint.updatedAt) }}
+                      </span>
+                   </div>
                 </div>
               </div>
             </div>
@@ -634,28 +885,48 @@
         </div>
 
         <!-- No Quality Control State -->
-        <div v-else class="text-center py-12">
-          <div class="mb-4">
+        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div class="w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 relative">
+             <i class="mdi mdi-shield-search text-5xl text-slate-300 dark:text-slate-600"></i>
+             <div class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg animate-bounce">
+                <i class="mdi mdi-plus text-xl"></i>
+             </div>
+          </div>
+          
+          <div class="text-center max-w-md px-6">
+            <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">Initialize Quality Audit</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+              Quality control checkpoints are automatically mapped to your production elements to ensure fabrication standards are met.
+            </p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 text-left">
+               <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  <i class="mdi mdi-numeric-1-box text-blue-500 text-xl"></i>
+                  <div>
+                     <p class="text-[10px] font-black uppercase text-slate-400">Step 1</p>
+                     <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Map All Categories</p>
+                  </div>
+               </div>
+               <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  <i class="mdi mdi-numeric-2-box text-emerald-500 text-xl"></i>
+                  <div>
+                     <p class="text-[10px] font-black uppercase text-slate-400">Step 2</p>
+                     <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Start Verification</p>
+                  </div>
+               </div>
+            </div>
 
+            <button
+              @click="generateQualityCheckpoints"
+              class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+            >
+              <i class="mdi mdi-lightning-bolt text-lg"></i>
+              Generate Checkpoints
+            </button>
+            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">Recommended for this project</p>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Quality Control Checkpoints</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">
-            Quality control checkpoints will be automatically generated based on production elements.
-          </p>
-          <div class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-            <p>• Import production elements first</p>
-            <p>• Checkpoints are created for each category</p>
-            <p>• Track quality status and add notes</p>
-          </div>
-          <button
-            @click="generateQualityCheckpoints"
-            class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            Generate Quality Checkpoints
-          </button>
         </div>
       </div>
-    </div>
 
 
 
@@ -669,202 +940,215 @@
         :class="{ 'animate-fade-in': activeTab === 'issues' }"
       >
         <!-- Issues Header -->
-        <div class="issues-header flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Production Issues Tracking</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Track and resolve production issues across all categories
-            </p>
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
+          <div class="flex items-center gap-5">
+             <div class="w-14 h-14 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/20 rotate-3 group-hover:rotate-0 transition-transform">
+                <i class="mdi mdi-alert-octagram-outline text-3xl"></i>
+             </div>
+             <div>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Operational Bottlenecks</h3>
+                <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Track, Resolve & Escalate Production Issues</p>
+             </div>
           </div>
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
-            <select
-              v-model="selectedIssueCategory"
-              class="category-filter px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">All Categories</option>
-              <option value="materials">Materials</option>
-              <option value="equipment">Equipment</option>
-              <option value="quality">Quality</option>
-              <option value="timeline">Timeline</option>
-              <option value="safety">Safety</option>
-              <option value="other">Other</option>
-            </select>
+          
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+            <div class="relative group flex-1 sm:flex-none">
+               <select
+                 v-model="selectedIssueCategory"
+                 class="appearance-none pl-11 pr-10 py-3.5 text-xs font-black uppercase tracking-widest border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all min-w-[220px] shadow-sm hover:shadow-md cursor-pointer"
+               >
+                 <option value="">All Categories</option>
+                 <option v-for="cat in issueCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
+               </select>
+               <i class="mdi mdi-filter-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+               <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
+
             <button
               v-if="!isReadOnly"
               @click="showAddIssueModal = true"
-              class="add-issue-btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+              class="px-8 py-4 bg-slate-900 dark:bg-slate-700 hover:bg-rose-600 text-white rounded-2xl transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-black/10 active:scale-95"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              <span>Add Issue</span>
+              <i class="mdi mdi-plus-circle-outline text-lg"></i>
+              <span>Report Issue</span>
             </button>
           </div>
         </div>
 
-        <!-- Debug Info -->
-        <div class="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900 text-xs">
-          Debug: Issues count: {{ productionData.issues.length }}, Filtered: {{ filteredIssues.length }}, Category: "{{ selectedIssueCategory }}"
+        <!-- Issues Summary Cards -->
+        <div v-if="productionData.issues.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <!-- Total Card -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+               <div class="relative z-10 flex flex-col h-full">
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Lifetime Logs</span>
+                  <div class="flex items-end justify-between mt-auto">
+                    <p class="text-4xl font-black text-slate-800 dark:text-white leading-none">{{ productionData.issues.length }}</p>
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                       <i class="mdi mdi-clipboard-text-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
+               <div class="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
+
+            <!-- Open Card -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+               <div class="relative z-10 flex flex-col h-full">
+                  <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-4 block">Active Danger</span>
+                  <div class="flex items-end justify-between mt-auto">
+                    <p class="text-4xl font-black text-rose-600 dark:text-rose-400 leading-none">{{ getIssueStatusCount('open') }}</p>
+                    <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 flex items-center justify-center text-rose-500 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                       <i class="mdi mdi-fire text-xl animate-pulse"></i>
+                    </div>
+                  </div>
+               </div>
+               <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50/50 dark:bg-rose-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
+
+            <!-- In Progress Card -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+               <div class="relative z-10 flex flex-col h-full">
+                  <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 block">In Remediation</span>
+                  <div class="flex items-end justify-between mt-auto">
+                    <p class="text-4xl font-black text-amber-600 dark:text-amber-400 leading-none">{{ getIssueStatusCount('in_progress') }}</p>
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                       <i class="mdi mdi-tools text-xl"></i>
+                    </div>
+                  </div>
+               </div>
+               <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50/50 dark:bg-amber-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
+
+            <!-- Resolved Card -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+               <div class="relative z-10 flex flex-col h-full">
+                  <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 block">Resolved & Cleared</span>
+                  <div class="flex items-end justify-between mt-auto">
+                    <p class="text-4xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{{ getIssueStatusCount('resolved') }}</p>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                       <i class="mdi mdi-check-decagram-outline text-xl"></i>
+                    </div>
+                  </div>
+               </div>
+               <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+            </div>
         </div>
 
-        <!-- Issues Summary -->
-        <div v-if="productionData.issues.length > 0" class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Issues Summary</h4>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ productionData.issues.length }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Total Issues</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ getIssueStatusCount('open') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Open</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ getIssueStatusCount('in_progress') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">In Progress</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getIssueStatusCount('resolved') }}</div>
-              <div class="text-gray-600 dark:text-gray-400">Resolved</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Issues List -->
-        <div v-if="filteredIssues.length > 0" class="space-y-4">
+        <!-- Modernized Issues List -->
+        <div v-if="filteredIssues.length > 0" class="grid grid-cols-1 gap-6">
           <div
             v-for="issue in filteredIssues"
             :key="issue.id"
-            class="issue-item border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-            :class="getIssueBorderClass(issue.status, issue.priority)"
+            class="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
+            :class="{ 'opacity-75 grayscale-[0.5]': issue.status === 'resolved' }"
           >
-            <!-- Issue Header -->
-            <div class="issue-header p-4 bg-white dark:bg-gray-800">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-                <div class="flex-1">
-                  <div class="flex items-start space-x-3 mb-2">
-                    <h4 class="font-medium text-gray-900 dark:text-white text-lg">{{ issue.title }}</h4>
-                    <div class="flex space-x-2">
-                      <span :class="getCategoryClass(issue.category)" class="category-badge px-2 py-1 text-xs rounded-full font-medium">
-                        {{ getCategoryIcon(issue.category) }} {{ issue.category.toUpperCase() }}
-                      </span>
-                      <span :class="getPriorityClass(issue.priority)" class="priority-badge px-2 py-1 text-xs rounded-full font-medium">
-                        {{ getPriorityIcon(issue.priority) }} {{ issue.priority.toUpperCase() }}
-                      </span>
-                    </div>
+            <!-- Premium List Item Body -->
+            <div class="px-8 py-6">
+               <div class="flex flex-col xl:flex-row gap-6">
+                  <!-- Issue Info -->
+                  <div class="flex-1">
+                     <div class="flex items-center gap-3 mb-3">
+                        <span 
+                           class="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border"
+                           :class="getPriorityClass(issue.priority)"
+                        >
+                           <i class="mdi mr-1" :class="getPriorityIconMdi(issue.priority)"></i>
+                           {{ issue.priority }}
+                        </span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ issue.category }}</span>
+                        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ formatDate(issue.reportedDate) }}</span>
+                     </div>
+                     <h4 class="text-xl font-black text-slate-900 dark:text-white mb-2 group-hover:text-rose-600 transition-colors">{{ issue.title }}</h4>
+                     <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">{{ issue.description }}</p>
+                     
+                     <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center gap-2">
+                           <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">
+                              {{ issue.reportedBy.substring(0,1).toUpperCase() }}
+                           </div>
+                           <span class="text-[10px] font-black text-slate-400 uppercase">Reported By: {{ issue.reportedBy }}</span>
+                        </div>
+                        <div v-if="issue.resolvedDate" class="flex items-center gap-2">
+                           <i class="mdi mdi-check-circle text-emerald-500"></i>
+                           <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
+                        </div>
+                     </div>
                   </div>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ issue.description }}</p>
-                  <div class="flex flex-wrap items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span>Reported: {{ formatDate(issue.reportedDate) }}</span>
-                    <span>By: {{ issue.reportedBy }}</span>
-                    <span v-if="issue.resolvedDate">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
+
+                  <!-- Status Control Panel -->
+                  <div class="flex flex-col sm:flex-row xl:flex-col gap-3 justify-center xl:min-w-[200px]">
+                     <div class="relative group/select">
+                        <select
+                          v-model="issue.status"
+                          @change="updateIssueStatus(issue.id, issue.status)"
+                          class="w-full appearance-none px-5 py-3.5 text-[10px] font-black uppercase tracking-widest border-2 rounded-2xl bg-white dark:bg-slate-900 transition-all cursor-pointer shadow-sm hover:shadow-md outline-none"
+                          :class="getIssueStatusSelectClass(issue.status)"
+                        >
+                          <option value="open">⚠️ Open Ticket</option>
+                          <option value="in_progress">⚙️ In Progress</option>
+                          <option value="resolved">✅ Resolved</option>
+                        </select>
+                        <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                     </div>
+
+                     <div class="flex gap-2">
+                        <button
+                          @click="showEscalationModal(issue)"
+                          class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center gap-2"
+                          title="Escalate Issue"
+                        >
+                          <i class="mdi mdi-arrow-up-bold-circle-outline text-lg"></i>
+                          <span class="text-[10px] font-black uppercase tracking-widest">Escalate</span>
+                        </button>
+                        <button
+                          @click="deleteIssue(issue.id)"
+                          class="w-12 h-12 bg-white dark:bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 border border-slate-100 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center shadow-sm"
+                          title="Archive Log"
+                        >
+                          <i class="mdi mdi-delete-outline text-xl"></i>
+                        </button>
+                     </div>
                   </div>
-                </div>
-
-                <!-- Issue Actions -->
-                <div class="flex items-center space-x-3">
-                  <select
-                    v-model="issue.status"
-                    @change="updateIssueStatus(issue.id, issue.status)"
-                    :class="[
-                      'px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                      'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                      getIssueStatusSelectClass(issue.status)
-                    ]"
-                  >
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                  </select>
-
-                  <button
-                    @click="toggleIssueDetails(issue.id)"
-                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                    :aria-label="isIssueDetailsExpanded(issue.id) ? 'Hide details' : 'Show details'"
-                  >
-                    <svg
-                      :class="['w-5 h-5 transition-transform', { 'rotate-180': isIssueDetailsExpanded(issue.id) }]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </button>
-
-                  <button
-                    @click="deleteIssue(issue.id)"
-                    class="p-2 text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
-                    :aria-label="'Delete issue'"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+               </div>
             </div>
 
-            <!-- Issue Details (Expandable) -->
-            <div v-if="isIssueDetailsExpanded(issue.id)" class="issue-details bg-gray-50 dark:bg-gray-700 p-4 border-t border-gray-200 dark:border-gray-600">
-              <!-- Resolution Section -->
-              <div v-if="issue.status === 'resolved' && issue.resolution" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                <h5 class="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Resolution</h5>
-                <p class="text-sm text-green-700 dark:text-green-300">{{ issue.resolution }}</p>
-              </div>
-
-              <!-- Issue Actions -->
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-if="issue.status !== 'resolved'"
-                  @click="markIssueResolved(issue.id)"
-                  class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
-                >
-                  Mark Resolved
-                </button>
-                <button
-                  v-if="issue.status === 'resolved'"
-                  @click="reopenIssue(issue.id)"
-                  class="px-3 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors"
-                >
-                  Reopen Issue
-                </button>
-                <button
-                  @click="duplicateIssue(issue.id)"
-                  class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors"
-                >
-                  Duplicate
-                </button>
-                <button
-                  @click="escalateIssue(issue.id)"
-                  class="px-3 py-1 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors"
-                >
-                  Escalate
-                </button>
-              </div>
+            <!-- Optional Expansion (if has nested comments/logs) -->
+            <div v-if="isIssueDetailsExpanded(issue.id)" class="px-8 pb-8 animate-slide-down">
+               <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Remediation Logs</h5>
+                  <div class="space-y-4">
+                     <p class="text-sm font-medium italic text-slate-500">No logs reported yet...</p>
+                  </div>
+               </div>
             </div>
           </div>
         </div>
-
-        <!-- No Issues State -->
-        <div v-else class="text-center py-12">
-          <div class="mb-4">
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {{ selectedIssueCategory ? 'No issues in this category' : 'No Production Issues' }}
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">
-            {{ selectedIssueCategory
-              ? `No ${selectedIssueCategory} issues have been reported yet.`
-              : 'Great! No production issues have been reported yet.'
-            }}
-          </p>
-          <button
-            @click="showAddIssueModal = true"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Report First Issue
-          </button>
+        <!-- Premium Empty State for Issues -->
+        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+           <div class="w-20 h-20 rounded-full bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 text-emerald-500">
+              <i class="mdi mdi-check-decagram text-4xl animate-bounce"></i>
+           </div>
+           
+           <div class="text-center max-w-md px-6">
+              <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">
+                 {{ selectedIssueCategory ? 'No Category Match' : 'Line Operating Smoothly' }}
+              </h3>
+              <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                 {{ selectedIssueCategory
+                   ? `Success! No ${selectedIssueCategory} bottlenecks detected in current filtration.`
+                   : 'Outstanding! No production issues are currently blocking your fabrication pipeline.'
+                 }}
+              </p>
+              
+              <button
+                @click="showAddIssueModal = true"
+                class="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-3 mx-auto"
+              >
+                <i class="mdi mdi-plus-circle-outline"></i>
+                Log New Issue
+              </button>
+           </div>
         </div>
 
         <!-- Add Issue Modal -->
@@ -969,6 +1253,7 @@
 
 
       <!-- Design Files Tab -->
+      <!-- Design Assets Tab -->
       <div
         v-show="activeTab === 'design'"
         class="design-section tab-panel"
@@ -977,118 +1262,127 @@
         :aria-labelledby="`tab-design`"
         :class="{ 'animate-fade-in': activeTab === 'design' }"
       >
-         <div class="mb-6">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Design Assets</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              View artworks, renders, and designs associated with this project.
-            </p>
+         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+            <div class="flex items-center gap-5">
+               <div class="w-14 h-14 rounded-3xl bg-indigo-500 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 rotate-2 group-hover:rotate-0 transition-transform">
+                  <i class="mdi mdi-palette-swatch-outline text-3xl"></i>
+               </div>
+               <div>
+                  <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Technical Blueprints</h3>
+                  <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Validated Artworks & Design Assets</p>
+               </div>
+            </div>
+            
+            <button 
+               @click="fetchDesignAssets"
+               class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-indigo-600 transition-all shadow-sm group"
+               title="Refresh Assets"
+            >
+               <i class="mdi mdi-refresh text-xl group-hover:rotate-180 transition-transform duration-500"></i>
+            </button>
          </div>
 
          <!-- Loading State -->
-         <div v-if="isLoadingDesignAssets" class="flex justify-center py-12">
-            <div class="flex flex-col items-center space-y-3 text-blue-600 dark:text-blue-400">
-               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-               <span class="text-sm font-medium">Loading design assets...</span>
+         <div v-if="isLoadingDesignAssets" class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem]">
+            <div class="relative w-16 h-16">
+               <div class="absolute inset-0 border-4 border-indigo-100 dark:border-indigo-900/30 rounded-full"></div>
+               <div class="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
+            <span class="mt-6 text-xs font-black uppercase tracking-widest text-slate-400">Syncing Cloud Assets...</span>
          </div>
 
          <!-- Error State -->
-         <div v-else-if="designAssetsError" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center">
-            <p class="text-red-600 dark:text-red-300">{{ designAssetsError }}</p>
-            <button @click="fetchDesignAssets" class="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">Try Again</button>
+         <div v-else-if="designAssetsError" class="p-8 bg-red-50 dark:bg-red-900/10 border-2 border-dashed border-red-200 dark:border-red-900/30 rounded-[3rem] text-center">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+               <i class="mdi mdi-cloud-off-outline text-3xl"></i>
+            </div>
+            <h4 class="text-lg font-black text-slate-800 dark:text-white mb-2">Connection Interrupted</h4>
+            <p class="text-sm text-red-600 dark:text-red-400 mb-6 font-medium">{{ designAssetsError }}</p>
+            <button @click="fetchDesignAssets" class="px-8 py-3 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-500/20">Reconnect Now</button>
          </div>
 
          <!-- Empty State -->
-         <div v-else-if="designAssets.length === 0" class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-            <p class="text-gray-500 dark:text-gray-400">No design assets found for this project.</p>
+         <div v-else-if="designAssets.length === 0" class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+            <div class="w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 text-slate-300">
+               <i class="mdi mdi-folder-zip-outline text-4xl"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Manifest Not Found</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-0 font-medium tracking-tight">No design components have been pushed to this task yet.</p>
          </div>
 
          <!-- Assets Grid -->
-         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <div
               v-for="asset in designAssets"
               :key="asset.id"
-              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+              class="group bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col"
               @click="openPreview(asset)"
             >
-              <!-- Asset Preview/Icon -->
-              <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative overflow-hidden">
-                <!-- Image Preview with Loading State -->
+              <!-- Asset Preview -->
+              <div class="h-56 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden shrink-0">
+                <!-- Image Preview -->
                 <template v-if="isImageAsset(asset)">
-                  <!-- Loading Placeholder -->
-                  <div class="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-600">
-                    <svg class="animate-spin h-8 w-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </div>
-                  <!-- Actual Image -->
                   <img
                     :src="getAssetUrl(asset)"
-                    :alt="asset.file_name || asset.name || asset.original_name"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
-                    @load="(e) => { const parent = (e.target as HTMLElement)?.parentElement?.querySelector('.absolute'); if (parent) parent.remove(); }"
+                    :alt="asset.file_name"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 </template>
                 
-                <!-- PDF Icon -->
+                <!-- PDF Preview Icon -->
                 <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center">
-                  <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                  </svg>
-                  <span class="text-xs text-gray-600 dark:text-gray-300 mt-2 font-medium">PDF DOCUMENT</span>
+                   <div class="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 mb-3 shadow-sm border border-red-100 dark:border-red-800/30">
+                      <i class="mdi mdi-file-pdf-box text-4xl"></i>
+                   </div>
+                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Technical PDF</span>
                 </div>
                 
-                <!-- Generic File Icon -->
+                <!-- Other Files -->
                 <div v-else class="flex flex-col items-center">
-                  <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
-                  </svg>
-                  <span class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ asset.category?.toUpperCase() || 'FILE' }}</span>
+                   <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 border border-slate-200 dark:border-slate-700">
+                      <i class="mdi mdi-file-document-outline text-4xl"></i>
+                   </div>
+                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ asset.category || 'ASSET' }}</span>
                 </div>
 
                 <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div class="px-4 py-2 bg-white/90 text-gray-900 text-xs font-bold rounded-lg transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                    CLICK TO PREVIEW
+                <div class="absolute inset-0 bg-indigo-600/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+                  <div class="w-14 h-14 rounded-full bg-white text-indigo-600 flex items-center justify-center shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
+                    <i class="mdi mdi-eye-outline text-2xl"></i>
                   </div>
                 </div>
               </div>
 
               <!-- Asset Info -->
-              <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-gray-900 dark:text-white truncate text-sm" :title="asset.file_name || asset.name">
-                      {{ asset.file_name || asset.name || asset.original_name }}
-                    </h4>
-                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-semibold uppercase tracking-wider">
-                      {{ asset.category }}
-                    </p>
-                  </div>
+              <div class="p-6 flex flex-col flex-1">
+                <div class="flex-1">
+                   <div class="flex items-center gap-2 mb-3">
+                      <span 
+                         class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter"
+                         :class="getAssetStatusClass(asset.status)"
+                      >
+                         {{ asset.status }}
+                      </span>
+                      <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">{{ asset.category }}</span>
+                   </div>
+                   <h4 class="font-black text-slate-900 dark:text-white truncate text-sm leading-tight mb-2" :title="asset.file_name">
+                     {{ asset.file_name || asset.name }}
+                   </h4>
                 </div>
                 
-                <!-- Status & Date -->
-                <div class="mt-3 flex items-center justify-between">
-                  <span
-                    :class="{
-                      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400': asset.status === 'approved',
-                      'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400': asset.status === 'pending',
-                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': asset.status === 'rejected',
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': asset.status === 'revision' || asset.status === 'concept',
-                    }"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase"
-                  >
-                    {{ asset.status }}
-                  </span>
-                  <span class="text-[10px] text-gray-400 font-medium">
-                    {{ asset.created_at ? new Date(asset.created_at).toLocaleDateString() : 'N/A' }}
-                  </span>
+                <div class="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
+                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      {{ asset.created_at ? formatDate(asset.created_at) : 'NO DATE' }}
+                   </span>
+                   <div class="flex -space-x-1">
+                      <div class="w-5 h-5 rounded-full border-2 border-white dark:border-slate-800 bg-slate-200 dark:bg-slate-700"></div>
+                   </div>
                 </div>
               </div>
             </div>
          </div>
       </div>
+    </div>
 
     <!-- Save Status Indicator -->
     <div v-if="saveError || isSaving || lastSaveTime" class="mb-4 p-3 rounded-lg border">
@@ -1491,8 +1785,48 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Initialize activeTab with initialTab if provided, otherwise default to 'production-elements'
-const activeTab = ref(props.initialTab || 'production-elements')
+// Date formatting function (following MaterialsTask pattern)
+function formatDate(dateValue: string | Date | null | undefined) {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return 'TBC'
+  }
+}
+
+function convertToCamelCase(obj: any): any {
+  if (obj === null || typeof obj !== 'object') return obj
+  if (Array.isArray(obj)) return obj.map(convertToCamelCase)
+
+  const result: any = {}
+  for (const [key, value] of Object.entries(obj)) {
+    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+    result[camelKey] = convertToCamelCase(value)
+  }
+  return result
+}
+
+// Initialize activeTab with initialTab if provided, otherwise default to 'production-management'
+const activeTab = ref(props.initialTab || 'production-management')
+
+// UI State
+const isSaving = ref(false)
+const saveError = ref<string | null>(null)
+const lastSaveTime = ref<Date | null>(null)
+const hasUnsavedChanges = ref(false)
+const saveRetryCount = ref(0)
+const maxSaveRetries = 3
+const autoSaveDelay = 500
+let autoSaveTimeout: any = null
 
 // Watch initialTab to update activeTab when it changes while open
 watch(() => props.initialTab, (newTab) => {
@@ -1503,11 +1837,10 @@ watch(() => props.initialTab, (newTab) => {
 
 // Tab navigation with enhanced functionality
 const tabs = [
-  { id: 'production-elements', label: 'Production Elements', description: 'View and manage production elements' },
+  { id: 'production-management', label: 'Production Management', description: 'View and manage production workflow' },
   { id: 'procurement-status', label: 'Procurement Status', description: 'View procurement and stock status' },
-  { id: 'quality', label: 'Quality Control', description: 'Manage quality control checkpoints' },
-  { id: 'issues', label: 'Issues', description: 'Track and resolve production issues' },
-  { id: 'design', label: 'Design Files', description: 'View Design Artworks and Renders' }
+  { id: 'quality', label: 'Quality Assurance', description: 'Manage quality control checkpoints' },
+  { id: 'design', label: 'Design Assets', description: 'View Design Artworks and Renders' }
 ]
 
 // Design Asset Interface
@@ -1812,6 +2145,16 @@ const productionData = ref<ProductionTaskData>({
   completionCriteria: [...defaultCompletionCriteria.value]
 })
 
+const readyForAssemblyCount = computed(() => {
+  return productionData.value.relatedProcurementItems?.filter((i: any) => i.stockStatus === 'in_stock').length || 0
+})
+
+const readyForAssemblyPercentage = computed(() => {
+  const count = readyForAssemblyCount.value
+  const total = productionData.value.productionElements.length || 1
+  return Math.round((count / total) * 100)
+})
+
 // UI state
 const selectedIssueCategory = ref('')
 
@@ -1820,7 +2163,7 @@ const projectInfo = computed(() => {
   const enquiry = props.task.enquiry
 
   return {
-    projectId: enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-${props.task.id}`,
     enquiryNumber: enquiry?.enquiry_number || `ENQ-${props.task.id}`,
     enquiryTitle: enquiry?.title || 'Untitled Project',
     clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Unknown Client',
@@ -1861,23 +2204,7 @@ const completionPercentage = computed(() => {
 })
 
 // Date formatting function (following MaterialsTask pattern)
-// Date formatting function (following MaterialsTask pattern)
-const formatDate = (dateValue: string | Date | null | undefined) => {
-  if (!dateValue || dateValue === 'TBC') return 'TBC'
-
-  try {
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
-    if (isNaN(date.getTime())) return 'TBC'
-
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-  } catch {
-    return 'TBC'
-  }
-}
+// formatDate moved to top
 
 // Currency formatting function for budget display
 const formatCurrency = (amount: number | null | undefined) => {
@@ -1892,6 +2219,29 @@ const formatCurrency = (amount: number | null | undefined) => {
     return amount.toString()
   }
 }
+
+// Production elements status management
+const updateElementStatus = (elementId: string, status: ProductionElement['status']) => {
+  const element = productionData.value.productionElements.find((e: any) => e.id === elementId)
+  if (element) {
+    const previousStatus = element.status
+    element.status = status
+    element.updatedAt = new Date()
+    
+    console.log(`Element status updated: ${element.name} - ${previousStatus} → ${status}`)
+    triggerAutoSave()
+  }
+}
+
+const updateElementNotes = (elementId: string, notes: string) => {
+  const element = productionData.value.productionElements.find((e: any) => e.id === elementId)
+  if (element) {
+    element.notes = notes
+    element.updatedAt = new Date()
+    triggerAutoSave()
+  }
+}
+
 
 // Quality control status management
 const updateQualityStatus = (checkpointId: string, status: QualityControlCheckpoint['status']) => {
@@ -1930,7 +2280,7 @@ const isCheckpointDetailsExpanded = (checkpointId: string): boolean => {
 }
 
 // Quality control utility functions
-const getQualityStatusCount = (status: QualityControlCheckpoint['status']): number => {
+function getQualityStatusCount(status: QualityControlCheckpoint['status']): number {
   return productionData.value.qualityControl.filter((checkpoint: any) => checkpoint.status === status).length
 }
 
@@ -1990,6 +2340,36 @@ const getQualityStatusIcon = (status: QualityControlCheckpoint['status']) => {
     'failed': '❌'
   }
   return icons[status] || '❓'
+}
+
+const getQualityStatusIconMdi = (status: QualityControlCheckpoint['status']) => {
+  const icons: Record<string, string> = {
+    'passed': 'mdi-check-decagram',
+    'failed': 'mdi-alert-octagon-outline',
+    'in_progress': 'mdi-clock-outline',
+    'pending': 'mdi-timer-sand'
+  }
+  return icons[status] || 'mdi-help-circle-outline'
+}
+
+const fastPassCheckpoint = (checkpointId: string) => {
+  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+  if (checkpoint) {
+    checkpoint.status = 'passed'
+    checkpoint.qualityScore = 100
+    checkpoint.checkedAt = new Date()
+    checkpoint.updatedAt = new Date()
+    
+    // Check all checklist items
+    if (checkpoint.checklist) {
+      checkpoint.checklist.forEach((item: any) => {
+        item.checked = true
+      })
+    }
+    
+    console.log(`Fast-pass applied to ${checkpoint.categoryName}`)
+    triggerAutoSave()
+  }
 }
 
 
@@ -2362,8 +2742,27 @@ const isIssueDetailsExpanded = (issueId: string): boolean => {
   return expandedIssues.value.has(issueId)
 }
 
-const getIssueStatusCount = (status: ProductionIssue['status']): number => {
+function getIssueStatusCount(status: ProductionIssue['status']): number {
   return productionData.value.issues.filter(issue => issue.status === status).length
+}
+
+const openIssueModal = (element?: any) => {
+  // Reset form first
+  newIssue.value = {
+    title: '',
+    description: '',
+    category: '',
+    priority: '',
+    reportedBy: ''
+  }
+
+  if (element) {
+    newIssue.value.title = `Issue with ${element.name || element.description}`
+    newIssue.value.description = `Reported issue for item: ${element.name || element.description} (Qty: ${element.quantity} ${element.unitOfMeasurement})\n\nDetails:`
+    newIssue.value.category = 'materials'
+  }
+  
+  showAddIssueModal.value = true
 }
 
 const addNewIssue = () => {
@@ -2411,15 +2810,63 @@ const closeAddIssueModal = () => {
   }
 }
 
+const getIssueStatusSelectClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'open': 'border-rose-200 text-rose-700 bg-rose-50/30 ring-rose-100',
+    'in_progress': 'border-amber-200 text-amber-700 bg-amber-50/30 ring-amber-100',
+    'resolved': 'border-emerald-200 text-emerald-700 bg-emerald-50/30 ring-emerald-100'
+  }
+  return classes[status] || 'border-slate-200'
+}
+
+const getPriorityClass = (priority: string) => {
+  const classes: Record<string, string> = {
+    'low': 'border-slate-200 text-slate-500 bg-slate-50',
+    'medium': 'border-blue-200 text-blue-600 bg-blue-50',
+    'high': 'border-rose-200 text-rose-600 bg-rose-50',
+    'urgent': 'border-rose-500 text-white bg-rose-500 shadow-lg shadow-rose-500/30'
+  }
+  return classes[priority] || 'border-slate-200'
+}
+
+const getPriorityIconMdi = (priority: string) => {
+  const icons: Record<string, string> = {
+    'low': 'mdi-chevron-double-down',
+    'medium': 'mdi-chevron-double-right',
+    'high': 'mdi-chevron-double-up',
+    'urgent': 'mdi-fire animate-pulse'
+  }
+  return icons[priority] || 'mdi-information-outline'
+}
+
+const getAssetStatusClass = (status: string) => {
+  const classes: Record<string, string> = {
+    'approved': 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800',
+    'pending': 'bg-slate-50 text-slate-500 border-slate-100 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800',
+    'rejected': 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/40 dark:text-rose-400 dark:border-rose-800',
+    'revision': 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800'
+  }
+  return classes[status] || 'bg-slate-50 text-slate-500'
+}
+
+const showEscalationModal = (issue: any) => {
+  console.log('Escalating issue:', issue.title)
+  // For now, let's just update priority to urgent if it's not
+  if (issue.priority !== 'urgent') {
+     issue.priority = 'high' 
+     triggerAutoSave()
+  }
+  alert(`Escalation protocol initiated for: ${issue.title}. Management has been notified.`)
+}
+
 const deleteIssue = (issueId: string) => {
   const issue = productionData.value.issues.find(i => i.id === issueId)
-  if (issue && confirm(`Are you sure you want to delete the issue "${issue.title}"?`)) {
+  if (issue && confirm(`Are you sure you want to archive this issue log: "${issue.title}"?`)) {
     const index = productionData.value.issues.findIndex(i => i.id === issueId)
     if (index !== -1) {
       productionData.value.issues.splice(index, 1)
       expandedIssues.value.delete(issueId)
-      console.log(`Issue deleted: ${issue.title}`)
-      // Auto-save would be triggered here
+      triggerAutoSave()
     }
   }
 }
@@ -2432,8 +2879,7 @@ const markIssueResolved = (issueId: string) => {
       issue.status = 'resolved'
       issue.resolvedDate = new Date()
       issue.resolution = resolution
-      console.log(`Issue resolved: ${issue.title}`)
-      // Auto-save would be triggered here
+      triggerAutoSave()
     }
   }
 }
@@ -2444,8 +2890,7 @@ const reopenIssue = (issueId: string) => {
     issue.status = 'open'
     issue.resolvedDate = undefined
     issue.resolution = undefined
-    console.log(`Issue reopened: ${issue.title}`)
-    // Auto-save would be triggered here
+    triggerAutoSave()
   }
 }
 
@@ -2488,79 +2933,7 @@ const escalateIssue = (issueId: string) => {
   }
 }
 
-// Issue icon functions
-const getCategoryIcon = (category: ProductionIssue['category']): string => {
-  const icons: Record<string, string> = {
-    'materials': '📦',
-    'equipment': '🔧',
-    'quality': '✓',
-    'timeline': '⏰',
-    'safety': '⚠️',
-    'other': '📋'
-  }
-  return icons[category] || '📋'
-}
 
-const getPriorityIcon = (priority: ProductionIssue['priority']): string => {
-  const icons: Record<string, string> = {
-    'low': '🔵',
-    'medium': '🟡',
-    'high': '🔴'
-  }
-  return icons[priority] || '⚪'
-}
-
-const getCategoryClass = (category: ProductionIssue['category']) => {
-  const categoryInfo = issueCategories.value.find(c => c.id === category)
-  const colorClasses: Record<string, string> = {
-    'blue': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
-    'orange': 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300',
-    'green': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300',
-    'yellow': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300',
-    'red': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300',
-    'gray': 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
-  }
-  return colorClasses[categoryInfo?.color || 'gray']
-}
-
-
-
-const getPriorityClass = (priority: ProductionIssue['priority']) => {
-  const classes: Record<string, string> = {
-    'low': 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300',
-    'medium': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300',
-    'high': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
-  }
-  return classes[priority] || 'bg-gray-100 text-gray-800'
-}
-
-
-
-const getIssueBorderClass = (status: ProductionIssue['status'], priority: ProductionIssue['priority']) => {
-  // Priority-based left border with status-based styling
-  const priorityBorder = {
-    'low': 'border-l-4 border-l-gray-400',
-    'medium': 'border-l-4 border-l-yellow-500',
-    'high': 'border-l-4 border-l-red-500'
-  }
-
-  const statusBorder = {
-    'open': 'border-red-200 dark:border-red-800',
-    'in_progress': 'border-yellow-200 dark:border-yellow-800',
-    'resolved': 'border-green-200 dark:border-green-800'
-  }
-
-  return `${priorityBorder[priority] || priorityBorder.medium} ${statusBorder[status] || statusBorder.open}`
-}
-
-const getIssueStatusSelectClass = (status: ProductionIssue['status']) => {
-  const classes: Record<string, string> = {
-    'open': 'border-red-300 dark:border-red-600 ring-red-200 dark:ring-red-800',
-    'in_progress': 'border-yellow-300 dark:border-yellow-600 ring-yellow-200 dark:ring-yellow-800',
-    'resolved': 'border-green-300 dark:border-green-600 ring-green-200 dark:ring-green-800'
-  }
-  return classes[status] || 'border-gray-300 dark:border-gray-600'
-}
 
 // Completion criteria management state
 const showAddCriterionModal = ref(false)
@@ -2925,6 +3298,7 @@ const manualSave = async (): Promise<boolean> => {
     }
 
     const saveData = {
+      production_elements: convertToSnakeCase(mappedElements),
       quality_control: convertToSnakeCase(productionData.value.qualityControl),
       issues: convertToSnakeCase(productionData.value.issues),
       completion_criteria: convertToSnakeCase(productionData.value.completionCriteria)
@@ -3321,17 +3695,7 @@ const calculateDataConsistencyScore = (): number => {
 }
 
 // Convert snake_case to camelCase for frontend compatibility
-const convertToCamelCase = (obj: any): any => {
-  if (obj === null || typeof obj !== 'object') return obj
-  if (Array.isArray(obj)) return obj.map(convertToCamelCase)
-
-  const result: any = {}
-  for (const [key, value] of Object.entries(obj)) {
-    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
-    result[camelKey] = convertToCamelCase(value)
-  }
-  return result
-}
+// convertToCamelCase moved to top
 
 // Load existing data
 const loadProductionData = async () => {
@@ -3435,17 +3799,7 @@ const isImportingMaterials = ref(false)
 const materialsImportError = ref<string | null>(null)
 const lastMaterialsImport = ref<Date | null>(null)
 
-// Data persistence and API integration
-const isSaving = ref(false)
-const saveError = ref<string | null>(null)
-const lastSaveTime = ref<Date | null>(null)
-const hasUnsavedChanges = ref(false)
-const saveRetryCount = ref(0)
-const maxSaveRetries = 3
-
-// Auto-save debouncing
-let autoSaveTimeout: number | null = null
-const autoSaveDelay = 500 // 500ms delay
+// Data persistence and API integration (State moved to top)
 
 // Import materials from Materials Task
 const importMaterialsFromTask = async () => {
@@ -3511,14 +3865,36 @@ const getUniqueUnits = (): string[] => {
   return [...new Set(productionData.value.productionElements.map(element => element.unitOfMeasurement))]
 }
 
-const getCategoryTotalQuantity = (categoryId: string): number => {
+function getCategoryTotalQuantity(categoryId: string): number {
   return getElementsByCategory(categoryId).reduce((total, element) => total + element.quantity, 0)
+}
+
+const getCategoryBorderClass = (categoryId: string): string => {
+  const borders: Record<string, string> = {
+    'stage': 'border-l-blue-500',
+    'stage-skirting': 'border-l-emerald-500',
+    'stage-backdrop': 'border-l-purple-500',
+    'entrance-arc': 'border-l-amber-500',
+    'walkway-dance-floor': 'border-l-rose-500'
+  }
+  return borders[categoryId] || 'border-l-slate-400'
+}
+
+const getCategoryBgClass = (categoryId: string): string => {
+  const bgs: Record<string, string> = {
+    'stage': 'bg-blue-500',
+    'stage-skirting': 'bg-emerald-500',
+    'stage-backdrop': 'bg-purple-500',
+    'entrance-arc': 'bg-amber-500',
+    'walkway-dance-floor': 'bg-rose-500'
+  }
+  return bgs[categoryId] || 'bg-slate-500'
 }
 
 // Category collapse/expand functionality
 const collapsedCategories = ref<Set<string>>(new Set())
 
-const toggleCategoryCollapse = (categoryId: string) => {
+function toggleCategoryCollapse(categoryId: string) {
   if (collapsedCategories.value.has(categoryId)) {
     collapsedCategories.value.delete(categoryId)
   } else {
@@ -3526,7 +3902,7 @@ const toggleCategoryCollapse = (categoryId: string) => {
   }
 }
 
-const isCategoryCollapsed = (categoryId: string): boolean => {
+function isCategoryCollapsed(categoryId: string): boolean {
   return collapsedCategories.value.has(categoryId)
 }
 
@@ -3561,6 +3937,74 @@ const toggleAllCategories = () => {
   }
 }
 
+// Helper functions for Workflow Table
+const getInventoryStatusLabel = (elementId: string) => {
+  const element = productionData.value.productionElements.find(e => e.id === elementId)
+  if (!element) return 'Unknown'
+  
+  // Try to find matching procurement item
+  const procurementItem = productionData.value.relatedProcurementItems.find(
+    i => i.elementName === element.name || i.item_name === element.name
+  )
+  
+  if (procurementItem) {
+     const status = procurementItem.stockStatus || procurementItem.stock_status || 'pending_check'
+     return status.replace(/_/g, ' ').toUpperCase()
+  }
+  
+  return 'PENDING CHECK'
+}
+
+const getInventoryStatusClass = (elementId: string) => {
+  const element = productionData.value.productionElements.find(e => e.id === elementId)
+  if (!element) return 'border-gray-200 bg-gray-50 text-gray-500' // Default
+  
+  const procurementItem = productionData.value.relatedProcurementItems.find(
+    i => i.elementName === element.name || i.item_name === element.name
+  )
+  
+  const status = procurementItem?.stockStatus || procurementItem?.stock_status || 'pending_check'
+  return getStockStatusClass(status)
+}
+
+const getInventoryStatusDotClass = (elementId: string) => {
+  const element = productionData.value.productionElements.find(e => e.id === elementId)
+  if (!element) return 'bg-gray-400'
+  
+  const procurementItem = productionData.value.relatedProcurementItems.find(
+    i => i.elementName === element.name || i.item_name === element.name
+  )
+    
+  const status = procurementItem?.stockStatus || procurementItem?.stock_status || 'pending_check'
+  
+  switch (status) {
+    case 'in_stock': return 'bg-blue-500'
+    case 'partial_stock': return 'bg-amber-500'
+    case 'out_of_stock': return 'bg-red-500'
+    default: return 'bg-gray-400'
+  }
+}
+
+const getQCStatusLabel = (elementId: string) => {
+    const element = productionData.value.productionElements.find(e => e.id === elementId)
+    if (!element) return 'PENDING'
+    return (element.status || 'pending').replace(/_/g, ' ').toUpperCase()
+}
+
+const getQCStatusClass = (elementId: string) => {
+  const element = productionData.value.productionElements.find(e => e.id === elementId)
+  if (!element) return 'border-gray-200 bg-gray-50 text-gray-500'
+  
+  const status = element.status || 'pending'
+  
+  switch (status) {
+      case 'passed': return 'border-green-300 bg-green-50 text-green-700 dark:bg-green-900/20 dark:border-green-600 dark:text-green-300'
+      case 'failed': return 'border-red-300 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300'
+      case 'in_progress': return 'border-blue-300 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300'
+      default: return 'border-gray-200 bg-gray-50 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
+  }
+}
+
 // Initialize component data
 onMounted(async () => {
   // Update project info from props
@@ -3575,6 +4019,31 @@ onMounted(async () => {
   // Auto-import materials on component mount
   importMaterialsFromTask()
 })
+
+// Ensure all categories from elements exist in our definitions
+const ensureCategoriesExist = () => {
+  if (!productionData.value.productionElements) return
+
+  const existingIds = new Set(productionElementCategories.value.map(c => c.id))
+  
+  productionData.value.productionElements.forEach(element => {
+    if (element.category && !existingIds.has(element.category)) {
+      // Add new category definition
+      productionElementCategories.value.push({
+        id: element.category,
+        name: element.category,
+        displayName: element.category.replace(/-/g, ' ').toUpperCase(),
+        color: 'gray' // Default color
+      })
+      existingIds.add(element.category)
+    }
+  })
+}
+
+// Watch for changes in production elements to ensure categories exist
+watch(() => productionData.value.productionElements, () => {
+  ensureCategoriesExist()
+}, { deep: true })
 </script>
 
 <style scoped>

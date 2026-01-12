@@ -4,26 +4,72 @@
     <div v-if="!readonly">
       <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
-      <!-- Error Display -->
-      <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-          </svg>
-          <span class="text-sm font-medium text-red-800 dark:text-red-200">Error</span>
-        </div>
-        <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ error }}</p>
-      </div>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
 
-      <!-- Success Display -->
-      <div v-if="successMessage" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span class="text-sm font-medium text-green-800 dark:text-green-200">Success</span>
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
+          </div>
         </div>
-        <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
       </div>
 
       <!-- Tab Navigation -->
@@ -1378,6 +1424,34 @@ const handleSaveDraft = async () => {
     error.value = errorObj.message || 'Failed to save survey draft'
   } finally {
     isSavingDraft.value = false
+  }
+}
+
+const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
+
+const projectInfo = computed(() => {
+  const enquiry = props.task.enquiry
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    enquiryTitle: enquiry?.title || 'Untitled Project',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
+    eventVenue: enquiry?.venue || 'TBC',
+    setupDate: enquiry?.expected_delivery_date || 'TBC'
+  }
+})
+
+const formatDate = (dateValue: string | Date | null | undefined) => {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return 'TBC'
   }
 }
 

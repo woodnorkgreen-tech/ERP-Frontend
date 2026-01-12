@@ -18,128 +18,73 @@
       </button>
     </div>
 
-    <!-- Project Information Section -->
-    <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Teams Task - {{ task.title }}
-      </h4>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
 
-      <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Information</h5>
-          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full w-fit">
-            Teams Task
-          </span>
-        </div>
-        <!-- Project Information Grid - Responsive layout -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          <!-- Project Title -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold mt-1 break-words">
-              <span v-if="projectInfo.enquiryTitle && projectInfo.enquiryTitle !== 'Untitled Project'">
-                {{ projectInfo.enquiryTitle }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Untitled Project
-              </span>
-            </p>
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Enquiry Number -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1 font-mono">
-              <span v-if="projectInfo.projectId && projectInfo.projectId !== 'N/A'">
-                {{ projectInfo.projectId }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not assigned
-              </span>
-            </p>
-          </div>
-
-          <!-- Client Name -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.clientName && projectInfo.clientName !== 'N/A'">
-                {{ projectInfo.clientName }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
-          </div>
-
-          <!-- Event Venue -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.eventVenue && projectInfo.eventVenue !== 'TBC'">
-                {{ projectInfo.eventVenue }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Setup Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setup Date</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setupDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setupDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Set Down Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setdown Date</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setDownDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setDownDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Estimated Budget -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Estimated Budget</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1">
-              <span v-if="projectInfo.estimatedBudget" class="text-green-600 dark:text-green-400">
-                KES {{ formatCurrency(projectInfo.estimatedBudget) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
-          </div>
-
-          <!-- Contact Person -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contact Person</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.contactPerson && projectInfo.contactPerson !== 'N/A'">
-                {{ projectInfo.contactPerson }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
-    </div>
 
 
     <!-- Feedback Messages -->
@@ -248,119 +193,108 @@
       </div>
     </div>
 
-    <!-- Teams Display for Active Tab -->
-    <div class="space-y-4">
-      <div v-if="getActiveTabTeams().length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
-        <svg class="w-16 h-16 mx-auto mb-6 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-        </svg>
-        <h3 class="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">No {{ getActiveTabLabel().toLowerCase() }} yet</h3>
-        <p class="text-sm mb-6 max-w-md mx-auto">Get started by creating your first team. Teams help organize your project workflow and assign responsibilities.</p>
-
-        <!-- Add Team Button in Empty State -->
-        <button
-          v-if="canAssignTeams && !isReadonly"
-          @click="showAddTeamModal = true"
-          class="inline-flex items-center px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
-        >
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          Create Your First Team
-        </button>
-      </div>
-
-      <div v-else class="grid gap-4">
-        <div
-          v-for="team in getActiveTabTeams()"
-          :key="team.id"
-          class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800"
-        >
-          <!-- Team Header -->
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center space-x-3">
-              <h4 class="text-lg font-semibold text-gray-900 dark:text-white">{{ getTeamTypeDisplayName(team) }}</h4>
-              <span :class="getStatusColorClass(team.status)" class="px-3 py-1 text-xs rounded-full font-medium">
-                {{ getStatusLabel(team.status) }}
-              </span>
-            </div>
-            <button
-              v-if="canDeleteTeams && !isReadonly"
-              @click="deleteTeam(team.id)"
-              class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-              :aria-label="'Delete team'"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Team Members Section -->
-          <div class="space-y-3">
-            <div class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Team Members
-                <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">({{ (team.members || []).length }})</span>
-              </h5>
-            </div>
-
-            <!-- Members List -->
-            <div v-if="(team.members || []).length > 0" class="space-y-2">
-              <div
-                v-for="(member, index) in team.members || []"
-                :key="member.id"
-                class="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-              >
-                <div class="flex items-center space-x-3">
-                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">{{ index + 1 }}.</span>
-                  <span class="text-sm text-gray-900 dark:text-white font-medium">{{ member.member_name }}</span>
-                </div>
-                <button
-                  v-if="canManageMembers && !isReadonly"
-                  @click="removeMember(team.id, member.id)"
-                  class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-                  :aria-label="`Remove ${member.member_name}`"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
+    <!-- Teams Table Layout -->
+    <div class="overflow-hidden border border-slate-200 dark:border-slate-700 sm:rounded-lg">
+      <table v-if="getActiveTabTeams().length > 0" class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+        <thead class="bg-slate-50 dark:bg-slate-800">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Team Type</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Assigned Members</th>
+            <th scope="col" class="relative px-6 py-3 text-right">
+                <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+          <tr v-for="team in getActiveTabTeams()" :key="team.id" class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+            <!-- Team Info Column -->
+            <td class="px-6 py-4 align-top whitespace-nowrap">
+              <div class="flex items-center">
+                 <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100/50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <i class="mdi mdi-account-group text-xl"></i>
+                 </div>
+                 <div class="ml-4">
+                    <div class="text-sm font-bold text-slate-900 dark:text-white">{{ getTeamTypeDisplayName(team) }}</div>
+                    <span :class="getStatusColorClass(team.status)" class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium lowercase">
+                      {{ getStatusLabel(team.status) }}
+                    </span>
+                 </div>
               </div>
-            </div>
+            </td>
 
-            <!-- Empty Members State -->
-            <div v-else class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
-              No members assigned yet
-            </div>
+            <!-- Members Column -->
+            <td class="px-6 py-4 align-top">
+               <div class="space-y-3">
+                  <!-- Existing Members -->
+                  <div class="flex flex-wrap gap-2">
+                     <span 
+                        v-for="member in team.members || []" 
+                        :key="member.id"
+                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 group/tag"
+                     >
+                        <i class="mdi mdi-account-circle mr-1.5 text-slate-400"></i>
+                        {{ member.member_name }}
+                        <button
+                           v-if="canManageMembers && !isReadonly"
+                           @click="removeMember(team.id, member.id)"
+                           class="ml-1.5 text-slate-400 hover:text-red-500 transition-colors focus:outline-none"
+                        >
+                           <i class="mdi mdi-close text-xs"></i>
+                        </button>
+                     </span>
+                     <span v-if="(!team.members || team.members.length === 0)" class="text-xs text-slate-400 italic py-1">No members assigned yet</span>
+                  </div>
 
-            <!-- Add Member Form -->
-            <div v-if="canManageMembers && !isReadonly" class="pt-2 border-t border-gray-200 dark:border-gray-600">
-              <div class="flex gap-2">
-                <input
-                  v-model="newMemberInputs[team.id]"
-                  type="text"
-                  placeholder="Enter member name"
-                  class="flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
-                  @keydown.enter="addMemberToTeam(team.id)"
-                />
-                <button
-                  @click="addMemberToTeam(team.id)"
-                  :disabled="!newMemberInputs[team.id]?.trim()"
-                  class="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-1"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  <span>Add</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                  <!-- Add Member Input -->
+                  <div v-if="canManageMembers && !isReadonly" class="flex items-center gap-2 max-w-sm">
+                     <input
+                        v-model="newMemberInputs[team.id]"
+                        type="text"
+                        placeholder="+ Add member..."
+                        class="block w-full text-xs rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 bg-transparent sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-600"
+                        @keydown.enter="addMemberToTeam(team.id)"
+                     />
+                     <button
+                        @click="addMemberToTeam(team.id)"
+                        :disabled="!newMemberInputs[team.id]?.trim()"
+                        class="inline-flex items-center p-1.5 border border-transparent rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-slate-400 transition-all font-bold"
+                     >
+                        <i class="mdi mdi-plus text-sm"></i>
+                     </button>
+                  </div>
+               </div>
+            </td>
+
+            <!-- Actions Column -->
+            <td class="px-6 py-4 align-top text-right text-sm font-medium">
+               <button
+                  v-if="canDeleteTeams && !isReadonly"
+                  @click="deleteTeam(team.id)"
+                  class="text-slate-400 hover:text-red-600 transition-colors bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-full"
+                  title="Remove Team"
+               >
+                  <i class="mdi mdi-trash-can-outline text-lg"></i>
+               </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-16 bg-white dark:bg-slate-800">
+         <div class="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600">
+            <i class="mdi mdi-account-group-outline text-5xl"></i>
+         </div>
+         <h3 class="mt-2 text-sm font-bold text-slate-900 dark:text-white">No {{ getActiveTabLabel() }}</h3>
+         <p class="mt-1 text-xs text-slate-500 max-w-xs mx-auto mb-6">Start by adding a specific team type to this phase of the project.</p>
+         <button
+           v-if="canAssignTeams && !isReadonly"
+           @click="showAddTeamModal = true"
+           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+         >
+           <i class="mdi mdi-plus -ml-1 mr-2 text-lg"></i>
+           Add Team
+         </button>
       </div>
     </div>
 
@@ -726,7 +660,7 @@ const updateProjectInfo = () => {
     }
 
     projectInfo.value = {
-      projectId: enquiry.enquiry_number || 'N/A',
+      projectId: enquiry.job_number || enquiry.enquiry_number || 'N/A',
       enquiryTitle: enquiry.title || 'Untitled Project',
       clientName: enquiry.client?.full_name || enquiry.contact_person || 'N/A',
       eventVenue: enquiry.venue || 'TBC',

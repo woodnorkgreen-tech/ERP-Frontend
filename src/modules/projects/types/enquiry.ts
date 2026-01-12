@@ -128,6 +128,10 @@ export interface EnquiryTask {
     id: number;
     name: string;
   };
+  assignedTo?: {  // Laravel relationship (camelCase)
+    id: number;
+    name: string;
+  };
   assignmentHistory?: TaskAssignmentHistory[];
   material_approval?: {
     needs_approval: boolean;

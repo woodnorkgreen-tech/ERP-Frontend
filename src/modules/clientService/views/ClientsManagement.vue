@@ -7,14 +7,14 @@
           <ol class="inline-flex items-center space-x-1 md:space-x-3">
             <li class="inline-flex items-center">
               <router-link to="/dashboard" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-500 transition-colors">
-                Intelligence Hub
+                Dashboard
               </router-link>
             </li>
             <li>
               <div class="flex items-center gap-2">
                 <i class="mdi mdi-chevron-right text-slate-300 text-xs"></i>
                 <router-link to="/client-service" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-500 transition-colors">
-                  Deployment
+                  Client Services
                 </router-link>
               </div>
             </li>
@@ -29,7 +29,7 @@
         <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
           Clients <span class="text-blue-500 text-3xl opacity-50">/</span> Management
         </h1>
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Unified repository for global client relations and Lead tracking.</p>
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">Manage your client relationships and contact details.</p>
       </div>
 
       <button
@@ -37,7 +37,7 @@
         class="flex items-center gap-3 px-8 py-4 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-[1.5rem] shadow-xl shadow-blue-500/10 transition-all font-bold text-sm tracking-tight group"
       >
         <i class="mdi mdi-account-plus-outline text-xl transition-transform group-hover:scale-110"></i>
-        ONBOARD CLIENT
+        ADD CLIENT
       </button>
     </div>
 
@@ -49,8 +49,8 @@
                 <i class="mdi mdi-filter-variant text-xl"></i>
              </div>
              <div>
-                <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Intelligence Filters</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Refine Client Database</p>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Filters</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Refine Client List</p>
              </div>
           </div>
 
@@ -63,7 +63,7 @@
                 <input
                    v-model="filters.search"
                    type="text"
-                   placeholder="Search Identity..."
+                   placeholder="Search Clients..."
                    class="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm group-hover:shadow-md"
                 />
              </div>
@@ -78,8 +78,8 @@
                    class="w-full pl-11 pr-10 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
                 >
                    <option value="">All Statuses</option>
-                   <option value="active">Active Operations</option>
-                   <option value="inactive">Suspended</option>
+                   <option value="active">Active</option>
+                   <option value="inactive">Inactive</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                    <i class="mdi mdi-chevron-down text-slate-400"></i>
@@ -94,7 +94,7 @@
                 <input
                    v-model="filters.company"
                    type="text"
-                   placeholder="Filter by Hub..."
+                   placeholder="Filter by Company..."
                    class="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
                 />
              </div>
@@ -109,13 +109,13 @@
            <div class="w-16 h-16 rounded-full border-4 border-slate-100 dark:border-slate-800 border-t-blue-500 animate-spin"></div>
            <i class="mdi mdi-account-sync absolute inset-0 flex items-center justify-center text-blue-500 text-xl"></i>
         </div>
-        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Synchronizing Clients Cluster</p>
+        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Loading Clients...</p>
       </div>
 
       <div v-else-if="error" class="p-12 text-center space-y-4">
         <i class="mdi mdi-alert-circle text-5xl text-red-500 opacity-20"></i>
-        <p class="text-sm font-bold text-red-500">CRITICAL SYNC FAILURE: {{ error }}</p>
-        <button @click="fetchClients({ paginate: true, per_page: 15 })" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Emergency Re-sync</button>
+        <p class="text-sm font-bold text-red-500">Error: {{ error }}</p>
+        <button @click="fetchClients({ paginate: true, per_page: 15 })" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">Retry</button>
       </div>
 
       <div v-else class="overflow-x-auto custom-scrollbar">
@@ -124,19 +124,19 @@
             <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
               <th @click="sortClients('FullName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
                 <span class="flex items-center gap-2">
-                   Client Identity
+                   Client Name
                    <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </span>
               </th>
-              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Contact Vector</th>
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Contact Info</th>
               <th @click="sortClients('companyName')" class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 cursor-pointer group">
                 <span class="flex items-center gap-2">
-                   Client Hub
+                   Company
                    <i class="mdi mdi-sort opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </span>
               </th>
-              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Operation Status</th>
-              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Deployment</th>
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Status</th>
+              <th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -150,7 +150,7 @@
                   </div>
                   <div>
                     <div class="text-sm font-black text-slate-900 dark:text-white tracking-tight">{{ client.FullName }}</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">EST. {{ client.registration_date }}</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Joined {{ client.registration_date }}</div>
                   </div>
                 </div>
               </td>
@@ -172,8 +172,8 @@
               </td>
               <td class="px-8 py-5">
                 <div class="flex flex-col">
-                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{ client.companyName || 'GLOBAL INDIVIDUAL' }}</span>
-                  <span class="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">{{ client.Industry || 'UNDISCLOSED' }}</span>
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{{ client.companyName || 'Individual' }}</span>
+                  <span class="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">{{ client.Industry || 'N/A' }}</span>
                 </div>
               </td>
               <td class="px-8 py-5">
@@ -189,23 +189,23 @@
                  <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                     <button @click.stop="viewClientDetails(client)" 
                             class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center"
-                            title="Intelligence Overview">
+                            title="View Details">
                        <i class="mdi mdi-eye-outline text-lg"></i>
                     </button>
                     <button v-if="client.isActive" @click.stop="editClient(client)" 
                             class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center"
-                            title="Modify Profile">
+                            title="Edit">
                        <i class="mdi mdi-pencil-outline text-lg"></i>
                     </button>
                     <button @click.stop="handleToggleClick(client)" 
                             :class="client.isActive ? 'hover:bg-amber-600' : 'hover:bg-emerald-600'"
                             class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-white transition-all flex items-center justify-center"
-                            :title="client.isActive ? 'Suspend Access' : 'Restore Operations'">
+                            :title="client.isActive ? 'Suspend' : 'Activate'">
                        <i :class="['mdi text-lg', client.isActive ? 'mdi-account-off-outline' : 'mdi-account-check-outline']"></i>
                     </button>
                     <button v-if="canDeleteClients" @click.stop="handleDeleteClick(client)" 
                             class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-red-400 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center"
-                            title="Terminate Profile">
+                            title="Delete">
                        <i class="mdi mdi-delete-outline text-lg"></i>
                     </button>
                  </div>
@@ -275,9 +275,9 @@
         <!-- Header -->
         <div class="relative p-10 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex items-center justify-between">
           <div>
-            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2 block">Identity Registration</span>
+            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2 block">Client Registration</span>
             <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-               {{ editingClient ? 'Profile Reconstruction' : 'New Client Onboarding' }}
+               {{ editingClient ? 'Edit Client' : 'New Client' }}
             </h2>
           </div>
           <button @click="closeModal" class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center">
@@ -291,20 +291,20 @@
               <section class="space-y-6">
                  <div class="flex items-center gap-3">
                     <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
-                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Core Identity</h3>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Basic Info</h3>
                  </div>
                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Legal Name *</label>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Client Name *</label>
                        <input v-model="clientFormData.FullName" type="text" required class="premium-input" placeholder="e.g. Johnathan Arc"/>
                     </div>
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contact Protocol *</label>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contact Name *</label>
                        <input v-model="clientFormData.ContactPerson" type="text" required class="premium-input" placeholder="Liaison Name"/>
                     </div>
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Communication Hub *</label>
-                       <input v-model="clientFormData.Email" type="email" required class="premium-input" placeholder="alias@provider.com"/>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address *</label>
+                       <input v-model="clientFormData.Email" type="email" required class="premium-input" placeholder="email@company.com"/>
                     </div>
                  </div>
               </section>
@@ -313,26 +313,26 @@
               <section class="space-y-6">
                  <div class="flex items-center gap-3">
                     <div class="h-8 w-1 bg-emerald-500 rounded-full"></div>
-                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Intelligence Vectors</h3>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Details</h3>
                  </div>
                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Matrix *</label>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number *</label>
                        <input v-model="clientFormData.Phone" type="tel" required class="premium-input" placeholder="+12 345..."/>
                     </div>
                     <div class="space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Institution Identity *</label>
-                       <input v-model="clientFormData.companyName" type="text" required class="premium-input" placeholder="Collective Corp"/>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Company Name *</label>
+                       <input v-model="clientFormData.companyName" type="text" required class="premium-input" placeholder="Company Ltd"/>
                     </div>
                     <div class="space-y-1.5">
                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Lead Source *</label>
                        <select v-model="clientFormData.LeadSource" required class="premium-input appearance-none">
-                          <option value="">Select Origin</option>
-                          <option value="Website">Digital Web</option>
-                          <option value="Referral">Network Referral</option>
-                          <option value="Walk-in">Direct Engagement</option>
-                          <option value="Sales Team">Internal Sales</option>
-                          <option value="Events">Operational Events</option>
+                          <option value="">Select Source</option>
+                          <option value="Website">Website</option>
+                          <option value="Referral">Referral</option>
+                          <option value="Walk-in">Walk-in</option>
+                          <option value="Sales Team">Sales Team</option>
+                          <option value="Events">Events</option>
                        </select>
                     </div>
                  </div>
@@ -342,16 +342,16 @@
               <section class="space-y-6">
                  <div class="flex items-center gap-3">
                     <div class="h-8 w-1 bg-amber-500 rounded-full"></div>
-                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Deployment Coordinates</h3>
+                    <h3 class="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Address</h3>
                  </div>
                  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-8 space-y-1.5">
-                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Physical coordinate Cluster *</label>
-                       <textarea v-model="clientFormData.Address" required rows="2" class="premium-input pt-4" placeholder="Unified Address Strings..."></textarea>
+                       <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Address *</label>
+                       <textarea v-model="clientFormData.Address" required rows="2" class="premium-input pt-4" placeholder="Street Address..."></textarea>
                     </div>
                     <div class="lg:col-span-4 grid grid-cols-1 gap-4">
-                       <input v-model="clientFormData.City" type="text" required class="premium-input" placeholder="Primary Node (City)"/>
-                       <input v-model="clientFormData.County" type="text" required class="premium-input" placeholder="(County)"/>
+                       <input v-model="clientFormData.City" type="text" required class="premium-input" placeholder="City"/>
+                       <input v-model="clientFormData.County" type="text" required class="premium-input" placeholder="County"/>
                     </div>
                  </div>
               </section>
@@ -372,10 +372,10 @@
            </div>
 
            <div class="flex items-center gap-4">
-              <button @click="closeModal" :disabled="saving" class="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Abort</button>
+              <button @click="closeModal" :disabled="saving" class="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Cancel</button>
               <button @click="handleFormSubmit" :disabled="saving" class="premium-button min-w-[200px]">
                  <span v-if="saving" class="mdi mdi-loading animate-spin text-lg mr-2"></span>
-                 {{ saving ? 'COMMITTING...' : (editingClient ? 'OVERWRITE PROFILE' : 'COMMIT REGISTRATION') }}
+                 {{ saving ? 'SAVING...' : (editingClient ? 'UPDATE CLIENT' : 'CREATE CLIENT') }}
               </button>
            </div>
         </div>
@@ -389,7 +389,7 @@
       <div class="relative w-full max-w-5xl bg-slate-50 dark:bg-slate-900 rounded-[3.5rem] shadow-2xl overflow-hidden border border-white/10 animate-in fade-in slide-in-from-bottom-10 duration-500">
          <div v-if="viewLoading" class="p-40 flex flex-col items-center justify-center gap-6">
             <div class="w-16 h-16 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin"></div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Client Intel...</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Client Info...</p>
          </div>
 
          <div v-else-if="viewingClient" class="flex flex-col h-full max-h-[90vh]">
@@ -416,21 +416,21 @@
                   <div class="flex items-center gap-4">
                      <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-blue-400"><i class="mdi mdi-email-check-outline text-2xl"></i></div>
                      <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Contact Protocol</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Email</p>
                         <p class="text-sm font-bold">{{ viewingClient.Email }}</p>
                      </div>
                   </div>
                   <div class="flex items-center gap-4">
                      <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-emerald-400"><i class="mdi mdi-phone-voip text-2xl"></i></div>
                      <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Identity Matrix</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Phone</p>
                         <p class="text-sm font-bold">{{ viewingClient.Phone }}</p>
                      </div>
                   </div>
                   <div class="flex items-center gap-4">
                      <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-amber-400"><i class="mdi mdi-map-marker-radius text-2xl"></i></div>
                      <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Operational Hub</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Location</p>
                         <p class="text-sm font-bold">{{ viewingClient.City }}, {{ viewingClient.County }}</p>
                      </div>
                   </div>
@@ -443,7 +443,7 @@
                      <section>
                         <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 flex items-center gap-3">
                            <i class="mdi mdi-text-box-search-outline text-blue-500"></i>
-                           Client Metadata
+                           Client Details
                         </h4>
                         <div class="grid grid-cols-2 gap-x-12 gap-y-8">
                            <div class="space-y-1">
@@ -451,15 +451,15 @@
                               <p class="text-sm font-bold text-slate-900 dark:text-white capitalize">{{ viewingClient.CustomerType }} Entity</p>
                            </div>
                            <div class="space-y-1">
-                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Institutional Sector</p>
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Industry</p>
                               <p class="text-sm font-bold text-slate-900 dark:text-white">{{ viewingClient.Industry || 'N/A' }}</p>
                            </div>
                            <div class="space-y-1">
-                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Engagement Protocol</p>
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Contact Method</p>
                               <p class="text-sm font-bold text-slate-900 dark:text-white capitalize">{{ viewingClient.PreferredContact }}</p>
                            </div>
                            <div class="space-y-1">
-                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Registration Epoch</p>
+                              <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Join Date</p>
                               <p class="text-sm font-bold text-slate-900 dark:text-white">{{ viewingClient.registration_date }}</p>
                            </div>
                         </div>
@@ -468,13 +468,13 @@
                      <section>
                         <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 flex items-center gap-3">
                            <i class="mdi mdi-earth text-emerald-500"></i>
-                           Geo-Spatial Identity
+                           Location
                         </h4>
                         <div class="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800">
                            <p class="text-sm font-medium leading-relaxed italic text-slate-600 dark:text-slate-300">"{{ viewingClient.Address }}"</p>
                            <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-3 gap-4">
                               <div><p class="text-[9px] font-black text-slate-400 uppercase">Zip/Postal</p><p class="text-xs font-bold">{{ viewingClient.PostalAddress || '---' }}</p></div>
-                              <div><p class="text-[9px] font-black text-slate-400 uppercase">Sector</p><p class="text-xs font-bold">{{ viewingClient.County }}</p></div>
+                              <div><p class="text-[9px] font-black text-slate-400 uppercase">County</p><p class="text-xs font-bold">{{ viewingClient.County }}</p></div>
                               <div><p class="text-[9px] font-black text-slate-400 uppercase">Region</p><p class="text-xs font-bold">EMEA</p></div>
                            </div>
                         </div>
@@ -483,10 +483,10 @@
 
                   <div class="lg:col-span-5 space-y-8">
                       <div class="p-8 bg-blue-600 rounded-[2.5rem] text-white shadow-xl shadow-blue-500/20">
-                         <h4 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-8">Performance History</h4>
+                         <h4 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mb-8">Engagement</h4>
                          <div class="space-y-6">
                             <div class="flex items-center justify-between">
-                               <span class="text-sm font-bold uppercase tracking-tighter">Engagement Pulse</span>
+                               <span class="text-sm font-bold uppercase tracking-tighter">Engagement Score</span>
                                <span class="px-2 py-1 bg-white/10 rounded-lg text-xs font-black tracking-widest uppercase">98.2%</span>
                             </div>
                             <div class="bg-white/10 h-1.5 rounded-full overflow-hidden">
@@ -499,15 +499,15 @@
                       <div class="p-8 bg-white dark:bg-slate-800/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
                          <div class="flex items-center gap-3 mb-6">
                             <i class="mdi mdi-clock-outline text-slate-400"></i>
-                            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Audit Logs</h4>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Logs</h4>
                          </div>
                          <div class="space-y-4">
                             <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex justify-between">
-                               <span>Identity Logged:</span>
+                               <span>Created:</span>
                                <span class="text-slate-900 dark:text-white">{{ new Date(viewingClient.created_at).toLocaleDateString() }}</span>
                             </div>
                             <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex justify-between">
-                               <span>Last Sync:</span>
+                               <span>Last Updated:</span>
                                <span class="text-slate-900 dark:text-white">{{ new Date(viewingClient.updated_at).toLocaleDateString() }}</span>
                             </div>
                          </div>
@@ -526,13 +526,13 @@
         <div class="w-20 h-20 rounded-[2rem] bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-6">
            <i class="mdi mdi-account-cog text-4xl"></i>
         </div>
-        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Status Update Protocol</h2>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Status Update</h2>
         <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-10 leading-relaxed">
-          Are you sure you want to {{ clientToToggle?.isActive ? 'SUSPEND' : 'RESTORE' }} operational access for <span class="text-slate-900 dark:text-white font-black">{{ clientToToggle?.FullName }}</span>? 
+          Are you sure you want to {{ clientToToggle?.isActive ? 'SUSPEND' : 'RESTORE' }} access for <span class="text-slate-900 dark:text-white font-black">{{ clientToToggle?.FullName }}</span>? 
         </p>
         <div class="flex gap-4">
-          <button @click="showConfirmDialog = false; clientToToggle = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Abort</button>
-          <button @click="confirmToggle" class="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">Authorize</button>
+          <button @click="showConfirmDialog = false; clientToToggle = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Cancel</button>
+          <button @click="confirmToggle" class="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">Confirm</button>
         </div>
       </div>
     </div>
@@ -544,13 +544,13 @@
         <div class="w-20 h-20 rounded-[2rem] bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6">
            <i class="mdi mdi-delete-variant text-4xl"></i>
         </div>
-        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 text-red-600">Permanently Terminate</h2>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 text-red-600">Delete Client</h2>
         <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-10 leading-relaxed italic">
-          CRITICAL: Unauthorized termination of <span class="text-red-600 font-bold underline">{{ clientToDelete?.FullName }}</span> will delete all associated institutional data. This action is irreversible.
+          Are you sure you want to delete <span class="text-red-600 font-bold underline">{{ clientToDelete?.FullName }}</span>? This action is irreversible.
         </p>
         <div class="flex gap-4">
-          <button @click="showDeleteDialog = false; clientToDelete = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Abort</button>
-          <button @click="confirmDelete" class="flex-1 py-4 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transform transition-all hover:scale-105 active:scale-95">DESTRUCT</button>
+          <button @click="showDeleteDialog = false; clientToDelete = null" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">Cancel</button>
+          <button @click="confirmDelete" class="flex-1 py-4 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transform transition-all hover:scale-105 active:scale-95">DELETE</button>
         </div>
       </div>
     </div>

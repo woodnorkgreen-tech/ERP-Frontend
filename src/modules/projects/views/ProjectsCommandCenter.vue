@@ -4,8 +4,8 @@
           <!-- Header -->
           <div class="flex justify-between items-center border-b border-slate-700 pb-4">
               <div>
-                  <h1 class="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Command Center</h1>
-                  <p class="text-slate-400 text-sm mt-1">Live Operational Oversight</p>
+                  <h1 class="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Operations</h1>
+                  <p class="text-slate-400 text-sm mt-1">Live System Status</p>
               </div>
               <div class="text-right">
                   <div class="text-2xl font-mono animate-pulse">{{ currentTime }}</div>
@@ -17,15 +17,15 @@
           <div class="space-y-4">
               <h2 class="text-xl font-semibold text-slate-200 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                  Pipeline Velocity
+                  Pipeline Status
               </h2>
               <!-- Flow Chart -->
               <div class="relative bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 overflow-x-auto">
                   <div v-if="loading" class="flex justify-center p-10">
                       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
                   </div>
-                  <div v-else class="flex items-center justify-between min-w-[800px] px-8 py-4">
-                      <div v-for="(stage, key, index) in pipelineData?.stages" :key="key" class="relative group flex-1 flex flex-col items-center">
+                  <div v-else-if="pipelineData && pipelineData.stages" class="flex items-center justify-between min-w-[800px] px-8 py-4">
+                      <div v-for="(stage, key, index) in pipelineData.stages" :key="key" class="relative group flex-1 flex flex-col items-center">
                           <!-- Connector Line -->
                           <div v-if="index !== 0" class="absolute top-1/2 left-0 w-full h-1 bg-slate-700 -z-10 -translate-x-1/2"></div>
                           
@@ -49,7 +49,7 @@
               <div class="lg:col-span-2 space-y-4">
                   <h2 class="text-xl font-semibold text-slate-200 flex items-center">
                       <svg class="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                      Department Load
+                      Department Workload
                   </h2>
                   <div v-if="loading" class="flex justify-center p-10 bg-slate-800 rounded-xl">
                       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
@@ -89,7 +89,7 @@
                   <div class="flex items-center justify-between">
                       <h2 class="text-xl font-semibold text-slate-200 flex items-center">
                           <svg class="w-5 h-5 mr-2 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                          Critical Bottlenecks
+                          Urgent Issues
                       </h2>
                   </div>
                   
@@ -147,7 +147,8 @@ const currentTime = useDateFormat(useNow(), 'HH:mm:ss')
 // Types
 // Define minimal types for data handling
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const pipelineData = ref<{ stages: any, counts: any } | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pipelineData = ref<{ stages: Record<string, any>, counts: Record<string, any> } | null>(null)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const departmentData = ref<any[]>([])
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

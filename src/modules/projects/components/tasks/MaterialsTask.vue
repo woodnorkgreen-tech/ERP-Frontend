@@ -57,304 +57,342 @@
         </div>
       </div>
 
-      <!-- Project Header Section -->
-    <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Materials Task - {{ task.title }}
-      </h4>
-
-      <!-- Project Information Display -->
-      <!-- Project Information Display (Collapsible) -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700">
-        <div 
-          @click="showProjectInfo = !showProjectInfo"
-          class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
-        >
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-            <svg class="w-4 h-4 mr-2 text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': !showProjectInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            Project Information
-          </h5>
-          <span class="text-xs text-gray-500" v-if="!showProjectInfo">Click to expand details</span>
-        </div>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
         
-        <div v-show="showProjectInfo" class="px-4 pb-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-          <!-- Project Information Grid - 3 per row -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
-              <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ materialsData.projectInfo.enquiryTitle }}</p>
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
             </div>
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
-              <p class="text-sm text-gray-900 dark:text-white font-medium">{{ materialsData.projectInfo.projectId }}</p>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
-              <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.clientName }}</p>
-            </div>
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
-              <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.eventVenue }}</p>
-            </div>
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
-              <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(materialsData.projectInfo.setupDate) }}</p>
-            </div>
-            <div>
-              <label class="text-xs text-gray-500 dark:text-gray-400">Set Down Date</label>
-              <p class="text-sm text-gray-900 dark:text-white text-gray-500 italic">{{ materialsData.projectInfo.setDownDate }}</p>
-            </div>
+          </div>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Project Elements Section -->
     <div class="mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Project Elements</h5>
-        <div class="flex items-center space-x-3">
-          <div class="flex items-center space-x-2">
-            <!-- Add Element Primary Action -->
-            <button
-              @click="openAddElementModal"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2 shadow-sm"
-              :disabled="task.status === 'completed' && !isEditMode"
-              :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-              :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to add elements' : 'Add new element to project'"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              <span>Add Element</span>
-            </button>
+      <div class="flex items-center justify-between mb-5">
+         <div>
+            <h5 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+               <i class="mdi mdi-package-variant text-blue-500"></i>
+               Project Elements
+            </h5>
+            <p class="text-xs text-slate-500 mt-0.5">Build your materials list by adding project elements</p>
+         </div>
+         <div class="flex items-center gap-3">
+           <div class="flex items-center gap-2">
+             <!-- Add Element Primary Action -->
+             <button
+               @click="openAddElementModal"
+               class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2"
+               :disabled="task.status === 'completed' && !isEditMode"
+               :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+               :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to add elements' : 'Add new element'"
+             >
+               <i class="mdi mdi-plus-circle text-lg"></i>
+               <span>Add Element</span>
+             </button>
 
-            <!-- Toggle All (Icon Button) -->
-            <button
-              @click="toggleAllElements"
-              class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              :title="allElementsCollapsed ? 'Expand All' : 'Collapse All'"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-              </svg>
-            </button>
+             <!-- Toggle All (Icon Button) -->
+             <button
+               @click="toggleAllElements"
+               class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+               :title="allElementsCollapsed ? 'Expand All' : 'Collapse All'"
+             >
+               <i class="mdi mdi-unfold-more-horizontal text-xl"></i>
+             </button>
 
-            <!-- Tools Dropdown -->
-            <div class="relative" ref="toolsDropdownTarget">
-              <button
-                @click="isToolsDropdownOpen = !isToolsDropdownOpen"
-                class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 shadow-sm"
-              >
-                <span>Tools</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
+             <!-- Tools Dropdown -->
+             <div class="relative" ref="toolsDropdownTarget">
+               <button
+                 @click="isToolsDropdownOpen = !isToolsDropdownOpen"
+                 class="px-4 py-2.5 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-gray-300 text-sm font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+               >
+                 <i class="mdi mdi-tools text-lg"></i>
+                 <span>Tools</span>
+                 <i class="mdi mdi-chevron-down text-sm" :class="{'rotate-180': isToolsDropdownOpen}"></i>
+               </button>
 
-              <!-- Dropdown Menu -->
-              <div
-                v-if="isToolsDropdownOpen"
-                class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1"
-              >
-                <div class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Data Actions
-                </div>
+               <!-- Dropdown Menu -->
+               <div
+                 v-if="isToolsDropdownOpen"
+                 class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-slate-200 dark:border-gray-700 z-50 py-2 overflow-hidden"
+               >
+                 <div class="px-3 py-2 border-b border-slate-100 dark:border-gray-700">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Data Tools</span>
+                 </div>
+                 
+                 <button
+                   @click="downloadExcelTemplate(); isToolsDropdownOpen = false"
+                   class="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                 >
+                   <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
+                      <i class="mdi mdi-file-excel"></i>
+                   </div>
+                   <span>Download Template</span>
+                 </button>
+
+                 <button
+                   @click="showExcelUploadModal = true; isToolsDropdownOpen = false"
+                   class="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                   :disabled="task.status === 'completed' && !isEditMode"
+                   :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
+                 >
+                   <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                      <i class="mdi mdi-upload"></i>
+                   </div>
+                   <span>Upload Excel</span>
+                 </button>
+                 
+                 <div class="border-t border-slate-100 dark:border-gray-700 my-2"></div>
+                 
+                 <div class="px-3 py-2 border-b border-slate-100 dark:border-gray-700">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Version Control</span>
+                 </div>
+
+                 <div class="px-3 py-2">
+                    <CreateVersionButton
+                     title="Material"
+                     type="materials"
+                     @create="handleCreateVersion"
+                     class="w-full justify-start" 
+                   />
+                 </div>
+
+                 <button
+                   @click="showVersionHistory = true; isToolsDropdownOpen = false"
+                   class="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-colors"
+                 >
+                   <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                      <i class="mdi mdi-history"></i>
+                   </div>
+                   <span>Version History</span>
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+
+      <!-- Elements Display - Excel Style -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden shadow-lg">
+        <!-- Excel-style continuous table -->
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <thead class="sticky top-0 z-10">
+              <tr class="bg-slate-100 dark:bg-slate-700 border-b-2 border-slate-400 dark:border-slate-500">
+                <th class="border-r border-slate-300 dark:border-slate-600 px-3 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-10">#</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-3 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-16">Include</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider min-w-[250px]">Element / Material</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-32">Category</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-28">Unit</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-24">Quantity</th>
+                <th class="px-3 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-24">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+              <template v-for="(element, elementIndex) in materialsData.projectElements" :key="element.id">
+                <!-- Element Header Row -->
+                <tr 
+                  :class="[
+                    'border-b border-slate-200 dark:border-slate-700 cursor-pointer transition-colors',
+                    element.isIncluded ? 'bg-blue-50/50 dark:bg-blue-950/30 hover:bg-blue-100/70 dark:hover:bg-blue-900/40' : 'bg-slate-50/50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ]"
+                  @click="toggleElementCollapse(element.id)"
+                >
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900">
+                    {{ elementIndex + 1 }}
+                  </td>
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center" @click.stop>
+                    <input
+                      type="checkbox"
+                      v-model="element.isIncluded"
+                      class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </td>
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-3" colspan="4">
+                    <div class="flex items-center gap-3">
+                      <i class="mdi mdi-package-variant text-blue-500 text-lg"></i>
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ element.name }}</span>
+                          <span :class="getElementCategoryClass(element.category)" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                            {{ getElementCategoryLabel(element.category) }}
+                          </span>
+                        </div>
+                        <div v-if="element.dimensions && (element.dimensions.length || element.dimensions.width || element.dimensions.height)" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          <span class="font-medium">Dimensions:</span>
+                          <span v-if="element.dimensions.length">{{ element.dimensions.length }}mm</span>
+                          <span v-if="element.dimensions.length && (element.dimensions.width || element.dimensions.height)"> × </span>
+                          <span v-if="element.dimensions.width">{{ element.dimensions.width }}mm</span>
+                          <span v-if="element.dimensions.width && element.dimensions.height"> × </span>
+                          <span v-if="element.dimensions.height">{{ element.dimensions.height }}mm</span>
+                        </div>
+                      </div>
+                      <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                        {{ getIncludedMaterialsCount(element) }}/{{ element.materials.length }} materials
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-3 text-center" @click.stop>
+                    <div class="flex items-center justify-center gap-1">
+                      <button
+                        @click="openEditElementModal(element)"
+                        class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        :title="'Edit Element'"
+                        :disabled="task.status === 'completed' && !isEditMode"
+                      >
+                        <i class="mdi mdi-pencil text-sm"></i>
+                      </button>
+                      <button
+                        @click="confirmDeleteElement(element)"
+                        class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        :title="'Delete Element'"
+                        :disabled="task.status === 'completed' && !isEditMode"
+                      >
+                        <i class="mdi mdi-delete text-sm"></i>
+                      </button>
+                      <i class="mdi mdi-chevron-down text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': !isElementCollapsed(element.id) }"></i>
+                    </div>
+                  </td>
+                </tr>
                 
-                <button
-                  @click="downloadExcelTemplate(); isToolsDropdownOpen = false"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span>Download Template</span>
-                </button>
-
-                <button
-                  @click="showExcelUploadModal = true; isToolsDropdownOpen = false"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
-                  :disabled="task.status === 'completed' && !isEditMode"
-                  :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-                >
-                  <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                  </svg>
-                  <span>Upload Excel</span>
-                </button>
-                
-                <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
-                
-                <div class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Version Control
-                </div>
-
-                <div class="px-3 py-1">
-                   <CreateVersionButton
-                    title="Material"
-                    type="materials"
-                    @create="handleCreateVersion"
-                    class="w-full justify-start" 
-                  />
-                </div>
-
-                <button
-                  @click="showVersionHistory = true; isToolsDropdownOpen = false"
-                  class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-2"
-                >
-                  <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Version History</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Elements Display -->
-      <div class="space-y-4">
-        <div v-for="element in materialsData.projectElements" :key="element.id" class="border border-gray-200 dark:border-gray-700 rounded-lg">
-          <!-- Element Header (Clickable) -->
-          <div
-            :class="[
-              getElementHeaderClass(element.templateId),
-              'cursor-pointer hover:opacity-90 transition-opacity px-4 py-3 flex items-center justify-between',
-              { 'rounded-lg': isElementCollapsed(element.id), 'rounded-t-lg': !isElementCollapsed(element.id) }
-            ]"
-            @click="toggleElementCollapse(element.id)"
-          >
-            <div class="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                v-model="element.isIncluded"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                @click.stop
-              />
-              <div class="flex flex-col space-y-1">
-                <div class="flex items-center space-x-2">
-                  <h6 class="text-sm font-semibold">{{ element.name }}</h6>
-                  <span :class="getElementCategoryClass(element.category)" class="text-xs px-2 py-0.5 rounded-full font-medium">
-                    {{ getElementCategoryLabel(element.category) }}
-                  </span>
-                </div>
-                <div v-if="element.dimensions && (element.dimensions.length || element.dimensions.width || element.dimensions.height)" class="text-xs opacity-75">
-                  <span>Dimensions: </span>
-                  <span v-if="element.dimensions.length">{{ element.dimensions.length }}mm</span>
-                  <span v-if="element.dimensions.length && (element.dimensions.width || element.dimensions.height)"> × </span>
-                  <span v-if="element.dimensions.width">{{ element.dimensions.width }}mm</span>
-                  <span v-if="element.dimensions.width && element.dimensions.height"> × </span>
-                  <span v-if="element.dimensions.height">{{ element.dimensions.height }}mm</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center space-x-3">
-              <span class="text-xs opacity-75">{{ getIncludedMaterialsCount(element) }} materials</span>
-              <button
-                @click.stop="openEditElementModal(element)"
-                class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to edit elements' : 'Edit Element'"
-                :disabled="task.status === 'completed' && !isEditMode"
-                :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-              </button>
-              <button
-                @click.stop="confirmDeleteElement(element)"
-                class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                :title="task.status === 'completed' && !isEditMode ? 'Enable edit mode to delete elements' : 'Delete Element'"
-                :disabled="task.status === 'completed' && !isEditMode"
-                :class="{ 'opacity-50 cursor-not-allowed': task.status === 'completed' && !isEditMode }"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-              </button>
-              <!-- Collapse/Expand Icon -->
-              <div class="text-xs opacity-75">
-                <svg
-                  class="w-4 h-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': !isElementCollapsed(element.id) }"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Materials Table (collapsible) -->
-          <div v-if="element.isIncluded && !isElementCollapsed(element.id)" class="border-t border-gray-200 dark:border-gray-700">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-8">Include</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Particulars</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="material in element.materials" :key="material.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="px-4 py-3">
+                <!-- Material Rows (Excel-style) -->
+                <template v-if="element.isIncluded && !isElementCollapsed(element.id)">
+                  <tr 
+                    v-for="(material, materialIndex) in element.materials" 
+                    :key="material.id" 
+                    class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    :class="!material.isIncluded ? 'opacity-50' : ''"
+                  >
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-2.5 text-center text-xs text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/50 font-mono">
+                      {{ elementIndex + 1 }}.{{ materialIndex + 1 }}
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-2.5 text-center bg-white dark:bg-slate-800">
                       <input
                         type="checkbox"
                         v-model="material.isIncluded"
-                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                        class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
                       />
                     </td>
-                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 line-through'">
-                      {{ material.description }}
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm bg-white dark:bg-slate-800" :class="material.isIncluded ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-400 dark:text-slate-500 line-through'">
+                      <div class="flex items-center gap-2">
+                        <i class="mdi mdi-circle-small text-slate-400"></i>
+                        {{ material.description }}
+                      </div>
                     </td>
-                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 bg-slate-50/30 dark:bg-slate-900/30">
+                      <span class="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded font-medium">Material</span>
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm bg-white dark:bg-slate-800" :class="material.isIncluded ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-400 dark:text-slate-500'">
                       {{ material.unitOfMeasurement }}
                     </td>
-                    <td class="px-4 py-3 text-sm" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-center bg-blue-50/30 dark:bg-blue-950/20">
                       <input
                         v-if="material.isIncluded"
                         type="number"
                         v-model.number="material.quantity"
                         step="0.1"
                         min="0"
-                        class="w-20 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-20 px-2 py-1.5 text-sm text-center border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
                       />
-                      <span v-else>{{ material.quantity }}</span>
+                      <span v-else class="text-sm text-slate-400 dark:text-slate-500 font-mono">{{ material.quantity }}</span>
                     </td>
-
-                  </tr>
-                  <tr v-if="element.materials.length === 0">
-                    <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400 italic">
-                      No materials defined for this element
+                    <td class="px-3 py-2.5 text-center bg-white dark:bg-slate-800">
+                      <!-- Future: Add material-level actions if needed -->
                     </td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Collapsed state message for excluded elements -->
-          <div v-else-if="!element.isIncluded" class="border-t border-gray-200 dark:border-gray-700 p-4 text-center text-gray-500 dark:text-gray-400 italic">
-            Element not included in project
-          </div>
-
-          <!-- Collapsed state summary for included elements (clickable) -->
-          <div
-            v-else-if="element.isIncluded && isElementCollapsed(element.id)"
-            class="border-t border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            @click="toggleElementCollapse(element.id)"
-          >
-            <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
-              <span class="font-medium">{{ getIncludedMaterialsCount(element) }}</span> of
-              <span class="font-medium">{{ element.materials.length }}</span> materials included
-              <span class="text-xs ml-2 opacity-75">• Click to expand</span>
-            </div>
-          </div>
+                  
+                  <!-- Empty state for element with no materials -->
+                  <tr v-if="element.materials.length === 0" class="border-b border-slate-200 dark:border-slate-700">
+                    <td colspan="7" class="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400 italic bg-slate-50/50 dark:bg-slate-900/50">
+                      <i class="mdi mdi-information-outline text-lg mr-2"></i>
+                      No materials defined for this element. Click "Edit Element" to add materials.
+                    </td>
+                  </tr>
+                </template>
+                
+                <!-- Collapsed state -->
+                <tr v-else-if="element.isIncluded && isElementCollapsed(element.id)" class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800" @click="toggleElementCollapse(element.id)">
+                  <td colspan="7" class="px-4 py-3 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    <i class="mdi mdi-chevron-right mr-1"></i>
+                    Click to expand {{ element.materials.length }} material{{ element.materials.length !== 1 ? 's' : '' }}
+                  </td>
+                </tr>
+              </template>
+              
+              <!-- Empty state for no elements -->
+              <tr v-if="materialsData.projectElements.length === 0" class="border-b border-slate-200 dark:border-slate-700">
+                <td colspan="7" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                      <i class="mdi mdi-package-variant-closed text-3xl text-slate-400"></i>
+                    </div>
+                    <div>
+                      <p class="text-base font-bold text-slate-700 dark:text-slate-300">No Elements Added</p>
+                      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Click "Add Element" above to start building your materials list</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -425,11 +463,11 @@
             />
             <ApprovalCard
               class="flex-1 border-0 rounded-none shadow-none"
-              department="finance"
-              title="Finance"
-              :approval-data="approvalStatus.finance"
-              :can-approve="canApproveForDepartment('finance')"
-              @approve="approveForDepartment('finance', $event)"
+              department="project_officer"
+              title="Project Officer"
+              :approval-data="approvalStatus.project_officer"
+              :can-approve="canApproveForDepartment('project_officer')"
+              @approve="approveForDepartment('project_officer', $event)"
             />
           </div>
         </div>
@@ -485,11 +523,11 @@
       </div>
 
       <div class="flex space-x-3">
+        <!-- Edit Mode Toggle (only for completed tasks) -->
         <button
           v-if="task.status === 'completed' && !isEditMode"
-          @click="toggleEditMode"
+          @click.prevent="toggleEditMode"
           class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
-          style="display: block !important;"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -509,27 +547,33 @@
           <span>Exit Edit Mode</span>
         </button>
 
+        <!-- Mark Complete / Save Changes (for non-completed tasks or edit mode) -->
         <button
-          v-if="task.status !== 'cancelled' && !(task.status === 'completed' && isEditMode)"
-          @click="$emit('update-status', task.status === 'completed' ? 'in_progress' : 'completed')"
-          :class="[
-            'px-4 py-2 text-white text-sm rounded-lg transition-colors flex items-center space-x-2',
-            task.status === 'completed'
-              ? 'bg-orange-500 hover:bg-orange-600'
-              : 'bg-blue-500 hover:bg-blue-600'
-          ]"
+          v-if="task.status !== 'completed' && task.status !== 'cancelled'"
+          @click="$emit('update-status', 'completed')"
+          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
         >
-          <svg v-if="task.status === 'completed'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span>{{ task.status === 'completed' ? 'Reopen Task' : 'Mark Complete' }}</span>
+          <span>Mark Complete</span>
+        </button>
+
+        <!-- Save Changes (for edit mode) -->
+        <button
+          v-if="task.status === 'completed' && isEditMode"
+          @click="saveChanges"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Save Changes</span>
         </button>
         
+        <!-- Skip Task (only for non-completed tasks) -->
         <button
-          v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled' && !(task.status === 'completed' && isEditMode)"
+          v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled'"
           @click="showSkipModal = true"
           class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
         >
@@ -539,7 +583,8 @@
           <span>Skip Task</span>
         </button>
 
-        <div v-if="task.status === 'completed' && !isEditMode" class="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
+        <!-- Completed Indicator (only when task is completed and not in edit mode) -->
+        <div v-if="task.status === 'completed' && !isEditMode" class="flex items-center space-x-2 text-green-600 dark:text-green-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
@@ -724,11 +769,11 @@
                   @approve="approveForDepartment('production', $event)"
                 />
                 <ApprovalCard
-                  department="finance"
-                  title="Accounts / Costing"
-                  :approval-data="approvalStatus.finance"
-                  :can-approve="canApproveForDepartment('finance')"
-                  @approve="approveForDepartment('finance', $event)"
+                  department="project_officer"
+                  title="Project Officer"
+                  :approval-data="approvalStatus.project_officer"
+                  :can-approve="canApproveForDepartment('project_officer')"
+                  @approve="approveForDepartment('project_officer', $event)"
                 />
               </div>
             </div>
@@ -1044,6 +1089,22 @@ const emit = defineEmits<Emits>()
 const isEditMode = ref(false)
 
 /**
+ * Computed project information prioritizing live enquiry data
+ */
+const projectInfo = computed(() => {
+  const enquiry = props.task.enquiry
+
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || materialsData.projectInfo?.projectId || `ENQ-01-2026-${String(props.task.id).padStart(3, '0')}`,
+    enquiryTitle: enquiry?.title || materialsData.projectInfo?.enquiryTitle || 'Untitled Project',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || materialsData.projectInfo?.clientName || 'Unknown Client',
+    eventVenue: enquiry?.venue || materialsData.projectInfo?.eventVenue || 'Venue TBC',
+    setupDate: enquiry?.expected_delivery_date || materialsData.projectInfo?.setupDate || 'Date TBC',
+    setDownDate: materialsData.projectInfo?.setDownDate || 'TBC'
+  }
+})
+
+/**
  * Initialize project information from the task/enquiry data
  * Auto-populates project details from the existing enquiry information
  */
@@ -1051,7 +1112,7 @@ const initializeProjectInfo = (): ProjectInfo => {
   const enquiry = props.task.enquiry
 
   return {
-    projectId: enquiry?.enquiry_number || `ENQ-01-2026-${String(props.task.id).padStart(3, '0')}`,
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-01-2026-${String(props.task.id).padStart(3, '0')}`,
     enquiryTitle: enquiry?.title || 'Untitled Project',
     clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Unknown Client',
     eventVenue: enquiry?.venue || 'Venue TBC',
@@ -1117,8 +1178,8 @@ const confirmDeleteElement = async (element: ProjectElement) => {
 
 const isToolsDropdownOpen = ref(false)
 const toolsDropdownTarget = ref(null)
-const showProjectInfo = ref(true)
-const showApprovals = ref(true)
+const showProjectInfo = ref(false)  // Collapsed by default
+const showApprovals = ref(false)    // Collapsed by default
 onClickOutside(toolsDropdownTarget, () => isToolsDropdownOpen.value = false)
 
 /**
@@ -1186,10 +1247,11 @@ const collapsedElements = ref<Set<string>>(new Set())
  */
 const initializeCollapsedState = () => {
   const elementIds = materialsData.projectElements.map(element => element.id)
-  collapsedElements.value = new Set(elementIds)
+  // By default, we want all panels EXPANDED, so we start with an empty set of collapsed IDs
+  collapsedElements.value = new Set()
 }
 
-// Initialize all elements as collapsed by default
+// Initialize - elements will be expanded by default
 initializeCollapsedState()
 
 // Approval state management
@@ -1204,7 +1266,7 @@ interface ApprovalDepartmentData {
 interface ApprovalStatus {
   design: ApprovalDepartmentData
   production: ApprovalDepartmentData
-  finance: ApprovalDepartmentData
+  project_officer: ApprovalDepartmentData
   all_approved: boolean
   last_approval_at?: string | null
 }
@@ -1212,7 +1274,7 @@ interface ApprovalStatus {
 const approvalStatus = ref<ApprovalStatus>({
   design: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
   production: {approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
-  finance: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
+  project_officer: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
   all_approved: false,
   last_approval_at: null
 })
@@ -1220,9 +1282,9 @@ const approvalStatus = ref<ApprovalStatus>({
 // Computed: Pending departments
 const pendingDepartments = computed(() => {
   const pending: string[] = []
-  if (!approvalStatus.value.design.approved) pending.push('Design')
-  if (!approvalStatus.value.production.approved) pending.push('Production')
-  if (!approvalStatus.value.finance.approved) pending.push('Finance')
+  if (!approvalStatus.value?.design?.approved) pending.push('Design')
+  if (!approvalStatus.value?.production?.approved) pending.push('Production')
+  if (!approvalStatus.value?.project_officer?.approved) pending.push('Project Officer')
   return pending
 })
 
@@ -1237,7 +1299,7 @@ const loadApprovalStatus = async () => {
 }
 
 // Check if current user can approve for a department
-const canApproveForDepartment = (department: 'design' | 'production' | 'finance'): boolean => {
+const canApproveForDepartment = (department: 'design' | 'production' | 'project_officer'): boolean => {
   // Get user roles from useAuth composable
   const { user } = useAuth()
   
@@ -1246,7 +1308,7 @@ const canApproveForDepartment = (department: 'design' | 'production' | 'finance'
     console.warn('User not found in auth store')
     return false
   }
-
+ 
   // Extract roles - handle both array of strings (from fetchUser) and array of objects (if structure differs)
   const userRoles = (user.value.roles || []).map((r: any) => {
     if (typeof r === 'string') return r.toLowerCase()
@@ -1256,7 +1318,7 @@ const canApproveForDepartment = (department: 'design' | 'production' | 'finance'
   const roleMap: Record<string, string[]> = {
     design: ['designer', 'design_lead', 'creative_director', 'design manager', 'admin', 'superadmin', 'super-admin', 'super admin', 'design'],
     production: ['production', 'production_manager', 'production manager', 'operations_manager', 'operations manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
-    finance: ['accounts', 'costing', 'finance', 'finance_manager', 'finance manager', 'cfo', 'admin', 'superadmin', 'super-admin', 'super admin', 'accounts/costing']
+    project_officer: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin']
   }
 
   console.log('Debug Roles:', { 
@@ -1272,7 +1334,7 @@ const canApproveForDepartment = (department: 'design' | 'production' | 'finance'
 }
 
 // Approve materials for a department
-const approveForDepartment = async (department: 'design' | 'production' | 'finance', comments: string) => {
+const approveForDepartment = async (department: 'design' | 'production' | 'project_officer', comments: string) => {
   try {
     const response = await api.post(`/api/projects/tasks/${props.task.id}/materials/approve/${department}`, { comments })
     approvalStatus.value = response.data.approval_status
@@ -1489,7 +1551,20 @@ const addAdditionalMaterials = () => {
  * Allows editing of materials even when task is marked complete
  */
 const toggleEditMode = () => {
+  console.log('toggleEditMode called, current isEditMode:', isEditMode.value)
   isEditMode.value = !isEditMode.value
+  console.log('toggleEditMode complete, new isEditMode:', isEditMode.value)
+}
+
+/**
+ * Save changes and exit edit mode
+ */
+const saveChanges = async () => {
+  await saveMaterialsList()
+  // Only exit edit mode if save was successful (no error)
+  if (!error.value) {
+    isEditMode.value = false
+  }
 }
 
 /**

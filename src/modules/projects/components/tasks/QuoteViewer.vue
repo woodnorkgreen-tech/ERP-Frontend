@@ -212,26 +212,26 @@
                     ></textarea>
                   </td>
                   <td class="py-1 px-2 text-center border-r border-gray-300">
-                     <span v-if="!isEditMode">{{ getOverride(element.id, 'qty', 1) }}</span>
+                     <span v-if="!isEditMode">{{ getOverride(element.id, 'qty', element.quantity || 1) }}</span>
                      <input
                         v-else
                         type="number"
-                        :value="getOverride(element.id, 'qty', 1)"
+                        :value="getOverride(element.id, 'qty', element.quantity || 1)"
                         @input="(e: any) => updateOverride(element.id, 'qty', e.target.value)"
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                   </td>
                   <td class="py-1 px-2 text-right border-r border-gray-300">
-                     <span v-if="!isEditMode">{{ formatCurrency(getOverride(element.id, 'price', element.finalTotal)) }}</span>
+                     <span v-if="!isEditMode">{{ formatCurrency(getOverride(element.id, 'price', element.finalTotal / (element.quantity || 1))) }}</span>
                      <input
                         v-else
                         type="number"
-                        :value="getOverride(element.id, 'price', element.finalTotal)"
+                        :value="getOverride(element.id, 'price', element.finalTotal / (element.quantity || 1))"
                         @input="(e: any) => updateOverride(element.id, 'price', e.target.value)"
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                   </td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal(element.id, 1, element.finalTotal)) }}</td>
+                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal(element.id, element.quantity || 1, element.finalTotal)) }}</td>
                 </tr>
 
                 <!-- Detailed View -->
@@ -720,7 +720,11 @@ interface Emits {
   'close': []
   /** Emitted when changes are committed */
   'save': [data: { descriptions: Record<string, string>, overrides: Record<string, any> }]
+  /** Emitted to request version creation before print */
+  'request-print': [callback: () => void]
 }
+
+
 
 // Props and emits
 const props = withDefaults(defineProps<Props>(), {
@@ -892,82 +896,88 @@ const printQuote = () => {
     isEditMode.value = false
   }
 
-  // Small delay to ensure edit mode is fully exited and DOM updated
-  setTimeout(() => {
-    // Get the quote content element
-    const quoteContent = document.querySelector('.quote-content')
-    if (quoteContent) {
-      // Create a new window for printing
-      const printWindow = window.open('', '_blank', 'width=1024,height=768')
-      if (printWindow) {
-        printWindow.document.write('<!DOCTYPE html><html><head><title>Quote</title>')
-        
-        // Copy all styles from current document to ensure WYSIWYG
-        const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
-        styles.forEach(node => {
-          printWindow.document.head.appendChild(node.cloneNode(true))
-        })
+  // Define the actual print logic to be called after versioning
+  const proceedToPrint = () => {
+    // Small delay to ensure edit mode is fully exited and DOM updated
+    setTimeout(() => {
+      // Get the quote content element
+      const quoteContent = document.querySelector('.quote-content')
+      if (quoteContent) {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank', 'width=1024,height=768')
+        if (printWindow) {
+          printWindow.document.write('<!DOCTYPE html><html><head><title>Quote</title>')
+          
+          // Copy all styles from current document to ensure WYSIWYG
+          const styles = document.querySelectorAll('style, link[rel="stylesheet"]')
+          styles.forEach(node => {
+            printWindow.document.head.appendChild(node.cloneNode(true))
+          })
 
-        // Add specific print styles for layout and minimalism
-        printWindow.document.write(`
-          <style>
-            body { 
-              font-family: system-ui, -apple-system, sans-serif;
-              margin: 0;
-              padding: 20px;
-              background: white;
-            }
-            .quote-content { 
-              width: 100%;
-              max-width: 100%;
-              margin: 0;
-              padding: 0 !important;
-              box-shadow: none !important;
-              border: none !important;
-            }
-            /* Colors */
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            
-            /* Page breaks */
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
-            .break-inside-avoid { page-break-inside: avoid; }
-            
-            /* Hide non-print elements just in case */
-            button, .no-print { display: none !important; }
-            
-            /* Typography tweaks for print */
-            h1, h2, h3, h4, h5, h6 { color: black !important; }
-            .text-gray-900 { color: black !important; }
-            .text-gray-600 { color: #333 !important; }
-            
-            /* Ensure inputs look like text if any remain */
-            input, textarea {
-              border: none;
-              background: transparent;
-              resize: none;
-              padding: 0;
-            }
-          </style>
-        `)
-        
-        printWindow.document.write('</head><body>')
-        
-        // Clone the content
-        printWindow.document.write(quoteContent.outerHTML)
-        
-        printWindow.document.write('</body></html>')
-        printWindow.document.close()
-        
-        // Wait for styles/images to load
-        setTimeout(() => {
-          printWindow.focus()
-          printWindow.print()
-          printWindow.close()
-        }, 500)
+          // Add specific print styles for layout and minimalism
+          printWindow.document.write(`
+            <style>
+              body { 
+                font-family: system-ui, -apple-system, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background: white;
+              }
+              .quote-content { 
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+              }
+              /* Colors */
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              
+              /* Page breaks */
+              table { page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              .break-inside-avoid { page-break-inside: avoid; }
+              
+              /* Hide non-print elements just in case */
+              button, .no-print { display: none !important; }
+              
+              /* Typography tweaks for print */
+              h1, h2, h3, h4, h5, h6 { color: black !important; }
+              .text-gray-900 { color: black !important; }
+              .text-gray-600 { color: #333 !important; }
+              
+              /* Ensure inputs look like text if any remain */
+              input, textarea {
+                border: none;
+                background: transparent;
+                resize: none;
+                padding: 0;
+              }
+            </style>
+          `)
+          
+          printWindow.document.write('</head><body>')
+          
+          // Clone the content
+          printWindow.document.write(quoteContent.outerHTML)
+          
+          printWindow.document.write('</body></html>')
+          printWindow.document.close()
+          
+          // Wait for styles/images to load
+          setTimeout(() => {
+            printWindow.focus()
+            printWindow.print()
+            printWindow.close()
+          }, 500)
+        }
       }
-    }
-  }, 100)
+    }, 100)
+  }
+
+  // Request parent to version/save, passing callback
+  emit('request-print', proceedToPrint)
 }
 
 
@@ -1010,7 +1020,7 @@ const formatCurrency = (amount: number): string => {
  * Get element description for client view
  */
 const getElementDescription = (element: any): string => {
-  return ''
+  return element.description || ''
 }
 
 /**

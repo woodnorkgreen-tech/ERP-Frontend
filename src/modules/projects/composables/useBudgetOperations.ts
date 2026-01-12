@@ -177,6 +177,7 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
       category: 'Production',
       unit: 'PAX',
       quantity: 0,
+      days: 1,
       unitRate: 0,
       amount: 0,
       isAddition: false,
@@ -185,7 +186,8 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
 
   // Calculate labour total
   const calculateLabourTotal = (labour: LabourType) => {
-    labour.amount = (labour.quantity || 0) * (labour.unitRate || 0)
+    const days = labour.days || 1
+    labour.amount = (labour.quantity || 0) * days * (labour.unitRate || 0)
   }
 
   // Remove labour item

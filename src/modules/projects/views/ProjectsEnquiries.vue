@@ -1,170 +1,165 @@
 <template>
   <div class="space-y-6 pb-12 font-poppins">
-    <!-- Minimalist Header -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-      <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div>
-          <nav class="flex mb-4" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-2 text-sm font-black text-slate-500 uppercase tracking-widest">
-              <li>
-                <router-link to="/projects" class="text-blue-600 hover:underline">Project Hub</router-link>
-              </li>
-              <li>
-                <div class="flex items-center gap-1">
-                  <i class="mdi mdi-chevron-right text-xs"></i>
-                  <span>Enquiries</span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-          <h1 class="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">Project Enquiries</h1>
-          <p class="text-slate-500 text-lg font-bold">Manage and track your project acquisition pipeline and client enquiries.</p>
-        </div>
-        
-        <div class="flex flex-wrap items-center gap-4">
-          <button
-            v-if="isProjectOfficer"
-            @click="filters.assigned_to_me = !filters.assigned_to_me"
-            class="h-12 px-6 rounded-xl font-bold text-sm transition-all border flex items-center gap-2"
-            :class="filters.assigned_to_me 
-              ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm' 
-              : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
-          >
-            <i class="mdi" :class="filters.assigned_to_me ? 'mdi-account-check' : 'mdi-account-group'"></i>
-            {{ filters.assigned_to_me ? 'My Enquiries' : 'All Enquiries' }}
-          </button>
+    <!-- Minimalist Header & Control Center -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all">
+      <div class="p-6 md:p-8">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
+          <div>
+            <nav class="flex mb-4" aria-label="Breadcrumb">
+              <ol class="inline-flex items-center space-x-2 text-sm font-black text-slate-500 uppercase tracking-widest">
+                <li>
+                  <router-link to="/projects" class="text-blue-600 hover:underline">Project Hub</router-link>
+                </li>
+                <li>
+                  <div class="flex items-center gap-1">
+                    <i class="mdi mdi-chevron-right text-xs"></i>
+                    <span>Enquiries</span>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+            <h1 class="text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Enquiries</h1>
+            <p class="text-slate-500 font-medium text-base">Track and manage client requests.</p>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-4">
+            <button
+              v-if="isProjectOfficer"
+              @click="filters.assigned_to_me = !filters.assigned_to_me"
+              class="h-10 px-6 rounded-lg font-bold text-sm transition-all border flex items-center gap-2"
+              :class="filters.assigned_to_me 
+                ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm' 
+                : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+            >
+              <i class="mdi" :class="filters.assigned_to_me ? 'mdi-account-check' : 'mdi-account-group'"></i>
+              {{ filters.assigned_to_me ? 'My Enquiries' : 'All Enquiries' }}
+            </button>
 
-          <button
-            @click="openLogisticsLogModal()"
-            class="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-sm border border-slate-200 transition-all active:scale-95 flex items-center gap-2"
-          >
-            <i class="mdi mdi-truck-delivery"></i>
-            Logistics Logs
-          </button>
+            <button
+              @click="openLogisticsLogModal()"
+              class="h-10 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-200 transition-all active:scale-95 flex items-center gap-2"
+            >
+              <i class="mdi mdi-truck-delivery"></i>
+              Logistics
+            </button>
 
-          <button
-            v-if="canLogEnquiry"
-            @click="showCreateModal = true"
-            class="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-base shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
-          >
-            <i class="mdi mdi-plus-circle-outline text-xl"></i>
-            New Enquiry
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-      <!-- Left: Status Sidebar -->
-      <div class="lg:col-span-1 space-y-3">
-        <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Quick Filter</h3>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-2 shadow-sm space-y-1">
-          <button
-            v-for="status in statusTabs"
-            :key="status.key"
-            @click="activeTab = status.key"
-            :class="[
-              activeTab === status.key 
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
-                : 'text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800',
-              'w-full flex items-center justify-between px-5 py-3.5 rounded-xl font-bold text-sm transition-all'
-            ]"
-          >
-            <span>{{ status.label }}</span>
-            <span class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-sm font-black">{{ status.count }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Right: Search & Filters -->
-      <div class="lg:col-span-3">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <!-- Search -->
-            <div class="md:col-span-12 space-y-2">
-              <label class="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Search Database</label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-400">
-                  <i class="mdi mdi-magnify text-xl"></i>
-                </div>
-                <input
-                  v-model="filters.search"
-                  type="text"
-                  placeholder="Search by ID, client names or project titles..."
-                  class="w-full h-14 pl-14 pr-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-400"
-                />
-              </div>
-            </div>
-
-            <!-- Status Filter -->
-            <div class="md:col-span-4 space-y-2">
-               <label class="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Current Status</label>
-              <div class="relative">
-                <select
-                  v-model="filters.status"
-                  class="w-full h-12 pl-5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
-                >
-                  <option value="">All Statuses</option>
-                  <optgroup label="Initial Stages">
-                    <option value="client_registered">Client Registered</option>
-                    <option value="enquiry_logged">Enquiry Logged</option>
-                    <option value="site_survey_completed">Site Survey Done</option>
-                  </optgroup>
-                  <optgroup label="Planning & Quotes">
-                    <option value="design_completed">Design Locked</option>
-                    <option value="design_approved">Design Approved</option>
-                    <option value="materials_specified">Materials Specified</option>
-                    <option value="budget_created">Budget Created</option>
-                    <option value="quote_prepared">Quote Prepared</option>
-                    <option value="quote_approved">Quote Approved</option>
-                    <option value="planning">Project Planning</option>
-                  </optgroup>
-                  <optgroup label="Active Execution">
-                    <option value="in_progress">Work In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </optgroup>
-                </select>
-                <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-              </div>
-            </div>
-
-            <div class="md:col-span-4 space-y-2">
-               <label class="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Sort By</label>
-              <div class="relative">
-                 <select
-                  v-model="filters.sort_by"
-                  class="w-full h-12 pl-5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
-                >
-                  <option value="created_at">Date Created</option>
-                  <option value="expected_delivery_date">Delivery Date</option>
-                  <option value="priority">Priority</option>
-                  <option value="title">Project Title</option>
-                </select>
-                <i class="mdi mdi-sort-variant absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-              </div>
-            </div>
-
-            <div class="md:col-span-4 space-y-2">
-               <label class="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Order</label>
-              <div class="relative">
-                <select
-                  v-model="filters.sort_order"
-                  class="w-full h-12 pl-5 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
-                >
-                  <option value="desc">Newest First</option>
-                  <option value="asc">Oldest First</option>
-                </select>
-                <i class="mdi mdi-swap-vertical absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-              </div>
-            </div>
+            <button
+              v-if="canLogEnquiry"
+              @click="showCreateModal = true"
+              class="h-10 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
+            >
+              <i class="mdi mdi-plus text-lg"></i>
+              New Enquiry
+            </button>
           </div>
         </div>
       </div>
     </div>
+    <!-- Top Level Navigation & Controls Row -->
+    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4 px-6 -mb-[2px] relative z-30">
+      <!-- Left: Tabs -->
+      <div class="flex items-end gap-2 overflow-x-auto pb-1 xl:pb-0">
+        <button
+          v-for="tab in dashboardTabs"
+          :key="tab.id"
+          @click="currentView = tab.id as any; activeTab = 'all'"
+          class="flex flex-col items-start gap-1 px-6 py-3 md:px-8 md:py-4 rounded-t-2xl transition-all min-w-[160px] md:min-w-[200px] relative group shrink-0"
+          :class="[
+            currentView === tab.id 
+              ? 'bg-white dark:bg-slate-900 border-x-2 border-t-2 border-blue-600 border-b-0 text-blue-600 z-40 pb-[14px] md:pb-[18px]' 
+              : 'bg-slate-50 dark:bg-slate-800/50 border-b-2 border-blue-600 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 z-10'
+          ]"
+        >
+          <div class="flex items-center gap-2">
+            <i class="mdi text-lg" :class="[tab.icon, currentView === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600']"></i>
+            <span class="text-xs md:text-sm font-black uppercase tracking-widest">{{ tab.label }}</span>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-widest" :class="currentView === tab.id ? 'text-blue-400' : 'text-slate-400'">{{ tab.desc }}</span>
+          
+          <!-- Mask for bottom border if active -->
+          <div v-if="currentView === tab.id" class="absolute bottom-[-2px] left-0 right-0 h-[2px] bg-white dark:bg-slate-900"></div>
+        </button>
+      </div>
+
+      <!-- Right: Filters & Search (Now Inline) -->
+      <div class="flex items-center gap-2 pb-2 overflow-x-auto">
+         <!-- Search -->
+         <div class="relative w-full md:w-64 shrink-0">
+            <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search..."
+              class="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-800 border-0 rounded-lg text-xs font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 uppercase tracking-wide"
+            />
+         </div>
+
+         <!-- Status -->
+         <div class="relative w-32 shrink-0">
+             <select
+              v-model="filters.status"
+              class="w-full h-10 pl-3 pr-8 bg-white dark:bg-slate-800 border-0 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 appearance-none uppercase tracking-wider cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            >
+              <option value="">Status: All</option>
+              <optgroup v-if="currentView === 'enquiries'" label="New">
+                <option value="client_registered">New Client</option>
+                <option value="enquiry_logged">Logged</option>
+                <option value="site_survey_completed">Survey Done</option>
+              </optgroup>
+              <optgroup v-if="currentView === 'enquiries'" label="Planning">
+                <option value="design_completed">Design</option>
+                <option value="budget_created">Budget</option>
+                <option value="quote_prepared">Quote</option>
+              </optgroup>
+              <optgroup v-if="currentView === 'projects'" label="Execution">
+                <option value="quote_approved">Approved</option>
+                <option value="planning">Planning</option>
+                <option value="in_progress">Active</option>
+                <option value="completed">Done</option>
+              </optgroup>
+            </select>
+            <i class="mdi mdi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+          </div>
+
+          <!-- Sort -->
+          <div class="relative w-28 shrink-0">
+             <select
+              v-model="filters.sort_by"
+              class="w-full h-10 pl-3 pr-8 bg-white dark:bg-slate-800 border-0 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 appearance-none uppercase tracking-wider cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            >
+              <option value="created_at">Date</option>
+              <option value="priority">Priority</option>
+              <option value="title">Title</option>
+            </select>
+            <i class="mdi mdi-sort-variant absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+          </div>
+      </div>
+    </div>
 
     <!-- Enquiries Data Engine -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-b-2xl rounded-tr-2xl border-2 border-blue-600 shadow-xl shadow-blue-900/10 overflow-hidden relative z-20">
+      <!-- Toolbar with View Toggle -->
+      <div v-if="!loading && !error" class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-end">
+        <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex gap-1">
+          <button 
+            @click="viewMode = 'table'"
+            class="h-9 px-4 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
+            :class="viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          >
+            <i class="mdi mdi-table"></i>
+            List
+          </button>
+          <button 
+            @click="viewMode = 'cards'"
+            class="h-9 px-4 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
+            :class="viewMode === 'cards' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          >
+            <i class="mdi mdi-view-grid"></i>
+            Cards
+          </button>
+        </div>
+      </div>
+
       <div v-if="loading" class="flex flex-col items-center justify-center py-32">
         <div class="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6"></div>
         <p class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Loading Enquiries...</p>
@@ -176,7 +171,8 @@
         <p class="text-xs opacity-50 mt-1 uppercase">{{ error }}</p>
       </div>
 
-      <div v-else class="overflow-x-auto custom-scrollbar">
+      <!-- Table View -->
+      <div v-else-if="viewMode === 'table'" class="overflow-x-auto custom-scrollbar">
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -291,6 +287,123 @@
             </template>
           </tbody>
         </table>
+      </div>
+
+      <!-- Card Grip (Grid View) -->
+      <div v-else class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <template v-for="enquiry in filteredEnquiries" :key="enquiry.id">
+            <div 
+              class="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden"
+            >
+              <!-- Colored Left Border (Status Indicator) -->
+
+
+              <!-- Priority Badge (Absolute Top Right) -->
+              <div v-if="enquiry.priority === 'urgent' || enquiry.priority === 'high'" class="absolute top-0 right-6">
+                 <div class="px-3 py-1 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-b-xl shadow-lg shadow-red-500/30">
+                   {{ enquiry.priority }}
+                 </div>
+              </div>
+
+              <!-- Header: Ref & Status -->
+              <div class="flex items-start justify-between mb-5 pl-2">
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {{ enquiry.enquiry_number }}
+                  </span>
+                  <span 
+                    class="text-sm font-black tracking-tight"
+                    :class="enquiry.job_number ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300'"
+                  >
+                    {{ enquiry.job_number || 'NO JOB #' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Content: Title & Client -->
+              <div class="mb-6 flex-grow pl-2">
+                <h3 
+                  class="text-xl font-black text-slate-900 dark:text-white leading-snug mb-4 group-hover:text-indigo-600 transition-colors cursor-pointer line-clamp-2"
+                  @click="selectedEnquiry = enquiry; showDetailSlideOver = true"
+                >
+                  {{ enquiry.title }}
+                </h3>
+                
+                <div class="flex items-center gap-3 mb-5">
+                  <div 
+                    class="w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center text-sm font-black text-white uppercase shrink-0"
+                    :class="[
+                       'bg-gradient-to-br',
+                       ['from-blue-400 to-blue-600', 'from-emerald-400 to-emerald-600', 'from-violet-400 to-violet-600', 'from-rose-400 to-rose-600', 'from-amber-400 to-amber-600'][enquiry.id % 5]
+                    ]"
+                  >
+                    {{ enquiry.client?.full_name?.charAt(0) || 'C' }}
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client</span>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{{ enquiry.client?.full_name || 'No Client' }}</span>
+                  </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                   <div class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 transition-colors">
+                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                       <i class="mdi mdi-calendar-clock text-blue-500"></i> Target
+                     </p>
+                     <p 
+                       class="text-sm font-black"
+                       :class="enquiry.expected_delivery_date ? 'text-slate-800 dark:text-white' : 'text-slate-300'"
+                     >
+                       {{ enquiry.expected_delivery_date ? formatDate(enquiry.expected_delivery_date) : 'TBD' }}
+                     </p>
+                   </div>
+                   <div class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
+                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                        <i class="mdi mdi-account-star text-indigo-500"></i> Officer
+                     </p>
+                     <p class="text-sm font-black text-slate-800 dark:text-white truncate">
+                       {{ enquiry.project_officer?.name?.split(' ')[0] || 'Unassigned' }}
+                     </p>
+                   </div>
+                </div>
+              </div>
+
+              <!-- Active Tasks Indicator -->
+              <div v-if="getUserTaskCount(enquiry) > 0" class="mb-5 pl-2">
+                 <div class="flex items-center gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl">
+                    <div class="relative flex h-2.5 w-2.5 shrink-0">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                    </div>
+                    <span class="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">
+                      {{ getUserTaskCount(enquiry) }} Actions Required
+                    </span>
+                 </div>
+              </div>
+
+              <!-- Footer: Actions -->
+              <div class="flex items-center gap-3 pt-5 border-t border-slate-100 dark:border-slate-800 mt-auto pl-2">
+                <router-link 
+                  :to="{ path: '/projects/tasks', query: { enquiry_id: enquiry.id } }"
+                  class="flex-1 h-11 rounded-xl bg-slate-900 dark:bg-white hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white dark:text-slate-900 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/10 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+                >
+                  <span>Open Tasks</span>
+                  <i class="mdi mdi-arrow-right"></i>
+                </router-link>
+                
+                <button 
+                  @click="(event) => toggleMenu(event, enquiry)"
+                  class="w-11 h-11 rounded-xl border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-100 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-600 transition-all flex items-center justify-center"
+                  :class="{ 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white': activeMenuEnquiry?.id === enquiry.id }"
+                >
+                  <i class="mdi mdi-dots-horizontal text-lg"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
       <!-- Pagination -->
@@ -531,13 +644,20 @@
                   required
                   class="w-full h-14 pl-6 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white uppercase tracking-widest appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                 >
-                  <option 
-                    v-for="(label, key) in ENQUIRY_STATUS_LABELS" 
-                    :key="key" 
-                    :value="key"
-                  >
-                    {{ label }}
-                  </option>
+                  <!-- We only return 'Enquiry Logged' as the default choice to simplify logging -->
+                  <option value="enquiry_logged">Enquiry Logged</option>
+                  
+                  <!-- Show other statuses only if we're editing an existing record that might have moved further -->
+                  <template v-if="editingEnquiry">
+                    <option 
+                      v-for="(label, key) in ENQUIRY_STATUS_LABELS" 
+                      :key="key" 
+                      :value="key"
+                      v-show="key !== 'enquiry_logged'"
+                    >
+                      {{ label }}
+                    </option>
+                  </template>
                 </select>
                 <i class="mdi mdi-circular-state absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
@@ -1237,6 +1357,7 @@ interface LogisticsEntry {
 }
 
 // Logistics Log Modal
+const viewMode = ref<'table' | 'cards'>('table')
 const showLogisticsLogModal = ref(false)
 const selectedEnquiryForLog = ref<ProjectEnquiry | null>(null)
 const showAddEntryForm = ref(false)
@@ -1331,20 +1452,56 @@ const removeDeliverable = (index: number) => {
 }
 
 
-const statusTabs = computed(() => [
-  { key: 'all', label: 'All', count: pagination.value.total },
-  { key: 'new', label: 'New', count: newEnquiries.value.length },
-  { key: 'in_progress', label: 'In Progress', count: inProgressEnquiries.value.length }
-])
+const currentView = ref<'enquiries' | 'projects'>('enquiries')
+
+const dashboardTabs = [
+  { id: 'enquiries', label: 'Enquiries Pipeline', icon: 'mdi-magnify-scan', desc: 'Pipeline' },
+  { id: 'projects', label: 'Active Projects', icon: 'mdi-rocket-launch', desc: 'In Progress' }
+]
+
+const statusTabs = computed(() => {
+  if (currentView.value === 'projects') {
+    return [
+      { key: 'all', label: 'All', count: filteredEnquiries.value.length },
+      { key: 'pre_prod', label: 'Preparation', count: enquiries.value.filter(e => ['quote_approved', 'planning'].includes(e.status)).length },
+      { key: 'in_progress', label: 'Active', count: enquiries.value.filter(e => e.status === 'in_progress').length },
+      { key: 'completed', label: 'Done', count: enquiries.value.filter(e => e.status === 'completed').length },
+       { key: 'cancelled', label: 'Cancelled', count: enquiries.value.filter(e => e.status === 'cancelled').length }
+    ]
+  }
+  return [
+    { key: 'all', label: 'All', count: filteredEnquiries.value.length },
+    { key: 'new', label: 'New', count: newEnquiries.value.length },
+    { key: 'in_progress', label: 'Active', count: enquiries.value.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(e.status)).length }
+  ]
+})
 
 const filteredEnquiries = computed(() => {
   let filtered = enquiries.value.filter(e => e !== undefined && e !== null)
 
+  // 1. Separate Enquiries from Projects based on "Quote Approved" milestone
+  const projectStatuses = ['quote_approved', 'planning', 'in_progress', 'completed', 'cancelled']
+  
+  if (currentView.value === 'projects') {
+      // Projects View: Status must be quote_approved OR later
+      filtered = filtered.filter(e => projectStatuses.includes(e.status))
+  } else {
+      // Enquiries View: Status must be BEFORE quote_approved
+      filtered = filtered.filter(e => !projectStatuses.includes(e.status))
+  }
+
+  // 2. Filter by status tab (activeTab)
   if (activeTab.value !== 'all') {
     if (activeTab.value === 'new') {
-      filtered = newEnquiries.value.filter(e => e !== undefined && e !== null)
-    } else if (activeTab.value === 'in_progress') {
-      filtered = inProgressEnquiries.value.filter(e => e !== undefined && e !== null)
+       filtered = filtered.filter(e => e.status === 'enquiry_logged' || e.status === 'client_registered')
+    } else if (activeTab.value === 'in_progress' && currentView.value === 'enquiries') {
+       // "In Pipeline" for enquiries (excluding quote_approved/planning now)
+       filtered = filtered.filter(enquiry => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(enquiry.status))
+    } else if (activeTab.value === 'pre_prod' && currentView.value === 'projects') {
+       filtered = filtered.filter(e => ['quote_approved', 'planning'].includes(e.status))
+    } else {
+       // Direct status match
+       filtered = filtered.filter(e => e.status === activeTab.value)
     }
   }
 

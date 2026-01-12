@@ -19,118 +19,70 @@
         </button>
       </div>
 
-      <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Project Information</h5>
-          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full w-fit">
-            Logistics Task
-          </span>
-        </div>
-        <!-- Project Information Grid - Responsive layout -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          <!-- Project Title -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold mt-1 break-words">
-              <span v-if="projectInfo.enquiryTitle && projectInfo.enquiryTitle !== 'Untitled Project'">
-                {{ projectInfo.enquiryTitle }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Untitled Project
-              </span>
-            </p>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Enquiry Number -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1 font-mono">
-              <span v-if="projectInfo.projectId && projectInfo.projectId !== 'N/A'">
-                {{ projectInfo.projectId }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not assigned
-              </span>
-            </p>
-          </div>
-
-          <!-- Client Name -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.clientName && projectInfo.clientName !== 'N/A'">
-                {{ projectInfo.clientName }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
-          </div>
-
-          <!-- Event Venue -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.eventVenue && projectInfo.eventVenue !== 'TBC'">
-                {{ projectInfo.eventVenue }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Setup Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setup Date</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setupDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setupDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Set Down Date -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Setdown Date</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1">
-              <span v-if="formatDate(projectInfo.setDownDate) !== 'TBC'" class="font-medium">
-                {{ formatDate(projectInfo.setDownDate) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                To be confirmed
-              </span>
-            </p>
-          </div>
-
-          <!-- Estimated Budget -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Estimated Budget</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium mt-1">
-              <span v-if="projectInfo.estimatedBudget" class="text-green-600 dark:text-green-400">
-                KES {{ formatCurrency(projectInfo.estimatedBudget) }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
-          </div>
-
-          <!-- Contact Person -->
-          <div class="project-info-card">
-            <label class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Contact Person</label>
-            <p class="text-sm text-gray-900 dark:text-white mt-1 break-words">
-              <span v-if="projectInfo.contactPerson && projectInfo.contactPerson !== 'N/A'">
-                {{ projectInfo.contactPerson }}
-              </span>
-              <span v-else class="text-gray-500 dark:text-gray-400 italic">
-                Not specified
-              </span>
-            </p>
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
@@ -2174,7 +2126,7 @@ const extractProjectInfo = (): ProjectInfo => {
     }
 
     const projectInfo: ProjectInfo = {
-      projectId: enquiry?.enquiry_number || 'N/A',
+      projectId: enquiry?.job_number || enquiry?.enquiry_number || 'N/A',
       enquiryTitle: enquiry?.title || 'Untitled Project',
       clientName: enquiry?.client?.full_name || enquiry?.client?.FullName || enquiry?.contact_person || 'N/A',
       eventVenue: enquiry?.venue || 'TBC',

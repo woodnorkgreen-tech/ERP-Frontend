@@ -110,7 +110,7 @@ export function useProcurementData(taskId?: number) {
 
     const completedStatuses = ['received', 'hired']
     const completedItems = procurementData.procurementItems.filter(item =>
-      completedStatuses.includes(item.availabilityStatus)
+      item.availabilityStatus && completedStatuses.includes(item.availabilityStatus)
     ).length
 
     return Math.round((completedItems / procurementData.procurementItems.length) * 100)
@@ -119,9 +119,21 @@ export function useProcurementData(taskId?: number) {
   const completedItemsCount = computed(() => {
     const completedStatuses = ['received', 'hired']
     return procurementData.procurementItems.filter(item =>
-      completedStatuses.includes(item.availabilityStatus)
+      item.availabilityStatus && completedStatuses.includes(item.availabilityStatus)
     ).length
   })
+
+  // Save function
+  const save = async () => {
+    if (!taskId) return
+    try {
+      await ProcurementService.saveProcurementData(taskId, procurementData)
+      console.log('Procurement data saved successfully')
+    } catch (error) {
+      console.error('Failed to save procurement data:', error)
+      throw error
+    }
+  }
 
   return {
     procurementData,
@@ -133,6 +145,7 @@ export function useProcurementData(taskId?: number) {
     overallCompletionPercentage,
     completedItemsCount,
     importBudgetData,
-    loadProcurementData
+    loadProcurementData,
+    save
   }
 }

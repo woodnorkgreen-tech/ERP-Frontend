@@ -52,58 +52,15 @@ const PERMISSIONS = {
   // Materials Library
   MATERIALS_VIEW: 'materials-library.view',
 
-  // Future Finance Permissions (commented out - not yet implemented)
-  // FINANCE_BUDGET_CREATE: 'finance.budget.create',
-  // FINANCE_BUDGET_APPROVE: 'finance.budget.approve',
-  // FINANCE_BUDGET_DELETE: 'finance.budget.delete',
-  // FINANCE_QUOTE_CREATE: 'finance.quote.create',
-  // FINANCE_QUOTE_READ: 'finance.quote.read',
-  // FINANCE_QUOTE_UPDATE: 'finance.quote.update',
-  // FINANCE_QUOTE_APPROVE: 'finance.quote.approve',
-  // FINANCE_QUOTE_DELETE: 'finance.quote.delete',
-  // FINANCE_INVOICE_CREATE: 'finance.invoice.create',
-  // FINANCE_INVOICE_READ: 'finance.invoice.read',
-  // FINANCE_INVOICE_UPDATE: 'finance.invoice.update',
-  // FINANCE_INVOICE_DELETE: 'finance.invoice.delete',
-  // FINANCE_REPORTS_VIEW: 'finance.reports.view',
-  // FINANCE_ANALYTICS_VIEW: 'finance.analytics.view',
-  // FINANCE_PETTY_CASH_VIEW: 'finance.petty_cash.view',
-  // FINANCE_PETTY_CASH_CREATE: 'finance.petty_cash.create',
-  // FINANCE_PETTY_CASH_UPDATE: 'finance.petty_cash.update',
-  // FINANCE_PETTY_CASH_VOID: 'finance.petty_cash.void',
-  // FINANCE_PETTY_CASH_CREATE_TOP_UP: 'finance.petty_cash.create_top_up',
-  // FINANCE_PETTY_CASH_ADMIN: 'finance.petty_cash.admin',
-
   // HR
   HR_VIEW_EMPLOYEES: 'hr.view_employees',
-  // Future HR Permissions (commented out - not yet implemented)
-  // HR_MANAGE_PAYROLL: 'hr.manage_payroll',
-  // HR_CREATE_POSITION: 'hr.create_position',
-  // HR_MANAGE_ATTENDANCE: 'hr.manage_attendance',
-
-
 
   // Client Service
   CLIENT_READ: 'client.read',
   CLIENT_CREATE: 'client.create',
-  // Future Client Service Permissions (commented out - not yet implemented)
-  // CLIENT_UPDATE: 'client.update',
-  // CLIENT_DELETE: 'client.delete',
-
-  // Procurement (Future - not yet implemented)
-  // PROCUREMENT_VIEW: 'procurement.view',
-  // PROCUREMENT_MATERIALS_REQUEST: 'procurement.materials.request',
-  // PROCUREMENT_ORDERS_CREATE: 'procurement.orders.create',
-  // PROCUREMENT_VENDORS_MANAGE: 'procurement.vendors.manage',
-  // PROCUREMENT_QUOTATIONS_MANAGE: 'procurement.quotations.manage',
 
   // Admin
   ADMIN_ACCESS: 'admin.access',
-  // Future Admin Permissions (commented out - not yet implemented)
-  // ADMIN_LOGS_VIEW: 'admin.logs.view',
-  // ADMIN_SETTINGS: 'admin.settings',
-  // ADMIN_BACKUP: 'admin.backup',
-  // ADMIN_MAINTENANCE: 'admin.maintenance',
 
   // Task Management
   TASK_READ: 'task.read',
@@ -136,7 +93,6 @@ export function useRouteGuard() {
     // Check if user has the specific permission in their permissions array
     return permissions.value?.user_permissions?.includes(permission) || false
   }
-
 
   const canAccessRoute = (routeName: string): boolean => {
     if (!isLoggedIn.value || !user.value) {
@@ -204,8 +160,6 @@ export function useRouteGuard() {
     return hasPermission(PERMISSIONS.CLIENT_READ)
   }
 
-
-
   const canAccessFinance = (): boolean => {
     if (!isLoggedIn.value || !user.value) {
       return false
@@ -221,7 +175,6 @@ export function useRouteGuard() {
       hasPermission(PERMISSIONS.FINANCE_BUDGET_READ) ||
       hasPermission(PERMISSIONS.FINANCE_BUDGET_UPDATE)
   }
-
 
   const redirectToAppropriateRoute = () => {
     if (!isLoggedIn.value || !user.value) {
@@ -342,6 +295,28 @@ export function useRouteGuard() {
             { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' },
             { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
           ]
+        },
+        {
+          department: 'Stores & Inventory',
+          routes: [
+            { name: 'stores-dashboard', path: '/stores/dashboard', label: 'Stores Dashboard', icon: 'mdi-view-dashboard-variant' },
+            { name: 'stores-materials-library', path: '/stores/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' },
+            { name: 'stores-check-in', path: '/stores/check-in', label: 'Check Inns (GRN)', icon: 'mdi-package-variant-closed' },
+            { name: 'stores-check-out', path: '/stores/check-out', label: 'Check Outs (Issues)', icon: 'mdi-truck-delivery' },
+            { name: 'stores-returns', path: '/stores/returns', label: 'Stock Returns', icon: 'mdi-keyboard-return' },
+            { name: 'stores-defective', path: '/stores/defective', label: 'Defective & Repairs', icon: 'mdi-alert-circle-outline' },
+            { name: 'stores-alerts', path: '/stores/alerts', label: 'Inventory Alerts', icon: 'mdi-bell-ring-outline' }
+          ]
+        },
+        {
+          department: 'Procurement',
+          routes: [
+            { name: 'procurement-dashboard', path: '/procurement/dashboard', label: 'Procurement Dashboard', icon: 'mdi-shopping' },
+            { name: 'procurement-suppliers', path: '/procurement/suppliers', label: 'Suppliers & Vendors', icon: 'mdi-account-star-outline' },
+            { name: 'procurement-requisitions', path: '/procurement/requisitions', label: 'Stock Requisitions', icon: 'mdi-file-plus-outline' },
+            { name: 'procurement-purchase-orders', path: '/procurement/purchase-orders', label: 'Purchase Orders (LPOs)', icon: 'mdi-file-sign' },
+            { name: 'procurement-goods-receipt', path: '/procurement/goods-receipt', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' }
+          ]
         }
       )
     }
@@ -364,17 +339,6 @@ export function useRouteGuard() {
         { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
       )
     }
-    // Department users get department routes
-    // else if (userRoles.includes('Manager') || userRoles.includes('Employee')) {
-    //   if (permissions.value?.user_department) {
-    //     routes.push({
-    //       name: `department-${permissions.value.user_department.id}`,
-    //       path: `/department/${permissions.value.user_department.id}`,
-    //       label: `${permissions.value.user_department.name} Dashboard`,
-    //       icon: '🏢'
-    //     })
-    //   }
-    // }
 
     // Add projects routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessProjects() && !userRoles.includes('Super Admin')) {
@@ -393,8 +357,6 @@ export function useRouteGuard() {
       )
     }
 
-    // Creatives module not yet implemented - designers use projects module
-
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
@@ -403,7 +365,6 @@ export function useRouteGuard() {
         { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
       )
     }
-
 
     return routes
   }

@@ -39,6 +39,15 @@
         <i class="mdi mdi-sync text-2xl text-slate-600 dark:text-slate-400 group-hover:text-blue-500 transition-colors" :class="{'animate-spin text-blue-500': loading}"></i>
       </button>
 
+      <!-- Flash Quote Button -->
+      <button
+        @click="$emit('flash-quote')"
+        class="flex items-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl shadow-xl shadow-emerald-500/10 transition-all active:scale-95 font-black text-[10px] uppercase tracking-[0.2em]"
+      >
+        <i class="mdi mdi-lightning-bolt text-xl"></i>
+        <span>Flash Quote</span>
+      </button>
+
       <!-- Global Link -->
       <router-link
         to="/projects/enquiries"
@@ -64,7 +73,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  refresh: []
+  refresh: [],
+  'flash-quote': []
 }>()
 
 const currentDateTime = ref('')

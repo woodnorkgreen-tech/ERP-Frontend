@@ -32,21 +32,70 @@
 
     <!-- Main Content -->
     <div v-else>
-      <!-- Project Information -->
-      <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-        <h4 class="text-md font-medium mb-3 text-gray-900 dark:text-white">Project Information</h4>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ projectInfo.enquiryTitle }}</p>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ projectInfo.projectId }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ projectInfo.clientName }}</p>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
@@ -75,182 +124,348 @@
       </div>
 
       <!-- Items Tab -->
-      <div v-if="activeTab === 'items'">
-        <div v-if="procurementData.procurementItems.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-          <p>No procurement items available</p>
+      <div v-if="activeTab === 'items'" class="space-y-6">
+        
+        <!-- Procurement Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Metric 1: Total Budget -->
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Budget</p>
+              <p class="text-2xl font-black text-slate-800 dark:text-white">{{ formatCurrency(totalBudget) }}</p>
+            </div>
+            <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+              <i class="mdi mdi-cash-multiple text-6xl text-blue-600"></i>
+            </div>
+          </div>
+
+          <!-- Metric 2: Stock Availability -->
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Inventory Available</p>
+              <div class="flex items-baseline space-x-2">
+                <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                  {{ Math.round((procurementData.procurementItems.filter(i => i.stockStatus === 'in_stock').length / (procurementData.procurementItems.length || 1)) * 100) }}%
+                </p>
+                <span class="text-xs font-medium text-slate-500">Fully Stocked Items</span>
+              </div>
+            </div>
+            <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+              <i class="mdi mdi-warehouse text-6xl text-emerald-600"></i>
+            </div>
+          </div>
+
+          <!-- Metric 3: To Procure -->
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pending Purchases</p>
+              <div class="flex items-baseline space-x-2">
+                <p class="text-2xl font-black text-amber-600 dark:text-amber-400">
+                  {{ procurementData.procurementItems.filter(i => i.purchaseQuantity > 0 && i.procurementStatus !== 'received').length }}
+                </p>
+                <span class="text-xs font-medium text-slate-500">Items to Buy</span>
+              </div>
+            </div>
+            <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
+              <i class="mdi mdi-cart-outline text-6xl text-amber-600"></i>
+            </div>
+          </div>
+
+          <!-- Metric 4: Completion -->
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Delivery Status</p>
+              <div class="flex items-center space-x-2 mb-2">
+                 <p class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ overallCompletionPercentage }}%</p>
+              </div>
+               <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" :style="{ width: `${overallCompletionPercentage}%` }"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div v-else class="space-y-4">
-          <div v-for="element in groupedProcurementItems" :key="element.elementId" class="border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div v-if="procurementData.procurementItems.length === 0" class="text-center py-12 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700">
+          <div class="flex flex-col items-center text-gray-400 dark:text-gray-500">
+            <i class="mdi mdi-clipboard-list-outline text-5xl mb-3"></i>
+            <p class="text-lg font-medium text-gray-900 dark:text-white">No procurement items yet</p>
+            <p class="text-sm">Import budget data to get started</p>
+          </div>
+        </div>
+
+        <div v-else class="space-y-6">
+          <div v-for="element in groupedProcurementItems" :key="element.elementId" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm transition-shadow hover:shadow-md">
             <!-- Element Header -->
             <div
               :class="[
                 getElementHeaderClass(element.elementName),
-                'cursor-pointer hover:opacity-90 transition-opacity px-4 py-3 flex items-center justify-between'
+                'cursor-pointer hover:opacity-95 transition-all px-5 py-4 flex items-center justify-between text-white'
               ]"
               @click="toggleElementCollapse(element.elementId)"
             >
-              <div class="flex items-center space-x-3">
-                <div class="flex flex-col space-y-1">
-                  <div class="flex items-center space-x-2">
-                    <h6 class="text-sm font-semibold text-white">{{ element.elementName }}</h6>
-                    <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium text-white">
-                      {{ element.materials.length }} materials
+              <div class="flex items-center space-x-4">
+                <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                   <i class="mdi mdi-cube-outline text-xl"></i>
+                </div>
+                <div>
+                  <div class="flex items-center space-x-3">
+                    <h6 class="text-base font-bold tracking-tight">{{ element.elementName }}</h6>
+                    <span class="text-[10px] bg-black/20 px-2 py-0.5 rounded text-white/90 font-bold uppercase tracking-wider">
+                      {{ element.materials.length }} items
                     </span>
                   </div>
-                  <div class="text-xs text-white/80">
-                    Total Budget: KES {{ (element.totalBudget || 0).toLocaleString() }}
+                   <div class="text-xs text-white/80 font-medium mt-0.5">
+                    Budget Allocation: {{ formatCurrency(element.totalBudget) }}
                   </div>
                 </div>
               </div>
 
               <div class="flex items-center space-x-3">
+                <div class="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/10 uppercase tracking-wider">
+                    {{ element.materials.filter(m => m.stockStatus === 'in_stock').length }} / {{ element.materials.length }} Stocked
+                </div>
                 <svg
-                  :class="['w-4 h-4 text-white transition-transform', { 'rotate-180': !isElementCollapsed(element.elementId) }]"
+                  :class="['w-5 h-5 text-white/70 transition-transform duration-300', { 'rotate-180': !isElementCollapsed(element.elementId) }]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </div>
             </div>
 
             <!-- Element Materials -->
-            <div v-if="!isElementCollapsed(element.elementId)" class="bg-white dark:bg-gray-800">
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Material Description</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Qty</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stock Status</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stock Qty</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Purchase Qty</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Procurement Status</th>
-                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vendor</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    <tr v-for="material in element.materials" :key="material.budgetItemId" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td class="px-4 py-3 text-sm">
-                        <div class="text-gray-900 dark:text-white">
-                          <div class="font-medium">{{ material.description }}</div>
-                          <div class="text-xs text-gray-500 dark:text-gray-400">ID: {{ material.budgetItemId }}</div>
+            <div v-if="!isElementCollapsed(element.elementId)" class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                <thead>
+                  <tr class="bg-slate-50/50 dark:bg-slate-800/50">
+                    <!-- Item Details -->
+                    <th class="px-5 py-3 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider w-1/4">Item Details</th>
+                    <th class="px-5 py-3 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider w-24">Required Qty</th>
+                    
+                    <!-- Inventory Section -->
+                    <th class="px-5 py-3 text-center text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-wider bg-blue-100/50 dark:bg-blue-900/30 border-l-2 border-r-2 border-blue-200 dark:border-blue-800 w-48 shadow-sm">
+                        <div class="flex items-center justify-center gap-2">
+                           <span class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                             <i class="mdi mdi-warehouse text-base"></i>
+                           </span>
+                           <span>Store Availability</span>
                         </div>
-                      </td>
-                      <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                        {{ material.quantity }} {{ material.unitOfMeasurement }}
-                      </td>
-                      
-                      <!-- Stock Status (Store User) -->
-                      <td class="px-4 py-3 text-sm">
-                        <select
-                          v-model="material.stockStatus"
-                          :disabled="!isStoresUser"
-                          @change="updateStockStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
-                          :class="[
-                            'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                            'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                            getStockStatusClass(material.stockStatus)
-                          ]"
-                        >
-                          <option value="pending_check">Pending Check</option>
-                          <option value="in_stock">In Stock</option>
-                          <option value="partial_stock">Partial Stock</option>
-                          <option value="out_of_stock">Out of Stock</option>
-                        </select>
-                      </td>
+                    </th>
+                    
+                    <!-- Procurement Section -->
+                    <th class="px-5 py-3 text-center text-[10px] font-black text-amber-700 dark:text-amber-300 uppercase tracking-wider bg-amber-100/50 dark:bg-amber-900/30 border-r-2 border-amber-200 dark:border-amber-800 shadow-sm" colspan="3">
+                        <div class="flex items-center justify-center gap-2">
+                           <span class="w-6 h-6 rounded-full bg-amber-200 dark:bg-amber-800 flex items-center justify-center">
+                             <i class="mdi mdi-cart text-base"></i>
+                           </span>
+                           <span>Purchasing Action</span>
+                        </div>
+                    </th>
+                  </tr>
+                  <tr class="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+                      <th colspan="2" class="bg-white dark:bg-slate-800"></th>
+                      <!-- Inventory Sub-headers -->
+                       <th class="px-2 py-2 text-center text-[10px] font-bold text-blue-600 border-l-2 border-r-2 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10">Stock Status</th>
+                       
+                       <!-- Procurement Sub-headers -->
+                       <th class="px-2 py-2 text-center text-[10px] font-bold text-amber-600 border-r border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 w-24">Buy Qty</th>
+                       <th class="px-2 py-2 text-left text-[10px] font-bold text-amber-600 border-r border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10">PO Status</th>
+                       <th class="px-2 py-2 text-left text-[10px] font-bold text-amber-600 border-r-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 w-1/4">Supplier</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700/50">
+                  <tr v-for="material in element.materials" :key="material.budgetItemId" class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group">
+                    
+                    <!-- Description -->
+                    <td class="px-5 py-4 align-top">
+                      <div class="flex flex-col">
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 tracking-tight leading-snug">{{ material.description }}</span>
+                        <span class="text-[10px] font-mono text-slate-400 mt-1 select-all hover:text-slate-600 transition-colors">ID: {{ material.budgetItemId }}</span>
+                      </div>
+                    </td>
 
-                      <!-- Stock Quantity -->
-                      <td class="px-4 py-3 text-sm">
-                        <input
-                          type="number"
-                          v-model.number="material.stockQuantity"
-                          @input="updateStockQuantity(material.budgetItemId, ($event.target as HTMLInputElement).value)"
-                          min="0"
-                          :max="material.quantity"
-                          :disabled="!isStoresUser || material.stockStatus === 'out_of_stock' || material.stockStatus === 'pending_check'"
-                          class="w-20 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-                        />
-                      </td>
+                    <!-- Quantity -->
+                    <td class="text-right px-5 py-4 align-top">
+                       <div class="inline-flex flex-col items-end">
+                          <span class="text-sm font-bold text-slate-800 dark:text-white">{{ material.quantity }}</span>
+                          <span class="text-[10px] font-medium text-slate-400 lowercase">{{ material.unitOfMeasurement }}</span>
+                       </div>
+                    </td>
+                    
+                    <!-- Inventory Column -->
+                    <td class="px-4 py-3 align-top border-l border-r border-slate-100 dark:border-slate-700/50 bg-blue-50/5 dark:bg-blue-900/5">
+                       <div class="flex flex-col space-y-2">
+                          <select
+                            v-model="material.stockStatus"
+                            :disabled="!isStoresUser"
+                            @change="updateStockStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
+                            :class="[
+                              'w-full pl-2.5 pr-8 py-1.5 text-xs font-bold border-0 rounded-lg ring-1 ring-inset focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer',
+                              'bg-white dark:bg-slate-700 shadow-sm',
+                              getStockStatusClass(material.stockStatus)
+                            ]"
+                          >
+                            <option value="pending_check">⚠️ Unverified</option>
+                            <option value="in_stock">✅ Fully Stocked</option>
+                            <option value="partial_stock">🚧 Partial Stock</option>
+                            <option value="out_of_stock">❌ Not in Stock</option>
+                          </select>
 
-                      <!-- Purchase Quantity (Auto-calculated) -->
-                      <td class="px-4 py-3 text-sm">
-                        <span :class="[
-                          'font-medium',
-                          material.purchaseQuantity > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'
-                        ]">
-                          {{ material.purchaseQuantity }}
-                        </span>
-                      </td>
+                          <div class="flex items-center space-x-2">
+                             <div class="relative w-full">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">SOH:</span>
+                                <input
+                                  type="number"
+                                  v-model.number="material.stockQuantity"
+                                  @input="updateStockQuantity(material.budgetItemId, ($event.target as HTMLInputElement).value)"
+                                  min="0"
+                                  :max="material.quantity"
+                                  :disabled="!isStoresUser || material.stockStatus === 'out_of_stock' || material.stockStatus === 'pending_check'"
+                                  class="w-full pl-9 pr-2 py-1 text-xs font-bold text-right border-0 ring-1 ring-slate-200 dark:ring-slate-600 rounded-md bg-transparent focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800 transition-all placeholder-slate-300"
+                                  placeholder="0"
+                                />
+                             </div>
+                          </div>
+                       </div>
+                    </td>
 
-                      <!-- Procurement Status (Procurement Officer) -->
-                      <td class="px-4 py-3 text-sm">
-                        <select
-                          v-model="material.procurementStatus"
-                          @change="updateProcurementStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
-                          :disabled="!isProcurementUser || (material.purchaseQuantity === 0 && material.procurementStatus === 'not_needed')"
-                          :class="[
-                            'w-full px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                            'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                            getProcurementStatusClass(material.procurementStatus)
-                          ]"
-                        >
-                          <option value="not_needed">Not Needed</option>
-                          <option value="pending">Pending Purchase</option>
-                          <option value="ordered">Ordered</option>
-                          <option value="received">Received</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </td>
+                    <!-- Purchase Qty -->
+                    <td class="px-4 py-3 align-top text-center border-r border-slate-100 dark:border-slate-700/50 bg-amber-50/5 dark:bg-amber-900/5">
+                       <div class="py-1.5 px-3 rounded-lg font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm inline-block min-w-[3rem]">
+                           <span :class="material.purchaseQuantity > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-300 dark:text-slate-600'">
+                               {{ material.purchaseQuantity }}
+                           </span>
+                       </div>
+                    </td>
 
-                      <td class="px-4 py-3 text-sm">
-                        <input
-                          v-model="material.vendorName"
-                          :disabled="!isProcurementUser"
-                          @input="updateVendorName(material.budgetItemId, ($event.target as HTMLInputElement).value)"
-                          type="text"
-                          placeholder="Vendor name"
-                          class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                    <!-- Procurement Status -->
+                    <td class="px-4 py-3 align-top border-r border-slate-100 dark:border-slate-700/50 bg-amber-50/5 dark:bg-amber-900/5">
+                         <select
+                            v-model="material.procurementStatus"
+                            @change="updateProcurementStatus(material.budgetItemId, ($event.target as HTMLSelectElement).value)"
+                            :disabled="!isProcurementUser || (material.purchaseQuantity === 0 && material.procurementStatus === 'not_needed')"
+                            :class="[
+                              'w-full pl-2.5 pr-8 py-1.5 text-xs font-bold border-0 rounded-lg ring-1 ring-inset focus:ring-2 focus:ring-amber-500 transition-all cursor-pointer',
+                              'bg-white dark:bg-slate-700 shadow-sm',
+                              getProcurementStatusClass(material.procurementStatus)
+                            ]"
+                          >
+                            <option value="not_needed">No Purchase</option>
+                            <option value="pending">⏳ Needs PO</option>
+                            <option value="ordered">🚚 PO Sent</option>
+                            <option value="received">📦 Goods Received</option>
+                            <option value="cancelled">🚫 Cancelled</option>
+                          </select>
+                    </td>
+
+                    <!-- Vendor -->
+                    <td class="px-4 py-3 align-top bg-amber-50/5 dark:bg-amber-900/5">
+                        <div class="relative group/input">
+                           <i class="mdi mdi-store absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/input:text-amber-500 transition-colors"></i>
+                           <input
+                              v-model="material.vendorName"
+                              :disabled="!isProcurementUser"
+                              @input="updateVendorName(material.budgetItemId, ($event.target as HTMLInputElement).value)"
+                              type="text"
+                              placeholder="Enter Supplier Name..."
+                              class="w-full pl-9 pr-3 py-1.5 text-xs font-medium border-0 ring-1 ring-slate-200 dark:ring-slate-600 rounded-lg bg-white dark:bg-slate-700 focus:ring-2 focus:ring-amber-500 transition-all placeholder-slate-400 dark:placeholder-slate-500 hover:ring-slate-300 dark:hover:ring-slate-500"
+                            />
+                        </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Report Tab -->
-      <div v-if="activeTab === 'report'" class="space-y-6">
-        <!-- Export Options -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <span class="mr-2">📤</span>
-              Export Procurement Data
-            </h4>
-          </div>
+      <div v-if="activeTab === 'report'" class="space-y-8">
+        
+        <!-- Reporting Dashboard Header -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 shadow-xl">
+           <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+           <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div>
+                <h3 class="text-2xl font-black text-white tracking-tight mb-2">Procurement Reporting Center</h3>
+                <p class="text-slate-400 max-w-xl">Generate official documentation, analyze spending, and export datasets for external processing.</p>
+              </div>
+              <div class="flex gap-4">
+                 <div class="text-right">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Generated On</p>
+                    <p class="text-white font-mono text-sm bg-white/10 px-3 py-1.5 rounded-lg">{{ new Date().toLocaleDateString() }}</p>
+                 </div>
+              </div>
+           </div>
+        </div>
 
-          <div class="flex items-center space-x-3">
-            <button
-              @click="exportToExcel"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            >
-              <span>📊</span>
-              <span>Export Excel</span>
-            </button>
-            <button
-              @click="printReport"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            >
-              <span>🖨️</span>
-              <span>Print Report</span>
-            </button>
-          </div>
+        <!-- Action Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+           
+           <!-- Excel Export Card -->
+           <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group">
+              <div class="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                 <i class="mdi mdi-file-excel-box text-3xl text-emerald-600 dark:text-emerald-400"></i>
+              </div>
+              <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Comprehensive Spreadsheet</h4>
+              <p class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
+                 Download the full procurement dataset including vendor assignments, stock levels, and purchasing quantities. Ideal for accounting and inventory reconciliation.
+              </p>
+              
+              <button
+                @click="exportToExcel"
+                class="w-full py-3 px-4 bg-white border-2 border-slate-200 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold rounded-xl transition-all flex items-center justify-center gap-2 group/btn"
+              >
+                <span>Download .CSV Report</span>
+                <i class="mdi mdi-download group-hover/btn:translate-y-1 transition-transform"></i>
+              </button>
+           </div>
+
+           <!-- Printable Report Card -->
+           <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group">
+              <div class="w-14 h-14 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                 <i class="mdi mdi-printer text-3xl text-blue-600 dark:text-blue-400"></i>
+              </div>
+              <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Official Print View</h4>
+              <p class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
+                 Generate a clean, branded PDF-ready document suitable for physical approval signatures and hard-copy filing. Removes interactive elements for clarity.
+              </p>
+              
+              <button
+                @click="printReport"
+                class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 flex items-center justify-center gap-2"
+              >
+                <span>Open Print View</span>
+                <i class="mdi mdi-open-in-new"></i>
+              </button>
+           </div>
+
+        </div>
+
+        <!-- Quick Stats Summary (Read-Only) -->
+        <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+           <h5 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Report Data Preview</h5>
+           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                 <p class="text-xs text-slate-400 mb-1">Total Items</p>
+                 <p class="text-xl font-black text-slate-800 dark:text-white">{{ procurementData.procurementItems.length }}</p>
+              </div>
+              <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                 <p class="text-xs text-slate-400 mb-1">Suppliers Assigned</p>
+                 <p class="text-xl font-black text-slate-800 dark:text-white">{{ new Set(procurementData.procurementItems.map(i => i.vendorName).filter(Boolean)).size }}</p>
+              </div>
+              <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                 <p class="text-xs text-slate-400 mb-1">Purchase Orders</p>
+                 <p class="text-xl font-black text-slate-800 dark:text-white">{{ procurementData.procurementItems.filter(i => i.purchaseQuantity > 0).length }} Pending</p>
+              </div>
+              <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+                 <p class="text-xs text-slate-400 mb-1">Budget Total</p>
+                 <p class="text-xl font-black text-slate-800 dark:text-white">{{ formatCurrency(totalBudget) }}</p>
+              </div>
+           </div>
         </div>
       </div>
 
@@ -399,6 +614,7 @@
           </button>
         </div>
       </div>
+    </div>
     <!-- Skip Task Modal -->
     <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
@@ -416,7 +632,6 @@
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -547,7 +762,8 @@ const {
   budgetVariance,
   overallCompletionPercentage,
   completedItemsCount,
-  importBudgetData
+  importBudgetData,
+  save: saveData
 } = useProcurementData(props.task.id)
 
 const {
@@ -559,6 +775,29 @@ const {
   save
 } = useProcurementSave(props.task.id)
 
+
+const formatDate = (dateValue: string | Date | null | undefined) => {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return 'TBC'
+  }
+}
+
+// Currency formatting function for budget display
+const formatCurrency = (amount: number | null | undefined) => {
+  if (amount === null || amount === undefined) return 'KES 0'
+  return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+}
 
 // Local state and functions for UI management
 const collapsedElements = ref<Set<string>>(new Set())
@@ -723,21 +962,21 @@ const getStatusCount = (status: string) => {
 
 const getStockStatusClass = (status: string) => {
   const classes: Record<string, string> = {
-    'in_stock': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
-    'partial_stock': 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 text-amber-700 dark:text-amber-300',
-    'out_of_stock': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300',
-    'pending_check': 'border-gray-300 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+    'in_stock': 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-600/20',
+    'partial_stock': 'text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-600/20',
+    'out_of_stock': 'text-rose-700 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-300 ring-rose-600/20',
+    'pending_check': 'text-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-slate-300 ring-slate-400/20'
   }
   return classes[status] || classes['pending_check']
 }
 
 const getProcurementStatusClass = (status: string) => {
   const classes: Record<string, string> = {
-    'not_needed': 'border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-500',
-    'pending': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
-    'ordered': 'border-purple-300 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-600 text-purple-700 dark:text-purple-300',
-    'received': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
-    'cancelled': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300'
+    'not_needed': 'text-slate-400 bg-slate-100 dark:bg-slate-800 dark:text-slate-500 ring-slate-200',
+    'pending': 'text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-300 ring-amber-600/20',
+    'ordered': 'text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300 ring-indigo-600/20',
+    'received': 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-300 ring-emerald-600/20',
+    'cancelled': 'text-rose-700 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-300 ring-rose-600/20'
   }
   return classes[status] || classes['pending']
 }
@@ -751,19 +990,24 @@ const printReport = () => {
       const title = 'Procurement Report - ' + projectInfo.value.enquiryTitle
       printWindow.document.write(
         '<!DOCTYPE html><html><head><title>' + title + '</title><style>' +
-        'body { font-family: Arial, sans-serif; margin: 20px; }' +
-        'table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }' +
-        'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
-        'th { background-color: #f5f5f5; font-weight: bold; }' +
-        '.header { text-align: center; margin-bottom: 30px; }' +
-        '.section { margin-bottom: 25px; }' +
-        '.element-header { background-color: #f8f9fa; padding: 10px; margin: 15px 0 5px 0; font-weight: bold; }' +
-        '@media print { body { margin: 0; } .no-print { display: none; } }' +
-        '</style></head><body>' + printContent.innerHTML + '</body></html>'
+        'body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 40px; color: #1e293b; }' +
+        'h1 { margin-bottom: 20px; font-size: 24px; font-weight: 800; }' +
+        'table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }' +
+        'th, td { border: 1px solid #e2e8f0; padding: 12px 16px; text-align: left; }' +
+        'th { background-color: #f8fafc; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }' +
+        '.header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; }' +
+        '.element-header { background-color: #f1f5f9; font-weight: 700; padding: 16px; margin-top: 24px; border-radius: 8px; font-size: 14px; }' +
+        '.status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 10px; text-transform: uppercase; }' +
+        '@media print { body { margin: 0; padding: 20px; } .no-print { display: none; } button { display: none; } }' +
+        '</style></head><body>' + 
+        '<div class="header"><h1>Procurement Report</h1><p>' + projectInfo.value.enquiryTitle + '</p></div>' +
+        printContent.innerHTML + '</body></html>'
       )
       printWindow.document.close()
-      printWindow.print()
-      printWindow.close()
+      setTimeout(() => {
+        printWindow.print()
+        printWindow.close()
+      }, 500)
     }
   }
 }
@@ -782,7 +1026,7 @@ const projectInfo = computed(() => {
   const enquiry = props.task.enquiry
 
   return {
-    projectId: enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-${props.task.id}`,
     enquiryTitle: enquiry?.title || 'Untitled Project',
     clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Unknown Client',
     eventVenue: enquiry?.venue || 'TBC',
@@ -827,7 +1071,7 @@ const handleSkipTask = async () => {
 
 // Save function
 const saveNow = async () => {
-  await save(procurementData)
+  await saveData()
 }
 
 // Auto-save setup
@@ -835,7 +1079,7 @@ useAutoSave(
   () => procurementData,
   async () => {
     if (hasUnsavedChanges.value) {
-      await save(procurementData)
+      await saveData()
     }
   }
 )

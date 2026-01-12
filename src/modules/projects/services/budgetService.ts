@@ -39,6 +39,7 @@ export interface LabourType {
   description?: string
   unit: string
   quantity: number
+  days?: number
   unitRate: number
   amount: number
   isAddition?: boolean

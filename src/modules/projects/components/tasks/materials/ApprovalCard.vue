@@ -87,7 +87,7 @@ interface ApprovalData {
 }
 
 interface Props {
-  department: 'design' | 'production' | 'finance'
+  department: 'design' | 'production' | 'project_officer'
   title: string
   approvalData: ApprovalData
   canApprove: boolean

@@ -1,47 +1,73 @@
 <template>
   <div class="quote-task-content relative -m-8 p-8 min-h-full">
     <div v-if="!showQuoteViewer" class="animate-in fade-in duration-300">
-      <!-- Project Header Section -->
-      <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Quote Task - {{ task.title }}
-      </h4>
-
-      <!-- Project Information Display Card -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm shadow-blue-500/5">
-        <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-50 dark:border-gray-700/50">
-           <h5 class="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Strategic Project Intelligence</h5>
-           <div class="flex items-center gap-2">
-             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-             <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Live Project Status</span>
-           </div>
-        </div>
+      <!-- Premium Project Information Section -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
         
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Project Concept</label>
-            <p class="text-sm text-gray-900 dark:text-white font-bold leading-tight">{{ quoteData.projectInfo.enquiryTitle }}</p>
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enquiry Ref</label>
-            <p class="text-sm text-blue-600 dark:text-blue-400 font-black tracking-tight">{{ quoteData.projectInfo.projectId }}</p>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Stakeholder</label>
-            <p class="text-sm text-gray-700 dark:text-gray-300 font-semibold">{{ quoteData.projectInfo.clientName }}</p>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Timeline Alignment</label>
-            <p class="text-sm text-gray-900 dark:text-white font-bold flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              {{ formatDate(quoteData.projectInfo.setupDate) }}
-            </p>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                  <i class="mdi mdi-calendar-check text-blue-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-2">
+               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+             </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Preview Mode Banner -->
     <div class="flex items-center space-x-4 mb-6" v-if="isPreviewingVersion">
@@ -82,12 +108,39 @@
 
 
     <!-- Versioning & Version History HUD -->
-    <div class="mb-6 flex justify-end items-center gap-3" v-if="hasExistingQuoteData || quoteVersions.length > 0">
+    <div class="mb-6 flex flex-wrap justify-end items-center gap-3">
+      <div v-if="lastSavedAt" class="mr-auto text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50"></span>
+        Last Saved: {{ lastSavedAt.toLocaleTimeString() }}
+      </div>
+
+      <button
+        @click="saveQuote({ isManual: true })"
+        :disabled="isSavingQuote || quoteData.status === 'approved'"
+        class="relative overflow-hidden px-6 py-2.5 bg-slate-900 dark:bg-slate-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-black/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 flex items-center gap-2 group"
+      >
+        <div v-if="isSavingQuote" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <svg v-else class="w-3 h-3 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+        </svg>
+        <span>{{ isSavingQuote ? 'Saving...' : 'Save Quote' }}</span>
+      </button>
+
       <CreateVersionButton
         title="Quote"
         type="quote"
         @create="handleCreateVersion"
       />
+      <button
+        @click="showActionLogs = true; actionLogKey++"
+        class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all flex items-center gap-2 group mr-2"
+      >
+        <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <span>Audit Logs</span>
+      </button>
+
       <button
         @click="showVersionHistory = true"
         class="group px-4 py-2 text-xs bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-purple-900/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl border border-purple-100 dark:border-purple-800/50 shadow-sm transition-all flex items-center gap-2"
@@ -263,13 +316,32 @@
                     <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                       <td colspan="8" class="py-2 px-4">
                         <div class="flex items-center justify-between">
-                          <span class="font-medium text-gray-900 dark:text-white">{{ element.name }}</span>
-                          <span class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ element.materials.length }} items | 
-                            Base: {{ formatCurrency(element.baseTotal) }} → 
-                            Final: {{ formatCurrency(element.finalTotal) }}
-                          </span>
+                          <span class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{{ element.name }}</span>
+                          <div class="flex items-center gap-4">
+                            <div class="flex items-center bg-white/50 dark:bg-gray-800/50 rounded-lg px-2 py-1 border border-gray-100 dark:border-gray-700">
+                               <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mr-2">Qty:</span>
+                               <input 
+                                 type="number" 
+                                 v-model.number="element.quantity" 
+                                 min="1"
+                                 @input="updateMaterialElementTotals(); calculateAllTotals(); markDirty()"
+                                 class="w-12 px-1 py-0.5 text-xs text-center border-none bg-transparent focus:ring-0 font-bold text-blue-600"
+                               >
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                              {{ element.materials.length }} items | 
+                              Base: {{ formatCurrency(element.baseTotal) }} → 
+                              Final: {{ formatCurrency(element.finalTotal) }}
+                            </span>
+                          </div>
                         </div>
+                        <input 
+                          type="text" 
+                          v-model="element.description" 
+                          @input="markDirty()"
+                          placeholder="Add description for this element (e.g. 'Main stage structure and support')..."
+                          class="mt-1 w-full text-xs text-gray-600 dark:text-gray-300 bg-transparent border-0 border-b border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-0 px-0 placeholder-gray-400 transition-colors"
+                        >
                       </td>
                     </tr>
 
@@ -278,6 +350,7 @@
                       <td class="py-3 px-4 pl-8">
                         <div class="flex items-center space-x-2">
                           <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                          <span class="text-gray-900 dark:text-white font-medium">{{ material.description }}</span>
                         </div>
                       </td>
                       <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ material.unitOfMeasurement }}</td>
@@ -347,14 +420,33 @@
               <tbody>
                 <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex items-center space-x-2">
-                      <span v-if="labour.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex flex-col gap-1">
+                      <input 
+                        v-model="labour.type" 
+                        @input="markDirty()"
+                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                      >
+                      <span v-if="labour.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ labour.unit }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ labour.quantity }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(labour.unitRate) }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(labour.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <input 
+                      type="number" 
+                      v-model.number="labour.quantity" 
+                      @input="updateIndividualMargin(labour)"
+                      class="w-16 px-1 py-0.5 text-sm border-none bg-gray-50 dark:bg-gray-800 rounded focus:ring-1 focus:ring-blue-500 font-medium text-gray-900 dark:text-white"
+                    >
+                  </td>
+                  <td class="py-3 px-4">
+                    <input 
+                      type="number" 
+                      v-model.number="labour.unitRate" 
+                      @input="updateIndividualMargin(labour)"
+                      class="w-24 px-1 py-0.5 text-sm border-none bg-gray-50 dark:bg-gray-800 rounded focus:ring-1 focus:ring-blue-500 font-medium text-gray-900 dark:text-white"
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ formatCurrency(labour.amount) }}</td>
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-1">
                       <input
@@ -406,12 +498,24 @@
               <tbody>
                 <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex items-center space-x-2">
-                      <span v-if="expense.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex flex-col gap-1">
+                      <input 
+                        v-model="expense.description" 
+                        @input="markDirty()"
+                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                      >
+                      <span v-if="expense.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize font-medium">{{ expense.category }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ formatCurrency(expense.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <input 
+                      type="number" 
+                      v-model.number="expense.amount" 
+                      @input="updateIndividualMargin(expense)"
+                      class="w-32 px-1 py-0.5 text-sm border-none bg-gray-50 dark:bg-gray-800 rounded focus:ring-1 focus:ring-blue-500 font-medium text-gray-900 dark:text-white"
+                    >
+                  </td>
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-1">
                       <input
@@ -466,15 +570,34 @@
               <tbody>
                 <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex items-center space-x-2">
-                      <span v-if="logistics.isAddition" class="bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex flex-col gap-1">
+                      <input 
+                        v-model="logistics.description" 
+                        @input="markDirty()"
+                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                      >
+                      <span v-if="logistics.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-bold tracking-tight">{{ logistics.vehicleReg }}</td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ logistics.unit }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ logistics.quantity }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.unitRate) }}</td>
-                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.amount) }}</td>
+                  <td class="py-3 px-4">
+                    <input 
+                      type="number" 
+                      v-model.number="logistics.quantity" 
+                      @input="updateIndividualMargin(logistics)"
+                      class="w-16 px-1 py-0.5 text-sm border-none bg-gray-50 dark:bg-gray-800 rounded focus:ring-1 focus:ring-blue-500 font-medium text-gray-900 dark:text-white"
+                    >
+                  </td>
+                  <td class="py-3 px-4">
+                    <input 
+                      type="number" 
+                      v-model.number="logistics.unitRate" 
+                      @input="updateIndividualMargin(logistics)"
+                      class="w-24 px-1 py-0.5 text-sm border-none bg-gray-50 dark:bg-gray-800 rounded focus:ring-1 focus:ring-blue-500 font-medium text-gray-900 dark:text-white"
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ formatCurrency(logistics.amount) }}</td>
                   <td class="py-3 px-4">
                     <div class="flex items-center space-x-1">
                       <input
@@ -613,28 +736,68 @@
                   <tr class="border-t border-gray-200 dark:border-gray-700">
                     <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Materials & Components</td>
                     <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.materialsBase) }}</td>
-                    <td class="py-3 px-4 text-center text-blue-600 dark:text-blue-400 font-medium">{{ quoteData.margins.materials }}%</td>
+                    <td class="py-3 px-4 text-center font-medium">
+                      <div class="flex items-center justify-center gap-1 group/input">
+                        <input 
+                          type="number" 
+                          v-model.number="quoteData.margins.materials" 
+                          @input="applyBulkMargin('materials', quoteData.margins.materials)"
+                          class="w-12 px-1 py-0.5 text-xs text-center border-none bg-blue-50 dark:bg-blue-900/30 rounded focus:ring-1 focus:ring-blue-500 font-bold text-blue-600 dark:text-blue-400 group-hover/input:bg-blue-100 transition-colors"
+                        >
+                        <span class="text-[10px] text-blue-400">%</span>
+                      </div>
+                    </td>
                     <td class="py-3 px-4 text-right text-blue-600 dark:text-blue-400">{{ formatCurrency(quoteData.totals.materialsMargin) }}</td>
                     <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.materialsTotal) }}</td>
                   </tr>
                   <tr class="border-t border-gray-200 dark:border-gray-700">
                     <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Labour & Welfare</td>
                     <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.labourBase) }}</td>
-                    <td class="py-3 px-4 text-center text-yellow-600 dark:text-yellow-400 font-medium">{{ quoteData.margins.labour }}%</td>
+                    <td class="py-3 px-4 text-center font-medium">
+                      <div class="flex items-center justify-center gap-1 group/input">
+                        <input 
+                          type="number" 
+                          v-model.number="quoteData.margins.labour" 
+                          @input="applyBulkMargin('labour', quoteData.margins.labour)"
+                          class="w-12 px-1 py-0.5 text-xs text-center border-none bg-yellow-50 dark:bg-yellow-900/30 rounded focus:ring-1 focus:ring-yellow-500 font-bold text-yellow-600 dark:text-yellow-400 group-hover/input:bg-yellow-100 transition-colors"
+                        >
+                        <span class="text-[10px] text-yellow-400">%</span>
+                      </div>
+                    </td>
                     <td class="py-3 px-4 text-right text-yellow-600 dark:text-yellow-400">{{ formatCurrency(quoteData.totals.labourMargin) }}</td>
                     <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.labourTotal) }}</td>
                   </tr>
                   <tr class="border-t border-gray-200 dark:border-gray-700">
                     <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Expenses & Overheads</td>
                     <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.expensesBase) }}</td>
-                    <td class="py-3 px-4 text-center text-green-600 dark:text-green-400 font-medium">{{ quoteData.margins.expenses }}%</td>
+                    <td class="py-3 px-4 text-center font-medium">
+                      <div class="flex items-center justify-center gap-1 group/input">
+                        <input 
+                          type="number" 
+                          v-model.number="quoteData.margins.expenses" 
+                          @input="applyBulkMargin('expenses', quoteData.margins.expenses)"
+                          class="w-12 px-1 py-0.5 text-xs text-center border-none bg-green-50 dark:bg-green-900/30 rounded focus:ring-1 focus:ring-green-500 font-bold text-green-600 dark:text-green-400 group-hover/input:bg-green-100 transition-colors"
+                        >
+                        <span class="text-[10px] text-green-400">%</span>
+                      </div>
+                    </td>
                     <td class="py-3 px-4 text-right text-green-600 dark:text-green-400">{{ formatCurrency(quoteData.totals.expensesMargin) }}</td>
                     <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.expensesTotal) }}</td>
                   </tr>
                   <tr class="border-t border-gray-200 dark:border-gray-700">
                     <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">Logistics & Transportation</td>
                     <td class="py-3 px-4 text-right text-gray-600 dark:text-gray-400">{{ formatCurrency(quoteData.totals.logisticsBase) }}</td>
-                    <td class="py-3 px-4 text-center text-orange-600 dark:text-orange-400 font-medium">{{ quoteData.margins.logistics }}%</td>
+                    <td class="py-3 px-4 text-center font-medium">
+                      <div class="flex items-center justify-center gap-1 group/input">
+                        <input 
+                          type="number" 
+                          v-model.number="quoteData.margins.logistics" 
+                          @input="applyBulkMargin('logistics', quoteData.margins.logistics)"
+                          class="w-12 px-1 py-0.5 text-xs text-center border-none bg-orange-50 dark:bg-orange-900/30 rounded focus:ring-1 focus:ring-orange-500 font-bold text-orange-600 dark:text-orange-400 group-hover/input:bg-orange-100 transition-colors"
+                        >
+                        <span class="text-[10px] text-orange-400">%</span>
+                      </div>
+                    </td>
                     <td class="py-3 px-4 text-right text-orange-600 dark:text-orange-400">{{ formatCurrency(quoteData.totals.logisticsMargin) }}</td>
                     <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
                   </tr>
@@ -774,13 +937,15 @@
         </button>
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled'"
-          @click="$emit('update-status', 'completed')"
-          class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group"
+          @click="handleSubmit"
+          :disabled="isSavingQuote || quoteData.status === 'approved'"
+          class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 group disabled:opacity-50"
         >
-          <svg class="w-4 h-4 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          <div v-if="isSavingQuote" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <svg v-else class="w-4 h-4 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
-          <span>Finalize Assignment</span>
+          <span>Submit Strategic Quote</span>
         </button>
 
         <div v-if="task.status === 'completed'" class="flex items-center gap-6">
@@ -817,6 +982,7 @@
       :readonly="readonly"
       @close="closeQuoteViewer"
       @save="handleQuoteViewerSave"
+      @request-print="handlePrintRequest"
     />
 
     <!-- Shared Modals (Always available) -->
@@ -850,15 +1016,63 @@
         </div>
       </div>
     </div>
+    <!-- Section for Action Logs / Audit History (Standard Modal) -->
+    <div v-if="showActionLogs" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <!-- Backdrop -->
+      <div 
+        @click="showActionLogs = false" 
+        class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+      ></div>
+
+      <!-- Modal Panel -->
+      <div class="relative w-full max-w-2xl transform bg-white dark:bg-slate-900 p-8 shadow-2xl rounded-[2rem] border border-slate-100 dark:border-slate-800 animate-in zoom-in duration-200">
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+              <i class="mdi mdi-history text-2xl"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Audit Trail</h3>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">History & Accountability</p>
+            </div>
+          </div>
+          <button 
+            @click="showActionLogs = false"
+            class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-400"
+          >
+            <i class="mdi mdi-close text-xl"></i>
+          </button>
+        </div>
+
+        <div class="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+           <ActionLogViewer 
+            :key="actionLogKey"
+            loggableType="quote" 
+            :loggableId="quoteData.id || 0" 
+           />
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+           <button
+            @click="showActionLogs = false"
+            class="px-6 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-black/10 hover:scale-105"
+          >
+            Close Log
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import QuoteViewer from './QuoteViewer.vue'
+import ActionLogViewer from '../ActionLogViewer.vue'
 import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
 import CreateVersionButton from '../shared/CreateVersionButton.vue'
 
@@ -939,6 +1153,10 @@ interface QuoteMaterialElement {
   marginAmount: number
   /** Final total including margin */
   finalTotal: number
+  /** Description of the element */
+  description?: string
+  /** Quantity of the element */
+  quantity?: number
 }
 
 /**
@@ -953,6 +1171,8 @@ interface QuoteMaterial {
   unitOfMeasurement: string
   /** Quantity required */
   quantity: number
+  /** Number of days (multiplier) */
+  days: number
   /** Unit price */
   unitPrice: number
   /** Total price for this material */
@@ -1109,6 +1329,8 @@ interface QuoteTotals {
  * Core quote data structure
  */
 interface QuoteData {
+  /** Unique database identifier */
+  id?: number
   /** Project information */
   projectInfo: ProjectInfo
   /** Whether budget data has been imported */
@@ -1162,9 +1384,20 @@ type TimeoutHandle = ReturnType<typeof setTimeout>
 // Reactive state
 const isImporting = ref(false)
 const isMerging = ref(false)
+const showActionLogs = ref(false)
+const actionLogKey = ref(0) // key to force refresh
+
 const activeTab = ref(props.initialTab || 'materials')
 const marginUpdateTimeout = ref<TimeoutHandle | null>(null)
 const showQuoteViewer = ref(false)
+
+// Persistence & Submission state
+const toast = useToast()
+const isSavingQuote = ref(false)
+const hasUnsavedChanges = ref(false)
+const lastSavedAt = ref<Date | null>(null)
+const autoSaveTimeout = ref<TimeoutHandle | null>(null)
+const pendingSaveRequest = ref(false)
 
 // Budget sync state
 const budgetStatus = ref<'checking' | 'up_to_date' | 'outdated' | 'no_budget'>('checking')
@@ -1203,6 +1436,33 @@ const handleCreateVersion = async (label: string | undefined) => {
   } catch (error) {
     console.error('Failed to create version:', error)
     alert('Failed to create version. Please try again.')
+  }
+}
+
+/**
+ * Handle print request from viewer - creates a version then prints
+ */
+const handlePrintRequest = async (printCallback: () => void) => {
+  try {
+    // 1. Force save current state
+    await saveQuote()
+    
+    // 2. Wait for DB sync
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // 3. Create snapshot version
+    const label = `Printout - ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
+    await createVersion(label)
+    
+    // 4. Proceed with print
+    printCallback()
+  } catch (error) {
+    console.error('Failed to version before print:', error)
+    // We still allow printing even if versioning fails, but warn user?
+    // Or maybe we should block it? Let's ask user confirmation.
+    if (confirm('Automatic versioning failed. Do you want to print anyway?')) {
+      printCallback()
+    }
   }
 }
 
@@ -1296,16 +1556,28 @@ const tabs = [
 ]
 
 /**
- * Initialize project information from task data
+ * Computed project information prioritizing live enquiry data
  */
-const initializeProjectInfo = (): ProjectInfo => {
-  // Use default values - real data will be loaded from API
+const projectInfo = computed(() => {
+  const enquiry = props.task.enquiry
   return {
-    projectId: props.task.enquiry?.enquiry_number || String(props.task.id || 'N/A'),
-    enquiryTitle: 'Project Title',
-    clientName: 'Client Name',
-    eventVenue: 'Venue TBC',
-    setupDate: new Date().toISOString(),
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || quoteData.projectInfo?.projectId || String(props.task.id || 'N/A'),
+    enquiryTitle: enquiry?.title || quoteData.projectInfo?.enquiryTitle || 'Project Title',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || quoteData.projectInfo?.clientName || 'Client Name',
+    eventVenue: enquiry?.venue || quoteData.projectInfo?.eventVenue || 'Venue TBC',
+    setupDate: enquiry?.expected_delivery_date || quoteData.projectInfo?.setupDate || new Date().toISOString(),
+    setDownDate: quoteData.projectInfo?.setDownDate || 'TBC'
+  }
+})
+
+const initializeProjectInfo = (): ProjectInfo => {
+  const enquiry = props.task.enquiry
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || String(props.task.id || 'N/A'),
+    enquiryTitle: enquiry?.title || 'Project Title',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'Client Name',
+    eventVenue: enquiry?.venue || 'Venue TBC',
+    setupDate: enquiry?.expected_delivery_date || new Date().toISOString(),
     setDownDate: 'TBC'
   }
 }
@@ -1354,6 +1626,7 @@ const initializeTotals = (): QuoteTotals => {
  * Reactive quote data structure
  */
 const quoteData = reactive<QuoteData>({
+  id: undefined,
   projectInfo: initializeProjectInfo(),
   budgetImported: false,
   budgetImportedAt: null,
@@ -1378,9 +1651,11 @@ const quoteData = reactive<QuoteData>({
   }
 })
 
-// Auto-save functionality
-const autoSaveTimeout = ref<TimeoutHandle | null>(null)
-const isSavingQuote = ref(false)
+// Helpers for state tracking
+const markDirty = () => {
+  hasUnsavedChanges.value = true
+  autoSaveQuote()
+}
 
 /**
  * Auto-save quote data when changes are made
@@ -1394,25 +1669,63 @@ const autoSaveQuote = async () => {
   
   // Set new timeout to save after 2 seconds of inactivity
   autoSaveTimeout.value = setTimeout(async () => {
-    if (!quoteData.budgetImported || isSavingQuote.value || isPreviewingVersion.value || quoteData.status === 'approved') {
-      return // Don't auto-save if no budget imported, already saving, in preview mode, or approved
+    // If already saving, queue a pending request and exit
+    if (isSavingQuote.value) {
+      console.log('Save already in progress, queuing pending request')
+      pendingSaveRequest.value = true
+      return
+    }
+
+    if (!quoteData.budgetImported || isPreviewingVersion.value || quoteData.status === 'approved') {
+      return 
     }
     
-    try {
-      isSavingQuote.value = true
-      await saveQuote()
-      console.log('Quote auto-saved successfully')
-    } catch (error) {
-      console.error('Auto-save failed:', error)
-    } finally {
-      isSavingQuote.value = false
-    }
+    await saveQuote({ isManual: false })
   }, 2000) // 2 second debounce
 }
 
-// Watch for changes to trigger autosave
+/**
+ * Force a final save on unmount if there are unsaved changes
+ */
+onUnmounted(async () => {
+  if (hasUnsavedChanges.value) {
+    console.log('Unmounting with unsaved changes - triggered final flush')
+    await saveQuote({ isManual: false })
+  }
+})
+
+/**
+ * Strategic Submission: Marks the quote as pending and saves
+ */
+const handleSubmit = async () => {
+  // 1. Update status to pending
+  quoteData.status = 'pending'
+  
+  // 2. Clear any pending auto-saves to avoid double triggers
+  if (autoSaveTimeout.value) {
+    clearTimeout(autoSaveTimeout.value)
+    autoSaveTimeout.value = null
+  }
+
+  try {
+    // 3. Perform manual save (blocking)
+    await saveQuote({ isManual: true, isSubmit: true })
+    
+    // 4. Notify parent of status change (to close modal if needed)
+    emit('update-status', 'completed')
+  } catch (error) {
+    // Status update failed, keep it as draft so user can try again
+    quoteData.status = 'draft'
+  }
+}
+
+// Watch for changes to trigger autosave - expanded to include materials for description preservation
 watch(
   () => ({
+    materials: quoteData.materials,
+    labour: quoteData.labour,
+    expenses: quoteData.expenses,
+    logistics: quoteData.logistics,
     margins: quoteData.margins,
     discountAmount: quoteData.discountAmount,
     vatEnabled: quoteData.vatEnabled,
@@ -1553,36 +1866,6 @@ const getElementHeaderClass = (templateId: string): string => {
 }
 
 /**
- * Individual quote material structure
- */
-interface QuoteMaterial {
-  /** Unique identifier for the material */
-  id: string
-  /** Description of the material */
-  description: string
-  /** Unit of measurement */
-  unitOfMeasurement: string
-  /** Quantity required */
-  quantity: number
-  /** Number of days (multiplier) */
-  days: number
-  /** Unit price */
-  unitPrice: number
-  /** Total price for this material */
-  totalPrice: number
-  /** Whether this is an addition */
-  isAddition: boolean
-  /** Individual margin percentage for this material */
-  marginPercentage: number
-  /** Calculated margin amount */
-  marginAmount: number
-  /** Final price including margin */
-  finalPrice: number
-}
-
-// ... (keep other interfaces)
-
-/**
  * Update individual item margin
  */
 const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExpenseItem | QuoteLogisticsItem) => {
@@ -1594,30 +1877,34 @@ const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExp
   
   if ('totalPrice' in item) {
     // Material item
-    // Ensure days is at least 1
     if (!item.days || item.days < 1) item.days = CONSTANTS.DEFAULT_DAYS
     
-    // Calculate total price: Qty * Days * Unit Price
+    // Recalculate totalPrice if qty or unitPrice changed
     item.totalPrice = item.quantity * item.days * item.unitPrice
     baseAmount = item.totalPrice
-  } else {
-    // Other items (Labour, Expenses, Logistics)
+  } else if ('quantity' in item && 'unitRate' in item) {
+    // Labour and Logistics items
+    item.amount = (item.quantity || 0) * (item.unitRate || 0)
     baseAmount = item.amount
+  } else {
+    // Expense items
+    baseAmount = item.amount || 0
   }
 
   item.marginAmount = baseAmount * (item.marginPercentage / 100)
   item.finalPrice = baseAmount + item.marginAmount
 
-  // Recalculate totals
-  calculateAllTotals()
-
-  // Update element totals if it's a material
+  // CRITICAL: Update element totals first if it's a material
+  // This ensures element.quantity scaling is applied BEFORE grand totals
   if ('totalPrice' in item) {
     updateMaterialElementTotals()
   }
 
-  // Update timestamp
-  quoteData.updatedAt = new Date()
+  // Recalculate grand totals
+  calculateAllTotals()
+
+  // Mark dirty to trigger persistence
+  markDirty()
 }
 
 /**
@@ -1625,9 +1912,19 @@ const updateIndividualMargin = (item: QuoteMaterial | QuoteLabourItem | QuoteExp
  */
 const updateMaterialElementTotals = () => {
   quoteData.materials.forEach(element => {
-    element.baseTotal = element.materials.reduce((sum, material) => sum + material.totalPrice, 0)
-    element.marginAmount = element.materials.reduce((sum, material) => sum + material.marginAmount, 0)
+    // Ensure quantity is at least 1
+    if (!element.quantity || element.quantity < 1) element.quantity = 1
+    
+    // Sum of individual items
+    const sumBase = element.materials.reduce((sum, material) => sum + material.totalPrice, 0)
+    const sumMargin = element.materials.reduce((sum, material) => sum + material.marginAmount, 0)
+    
+    // Apply element quantity multiplier
+    element.baseTotal = sumBase * element.quantity
+    element.marginAmount = sumMargin * element.quantity
     element.finalTotal = element.baseTotal + element.marginAmount
+    
+    // Margin percentage remains the same regardless of quantity
     element.marginPercentage = element.baseTotal > 0 ? (element.marginAmount / element.baseTotal) * 100 : 0
   })
 }
@@ -1635,7 +1932,9 @@ const updateMaterialElementTotals = () => {
 /**
  * Apply bulk margin to all items in a category
  */
-const applyBulkMargin = (category: 'materials' | 'expenses' | 'logistics', marginPercentage: number) => {
+const applyBulkMargin = (category: 'materials' | 'labour' | 'expenses' | 'logistics', marginPercentage: number) => {
+  quoteData.margins[category] = marginPercentage
+  
   switch (category) {
     case 'materials':
       quoteData.materials.forEach(element => {
@@ -1643,6 +1942,12 @@ const applyBulkMargin = (category: 'materials' | 'expenses' | 'logistics', margi
           material.marginPercentage = marginPercentage
           updateIndividualMargin(material)
         })
+      })
+      break
+    case 'labour':
+      quoteData.labour.forEach(item => {
+        item.marginPercentage = marginPercentage
+        updateIndividualMargin(item)
       })
       break
     case 'expenses':
@@ -1658,6 +1963,9 @@ const applyBulkMargin = (category: 'materials' | 'expenses' | 'logistics', margi
       })
       break
   }
+  
+  calculateAllTotals()
+  markDirty()
 }
 
 /**
@@ -1772,29 +2080,27 @@ const calculateAllTotals = () => {
   // Helper function to round to 2 decimal places
   const roundCurrency = (amount: number): number => Math.round(amount * 100) / 100
 
-  // Materials totals (sum from individual materials)
+  // Materials totals (sum from individual materials via elements)
+  // Note: element.finalTotal already includes the element.quantity multiplier
   quoteData.totals.materialsBase = roundCurrency(
-    quoteData.materials.reduce((sum, element) =>
-      sum + element.materials.reduce((matSum, material) => matSum + material.totalPrice, 0), 0)
+    quoteData.materials.reduce((sum, element) => sum + (element.baseTotal || 0), 0)
   )
   quoteData.totals.materialsMargin = roundCurrency(
-    quoteData.materials.reduce((sum, element) =>
-      sum + element.materials.reduce((matSum, material) => matSum + material.marginAmount, 0), 0)
+    quoteData.materials.reduce((sum, element) => sum + (element.marginAmount || 0), 0)
   )
   quoteData.totals.materialsTotal = roundCurrency(
-    quoteData.materials.reduce((sum, element) =>
-      sum + element.materials.reduce((matSum, material) => matSum + material.finalPrice, 0), 0)
+    quoteData.materials.reduce((sum, element) => sum + (element.finalTotal || 0), 0)
   )
 
-  // Labour totals (no individual margins, use category margin)
+  // Labour totals (sum from individual labour items)
   quoteData.totals.labourBase = roundCurrency(
     quoteData.labour.reduce((sum, labour) => sum + labour.amount, 0)
   )
   quoteData.totals.labourMargin = roundCurrency(
-    quoteData.totals.labourBase * (quoteData.margins.labour / 100)
+    quoteData.labour.reduce((sum, labour) => sum + (labour.marginAmount || 0), 0)
   )
   quoteData.totals.labourTotal = roundCurrency(
-    quoteData.totals.labourBase + quoteData.totals.labourMargin
+    quoteData.labour.reduce((sum, labour) => sum + (labour.finalPrice || 0), 0)
   )
 
   // Expenses totals (sum from individual expense items)
@@ -1900,22 +2206,7 @@ const loadExistingQuote = async () => {
     if (response.data.data) {
       Object.assign(quoteData, response.data.data)
       
-      // AUTO-UPGRADE: If we detect the old default margin (20%), upgrade to new default (60%)
-      if (quoteData.margins.materials === 20) {
-        console.log('Upgrading old default margin 20% -> 60%')
-        quoteData.margins.materials = 60
-        
-        // Use helper to update all materials that still have the old default
-        quoteData.materials.forEach(element => {
-          element.materials.forEach(material => {
-            if (material.marginPercentage === 20) {
-              material.marginPercentage = 60
-              updateIndividualMargin(material)
-            }
-          })
-        })
-      }
-
+      // Calculation update after load
       calculateAllTotals()
       console.log('Existing quote data loaded successfully')
     }
@@ -1931,19 +2222,21 @@ const handleQuoteViewerSave = async (data: { descriptions: Record<string, string
     quoteData.viewerSettings = { descriptions: {}, overrides: {} }
   }
   Object.assign(quoteData.viewerSettings, data)
-  await saveQuote()
+  await saveQuote({ isManual: true })
 }
 
 // Save quote data (exposed for external use)
-const saveQuote = async () => {
+const saveQuote = async (options: { isManual?: boolean, isSubmit?: boolean } = { isManual: false }) => {
   // Prevent modification if approved
-  if (quoteData.status === 'approved') {
+  if (quoteData.status === 'approved' && !options.isSubmit) {
     console.log('Quote is approved and cannot be modified.')
     return
   }
 
+  isSavingQuote.value = true
   try {
-    await axios.post(`/api/projects/tasks/${props.task.id}/quote`, {
+    console.log(`Starting ${options.isManual ? 'MANUAL' : 'AUTO'} save for taskId: ${props.task.id}`)
+    const response = await axios.post(`/api/projects/tasks/${props.task.id}/quote`, {
       projectInfo: quoteData.projectInfo,
       budgetImported: quoteData.budgetImported,
       materials: quoteData.materials,
@@ -1959,12 +2252,43 @@ const saveQuote = async () => {
       viewerSettings: quoteData.viewerSettings
     })
 
+    if (response.data?.data?.id) {
+      quoteData.id = response.data.data.id
+    }
+
     quoteData.updatedAt = new Date()
+    lastSavedAt.value = new Date()
+    hasUnsavedChanges.value = false
     console.log('Quote saved successfully!')
 
-  } catch (error) {
+    if (options.isManual) {
+      toast.add({
+        severity: 'success',
+        summary: options.isSubmit ? 'Quote Submitted' : 'Save Successful',
+        detail: options.isSubmit 
+          ? 'Strategic quote has been moved to pending approval.' 
+          : 'All changes have been securely persisted.',
+        life: 3000
+      })
+    }
+
+  } catch (error: any) {
     console.error('Failed to save quote:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Save Failed',
+      detail: error.response?.data?.message || error.message,
+      life: 5000
+    })
     throw error
+  } finally {
+    isSavingQuote.value = false
+    // Check if we have a queued save request
+    if (pendingSaveRequest.value) {
+      console.log('Processing queued save request')
+      pendingSaveRequest.value = false
+      autoSaveQuote() // Trigge immediate next save
+    }
   }
 }
 

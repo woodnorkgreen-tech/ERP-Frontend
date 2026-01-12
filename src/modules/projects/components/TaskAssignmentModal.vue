@@ -507,6 +507,26 @@ watch([() => props.show, () => props.enquiryId], async ([newShow, newId]) => {
   }
 }, { immediate: true })
 
+// Watch activeTab to update assignmentData with current assignment
+watch(activeTab, (newTabId) => {
+  if (newTabId) {
+    const task = enquiryTasks.value.find(t => t.id === newTabId)
+    // If task has an assigned user, update the form data
+    if (task && task.assigned_to && task.assigned_to.id) {
+       if (!assignmentData[task.id]) {
+          assignmentData[task.id] = {
+            assigned_user_id: task.assigned_to.id,
+            priority: task.priority || 'medium',
+            due_date: task.due_date || '',
+            notes: task.notes || '',
+          }
+       } else {
+          assignmentData[task.id].assigned_user_id = task.assigned_to.id
+       }
+    }
+  }
+})
+
 onMounted(async () => {
   console.log('🔍 [TaskAssignmentModal] Component mounted, fetching available users')
   await fetchAvailableUsers()

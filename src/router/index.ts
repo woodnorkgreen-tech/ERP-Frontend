@@ -6,10 +6,11 @@ import { mainRoutes } from './main'
 import { adminRoutes } from './admin'
 import { hrRoutes } from './hr'
 import { projectsRoutes } from './projects'
-import { clientServiceRoutes } from './clientservice'
+import { clientServiceRoutes } from './clientService'
 
 import { financeRoutes } from './finance'
 import materialsLibraryRoutes from '@/modules/materials-library/routes'
+import procurementStoresRoutes from '@/modules/procurement-stores/routes'
 
 // Combine all routes
 const routes: RouteRecordRaw[] = [
@@ -21,6 +22,7 @@ const routes: RouteRecordRaw[] = [
 
   ...financeRoutes,
   ...materialsLibraryRoutes,
+  ...procurementStoresRoutes,
 
   // Public Routes
   {

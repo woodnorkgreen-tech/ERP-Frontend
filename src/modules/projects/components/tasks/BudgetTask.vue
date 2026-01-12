@@ -1,328 +1,285 @@
 <template>
-  <div
-    class="budget-task bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 border border-gray-200 dark:border-gray-700"
-  >
-    <!-- Readonly mode with edit toggle for completed tasks -->
-    <div v-if="readonly" class="space-y-4">
-      <!-- Edit button for completed tasks -->
-      <div v-if="task.status === 'completed'" class="flex justify-end">
-        <button
-          @click="toggleEditMode"
-          class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-          Edit Budget
-        </button>
-      </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden font-sans">
+    
+    
 
-      <!-- TaskDataViewer for readonly display -->
-      <TaskDataViewer :task="task" />
+    <!-- Premium Project Information Section -->
+    <div class="px-6 pb-6">
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-office-building text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-6 pt-2">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-identifier"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                  <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
+                  <i class="mdi mdi-account-tie"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                  <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
+                  <i class="mdi mdi-map-marker"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                  <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side: Status/Highlights -->
+          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
+            <div class="text-right">
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+              <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
+                <i class="mdi mdi-calendar-check text-blue-400"></i>
+                {{ formatDate(projectInfo.setupDate) }}
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Edit mode for all tasks -->
-    <form v-else @submit.prevent="handleSubmit(validateBudget)" class="space-y-4">
-      <!-- Edit mode notice for completed tasks -->
-      <div v-if="task.status === 'completed'" class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Edit Mode</span>
-        </div>
-        <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-          You are editing a completed budget. Changes will be saved as updates to the existing budget.
-        </p>
+    <!-- Main Content Area -->
+    <div class="px-6 pb-6">
+      <!-- Edit Mode Warning -->
+      <div v-if="task.status === 'completed' && !readonly" class="mb-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl p-4 flex items-center gap-3 animate-fade-in">
+         <i class="mdi mdi-information text-blue-500 text-xl"></i>
+         <div>
+            <p class="text-sm font-bold text-blue-900 dark:text-blue-200">Editing Completed Budget</p>
+            <p class="text-xs text-blue-700 dark:text-blue-300/80">Changes made now will update the official budget record.</p>
+         </div>
       </div>
 
       <!-- Preview Mode Banner -->
-      <div class="flex items-center space-x-4 mb-4" v-if="isPreviewingVersion">
-        <div class="flex-1 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            <div>
-              <h5 class="text-sm font-semibold text-blue-800 dark:text-blue-200">
-                Previewing: {{ previewingVersionLabel }}
-              </h5>
-              <p class="text-xs text-blue-600 dark:text-blue-300">
-                You are viewing a snapshot. Changes made here will not be saved unless you restore this version.
-              </p>
+      <div v-if="isPreviewingVersion" class="mb-6 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-center justify-between gap-4 animate-fade-in">
+         <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+               <i class="mdi mdi-eye"></i>
             </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button @click="exitPreview"
-              class="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Exit Preview
-            </button>
+            <div>
+               <p class="text-sm font-bold text-indigo-900 dark:text-indigo-200">Previewing Version: {{ previewingVersionLabel }}</p>
+               <p class="text-xs text-indigo-700 dark:text-indigo-300/80">You are viewing a historical snapshot. Restore to make changes.</p>
+            </div>
+         </div>
+         <div class="flex gap-2">
+            <button @click="exitPreview" class="px-3 py-1.5 bg-white text-gray-700 text-xs font-bold rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50">Exit</button>
+            <button @click="restoreFromPreview" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700">Restore</button>
+         </div>
+      </div>
+
+       <!-- Material Updates Banner -->
+       <div v-if="materialsUpdateStatus.hasUpdate && !isPreviewingVersion && !readonly" class="mb-6 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
+         <div class="flex items-center gap-3">
+            <div class="p-2 bg-orange-100 rounded-lg text-orange-600 animate-pulse">
+               <i class="mdi mdi-alert-decagram"></i>
+            </div>
+            <div>
+               <p class="text-sm font-bold text-orange-900 dark:text-orange-200">Materials List Updated</p>
+               <p class="text-xs text-orange-700 dark:text-orange-300/80">The source material list has changed. Sync to keep budget accurate.</p>
+            </div>
+         </div>
+         <div class="flex gap-2">
+            <button @click="materialsUpdateStatus.hasUpdate = false" class="px-3 py-1.5 text-orange-600 hover:bg-orange-100 text-xs font-bold rounded-lg transition-colors">Dismiss</button>
             <button 
-              @click="restoreFromPreview"
-              class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+               @click="refreshFromMaterials" 
+               :disabled="isRefreshing"
+               class="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg shadow-sm shadow-orange-500/30 flex items-center gap-2 transition-all"
             >
-              Restore This Version
+               <i v-if="isRefreshing" class="mdi mdi-loading mdi-spin"></i>
+               <i v-else class="mdi mdi-sync"></i>
+               {{ isRefreshing ? 'Syncing...' : 'Sync Materials' }}
             </button>
-          </div>
-        </div>
+         </div>
       </div>
 
-      <!-- Material Update Warning Banner -->
-      <div class="flex items-center space-x-4 mb-6" v-if="materialsUpdateStatus.hasUpdate && !isPreviewingVersion">
-        <div class="flex-1 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 flex items-start space-x-3">
-          <svg class="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <div class="flex-1">
-            <h5 class="text-sm font-semibold text-orange-800 dark:text-orange-200 mb-1">
-              Budget Updated
-            </h5>
-            <p class="text-sm text-orange-700 dark:text-orange-300">
-              The MATERIAL LIST has been modified since this BUDGET was created. Click "Refresh" to sync with latest materials (your pricing will be preserved).
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2 ml-4">
+      <!-- Top Bar: Title & Actions -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+       <div class="flex items-center gap-3">
+          <!-- Version History -->
           <button
-            @click="refreshFromMaterials"
-            :disabled="isRefreshing"
-            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center"
+            @click="showVersionHistory = true"
+            class="px-3 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2"
           >
-            <svg v-if="isRefreshing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            {{ isRefreshing ? 'Refreshing...' : 'Refresh from MATERIAL' }}
+            <i class="mdi mdi-history"></i> History
           </button>
+          
+          <!-- Create Version -->
+          <CreateVersionButton
+            title="Budget"
+            type="budget"
+            @create="handleCreateVersion"
+            class="!text-xs !font-bold !uppercase !tracking-wider !px-3 !py-2 !rounded-xl"
+          />
+
+          <!-- Toggle Edit Mode (Completed Tasks) -->
           <button
-            @click="materialsUpdateStatus.hasUpdate = false"
-            class="p-2 text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors"
-            title="Dismiss"
+            v-if="task.status === 'completed'"
+            @click="toggleEditMode"
+            class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2"
           >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+             <i class="mdi" :class="readonly ? 'mdi-pencil' : 'mdi-eye'"></i>
+             {{ readonly ? 'Edit Budget' : 'View Mode' }}
           </button>
-        </div>
+       </div>
+    </div>
+
+      <!-- Read-Only View -->
+      <div v-if="readonly">
+         <TaskDataViewer :task="task" />
       </div>
 
-      <!-- Header with title -->
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
-      </div>
+      <!-- Edit Form -->
+      <form v-else @submit.prevent="handleSubmit(validateBudget)">
+         
+         <!-- Tabs Navigation -->
+         <div class="flex flex-wrap gap-2 mb-8 p-1 bg-gray-100 dark:bg-gray-800/50 rounded-xl w-fit">
+            <button
+               v-for="tab in tabs"
+               :key="tab.key"
+               type="button"
+               @click="activeTab = tab.key"
+               class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 flex items-center gap-2"
+               :class="activeTab === tab.key ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 dark:text-gray-400 dark:hover:text-gray-200'"
+            >
+               <i class="mdi" :class="getTabIcon(tab.key)"></i>
+               {{ tab.label }}
+            </button>
+         </div>
 
-      <!-- Error Display -->
-      <div
-        v-if="state.error"
-        class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
-      >
-        <div class="flex items-center space-x-2">
-          <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-          </svg>
-          <span class="text-sm font-medium text-red-800 dark:text-red-200">Error</span>
-        </div>
-        <p class="text-sm text-red-700 dark:text-red-300 mt-1">{{ state.error }}</p>
-      </div>
+         <!-- Loader -->
+         <div v-if="state.isLoading" class="py-20 flex flex-col items-center justify-center text-gray-400">
+            <i class="mdi mdi-loading mdi-spin text-4xl mb-4 text-blue-500"></i>
+            <p class="font-medium animate-pulse">Loading budget data...</p>
+         </div>
 
-      <!-- Success Display -->
-      <div
-        v-if="state.successMessage"
-        class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
-      >
-        <div class="flex items-center space-x-2">
-          <svg
-            class="w-5 h-5 text-green-600 dark:text-green-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span class="text-sm font-medium text-green-800 dark:text-green-200">Success</span>
-        </div>
-        <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ state.successMessage }}</p>
-      </div>
+         <!-- Tab Contents -->
+         <div v-else class="min-h-[400px]">
+            <div v-show="activeTab === 'materials'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetMaterialsTab
+                  :form-data="state.formData"
+                  :import-status="state.importStatus"
+                  :materials-update-check="state.materialsUpdateCheck"
+                  :approval-status="state.materialsApprovalStatus"
+                  :is-importing="state.isImporting"
+                  :is-checking-updates="state.isCheckingUpdates"
+                  @import-materials="importMaterials"
+                  @check-updates="checkMaterialsUpdates"
+                  @re-import-materials="reImportMaterials"
+                  @calculate-material-total="calculateMaterialTotal"
+               />
+            </div>
+            <div v-show="activeTab === 'labour'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetLabourTab
+                  :form-data="state.formData"
+                  @add-labour-item="addLabourItem"
+                  @calculate-labour-total="calculateLabourTotal"
+                  @remove-labour-item="removeLabourItem"
+               />
+            </div>
+            <div v-show="activeTab === 'expenses'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetExpensesTab
+                  :form-data="state.formData"
+                  @add-expense="addExpense"
+                  @remove-expense="removeExpense"
+               />
+            </div>
+            <div v-show="activeTab === 'logistics'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetLogisticsTab
+                  :form-data="state.formData"
+                  @add-logistics-item="addLogisticsItem"
+                  @remove-logistics-item="removeLogisticsItem"
+                  @calculate-logistics-total="calculateLogisticsTotal"
+               />
+            </div>
+            <div v-show="activeTab === 'summary'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetSummaryTab
+                  :materials-total="materialsTotal"
+                  :labour-total="labourTotal"
+                  :expenses-total="expensesTotal"
+                  :logistics-total="logisticsTotal"
+                  :grand-total="grandTotal"
+               />
+            </div>
+         </div>
 
-      <!-- Loading State -->
-      <div
-        v-if="state.isLoading"
-        class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
-      >
-        <div class="flex items-center space-x-2">
-          <svg
-            class="animate-spin h-5 w-5 text-blue-600 dark:text-blue-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <span class="text-sm font-medium text-blue-800 dark:text-blue-200"
-            >Loading budget data...</span
-          >
-        </div>
-      </div>
+         <!-- Error/Success Messages -->
+         <div v-if="state.error" class="mt-6 p-4 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm font-medium flex items-center gap-3">
+            <i class="mdi mdi-alert-circle text-xl"></i>
+            {{ state.error }}
+         </div>
+         <div v-if="state.successMessage" class="mt-6 p-4 rounded-xl bg-green-50 text-green-700 border border-green-100 text-sm font-medium flex items-center gap-3">
+             <i class="mdi mdi-check-circle text-xl"></i>
+            {{ state.successMessage }}
+         </div>
 
-      <!-- Progress Indicator -->
-      <div
-        v-if="progressState.isActive"
-        class="mb-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg"
-      >
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-indigo-800 dark:text-indigo-200">{{ progressState.step }}</span>
-          <span class="text-sm text-indigo-600 dark:text-indigo-400">{{ progressState.progress }}%</span>
-        </div>
-        <div class="w-full bg-indigo-200 dark:bg-indigo-700 rounded-full h-2">
-          <div
-            class="bg-indigo-600 dark:bg-indigo-400 h-2 rounded-full transition-all duration-300"
-            :style="{ width: progressState.progress + '%' }"
-          ></div>
-        </div>
-        <p class="text-xs text-indigo-700 dark:text-indigo-300 mt-1">{{ progressState.message }}</p>
-      </div>
+         <!-- Bottom Actions -->
+         <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 flex flex-col-reverse sm:flex-row justify-end gap-3">
+            <button
+               v-if="task.status !== 'skipped' && task.status !== 'completed'"
+               type="button"
+               @click="showSkipModal = true"
+               class="px-6 py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl text-sm font-bold uppercase tracking-wide transition-colors"
+            >
+               Skip Task
+            </button>
+            <button
+               type="button"
+               @click="saveDraft"
+               :disabled="state.isSaving"
+               class="px-6 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm font-bold uppercase tracking-wide transition-colors flex items-center gap-2"
+            >
+               <i v-if="state.isSaving" class="mdi mdi-loading mdi-spin"></i>
+               Save Draft
+            </button>
+            <button
+               type="submit"
+               :disabled="state.isSaving"
+               class="px-8 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-sm font-bold uppercase tracking-wide shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2"
+            >
+               <i v-if="state.isSaving" class="mdi mdi-loading mdi-spin"></i>
+               {{ state.isSaving ? 'Submitting...' : 'Submit Budget' }}
+            </button>
+         </div>
 
-      <!-- Version Management Buttons -->
-      <div class="flex items-center justify-end space-x-2 mb-4">
-        <CreateVersionButton
-          title="Budget"
-          type="budget"
-          @create="handleCreateVersion"
-        />
-        <button
-          @click="showVersionHistory = true"
-          class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>Version History</span>
-        </button>
-      </div>
+      </form>
+    </div>
 
-      <!-- Tab Navigation -->
-      <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <nav class="flex flex-wrap gap-2 sm:gap-8" aria-label="Tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.key"
-            @click="activeTab = tab.key"
-            :class="[
-              'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-              activeTab === tab.key
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
-            ]"
-          >
-            {{ tab.label }}
-          </button>
-        </nav>
-      </div>
-
-        <!-- Tab Content -->
-        <BudgetMaterialsTab
-          v-show="activeTab === 'materials'"
-          :form-data="state.formData"
-          :import-status="state.importStatus"
-          :materials-update-check="state.materialsUpdateCheck"
-          :approval-status="state.materialsApprovalStatus"
-          :is-importing="state.isImporting"
-          :is-checking-updates="state.isCheckingUpdates"
-          @import-materials="importMaterials"
-          @check-updates="checkMaterialsUpdates"
-          @re-import-materials="reImportMaterials"
-          @calculate-material-total="calculateMaterialTotal"
-        />
-
-        <BudgetLabourTab
-          v-show="activeTab === 'labour'"
-          :form-data="state.formData"
-          @add-labour-item="addLabourItem"
-          @calculate-labour-total="calculateLabourTotal"
-          @remove-labour-item="removeLabourItem"
-        />
-
-        <BudgetExpensesTab
-          v-show="activeTab === 'expenses'"
-          :form-data="state.formData"
-          @add-expense="addExpense"
-          @remove-expense="removeExpense"
-        />
-
-        <BudgetLogisticsTab
-          v-show="activeTab === 'logistics'"
-          :form-data="state.formData"
-          @add-logistics-item="addLogisticsItem"
-          @remove-logistics-item="removeLogisticsItem"
-          @calculate-logistics-total="calculateLogisticsTotal"
-        />
-
-        <BudgetSummaryTab
-          v-show="activeTab === 'summary'"
-          :materials-total="materialsTotal"
-          :labour-total="labourTotal"
-          :expenses-total="expensesTotal"
-          :logistics-total="logisticsTotal"
-          :grand-total="grandTotal"
-        />
-
-
-
-      <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <button
-          v-if="task.status !== 'skipped' && task.status !== 'completed'"
-          type="button"
-          @click="showSkipModal = true"
-          class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors order-3 sm:order-1"
-        >
-          Skip Task
-        </button>
-        <button
-          type="button"
-          @click="saveDraft"
-          :disabled="state.isSaving"
-          class="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white rounded-lg transition-colors order-2 sm:order-1"
-        >
-          {{ state.isSaving ? 'Saving...' : 'Save Draft' }}
-        </button>
-        <button
-          type="submit"
-          :disabled="state.isSaving"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 text-white rounded-lg transition-colors order-1 sm:order-2"
-        >
-          {{ state.isSaving ? 'Submitting...' : 'Submit Budget' }}
-        </button>
-      </div>
-    </form>
-
-    <!-- Version History Modal -->
+    <!-- Modals -->
     <VersionHistoryModal
       :is-open="showVersionHistory"
       :versions="budgetVersions"
@@ -335,30 +292,32 @@
       @restore="handleRestoreVersion"
       @refresh="fetchVersions"
     />
+
     <!-- Skip Task Modal -->
-    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">
-            Please provide a reason for skipping this task. This will mark the task as complete.
+    <div v-if="showSkipModal" class="fixed inset-0 z-[101] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showSkipModal = false"></div>
+      <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in duration-200">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Skip Task?</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            Depending on your workflow, skipping this task might affect later stages. Please realize a reason.
         </p>
         <textarea
             v-model="skipReason"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none mb-6"
             placeholder="Reason for skipping..."
         ></textarea>
-        <div class="flex justify-end space-x-3">
+        <div class="flex justify-end gap-3">
             <button 
                 @click="showSkipModal = false"
-                class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                class="px-4 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition-colors"
             >
                 Cancel
             </button>
             <button 
                 @click="handleSkipTask"
                 :disabled="!skipReason.trim() || isSkipping"
-                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg shadow-lg shadow-red-500/30 hover:bg-red-600 transition-colors disabled:opacity-50"
             >
                 {{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}
             </button>
@@ -386,7 +345,6 @@ import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import api from '@/plugins/axios'
 
-
 interface Props {
   task: EnquiryTask
   readonly?: boolean
@@ -397,8 +355,34 @@ const props = withDefaults(defineProps<Props>(), {
   readonly: false,
 })
 
-// For completed tasks, default to readonly mode to show the "Edit Budget" button
+// For completed tasks, default to readonly mode
 const readonly = ref(props.readonly || props.task.status === 'completed')
+
+const projectInfo = computed(() => {
+  const enquiry = props.task.enquiry
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || `ENQ-${props.task.id}`,
+    enquiryTitle: enquiry?.title || 'Untitled Project',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
+    eventVenue: enquiry?.venue || 'TBC',
+    setupDate: enquiry?.expected_delivery_date || 'TBC'
+  }
+})
+
+const formatDate = (dateValue: string | Date | null | undefined) => {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  } catch {
+    return 'TBC'
+  }
+}
 
 const emit = defineEmits(['task-completed', 'task-updated'])
 
@@ -431,16 +415,30 @@ const toggleEditMode = () => {
   readonly.value = !readonly.value
 }
 
+const getStatusClasses = (status: string) => {
+   switch (status) {
+      case 'completed': return 'bg-emerald-100 text-emerald-700'
+      case 'in_progress': return 'bg-blue-100 text-blue-700'
+      case 'pending': return 'bg-yellow-100 text-yellow-700'
+      case 'skipped': return 'bg-gray-100 text-gray-600'
+      default: return 'bg-gray-100 text-gray-600'
+   }
+}
+
+const getTabIcon = (key: string) => {
+   const map: Record<string, string> = {
+      'materials': 'mdi-cube-outline',
+      'labour': 'mdi-account-hard-hat',
+      'expenses': 'mdi-cash-multiple',
+      'logistics': 'mdi-truck-fast-outline',
+      'summary': 'mdi-chart-pie'
+   }
+   return map[key] || 'mdi-circle'
+}
+
 // Use composables for state management
 const { state, materialsTotal, labourTotal, expensesTotal, logisticsTotal, grandTotal } = useBudgetState()
-
-// Use validation composable (for future use)
 const { validateBudget } = useBudgetValidation()
-
-// Use progress composable
-const { progressState } = useBudgetProgress()
-
-// Use operations composable
 const {
   activeTab,
   tabs,
@@ -458,7 +456,7 @@ const {
   removeLogisticsItem,
   calculateLogisticsTotal,
   saveDraft,
-  handleSubmit, // Used in template form submission
+  handleSubmit,
 } = useBudgetOperations(state, props.task, emit, props.initialTab)
 
 // Version Management
@@ -487,7 +485,6 @@ const materialsUpdateStatus = ref({
 })
 const isRefreshing = ref(false)
 
-// Check materials update status
 const checkMaterialsUpdateStatus = async () => {
   try {
     const response = await api.get(`/api/projects/tasks/${props.task.id}/budget/check-materials-update`)
@@ -499,7 +496,6 @@ const checkMaterialsUpdateStatus = async () => {
   }
 }
 
-// Refresh from materials (import)
 const refreshFromMaterials = async () => {
   if (!confirm('This will sync your budget with the latest approved materials.\n\n✅ Your pricing will be PRESERVED\n✅ Quantities will be updated\n✅ New materials will be added\n\nContinue?')) {
     return
@@ -507,17 +503,15 @@ const refreshFromMaterials = async () => {
   
   try {
     isRefreshing.value = true
-    // Force re-import even if materials already exist
+    // Save current state first to ensure latest prices are preserved in the merge
+    await saveDraft()
     await importMaterials(true)
-    
-    // Reload budget data to show the imported materials in the UI
     await loadBudgetData()
-    
-    // After successful import, materials are now in sync - hide the warning banner
     materialsUpdateStatus.value.hasUpdate = false
-    
-    // No need to re-check - we just imported, so we know they're in sync
+    state.successMessage = 'Materials synced successfully. Prices preserved.'
+    setTimeout(() => state.successMessage = '', 3000)
   } catch (error: any) {
+    console.error('Sync failed:', error)
     alert(error.message || 'Failed to refresh from materials')
   } finally {
     isRefreshing.value = false
@@ -527,12 +521,8 @@ const refreshFromMaterials = async () => {
 const handleCreateVersion = async (label: string | undefined) => {
   try {
     const response = await createVersion(label)
-    
-    // Show material version link info
     if (response.data?.materials_version_id) {
-      alert(
-        `${response.message}\nLinked to Material Version ${response.data.materials_version_number || 'latest'}`
-      )
+      alert(`${response.message}\nLinked to Material Version ${response.data.materials_version_number || 'latest'}`)
     } else {
       alert(response.message || 'Version created successfully')
     }
@@ -545,8 +535,6 @@ const handleCreateVersion = async (label: string | undefined) => {
 const handleRestoreVersion = async (versionId: number) => {
   try {
     const response = await restoreVersion(versionId)
-    
-    // Show warnings
     const warnings = response.warnings || (response.warning ? [response.warning] : [])
     if (warnings.length > 0) {
       alert('⚠️ Warnings:\n' + warnings.join('\n'))
@@ -558,7 +546,6 @@ const handleRestoreVersion = async (versionId: number) => {
       alert('✅ Version restored successfully!')
     }
     
-    // Reload budget data
     await loadBudgetData()
     showVersionHistory.value = false
   } catch (error) {
@@ -567,32 +554,22 @@ const handleRestoreVersion = async (versionId: number) => {
   }
 }
 
-// Preview Mode Handlers
 const handlePreviewVersion = async (version: any) => {
-  // Save original budget data
   originalBudgetData.value = JSON.parse(JSON.stringify(state.formData))
-  
-  // Load version data into the form
   if (version.data) {
     Object.assign(state.formData, version.data)
   }
-  
-  // Set preview mode
   isPreviewingVersion.value = true
   previewingVersionLabel.value = version.label
   previewingVersionId.value = version.id
 }
 
 const exitPreview = async () => {
-  // Restore original data
   if (originalBudgetData.value) {
     Object.assign(state.formData, originalBudgetData.value)
   } else {
-    // Fallback: reload from server
     await loadBudgetData()
   }
-  
-  // Exit preview mode
   isPreviewingVersion.value = false
   previewingVersionLabel.value = ''
   previewingVersionId.value = null
@@ -601,34 +578,31 @@ const exitPreview = async () => {
 
 const restoreFromPreview = async () => {
   if (!previewingVersionId.value) return
-  
-  // Exit preview first
   isPreviewingVersion.value = false
-  
-  // Then restore the version
   await handleRestoreVersion(previewingVersionId.value)
-  
-  // Clean up
   previewingVersionLabel.value = ''
   previewingVersionId.value = null
   originalBudgetData.value = null
 }
 
-// Remove the duplicate additions tab addition since it's already in useBudgetOperations
-
-// Watch for readonly changes to reload data when switching modes
 watch(readonly, (newReadonly: boolean) => {
   if (!newReadonly) {
-    // When switching to edit mode, reload the data
     loadBudgetData()
   }
 })
 
-
-// Initialize
 onMounted(() => {
   loadBudgetData()
   checkMaterialsUpdateStatus()
 })
 </script>
 
+<style scoped>
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+</style>

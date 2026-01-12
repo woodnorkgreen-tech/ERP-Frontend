@@ -146,12 +146,13 @@ export function useBudgetValidation() {
         })
       }
 
-      // Cross-field validation: check if amount matches quantity * unitRate
-      const expectedAmount = Math.round((labour.quantity * labour.unitRate) * 100) / 100
+      // Cross-field validation: check if amount matches quantity * days * unitRate
+      const days = labour.days || 1
+      const expectedAmount = Math.round((labour.quantity * days * labour.unitRate) * 100) / 100
       if (Math.abs(labour.amount - expectedAmount) > 0.01) {
         labourErrors.push({
           field: `labour[${index}].amount`,
-          message: `Amount (${labour.amount}) doesn't match quantity × unit rate (${expectedAmount})`,
+          message: `Amount (${labour.amount}) doesn't match quantity × days × unit rate (${expectedAmount})`,
           tab: 'labour',
           severity: 'error'
         })
@@ -320,10 +321,10 @@ export function useBudgetValidation() {
     // Calculate expected totals from form data with safety checks
     const expectedMaterialsTotal = (formData.materials && Array.isArray(formData.materials))
       ? formData.materials.reduce((total, element) => {
-          return total + (element.materials && Array.isArray(element.materials)
-            ? element.materials.reduce((sum, material) => sum + (material.totalPrice || 0), 0)
-            : 0)
-        }, 0)
+        return total + (element.materials && Array.isArray(element.materials)
+          ? element.materials.reduce((sum, material) => sum + (material.totalPrice || 0), 0)
+          : 0)
+      }, 0)
       : 0
 
     const expectedLabourTotal = (formData.labour && Array.isArray(formData.labour))

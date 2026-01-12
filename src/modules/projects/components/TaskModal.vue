@@ -29,7 +29,13 @@
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center">
               <span class="capitalize">{{ task.type.replace('_', ' ') }} Task</span>
               <span class="mx-2 text-gray-300">•</span>
-              <span class="text-blue-600 dark:text-blue-400 opacity-80 italic">{{ task.enquiry?.title || 'Standalone Project' }}</span>
+              <span class="text-blue-600 dark:text-blue-400 opacity-80 italic">
+                <span v-if="task.enquiry" :class="task.enquiry.job_number ? 'font-black' : ''">
+                  {{ task.enquiry.job_number || task.enquiry.enquiry_number }}
+                </span>
+                <span v-if="task.enquiry"> — </span>
+                {{ task.enquiry?.title || 'Standalone Project' }}
+              </span>
             </p>
           </div>
         </div>
@@ -37,7 +43,35 @@
         <div class="flex items-center space-x-6 mr-8 border-r border-gray-200 dark:border-gray-700 pr-8 hidden md:flex">
           <div class="text-right">
             <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Assigned To</p>
-            <p class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ task.assigned_to?.name || 'Unassigned' }}</p>
+            
+            <!-- Claim Button or Assigned Name -->
+            <div v-if="!isAssigned(task)" class="flex justify-end">
+               <button 
+                  @click="claimTask" 
+                  :disabled="isClaiming"
+                  class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2"
+               >
+                  <i v-if="isClaiming" class="mdi mdi-loading mdi-spin"></i>
+                  <i v-else class="mdi mdi-hand-back-right"></i>
+                  {{ isClaiming ? 'Claiming...' : 'Claim Task' }}
+               </button>
+            </div>
+              <button 
+                v-if="canRelease(task)" 
+                @click="releaseTask"
+                :disabled="isReleasing"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 shadow-sm flex items-center justify-center gap-2"
+              >
+                <i v-if="isReleasing" class="mdi mdi-loading mdi-spin"></i>
+                <i v-else class="mdi mdi-lock-open-outline"></i>
+                <span>Release</span>
+              </button>
+              <div v-else class="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center justify-end gap-2">
+                <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                    {{ getInitials(getAssignedUserName(task)) }}
+                </div>
+                {{ getAssignedUserName(task) }}
+              </div>
           </div>
           <div v-if="task.due_date" class="text-right">
             <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Deadline</p>
@@ -119,6 +153,8 @@ import type { EnquiryTask } from '../types/enquiry'
 import TaskRenderer from './tasks/TaskRenderer.vue'
 import TaskHistory from './TaskHistory.vue'
 import type { DesignAsset } from './tasks/design/types/design'
+import { useAuth } from '@/composables/useAuth'
+import api from '@/plugins/axios'
 
 const activeTab = ref('details')
 
@@ -130,13 +166,21 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { user } = useAuth()
+
+// State
+const isClaiming = ref(false)
+const isReleasing = ref(false)
 
 // Debug: Log task data when it changes
 watch(() => props.task, (newTask) => {
-  console.log('[DEBUG] TaskModal received task:', {
+  console.log('[DEBUG TaskModal] Task received:', {
     id: newTask?.id,
     title: newTask?.title,
     assigned_to: newTask?.assigned_to,
+    assignedTo: newTask?.assignedTo,
+    assignedUser: newTask?.assignedUser,
+    assigned_user_id: newTask?.assigned_user_id,
     assigned_by: newTask?.assigned_by
   })
 }, { immediate: true })
@@ -146,6 +190,7 @@ const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
   'save-design-data': [taskId: number, data: DesignAsset[]]
+  'assign': [task: EnquiryTask] 
 }>()
 
 const closeModal = () => {
@@ -203,11 +248,137 @@ const getStatusLabel = (status: string) => {
 }
 
 const isOverdue = (dueDate: string) => {
+  if (!dueDate) return false
+  // Check if the current task is already completed, skipped or cancelled
+  if (props.task?.status === 'completed' || props.task?.status === 'cancelled' || props.task?.status === 'skipped') return false
   return new Date(dueDate) < new Date()
 }
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
+}
+
+/**
+ * Check if task is assigned to anyone
+ */
+const isAssigned = (task: EnquiryTask | null): boolean => {
+  if (!task) return false
+  return !!(
+    task.assigned_to || 
+    task.assignedUser || 
+    (task.assigned_users && task.assigned_users.length > 0) ||
+    (task.assignedUsers && task.assignedUsers.length > 0)
+  )
+}
+
+/**
+ * Get assigned user name from all possible sources
+ */
+const getAssignedUserName = (task: EnquiryTask | null): string => {
+  if (!task) return 'Unassigned'
+  
+  if (task.assigned_to?.name) return task.assigned_to.name
+  if (task.assignedUser?.name) return task.assignedUser.name
+  
+  if (task.assigned_users && task.assigned_users.length > 0) {
+    return task.assigned_users[0].name
+  }
+  if (task.assignedUsers && task.assignedUsers.length > 0) {
+    return task.assignedUsers[0].name
+  }
+  
+  return 'Unassigned'
+}
+
+const getInitials = (name?: string | null) => {
+  if (!name || name === 'Unassigned') return '?'
+  return name
+    .split(' ')
+    .filter(word => word.length > 0)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+/**
+ * Claim Task Implementation
+ */
+const claimTask = async () => {
+  if (!props.task || !user.value?.id) return
+  
+  isClaiming.value = true
+  
+  try {
+    const response = await api.post(`/api/projects/enquiry-tasks/${props.task.id}/assign`, {
+      assigned_user_id: user.value.id,
+      priority: props.task.priority || 'medium'
+    })
+    
+    // Emit event to parent to update task
+    emit('assign', response.data.data)
+    
+  } catch (error) {
+    console.error('Error claiming task:', error)
+    alert('Failed to claim task. Please try again.')
+  } finally {
+    isClaiming.value = false
+  }
+}
+
+/**
+ * Check if current user can release this task
+ */
+const canRelease = (task: EnquiryTask | null): boolean => {
+  if (!task || !user.value) return false
+  if (task.status === 'completed' || task.status === 'cancelled') return false
+  
+  const currentUserId = user.value.id
+  
+  // Check if current user is the primary assignee
+  const isPrimaryAssignee = task.assigned_to?.id === currentUserId || task.assigned_user_id === currentUserId
+  
+  // Check if current user is in the multiple assignees list (if applicable)
+  const isOneOfAssignees = task.assignedUsers?.some(u => u.id === currentUserId) || 
+                          task.assigned_users?.some(u => u.id === currentUserId)
+  
+  // Check if admin/manager
+  const isAdmin = user.value.roles?.some(r => 
+    ['Super Admin', 'Project Manager', 'Project Officer'].includes(typeof r === 'string' ? r : (r as any).name)
+  )
+  
+  return isPrimaryAssignee || isOneOfAssignees || !!isAdmin
+}
+
+/**
+ * Release Task Implementation
+ */
+const releaseTask = async () => {
+  if (!props.task || !user.value?.id) return
+  
+  const reason = prompt(`Please provide a reason for releasing task "${props.task.title}" back to the pool:`)
+  if (reason === null) return // Cancelled
+  if (!reason.trim()) {
+      alert("A reason is required to release the task.")
+      return
+  }
+
+  isReleasing.value = true
+  
+  try {
+    const response = await api.put(`/api/projects/enquiry-tasks/${props.task.id}/release`, {
+      reason: reason
+    })
+    
+    // Emit event to parent to update task
+    emit('assign', response.data.data)
+    
+  } catch (error) {
+    console.error('Error releasing task:', error)
+    alert('Failed to release task. Please try again.')
+  } finally {
+    isReleasing.value = false
+  }
 }
 </script>
 

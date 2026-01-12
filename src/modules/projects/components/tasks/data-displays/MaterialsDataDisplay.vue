@@ -61,142 +61,155 @@
 
     <!-- Project Elements Section -->
     <div class="mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h5 class="text-md font-medium text-gray-700 dark:text-gray-300">Project Elements</h5>
-        <div class="flex items-center space-x-3">
-          <button
-            @click="toggleAllElements"
-            class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center space-x-1"
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-            </svg>
-            <span>{{ allElementsCollapsed ? 'Expand All' : 'Collapse All' }}</span>
-          </button>
-        </div>
+      <div class="flex items-center justify-between mb-5">
+         <div>
+            <h5 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+               <i class="mdi mdi-package-variant text-blue-500"></i>
+               Project Elements
+            </h5>
+            <p class="text-xs text-slate-500 mt-0.5">View-only materials list</p>
+         </div>
+         <button
+           @click="toggleAllElements"
+           class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+           :title="allElementsCollapsed ? 'Expand All' : 'Collapse All'"
+         >
+           <i class="mdi mdi-unfold-more-horizontal text-xl"></i>
+         </button>
       </div>
 
-      <!-- Elements Display -->
-      <div class="space-y-4">
-        <div v-for="element in materialsData.projectElements" :key="element.id" class="border border-gray-200 dark:border-gray-700 rounded-lg">
-          <!-- Element Header (Clickable) -->
-          <div
-            :class="[
-              getElementHeaderClass(element.templateId),
-              'cursor-pointer hover:opacity-90 transition-opacity px-4 py-3 flex items-center justify-between',
-              { 'rounded-lg': isElementCollapsed(element.id), 'rounded-t-lg': !isElementCollapsed(element.id) }
-            ]"
-            @click="toggleElementCollapse(element.id)"
-          >
-            <div class="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                v-model="element.isIncluded"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                @click.stop
-              />
-              <div class="flex flex-col space-y-1">
-                <div class="flex items-center space-x-2">
-                  <h6 class="text-sm font-semibold">{{ element.name }}</h6>
-                  <span :class="getElementCategoryClass(element.category)" class="text-xs px-2 py-0.5 rounded-full font-medium">
-                    {{ getElementCategoryLabel(element.category) }}
-                  </span>
-                </div>
-                <div v-if="element.dimensions && (element.dimensions.length || element.dimensions.width || element.dimensions.height)" class="text-xs opacity-75">
-                  <span>Dimensions: </span>
-                  <span v-if="element.dimensions.length">{{ element.dimensions.length }}mm</span>
-                  <span v-if="element.dimensions.length && (element.dimensions.width || element.dimensions.height)"> × </span>
-                  <span v-if="element.dimensions.width">{{ element.dimensions.width }}mm</span>
-                  <span v-if="element.dimensions.width && element.dimensions.height"> × </span>
-                  <span v-if="element.dimensions.height">{{ element.dimensions.height }}mm</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center space-x-3">
-              <span class="text-xs opacity-75">{{ getIncludedMaterialsCount(element) }} materials</span>
-              <!-- Collapse/Expand Icon -->
-              <div class="text-xs opacity-75">
-                <svg
-                  class="w-4 h-4 transition-transform duration-200"
-                  :class="{ 'rotate-180': !isElementCollapsed(element.id) }"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+      <!-- Excel-Style Elements Display -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden shadow-lg">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <thead class="sticky top-0 z-10">
+              <tr class="bg-slate-100 dark:bg-slate-700 border-b-2 border-slate-400 dark:border-slate-500">
+                <th class="border-r border-slate-300 dark:border-slate-600 px-3 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-10">#</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-3 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-16">Include</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider min-w-[250px]">Element / Material</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-32">Category</th>
+                <th class="border-r border-slate-300 dark:border-slate-600 px-4 py-2.5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-28">Unit</th>
+                <th class="px-4 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-24">Quantity</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800">
+              <template v-for="(element, elementIndex) in materialsData.projectElements" :key="element.id">
+                <!-- Element Header Row -->
+                <tr 
+                  :class="[
+                    'border-b border-slate-200 dark:border-slate-700 cursor-pointer transition-colors',
+                    element.isIncluded ? 'bg-blue-50/50 dark:bg-blue-950/30 hover:bg-blue-100/70 dark:hover:bg-blue-900/40' : 'bg-slate-50/50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ]"
+                  @click="toggleElementCollapse(element.id)"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Materials Table (collapsible) -->
-          <div v-if="element.isIncluded && !isElementCollapsed(element.id)" class="border-t border-gray-200 dark:border-gray-700">
-            <div class="p-4">
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                  <thead>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300 w-8">Include</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Particulars</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Unit</th>
-                      <th class="text-left py-2 text-gray-700 dark:text-gray-300">Quantity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="material in element.materials" :key="material.id" class="border-b border-gray-100 dark:border-gray-800">
-                      <td class="py-2">
-                        <input
-                          type="checkbox"
-                          v-model="material.isIncluded"
-                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 line-through'">
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900">
+                    {{ elementIndex + 1 }}
+                  </td>
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center" @click.stop>
+                    <input
+                      type="checkbox"
+                      v-model="element.isIncluded"
+                      class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                      disabled
+                    />
+                  </td>
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-3" colspan="3">
+                    <div class="flex items-center gap-3">
+                      <i class="mdi mdi-package-variant text-blue-500 text-lg"></i>
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ element.name }}</span>
+                          <span :class="getElementCategoryClass(element.category)" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                            {{ getElementCategoryLabel(element.category) }}
+                          </span>
+                        </div>
+                        <div v-if="element.dimensions && (element.dimensions.length || element.dimensions.width || element.dimensions.height)" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          <span class="font-medium">Dimensions:</span>
+                          <span v-if="element.dimensions.length">{{ element.dimensions.length }}mm</span>
+                          <span v-if="element.dimensions.length && (element.dimensions.width || element.dimensions.height)"> × </span>
+                          <span v-if="element.dimensions.width">{{ element.dimensions.width }}mm</span>
+                          <span v-if="element.dimensions.width && element.dimensions.height"> × </span>
+                          <span v-if="element.dimensions.height">{{ element.dimensions.height }}mm</span>
+                        </div>
+                      </div>
+                      <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
+                        {{ getIncludedMaterialsCount(element) }}/{{ element.materials.length }} materials
+                      </span>
+                      <i class="mdi mdi-chevron-down text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': !isElementCollapsed(element.id) }"></i>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Material Rows (Excel-style) -->
+                <template v-if="element.isIncluded && !isElementCollapsed(element.id)">
+                  <tr 
+                    v-for="(material, materialIndex) in element.materials" 
+                    :key="material.id" 
+                    class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    :class="!material.isIncluded ? 'opacity-50' : ''"
+                  >
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-2.5 text-center text-xs text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/50 font-mono">
+                      {{ elementIndex + 1 }}.{{ materialIndex + 1 }}
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-2.5 text-center bg-white dark:bg-slate-800">
+                      <input
+                        type="checkbox"
+                        v-model="material.isIncluded"
+                        class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
+                        disabled
+                      />
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm bg-white dark:bg-slate-800" :class="material.isIncluded ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-400 dark:text-slate-500 line-through'">
+                      <div class="flex items-center gap-2">
+                        <i class="mdi mdi-circle-small text-slate-400"></i>
                         {{ material.description }}
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
-                        {{ material.unitOfMeasurement }}
-                      </td>
-                      <td class="py-2" :class="material.isIncluded ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'">
-                        <input
-                          v-if="material.isIncluded"
-                          type="number"
-                          v-model.number="material.quantity"
-                          step="0.1"
-                          min="0"
-                          class="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <span v-else>{{ material.quantity }}</span>
-                      </td>
-                    </tr>
-                    <tr v-if="element.materials.length === 0">
-                      <td colspan="4" class="py-4 text-center text-gray-500 dark:text-gray-400 italic">
-                        No materials defined for this element
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Collapsed state message for excluded elements -->
-          <div v-else-if="!element.isIncluded" class="border-t border-gray-200 dark:border-gray-700 p-4 text-center text-gray-500 dark:text-gray-400 italic">
-            Element not included in project
-          </div>
-
-          <!-- Collapsed state summary for included elements (clickable) -->
-          <div
-            v-else-if="element.isIncluded && isElementCollapsed(element.id)"
-            class="border-t border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            @click="toggleElementCollapse(element.id)"
-          >
-            <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
-              <span class="font-medium">{{ getIncludedMaterialsCount(element) }}</span> of
-              <span class="font-medium">{{ element.materials.length }}</span> materials included
-              <span class="text-xs ml-2 opacity-75">• Click to expand</span>
-            </div>
-          </div>
+                      </div>
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm text-slate-500 dark:text-slate-400 bg-slate-50/30 dark:bg-slate-900/30">
+                      <span class="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded font-medium">Material</span>
+                    </td>
+                    <td class="border-r border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm bg-white dark:bg-slate-800" :class="material.isIncluded ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-400 dark:text-slate-500'">
+                      {{ material.unitOfMeasurement }}
+                    </td>
+                    <td class="px-4 py-2.5 text-center bg-blue-50/30 dark:bg-blue-950/20">
+                      <span class="text-sm text-slate-700 dark:text-slate-300 font-mono font-medium">{{ material.quantity }}</span>
+                    </td>
+                  </tr>
+                  
+                  <!-- Empty state for element with no materials -->
+                  <tr v-if="element.materials.length === 0" class="border-b border-slate-200 dark:border-slate-700">
+                    <td colspan="6" class="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400 italic bg-slate-50/50 dark:bg-slate-900/50">
+                      <i class="mdi mdi-information-outline text-lg mr-2"></i>
+                      No materials defined for this element
+                    </td>
+                  </tr>
+                </template>
+                
+                <!-- Collapsed state -->
+                <tr v-else-if="element.isIncluded && isElementCollapsed(element.id)" class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800" @click="toggleElementCollapse(element.id)">
+                  <td colspan="6" class="px-4 py-3 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    <i class="mdi mdi-chevron-right mr-1"></i>
+                    Click to expand {{ element.materials.length }} material{{ element.materials.length !== 1 ? 's' : '' }}
+                  </td>
+                </tr>
+              </template>
+              
+              <!-- Empty state for no elements -->
+              <tr v-if="materialsData.projectElements.length === 0" class="border-b border-slate-200 dark:border-slate-700">
+                <td colspan="6" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                      <i class="mdi mdi-package-variant-closed text-3xl text-slate-400"></i>
+                    </div>
+                    <div>
+                      <p class="text-base font-bold text-slate-700 dark:text-slate-300">No Elements</p>
+                      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">No materials have been defined for this project</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

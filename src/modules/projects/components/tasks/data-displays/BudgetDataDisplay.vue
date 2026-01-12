@@ -1,7 +1,6 @@
 <template>
   <!-- Readonly budget data display -->
   <div class="budget-data-display bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
     <!-- Tab Navigation -->
     <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
@@ -107,7 +106,7 @@ if (props.taskData) {
   // Populate state with provided task data
   // TaskDataViewer passes the full API response, so we need to extract the data
   const apiResponse = props.taskData as unknown as Record<string, unknown>
-  const budgetData = (apiResponse.data as BudgetData) || (apiResponse as BudgetData) // Handle both {data: budgetData} and direct budgetData
+  const budgetData = (apiResponse.data as BudgetData) || (apiResponse as unknown as BudgetData) // Handle both {data: budgetData} and direct budgetData
 
   state.formData = {
     projectInfo: budgetData.projectInfo || {},
