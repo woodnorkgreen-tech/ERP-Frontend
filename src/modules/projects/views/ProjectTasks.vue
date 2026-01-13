@@ -933,25 +933,7 @@ const handleTaskAssigned = (updatedTask: EnquiryTask) => {
 }
 
 const openTaskModal = async (task: EnquiryTask) => {
-  // 1. Optimistic Check (Instant)
-  const currentUser = user.value
-  const assignee = task.assigned_to
-  if (assignee && assignee.id !== currentUser?.id) {
-     const userRoles = currentUser?.roles || []
-      const isPrivileged = userRoles.some((role: string | any) => {
-        const roleName = typeof role === 'string' ? role : role.name
-        return ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service', 'HR', 'Designer', 'Costing', 'Accounts', 'Stores', 'Procurement', 'Production'].includes(roleName)
-      })
-     if (!isPrivileged) {
-        // Open TaskModal in Read-Only Mode
-        selectedTask.value = task
-        isReadonly.value = true
-        showTaskModal.value = true
-        return
-     }
-   }
-
-   // 2. Server Check (Authoritative & Refresh)
+   // Server Check (Authoritative & Refresh)
    try {
      const response = await api.get(`/api/tasks/${task.id}`)
      const freshTask = response.data.data
@@ -962,14 +944,7 @@ const openTaskModal = async (task: EnquiryTask) => {
          enquiryTasks.value[index] = { ...enquiryTasks.value[index], ...freshTask }
      }
  
-     // Check if task is locked for current user
-     if (freshTask.is_locked_for_user) {
-         selectedTask.value = freshTask
-         isReadonly.value = true
-         showTaskModal.value = true
-         return
-     }
-     
+     // Task is now always open in edit mode (server handles specific permissions if needed)
      selectedTask.value = freshTask
      isReadonly.value = false
      showTaskModal.value = true

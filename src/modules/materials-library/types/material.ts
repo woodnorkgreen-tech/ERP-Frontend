@@ -17,6 +17,14 @@ export interface LibraryMaterial {
     updated_by?: number;
     created_at?: string;
     updated_at?: string;
+
+    // Stock properties
+    quantity_on_hand?: number;
+    quantity_reserved?: number;
+    available?: number;
+    min_stock_level?: number;
+    location?: string;
+    workstation_name?: string;
 }
 
 export interface CreateMaterialDTO {

@@ -21,6 +21,16 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Cost
                 </th>
+                <!-- Conditional Stock Columns -->
+                <th v-if="hasStockData" scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  On Hand
+                </th>
+                <th v-if="hasStockData" scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Available
+                </th>
+                <th v-if="hasStockData" scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Stock Value
+                </th>
                 <th scope="col" class="relative px-6 py-3">
                   <span class="sr-only">Actions</span>
                 </th>
@@ -54,6 +64,16 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {{ formatCurrency(material.unit_cost) }}
                 </td>
+                <!-- Conditional Stock Data -->
+                <td v-if="hasStockData" class="px-6 py-4 whitespace-nowrap text-center text-sm font-black text-slate-700 dark:text-slate-300">
+                  {{ material.quantity_on_hand ?? 0 }}
+                </td>
+                <td v-if="hasStockData" class="px-6 py-4 whitespace-nowrap text-center text-sm font-black text-blue-500">
+                  {{ material.available ?? 0 }}
+                </td>
+                <td v-if="hasStockData" class="px-6 py-4 whitespace-nowrap text-right text-sm font-black text-emerald-600 dark:text-emerald-400">
+                  {{ formatCurrency((material.quantity_on_hand ?? 0) * (material.unit_cost ?? 0)) }}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <template v-if="showTrashed">
                     <button @click="$emit('restore', material.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-4">
@@ -64,13 +84,16 @@
                     </button>
                   </template>
                   <template v-else>
-                    <button @click="$emit('view', material)" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-4">
+                    <button v-if="hasStockData" @click="$emit('checkIn', material)" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-4" title="Quick Stock Add">
+                      <i class="mdi mdi-plus-box-outline text-lg"></i>
+                    </button>
+                    <button @click="$emit('view', material)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                       View
                     </button>
                     <button @click="$emit('edit', material)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                       Edit
                     </button>
-                    <button @click="$emit('delete', material.id)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                    <button v-if="canDelete" @click="$emit('delete', material.id)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                       Delete
                     </button>
                   </template>
@@ -85,17 +108,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { LibraryMaterial } from '../types/material';
 
-defineProps<{
+const props = withDefaults(defineProps<{
   materials: LibraryMaterial[];
   loading: boolean;
   showTrashed?: boolean;
-}>();
+  canDelete?: boolean;
+}>(), {
+  showTrashed: false,
+  canDelete: true
+});
+
+const hasStockData = computed(() => {
+  return props.materials.some(m => m.quantity_on_hand !== undefined);
+});
 
 defineEmits<{
   (e: 'view', material: LibraryMaterial): void;
   (e: 'edit', material: LibraryMaterial): void;
+  (e: 'checkIn', material: LibraryMaterial): void;
   (e: 'delete', id: number): void;
   (e: 'restore', id: number): void;
   (e: 'forceDelete', id: number): void;

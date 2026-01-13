@@ -662,8 +662,8 @@ const isHandoverComplete = computed(() => {
 })
 
 const canManageHandover = computed(() => {
-  const allowedRoles = ['Super Admin', 'Project Manager', 'Project Officer']
-  return allowedRoles.some(role => user.value?.roles?.includes(role)) || false
+  // Restriction of "assigned to" or specific roles removed for transparency
+  return true 
 })
 
 const canEditSurvey = computed(() => {

@@ -668,8 +668,8 @@ const hasAuthRole = (role: string) => {
   return authUser.value?.roles?.some(r => r.toLowerCase() === role.toLowerCase()) || false
 }
 
-const isStoresUser = computed(() => hasAuthRole('super admin') || hasAuthRole('stores') || hasAuthRole('store_keeper') || hasAuthRole('admin') || hasAuthRole('manager'))
-const isProcurementUser = computed(() => hasAuthRole('super admin') || hasAuthRole('procurement') || hasAuthRole('procurement_officer') || hasAuthRole('admin') || hasAuthRole('manager'))
+const isStoresUser = computed(() => true)
+const isProcurementUser = computed(() => true)
 
 // Handover Logic
 const showHandoverModal = ref(false)

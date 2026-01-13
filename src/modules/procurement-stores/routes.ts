@@ -28,10 +28,22 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         meta: { requiresAuth: true, title: 'Check In' }
                     },
                     {
+                        path: 'batch-check-in',
+                        name: 'stores-batch-check-in',
+                        component: () => import('./views/stores/BatchCheckIn.vue'),
+                        meta: { requiresAuth: true, title: 'Batch Check In' }
+                    },
+                    {
                         path: 'check-out',
                         name: 'stores-check-out',
                         component: () => import('./views/stores/CheckOut.vue'),
                         meta: { requiresAuth: true, title: 'Check Out' }
+                    },
+                    {
+                        path: 'batch-check-out',
+                        name: 'stores-batch-check-out',
+                        component: () => import('./views/stores/BatchCheckOut.vue'),
+                        meta: { requiresAuth: true, title: 'Batch Check Out' }
                     },
                     {
                         path: 'returns',

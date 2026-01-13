@@ -1056,17 +1056,11 @@ const getStatusLabel = (status: string): string => {
 /**
  * Permission computed properties
  */
-const canAssignTeams = computed(() =>
-  hasRole('manager') || hasRole('admin') // Simplified for now - using existing roles
-)
+const canAssignTeams = computed(() => true)
 
-const canManageMembers = computed(() =>
-  hasRole('manager') || hasRole('admin')
-)
+const canManageMembers = computed(() => true)
 
-const canDeleteTeams = computed(() =>
-  hasRole('manager') || hasRole('admin')
-)
+const canDeleteTeams = computed(() => true)
 
 /**
  * Get team type display name with fallback to hardcoded names
