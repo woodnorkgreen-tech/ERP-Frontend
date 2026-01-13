@@ -1,20 +1,37 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6 md:p-12">
-    <!-- Branding Section -->
-    <div class="mb-8 text-center animate-fade-in-down">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/20 mb-4 transform hover:scale-110 transition-transform">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center md:justify-center p-0 md:p-12">
+    <!-- Branding Section (Hidden or condensed on mobile if needed, but let's keep it premium) -->
+    <div class="w-full max-w-2xl px-6 pt-12 pb-8 text-center animate-fade-in-down">
+      <div class="relative inline-block mb-6">
+        <!-- Premium Glow Effect -->
+        <div class="absolute -inset-4 blur-2xl bg-blue-500/10 dark:bg-blue-400/5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        
+        <div class="relative flex flex-col items-center">
+          <div class="w-20 h-20 bg-slate-900 dark:bg-white p-4 rounded-[2rem] shadow-2xl flex items-center justify-center transform hover:rotate-6 transition-transform relative overflow-hidden">
+            <img src="/wng-logo.png" alt="Woodnork Green Logo" class="w-full h-full object-contain brightness-110" />
+            <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
+          </div>
+          
+          <div class="mt-6 flex flex-col items-center">
+            <span class="text-[10px] font-black uppercase tracking-[0.5em] text-blue-600 dark:text-blue-400 mb-2">Woodnork Green</span>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+              Let's Build <span class="text-blue-600">Together</span>
+            </h1>
+          </div>
+        </div>
       </div>
-      <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Let's Build Together</h1>
-      <p class="mt-2 text-slate-500 dark:text-slate-400 font-medium">Tell us about your project and we'll get back to you within 24 hours.</p>
+      <p class="mt-2 text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">Premium Fabrication, Branding & High-End Identity Solutions.</p>
     </div>
 
     <!-- Success State -->
-    <div v-if="submitted" class="max-w-md w-full bg-white dark:bg-slate-800 rounded-3xl shadow-2xl shadow-slate-200 dark:shadow-none p-10 text-center animate-bounce-in">
-      <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-        <svg class="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="submitted" class="w-full md:max-w-md bg-white dark:bg-slate-800 md:rounded-3xl shadow-2xl shadow-slate-200 dark:shadow-none p-8 md:p-10 text-center animate-bounce-in flex-1 md:flex-none flex flex-col justify-center">
+      <div class="mb-4 flex justify-center">
+        <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center p-3">
+          <img src="/wng-logo.png" alt="Logo" class="w-full h-full object-contain" />
+        </div>
+      </div>
+      <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
         </svg>
       </div>
@@ -22,15 +39,16 @@
       <p class="text-slate-600 dark:text-slate-400">Thank you for reaching out. A member of our team will contact you shortly to discuss next steps.</p>
       <button 
         @click="resetForm" 
-        class="mt-8 px-8 py-3 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10"
+        class="mt-8 px-8 py-4 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10"
       >
         Send Another Request
       </button>
     </div>
 
     <!-- Form Section -->
-    <div v-else class="max-w-xl w-full bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl shadow-slate-200 dark:shadow-none border border-slate-100 dark:border-slate-700/50 overflow-hidden animate-fade-in-up">
-      <form @submit.prevent="submitLead" class="p-8 md:p-10 space-y-6">
+    <div v-else class="w-full md:max-w-2xl bg-white dark:bg-slate-800 md:rounded-[3rem] shadow-2xl shadow-slate-200 dark:shadow-none border-t md:border border-slate-100 dark:border-slate-700/50 overflow-hidden animate-fade-in-up flex-1 md:flex-none">
+      <form @submit.prevent="submitLead" class="p-6 md:p-12 space-y-8">
+        
         
         <!-- Field: Full Name -->
         <div class="space-y-1.5">
@@ -41,9 +59,20 @@
               type="text" 
               required
               placeholder="John Doe"
-              class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
+              class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
             >
           </div>
+        </div>
+
+        <!-- Field: Company / Organization -->
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Company / Organization</label>
+          <input 
+            v-model="form.company_name"
+            type="text" 
+            placeholder="Woodnork Ltd"
+            class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
+          >
         </div>
 
         <!-- Row: Email & Phone -->
@@ -55,7 +84,7 @@
               type="email" 
               required
               placeholder="john@example.com"
-              class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
+              class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
             >
           </div>
           <div class="space-y-1.5">
@@ -65,7 +94,7 @@
               type="tel" 
               required
               placeholder="+254..."
-              class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
+              class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white"
             >
           </div>
         </div>
@@ -73,16 +102,48 @@
         <!-- Field: Service Interest -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Service Interested In *</label>
-          <select 
-            v-model="form.service_interest"
-            required
-            class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none"
-          >
-            <option value="" disabled>Select a service...</option>
-            <option v-for="service in services" :key="service.id" :value="service.id">
-              {{ service.name }}
-            </option>
-          </select>
+          <div class="relative">
+            <select 
+              v-model="form.service_interest"
+              required
+              class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none pr-10"
+            >
+              <option value="" disabled>Select a service...</option>
+              <option value="Fabrication">Fabrication</option>
+              <option value="Branding">Branding</option>
+              <option value="Printing">Printing</option>
+              <option value="Corporate Giveaways">Corporate Giveaways</option>
+              <option value="Event Equipment Hire">Event Equipment Hire</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <i class="mdi mdi-chevron-down text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field: Acquisition Source -->
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">How did you hear about us? *</label>
+          <div class="relative">
+            <select 
+              v-model="form.how_did_you_hear"
+              required
+              class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none pr-10"
+            >
+              <option value="" disabled>Select an option...</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Website">Website</option>
+              <option value="Referral">Referral</option>
+              <option value="QR">QR</option>
+              <option value="Twitter">Twitter / X</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <i class="mdi mdi-chevron-down text-xl"></i>
+            </div>
+          </div>
         </div>
 
         <!-- Field: Description -->
@@ -92,7 +153,7 @@
             v-model="form.description"
             rows="4" 
             placeholder="Tell us what you have in mind..."
-            class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white resize-none"
+            class="w-full px-5 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:text-white resize-none"
           ></textarea>
         </div>
 
@@ -100,7 +161,7 @@
         <button 
           type="submit" 
           :disabled="loading"
-          class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+          class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3 mt-4"
         >
           <div v-if="loading" class="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
           <span v-else>Submit Application</span>
@@ -109,15 +170,20 @@
     </div>
 
     <!-- Footer Security -->
-    <div class="mt-8 flex items-center gap-4 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-widest">
-      <div class="flex items-center gap-1.5">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-        Secure Data Transmission
+    <div class="mt-8 flex flex-col items-center gap-4 text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-widest text-center">
+      <div class="flex flex-wrap justify-center items-center gap-4">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          Secure Data Transmission
+        </div>
+        <div class="hidden md:block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+        <div>ERP Direct Integration</div>
       </div>
-      <div class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
-      <div>ERP Direct Integration</div>
+      <div class="text-[9px] opacity-60">
+        © {{ new Date().getFullYear() }} Woodnork Green. All rights reserved.
+      </div>
     </div>
   </div>
 </template>
@@ -125,6 +191,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import api from '@/plugins/axios'
+import axios from 'axios'
 
 interface Service {
   id: number
@@ -139,6 +206,7 @@ const form = ref({
   company_name: '',
   service_interest: '' as any,
   description: '',
+  how_did_you_hear: '',
   source: 'direct_link'
 })
 
@@ -147,12 +215,8 @@ const loading = ref(false)
 const submitted = ref(false)
 
 const fetchServices = async () => {
-  try {
-    const res = await api.get('/api/public/services')
-    services.value = res.data
-  } catch (err) {
-    console.error('Failed to fetch services:', err)
-  }
+  // Services are now static based on user request
+  // services.value = res.data
 }
 
 const submitLead = async () => {
@@ -164,11 +228,22 @@ const submitLead = async () => {
       form.value.source = urlParams.get('source') as string
     }
 
-    await api.post('/api/public/leads', form.value)
+    // Use a direct axios call to avoid any ERP-wide auth interceptors for public form
+    const baseURL = (import.meta as any)?.env?.VITE_API_BASE_URL || window.location.origin
+    const response = await axios.post(`${baseURL}/api/public/leads`, form.value)
+    
     submitted.value = true
   } catch (err: any) {
     console.error('Lead submission failed:', err)
-    alert(err.response?.data?.message || 'Submission failed. Please check your network and try again.')
+    
+    // Handle validation errors specifically
+    if (err.response?.status === 422 && err.response?.data?.errors) {
+      const errorMessages = Object.values(err.response.data.errors).flat().join('\n')
+      alert(`Validation failed:\n${errorMessages}`)
+    } else {
+      const msg = err.response?.data?.message || 'Submission failed. Please check your network and try again.'
+      alert(msg)
+    }
   } finally {
     loading.value = false
   }
@@ -181,6 +256,7 @@ const resetForm = () => {
     phone: '',
     company_name: '',
     service_interest: '',
+    how_did_you_hear: '',
     description: '',
     source: 'direct_link'
   }

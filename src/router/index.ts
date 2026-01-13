@@ -14,12 +14,14 @@ import procurementStoresRoutes from '@/modules/procurement-stores/routes'
 
 // Combine all routes
 const routes: RouteRecordRaw[] = [
-  // Public Routes (Prioritized to avoid auth-guards redirecting them)
   {
     path: '/leads/new',
     name: 'public-lead-capture',
     component: () => import('../views/public/PublicLeadForm.vue'),
-    meta: { requiresAuth: false }
+    meta: {
+      requiresAuth: false,
+      title: "Let's Build Together | Woodnork Green"
+    }
   },
   {
     path: '/handover/:token',
