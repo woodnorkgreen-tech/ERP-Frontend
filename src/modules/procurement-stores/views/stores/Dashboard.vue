@@ -31,6 +31,11 @@
              BATCH ISSUANCE
            </button>
         </div>
+
+        <button @click="router.push('/stores/reports')" class="flex flex-col items-center justify-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl shadow-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest min-w-[140px]">
+          <i class="mdi mdi-chart-box-outline text-2xl text-blue-400"></i>
+          INTELLIGENCE
+        </button>
       </div>
     </div>
 
@@ -104,12 +109,21 @@
                    <p class="text-[9px] text-white/40">Manage master catalog & specs</p>
                 </div>
              </button>
-             <button class="w-full p-5 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex items-center gap-4 transition-all">
+             <button @click="router.push('/stores/alerts')" class="w-full p-5 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex items-center gap-4 transition-all group/btn">
                 <i class="mdi mdi-alert-octagon text-2xl text-rose-400"></i>
-                <div class="text-left">
+                <div class="text-left flex-1">
                    <p class="text-xs font-black uppercase tracking-widest">Low Stock Scanner</p>
-                   <p class="text-[9px] text-white/40">8 Items require replenishment</p>
+                   <p class="text-[9px] text-white/40">{{ stats[3].value }} Items require replenishment</p>
                 </div>
+                <i class="mdi mdi-chevron-right text-white/20 group-hover/btn:translate-x-1 transition-transform"></i>
+             </button>
+             <button @click="router.push('/stores/defective')" class="w-full p-5 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex items-center gap-4 transition-all group/btn">
+                <i class="mdi mdi-alert-box text-2xl text-amber-400"></i>
+                <div class="text-left flex-1">
+                   <p class="text-xs font-black uppercase tracking-widest">Quarantine Stock</p>
+                   <p class="text-[9px] text-white/40">Report damage or defects</p>
+                </div>
+                <i class="mdi mdi-chevron-right text-white/20 group-hover/btn:translate-x-1 transition-transform"></i>
              </button>
           </div>
         </div>
@@ -155,7 +169,7 @@ const stats = computed(() => {
   const liveAssets = inventory.value.filter(i => i.quantity_on_hand > 0).length
   const valuation = inventory.value.reduce((acc, i) => acc + (i.quantity_on_hand * i.unit_cost), 0)
   const activeReservations = inventory.value.reduce((acc, i) => acc + i.quantity_reserved, 0)
-  const lowStockCount = inventory.value.filter(i => i.quantity_on_hand <= i.min_stock_level && i.min_stock_level > 0).length
+  const lowStockCount = inventory.value.filter(i => i.available <= i.min_stock_level && i.min_stock_level > 0).length
 
   return [
     { label: 'Available Materials', value: totalSKUs, trend: `${liveAssets} Items in Stock`, trendColor: 'text-emerald-500 border-emerald-500/20', icon: 'mdi-package-variant-closed' },

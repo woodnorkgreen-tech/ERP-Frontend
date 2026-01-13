@@ -42,10 +42,10 @@
                     <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Description</th>
                     <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
                     <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit Price (KES)</th>
-                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Base Total (KES)</th>
+                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Unit Price</th>
+                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Base Total</th>
                     <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Margin %</th>
-                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Final Price (KES)</th>
+                    <th class="text-left py-2 text-gray-700 dark:text-gray-300 font-medium">Final Price</th>
                   </tr>
                 </thead>
                 <tbody>

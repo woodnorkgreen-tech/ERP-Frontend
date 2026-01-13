@@ -21,6 +21,10 @@
           <i class="mdi mdi-layers-minus text-xl transition-transform group-hover:scale-110"></i>
           BATCH ISSUANCE
         </button>
+        <button @click="router.push('/stores/reports')" class="flex items-center gap-2 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-200 text-slate-500 rounded-2xl shadow-sm hover:scale-110 active:scale-95 transition-all font-bold text-sm group">
+          <i class="mdi mdi-chart-box-outline text-xl transition-transform group-hover:scale-110"></i>
+          REPORTS
+        </button>
         <button @click="showForm = true" class="flex items-center gap-2 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-lg shadow-blue-500/20 transition-all font-bold text-sm group">
           <i class="mdi mdi-plus-circle-outline text-xl transition-transform group-hover:rotate-90"></i>
           ADD NEW MATERIAL
@@ -82,6 +86,8 @@
                 @view="handleView"
                 @edit="handleEdit"
                 @checkIn="handleCheckIn"
+                @markDefective="handleMarkDefective"
+                @updateStockSettings="handleUpdateStockSettings"
                 @delete="handleDelete"
             />
         </div>
@@ -113,6 +119,15 @@
         @success="handleCheckInSuccess"
       />
     </Teleport>
+
+    <Teleport to="body">
+      <StockSettingsModal
+        v-if="showSettings && settingsMaterial"
+        :material="settingsMaterial"
+        @close="showSettings = false"
+        @success="handleSettingsSuccess"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -128,6 +143,7 @@ import SearchFilters from '@/modules/materials-library/components/SearchFilters.
 import MaterialDetailsModal from '@/modules/materials-library/components/MaterialDetailsModal.vue'
 import MaterialFormModal from '@/modules/materials-library/components/MaterialForm/MaterialFormModal.vue'
 import QuickCheckInModal from '../../components/QuickCheckInModal.vue'
+import StockSettingsModal from '../../components/StockSettingsModal.vue'
 
 const router = useRouter()
 const { user } = useAuth()
@@ -146,9 +162,11 @@ const filters = reactive({
 const showDetails = ref(false)
 const showForm = ref(false)
 const showCheckIn = ref(false)
+const showSettings = ref(false)
 const selectedMaterial = ref<any>(null)
 const editingMaterial = ref<any>(null)
 const checkInMaterial = ref<any>(null)
+const settingsMaterial = ref<any>(null)
 
 const handleFilterChange = () => {
     fetchInventory(filters)
@@ -167,6 +185,24 @@ const handleEdit = (item: any) => {
 const handleCheckIn = (item: any) => {
     checkInMaterial.value = item
     showCheckIn.value = true
+}
+
+const handleMarkDefective = (item: any) => {
+    router.push({
+        path: '/stores/defective',
+        query: { material_id: item.id }
+    })
+}
+
+const handleUpdateStockSettings = (item: any) => {
+    settingsMaterial.value = item
+    showSettings.value = true
+}
+
+const handleSettingsSuccess = () => {
+    showSettings.value = false
+    settingsMaterial.value = null
+    fetchInventory(filters)
 }
 
 const handleCheckInSuccess = () => {

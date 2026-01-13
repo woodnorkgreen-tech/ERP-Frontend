@@ -62,6 +62,12 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         name: 'stores-alerts',
                         component: () => import('./views/stores/Alerts.vue'),
                         meta: { requiresAuth: true, title: 'Alerts' }
+                    },
+                    {
+                        path: 'reports',
+                        name: 'stores-reports',
+                        component: () => import('./views/stores/Reports.vue'),
+                        meta: { requiresAuth: true, title: 'Inventory Reports' }
                     }
                 ]
             },

@@ -15,8 +15,8 @@
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Type</th>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate</th>
+            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total</th>
           </tr>
         </thead>
         <tbody>

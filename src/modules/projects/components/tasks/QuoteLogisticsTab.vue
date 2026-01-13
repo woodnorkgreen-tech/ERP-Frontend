@@ -16,23 +16,23 @@
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Unit</th>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Qty</th>
-            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate (KES)</th>
-            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total (KES)</th>
+            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Rate</th>
+            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Total</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="logistics in logistics" :key="logistics.id" class="border-t border-gray-200 dark:border-gray-700">
-            <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ logistics.vehicleReg }}</td>
+          <tr v-for="item in logistics" :key="item.id" class="border-t border-gray-200 dark:border-gray-700">
+            <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ item.vehicleReg }}</td>
             <td class="py-3 px-4">
               <div class="flex items-center space-x-2">
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logistics.description }}</span>
-                <span v-if="logistics.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ item.description }}</span>
+                <span v-if="item.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
               </div>
             </td>
-            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.unit }}</td>
-            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ logistics.quantity }}</td>
-            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(logistics.unitRate) }}</td>
-            <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(logistics.amount) }}</td>
+            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ item.unit }}</td>
+            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ item.quantity }}</td>
+            <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ formatCurrency(item.unitRate) }}</td>
+            <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.amount) }}</td>
           </tr>
           <tr v-if="!logistics || logistics.length === 0">
             <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-400 italic">

@@ -84,8 +84,14 @@
                     </button>
                   </template>
                   <template v-else>
-                    <button v-if="hasStockData" @click="$emit('checkIn', material)" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-4" title="Quick Stock Add">
+                    <button v-if="hasStockData" @click="$emit('checkIn', material)" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-2" title="Quick Stock Add">
                       <i class="mdi mdi-plus-box-outline text-lg"></i>
+                    </button>
+                    <button v-if="hasStockData" @click="$emit('markDefective', material)" class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 mr-2" title="Report Defect">
+                      <i class="mdi mdi-alert-octagon-outline text-lg"></i>
+                    </button>
+                    <button v-if="hasStockData" @click="$emit('updateStockSettings', material)" class="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 mr-4" title="Inventory Policy">
+                      <i class="mdi mdi-cog-outline text-lg"></i>
                     </button>
                     <button @click="$emit('view', material)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                       View
@@ -129,6 +135,8 @@ defineEmits<{
   (e: 'view', material: LibraryMaterial): void;
   (e: 'edit', material: LibraryMaterial): void;
   (e: 'checkIn', material: LibraryMaterial): void;
+  (e: 'markDefective', material: LibraryMaterial): void;
+  (e: 'updateStockSettings', material: LibraryMaterial): void;
   (e: 'delete', id: number): void;
   (e: 'restore', id: number): void;
   (e: 'forceDelete', id: number): void;

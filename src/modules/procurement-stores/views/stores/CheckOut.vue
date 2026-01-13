@@ -30,8 +30,8 @@
                   class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
                 >
                   <option value="" disabled>Select Project...</option>
-                  <option v-for="project in projects" :key="project.id" :value="project.id">
-                    {{ project.project_code || 'PRJ' }} - {{ project.name }}
+                  <option v-for="project in relevantProjects" :key="project.id" :value="project.id">
+                    {{ project.project_id }} - {{ project.enquiry?.title }}
                   </option>
                 </select>
                 <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -141,8 +141,8 @@
                      <i class="mdi mdi-briefcase-variant text-xl"></i>
                    </div>
                    <div>
-                     <p class="text-xs font-black truncate max-w-[150px]">{{ selectedProject?.name || 'Select Project' }}</p>
-                     <p class="text-[9px] text-white/40 uppercase font-black">Ref: {{ selectedProject?.project_code || '---' }}</p>
+                     <p class="text-xs font-black truncate max-w-[150px]">{{ selectedProject?.enquiry?.title || 'Select Project' }}</p>
+                     <p class="text-[9px] text-white/40 uppercase font-black">Ref: {{ selectedProject?.project_id || '---' }}</p>
                    </div>
                  </div>
                </div>
@@ -201,6 +201,12 @@ const fetchProjects = async () => {
         console.error('Failed to fetch projects:', err)
     }
 }
+
+const relevantProjects = computed(() => {
+    return projects.value.filter(p => 
+        p.project_id?.startsWith('WNG')
+    )
+})
 
 const submitCheckOut = async () => {
   submitting.value = true
