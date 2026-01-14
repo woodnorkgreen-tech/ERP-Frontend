@@ -114,6 +114,7 @@
           :materials="materials"
           :loading="loading"
           :showTrashed="showTrashed"
+          :canDelete="isSuperAdmin"
           @view="handleView"
           @edit="handleEdit"
           @delete="handleDelete"
@@ -157,7 +158,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 import { useMaterials } from '../composables/useMaterials';
 import { useWorkstations } from '../composables/useWorkstations';
 import WorkstationTabs from '../components/WorkstationTabs.vue';
@@ -167,6 +169,11 @@ import ImportWizard from '../components/ImportWizard/ImportWizard.vue';
 import MaterialFormModal from '../components/MaterialForm/MaterialFormModal.vue';
 import MaterialDetailsModal from '../components/MaterialDetailsModal.vue';
 import type { LibraryMaterial } from '../types/material';
+
+const { user } = useAuth();
+const isSuperAdmin = computed(() => {
+    return user.value?.roles?.includes('Super Admin') || false;
+});
 
 const { 
     materials, loading, error, fetchMaterials, fetchTrashedMaterials, 

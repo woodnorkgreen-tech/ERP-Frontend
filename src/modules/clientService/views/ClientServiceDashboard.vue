@@ -16,10 +16,6 @@
         </div>
         
         <div class="flex flex-wrap gap-4">
-          <button @click="showShareModal = true" class="flex items-center gap-3 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20 transition-all font-bold text-sm group">
-            <i class="mdi mdi-qrcode-scan text-xl transition-transform group-hover:scale-125"></i>
-            LEAD CAPTURE
-          </button>
           <button @click="router.push('/client-service/enquiries')" class="flex items-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-lg shadow-blue-500/20 transition-all font-bold text-sm group">
             <i class="mdi mdi-plus-circle-outline text-xl transition-transform group-hover:rotate-90"></i>
             NEW ENQUIRY
@@ -296,37 +292,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Lead Share Modal -->
-    <div v-if="showShareModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" @click="showShareModal = false"></div>
-      <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-bounce-in">
-        <div class="p-8 text-center">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl text-emerald-600 dark:text-emerald-400 mb-6 font-bold">
-            <i class="mdi mdi-share-variant text-3xl"></i>
-          </div>
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Lead Capture Form</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">Share this link or QR code on your social media and website to capture new leads directly.</p>
-
-          <!-- QR Code Display -->
-          <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl inline-block mb-8 border border-slate-100 dark:border-slate-700">
-            <qrcode-vue :value="leadFormUrl" :size="200" level="H" class="rounded-xl" />
-          </div>
-
-          <!-- URL Display -->
-          <div class="flex items-center gap-2 p-2 pl-4 bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8">
-            <span class="text-xs font-mono text-slate-500 truncate text-left flex-1">{{ leadFormUrl }}</span>
-            <button @click="copyLink" class="px-4 py-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-sm hover:scale-105 active:scale-95 transition-all">
-              Copy
-            </button>
-          </div>
-
-          <button @click="showShareModal = false" class="w-full py-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-            Close Panel
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -338,7 +303,6 @@ import { useEnquiries } from '../composables/useEnquiries'
 import { useProjects } from '../composables/useProjects'
 import { useProjectsStore } from '@/stores/projects'
 import Chart from 'chart.js/auto'
-import QrcodeVue from 'qrcode.vue'
 
 const router = useRouter()
 const { totalClients, activeClients, fetchClients, clients } = useClients()
@@ -348,15 +312,6 @@ const projectsStore = useProjectsStore()
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 let leadChart: Chart | null = null
-
-// Lead Sharing
-const showShareModal = ref(false)
-const leadFormUrl = ref(`${window.location.origin}/leads/new?source=dashboard_share`)
-
-const copyLink = () => {
-  navigator.clipboard.writeText(leadFormUrl.value)
-  // Optional: add a tiny toast here
-}
 
 const recentEnquiries = computed(() => {
   return [...enquiries.value]

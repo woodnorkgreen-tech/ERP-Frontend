@@ -73,17 +73,14 @@
                 </select>
               </td>
               <td class="py-3 px-6 text-right">
-                <div class="relative max-w-[150px] ml-auto">
-                    <input
-                    v-model.number="expense.amount"
-                    type="number"
-                    step="1"
-                    min="0"
-                    placeholder="0"
-                    class="w-full text-right px-0 py-1.5 bg-transparent border-0 border-b border-transparent group-hover:border-gray-200 focus:border-green-500 focus:ring-0 font-mono text-sm font-black text-gray-900 dark:text-white"
-                    />
-                    <span class="absolute right-full top-1.5 mr-2 text-xs text-gray-400 font-medium pointer-events-none">KES</span>
-                </div>
+                <input
+                  v-model.number="expense.amount"
+                  type="number"
+                  step="1"
+                  min="0"
+                  placeholder="0"
+                  class="w-full text-right px-0 py-1.5 bg-transparent border-0 border-b border-transparent group-hover:border-gray-200 focus:border-green-500 focus:ring-0 font-mono text-sm font-black text-gray-900 dark:text-white"
+                />
               </td>
               <td class="py-3 px-4 text-center">
                 <button

@@ -134,14 +134,13 @@
 
               <!-- Cost -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Unit Production Cost (KES)</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Unit Production Cost</label>
                 <div class="relative group">
-                  <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">KES</div>
                   <input 
                     type="number" 
                     step="0.01" 
                     v-model.number="form.unit_cost" 
-                    class="w-full pl-12 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                   >
                 </div>
               </div>

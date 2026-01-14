@@ -14,7 +14,7 @@
           <tr>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Description</th>
             <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Category</th>
-            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Amount (KES)</th>
+            <th class="text-left py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Amount</th>
           </tr>
         </thead>
         <tbody>

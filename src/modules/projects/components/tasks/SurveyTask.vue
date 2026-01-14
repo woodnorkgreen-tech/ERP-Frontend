@@ -1237,6 +1237,7 @@ const isSavingDraft = ref(false)
 const showSkipModal = ref(false)
 const skipReason = ref('')
 const isSkipping = ref(false)
+const surveyId = ref<number | null>(null)
 
 const handleSkipTask = async () => {
     if (!skipReason.value.trim()) return
@@ -1346,6 +1347,10 @@ const saveSurveyData = async (data: Record<string, unknown>, isDraft = false) =>
     }
 
     const response = await api.post('/api/projects/site-surveys', payload)
+    const savedData = response.data.data || response.data
+    if (savedData && savedData.id) {
+        surveyId.value = savedData.id
+    }
     return response.data
   } catch (error: unknown) {
     const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
@@ -1467,7 +1472,7 @@ const loadSurveyData = async () => {
     if (existingData) {
       // Populate form with existing data
       formData.value = {
-        site_visit_date: existingData.site_visit_date || '',
+        site_visit_date: formatToDate(existingData.site_visit_date),
         location: existingData.location || '',
         client_name: existingData.client_name || '',
         attendees: Array.isArray(existingData.attendees) ? existingData.attendees : [],
@@ -1497,8 +1502,8 @@ const loadSurveyData = async () => {
         safety_conditions: existingData.safety_conditions || '',
         potential_hazards: existingData.potential_hazards || '',
         safety_requirements: existingData.safety_requirements || '',
-        set_up_date: existingData.set_up_date || '',
-        set_down_date: existingData.set_down_date || '',
+        set_up_date: formatToDateTimeLocal(existingData.set_up_date),
+        set_down_date: formatToDateTimeLocal(existingData.set_down_date),
         additional_notes: existingData.additional_notes || '',
         special_requests: existingData.special_requests || '',
         action_items: Array.isArray(existingData.action_items) ? existingData.action_items : [],
@@ -1507,6 +1512,7 @@ const loadSurveyData = async () => {
       }
 
       // Populate text areas for attendees and action items
+      surveyId.value = existingData.id
       const attendeesArray = Array.isArray(existingData.attendees) ? existingData.attendees : []
       const actionItemsArray = Array.isArray(existingData.action_items) ? existingData.action_items : []
       attendeesText.value = attendeesArray.join('\n')
@@ -1514,6 +1520,7 @@ const loadSurveyData = async () => {
       
       // Load photos
       surveyPhotos.value = existingData.survey_photos || []
+      console.log('[DEBUG] SurveyTask: Loaded existing survey ID:', surveyId.value)
     } else {
       // Reset form for new task
       formData.value = {
@@ -1794,6 +1801,35 @@ const getPhotoUrl = (photo: any) => {
   }
   
   return ''
+}
+
+// Date formatting helpers for inputs
+const formatToDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    return date.toISOString().split('T')[0]
+  } catch (e) {
+    return ''
+  }
+}
+
+const formatToDateTimeLocal = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const pad = (num: number) => num.toString().padStart(2, '0')
+    const YYYY = date.getFullYear()
+    const MM = pad(date.getMonth() + 1)
+    const DD = pad(date.getDate())
+    const HH = pad(date.getHours())
+    const mm = pad(date.getMinutes())
+    return `${YYYY}-${MM}-${DD}T${HH}:${mm}`
+  } catch (e) {
+    return ''
+  }
 }
 const handleImageError = (e: Event) => {
   console.error('Failed to load image:', (e.target as HTMLImageElement).src)

@@ -317,6 +317,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
                 </button>
+                <button
+                  v-if="transaction.can_delete"
+                  @click="deleteDisbursement(transaction.original_data)"
+                  class="p-1 text-gray-400 hover:text-red-700 dark:hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                  title="Delete disbursement"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -406,6 +416,7 @@ import type { PettyCashDisbursement, TransactionFilters } from '../types/pettyCa
 interface Emits {
   (e: 'edit-disbursement', disbursement: PettyCashDisbursement): void
   (e: 'void-disbursement', disbursement: PettyCashDisbursement): void
+  (e: 'delete-disbursement', disbursement: PettyCashDisbursement): void
 }
 
 const emit = defineEmits<Emits>()
@@ -455,6 +466,7 @@ const allTransactionsRaw = computed(() => {
     project_name?: string
     can_edit?: boolean
     can_void?: boolean
+    can_delete?: boolean
     top_up_id?: number
     original_data: any
   }> = []
@@ -488,6 +500,7 @@ const allTransactionsRaw = computed(() => {
       project_name: disbursement.project_name,
       can_edit: disbursement.can_edit !== false, // Allow editing unless explicitly disabled
       can_void: disbursement.can_void !== false, // Allow voiding unless explicitly disabled
+      can_delete: true, // Allow deleting
       top_up_id: disbursement.top_up_id,
       original_data: disbursement
     })
@@ -647,6 +660,10 @@ const editDisbursement = (disbursement: PettyCashDisbursement) => {
 
 const voidDisbursement = (disbursement: PettyCashDisbursement) => {
   emit('void-disbursement', disbursement)
+}
+
+const deleteDisbursement = (disbursement: PettyCashDisbursement) => {
+  emit('delete-disbursement', disbursement)
 }
 
 // Inline editing methods

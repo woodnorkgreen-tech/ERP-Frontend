@@ -151,20 +151,15 @@
 
                   <!-- Unit Price Input -->
                   <td class="border-r border-gray-200 dark:border-gray-700 px-2 py-1 text-right bg-white dark:bg-gray-800">
-                     <div class="relative group">
-                        <input
-                           v-model.number="material.unitPrice"
-                           type="number"
-                           step="0.01"
-                           min="0"
-                           class="w-full text-right px-2 py-1.5 text-sm font-mono border border-transparent hover:border-gray-300 focus:border-blue-500 rounded bg-transparent focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-all outline-none focus:ring-2 focus:ring-blue-500/20 shadow-none z-10 relative"
-                           placeholder="0.00"
-                           @input="calculateMaterialTotal(material)"
-                        />
-                        <span class="absolute right-2 top-1.5 text-gray-400 text-xs pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-0">
-                           KES
-                        </span>
-                     </div>
+                      <input
+                         v-model.number="material.unitPrice"
+                         type="number"
+                         step="0.01"
+                         min="0"
+                         class="w-full text-right px-2 py-1.5 text-sm font-mono border border-transparent hover:border-gray-300 focus:border-blue-500 rounded bg-transparent focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-white transition-all outline-none focus:ring-2 focus:ring-blue-500/20 shadow-none z-10 relative"
+                         placeholder="0.00"
+                         @input="calculateMaterialTotal(material)"
+                      />
                   </td>
 
                   <!-- Total -->

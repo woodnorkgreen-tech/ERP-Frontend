@@ -1,12 +1,13 @@
 import { ref, computed } from 'vue'
 
 // Permission types for petty cash module
-export type PettyCashPermission = 
+export type PettyCashPermission =
   | 'petty_cash.view'
   | 'petty_cash.create_top_up'
   | 'petty_cash.create_disbursement'
   | 'petty_cash.edit_disbursement'
   | 'petty_cash.void_disbursement'
+  | 'petty_cash.delete_disbursement'
   | 'petty_cash.view_balance'
   | 'petty_cash.recalculate_balance'
   | 'petty_cash.view_reports'
@@ -18,7 +19,7 @@ export type PettyCashPermission =
 export const PERMISSION_GROUPS = {
   VIEW: ['petty_cash.view', 'petty_cash.view_balance'],
   CREATE: ['petty_cash.create_top_up', 'petty_cash.create_disbursement'],
-  EDIT: ['petty_cash.edit_disbursement', 'petty_cash.void_disbursement'],
+  EDIT: ['petty_cash.edit_disbursement', 'petty_cash.void_disbursement', 'petty_cash.delete_disbursement'],
   ADMIN: ['petty_cash.recalculate_balance', 'petty_cash.manage_settings'],
   REPORTS: ['petty_cash.view_reports', 'petty_cash.export_data']
 } as const
@@ -53,6 +54,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
     'petty_cash.create_disbursement',
     'petty_cash.edit_disbursement',
     'petty_cash.void_disbursement',
+    'petty_cash.delete_disbursement',
     'petty_cash.view_balance',
     'petty_cash.recalculate_balance',
     'petty_cash.view_reports',
@@ -66,6 +68,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
     'petty_cash.create_disbursement',
     'petty_cash.edit_disbursement',
     'petty_cash.void_disbursement',
+    'petty_cash.delete_disbursement',
     'petty_cash.view_balance',
     'petty_cash.view_reports',
     'petty_cash.export_data',
@@ -159,6 +162,7 @@ export function usePermissions() {
   const canCreateDisbursement = computed(() => hasPermission('petty_cash.create_disbursement'))
   const canEditDisbursement = computed(() => hasPermission('petty_cash.edit_disbursement'))
   const canVoidDisbursement = computed(() => hasPermission('petty_cash.void_disbursement'))
+  const canDeleteDisbursement = computed(() => hasPermission('petty_cash.delete_disbursement'))
   const canViewBalance = computed(() => hasPermission('petty_cash.view_balance'))
   const canRecalculateBalance = computed(() => hasPermission('petty_cash.recalculate_balance'))
   const canExportData = computed(() => hasPermission('petty_cash.export_data'))
@@ -277,6 +281,7 @@ export function usePermissions() {
       'petty_cash.create_disbursement': 'Create Disbursements',
       'petty_cash.edit_disbursement': 'Edit Disbursements',
       'petty_cash.void_disbursement': 'Void Disbursements',
+      'petty_cash.delete_disbursement': 'Delete Disbursements',
       'petty_cash.view_balance': 'View Balance',
       'petty_cash.recalculate_balance': 'Recalculate Balance',
       'petty_cash.view_reports': 'View Reports',
@@ -307,7 +312,7 @@ export function usePermissions() {
     try {
       // Mock API call delay
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       // In real app, this would fetch fresh user data from API
       // For now, just simulate success
       console.log('Permissions refreshed')
@@ -354,6 +359,7 @@ export function usePermissions() {
     canCreateDisbursement,
     canEditDisbursement,
     canVoidDisbursement,
+    canDeleteDisbursement,
     canViewBalance,
     canRecalculateBalance,
     canExportData,
