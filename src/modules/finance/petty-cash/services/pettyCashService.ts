@@ -141,7 +141,7 @@ class PettyCashService {
       ...config
     }
 
-    let lastError: AxiosError | Error
+    let lastError: AxiosError | Error = new Error('Request failed')
     const retries = config?.retries || this.maxRetries
 
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -413,7 +413,7 @@ class PettyCashService {
   // Check if error is retryable (public method)
   isRetryableError(error: unknown): boolean {
     if (this.isEnhancedApiError(error)) {
-      return error.retryable
+      return !!error.retryable
     }
 
     // Default retry logic for non-enhanced errors
@@ -447,10 +447,10 @@ class PettyCashService {
   // Type guards
   private isEnhancedApiError(error: any): error is EnhancedApiError {
     return error &&
-           typeof error === 'object' &&
-           error.success === false &&
-           'timestamp' in error &&
-           'retryable' in error
+      typeof error === 'object' &&
+      error.success === false &&
+      'timestamp' in error &&
+      'retryable' in error
   }
 
   // Disbursement operations with permission validation
@@ -458,7 +458,7 @@ class PettyCashService {
     this.validatePermission('petty_cash.view', 'get disbursements')
 
     return this.makeRequest<DisbursementListResponse>('GET', '/disbursements', null, {
-      params: filters,
+      params: filters as Record<string, unknown>,
       timeout: 15000 // Shorter timeout for list operations
     })
   }
@@ -490,11 +490,17 @@ class PettyCashService {
     return this.makeRequest<DisbursementResponse>('POST', `/disbursements/${id}/void`, data)
   }
 
+  async deleteDisbursement(id: number): Promise<ApiResponse<null>> {
+    this.validatePermission('petty_cash.delete_disbursement', 'delete disbursement')
+
+    return this.makeRequest<ApiResponse<null>>('DELETE', `/disbursements/${id}`)
+  }
+
   // Top-up operations with permission validation
   async getTopUps(filters?: TopUpFilters & { page?: number }): Promise<TopUpListResponse> {
     this.validatePermission('petty_cash.view', 'get top-ups')
 
-    return this.makeRequest<TopUpListResponse>('GET', '/top-ups', null, { params: filters })
+    return this.makeRequest<TopUpListResponse>('GET', '/top-ups', null, { params: filters as Record<string, unknown> })
   }
 
   async getTopUp(id: number): Promise<TopUpResponse> {
@@ -555,7 +561,7 @@ class PettyCashService {
   async getBalanceTrends(days: number = 30): Promise<TrendsResponse> {
     this.validateAnyPermission(['petty_cash.view_balance', 'petty_cash.view_reports'], 'get balance trends')
 
-    return this.makeRequest<TrendsResponse>('GET', '/balance/trends', null, { params: { days } })
+    return this.makeRequest<TrendsResponse>('GET', '/balance/trends', null, { params: { days } as Record<string, unknown> })
   }
 
   async recalculateBalance(): Promise<RecalculateBalanceResponse> {
@@ -566,42 +572,48 @@ class PettyCashService {
 
   // Transaction operations
   async getTransactions(filters?: TransactionFilters & { page?: number }): Promise<TransactionListResponse> {
-    return this.makeRequest<TransactionListResponse>('GET', '/transactions', null, { params: filters })
+    return this.makeRequest<TransactionListResponse>('GET', '/transactions', null, { params: filters as Record<string, unknown> })
   }
 
   async searchTransactions(query: string, filters?: DisbursementFilters & { page?: number }): Promise<SearchResponse<PettyCashDisbursement>> {
     return this.makeRequest<SearchResponse<PettyCashDisbursement>>('GET', '/search', null, {
-      params: { query, ...filters }
+      params: { query, ...filters } as Record<string, unknown>
     })
   }
 
   async getRecentTransactions(limit: number = 10): Promise<RecentTransactionsResponse> {
-    return this.makeRequest<RecentTransactionsResponse>('GET', '/recent', null, { params: { limit } })
+    return this.makeRequest<RecentTransactionsResponse>('GET', '/recent', null, { params: { limit } as Record<string, unknown> })
   }
 
   // Analytics and reporting with permission validation
   async getSummary(filters?: DisbursementFilters): Promise<SummaryResponse> {
     this.validateAnyPermission(['petty_cash.view', 'petty_cash.view_reports'], 'get summary')
 
-    return this.makeRequest<SummaryResponse>('GET', '/summary', null, { params: filters })
+    return this.makeRequest<SummaryResponse>('GET', '/summary', null, { params: filters as Record<string, unknown> })
   }
 
   async getAnalytics(filters?: DisbursementFilters): Promise<AnalyticsResponse> {
     this.validatePermission('petty_cash.view_reports', 'get analytics')
 
-    return this.makeRequest<AnalyticsResponse>('GET', '/analytics', null, { params: filters })
+    return this.makeRequest<AnalyticsResponse>('GET', '/analytics', null, { params: filters as Record<string, unknown> })
   }
 
   async getStatistics(filters?: TopUpFilters): Promise<StatisticsResponse> {
     this.validatePermission('petty_cash.view_reports', 'get statistics')
 
-    return this.makeRequest<StatisticsResponse>('GET', '/statistics', null, { params: filters })
+    return this.makeRequest<StatisticsResponse>('GET', '/statistics', null, { params: filters as Record<string, unknown> })
   }
 
   async getPaymentMethodBreakdown(filters?: TopUpFilters): Promise<PaymentMethodsResponse> {
     this.validatePermission('petty_cash.view_reports', 'get payment method breakdown')
 
-    return this.makeRequest<PaymentMethodsResponse>('GET', '/payment-methods', null, { params: filters })
+    return this.makeRequest<PaymentMethodsResponse>('GET', '/payment-methods', null, { params: filters as Record<string, unknown> })
+  }
+
+  // Projects Integration
+  async getProjects(): Promise<ApiResponse<any[]>> {
+    // Fetch approved projects with WNG- prefix from Projects module
+    return api.get('/api/projects/approved-wng').then(res => res.data)
   }
 
   // Validation
@@ -610,7 +622,7 @@ class PettyCashService {
   }
 
   // Excel upload functionality
-  async uploadExcel(formData: FormData): Promise<ApiResponse> {
+  async uploadExcel(formData: FormData): Promise<ApiResponse<any>> {
     this.validatePermission('petty_cash.upload_excel', 'upload Excel file')
 
     try {
@@ -778,7 +790,7 @@ class PettyCashService {
     return error && typeof error === 'object' && error.success === false
   }
 
-  getValidationErrors(error: any): Record<string, string[]> {
+  getValidationErrors(error: any): Record<string, ReadonlyArray<string>> {
     if (this.isEnhancedApiError(error) && error.errors) {
       return error.errors
     }
@@ -812,12 +824,12 @@ class PettyCashService {
     return error?.response?.status === 422
   }
 
-  // Check if error indicates server issues
+  // Standard server error check
   isServerError(error: any): boolean {
     if (this.isEnhancedApiError(error)) {
-      return (error.status && error.status >= 500) || error.code?.includes('SERVER')
+      return !!((error.status && error.status >= 500) || error.code?.includes('SERVER'))
     }
-    return error?.response?.status >= 500
+    return !!(error?.response?.status >= 500)
   }
 
   // Check if error indicates network issues
@@ -828,7 +840,7 @@ class PettyCashService {
     return !error?.response
   }
 
-  // Get suggested action for error
+  // Standard action suggester
   getSuggestedAction(error: any): string {
     if (this.isPermissionError(error)) {
       return 'Contact your administrator for access permissions.'
@@ -850,20 +862,16 @@ class PettyCashService {
       return 'Please try again later or contact support if the problem persists.'
     }
 
-    if (this.isRetryableError(error)) {
-      return 'Please try again.'
-    }
-
     return 'Please contact support if the problem persists.'
   }
 
-  // Create standardized error response
-  createErrorResponse(error: any): ApiResult<never> {
+  // Standardization for error responses
+  createErrorResponse(error: any): never {
     const enhancedError: EnhancedApiError = this.isEnhancedApiError(error)
       ? error
       : this.transformError(error, { source: 'createErrorResponse' })
 
-    return Promise.reject(enhancedError)
+    throw enhancedError
   }
 
   // Utility method to handle common API patterns

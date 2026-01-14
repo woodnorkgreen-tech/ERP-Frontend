@@ -124,6 +124,7 @@ export interface PettyCashDisbursement {
   readonly status: StatusData
   readonly void_reason?: NullableString
   readonly voided_at?: DateData | null
+  readonly date_disbursed?: DateData | null
   readonly created_at: DateData
   readonly updated_at: DateData
 

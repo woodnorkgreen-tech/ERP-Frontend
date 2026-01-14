@@ -302,21 +302,95 @@
                 </p>
               </div>
 
-              <!-- Job Number -->
+              <!-- Date Disbursed -->
               <div>
-                <label for="job_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Job Number
+                <label for="date_disbursed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Date Disbursed <span class="text-red-500">*</span>
                 </label>
                 <input
-                  id="job_number"
-                  v-model="form.job_number"
-                  type="text"
+                  id="date_disbursed"
+                  v-model="form.date_disbursed"
+                  type="date"
                   :class="[
                     'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.job_number ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                    errors.date_disbursed ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   ]"
-                  placeholder="Optional job or reference number"
+                  required
                 />
+                <p v-if="errors.date_disbursed" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ errors.date_disbursed[0] }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Job Number with Autocomplete Row -->
+            <div class="grid grid-cols-1 gap-6">
+              <!-- Job Number with Autocomplete -->
+              <div>
+                <label for="job_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Job Number (WNG-prefix projects only)
+                </label>
+                <div class="relative">
+                  <input
+                    id="job_number"
+                    v-model="projectSearch"
+                    @input="onProjectInput"
+                    @focus="showProjectDropdown = true"
+                    @blur="hideProjectDropdown"
+                    type="text"
+                    :class="[
+                      'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                      errors.job_number ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                    ]"
+                    placeholder="Search for approved WNG projects..."
+                  />
+
+                  <!-- Enhanced Dropdown -->
+                  <div
+                    v-if="showProjectDropdown && projects.length"
+                    class="absolute z-20 mt-1 w-full bg-white dark:bg-gray-800 shadow-2xl max-h-72 rounded-xl py-2 text-base ring-1 ring-black ring-opacity-10 overflow-auto focus:outline-none sm:text-sm transition-all duration-200 ease-in-out border border-gray-100 dark:border-gray-700"
+                  >
+                    <!-- Header/Search status -->
+                    <div v-if="projectSearch" class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-50 dark:border-gray-700 mb-1">
+                      Search Results
+                    </div>
+                    <div v-else class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-50 dark:border-gray-700 mb-1">
+                      Approved Projects
+                    </div>
+
+                    <div
+                      v-for="project in filteredProjects"
+                      :key="project.id"
+                      @mousedown="selectProject(project)"
+                      class="group cursor-pointer select-none relative py-3 pl-4 pr-9 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150"
+                    >
+                      <div class="flex flex-col">
+                        <div class="flex items-center justify-between">
+                          <span class="font-bold text-blue-600 dark:text-blue-400 group-hover:text-blue-700">
+                            {{ project.job_number || project.project_id }}
+                          </span>
+                        </div>
+                        <span class="text-sm text-gray-600 dark:text-gray-300 mt-0.5 group-hover:text-gray-900 dark:group-hover:text-white truncate">
+                          {{ project.title || (project.enquiry?.title) }}
+                        </span>
+                      </div>
+                      <!-- Selection indicator (checkmark) -->
+                      <span v-if="form.job_number === (project.job_number || project.project_id)" class="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </div>
+
+                    <!-- No results state -->
+                    <div v-if="filteredProjects.length === 0" class="px-4 py-8 text-center">
+                      <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No matching approved projects found.</p>
+                    </div>
+                  </div>
+                </div>
                 <p v-if="errors.job_number" class="mt-2 text-sm text-red-600 dark:text-red-400">
                   {{ errors.job_number[0] }}
                 </p>
@@ -351,7 +425,9 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch, onMounted, nextTick } from 'vue'
+import { debounce } from 'lodash'
 import { usePettyCashStore } from '../stores/pettyCashStore'
+import { pettyCashService } from '../services/pettyCashService'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { defaultDisbursementFormData, mergeWithDefaults } from '../utils/defaults'
 import { validateDisbursementFormData } from '../utils/validation'
@@ -389,6 +465,7 @@ const modalError = ref<string | null>(null)
 const form = reactive({
   ...defaultDisbursementFormData,
   tax: '',
+  date_disbursed: new Date().toISOString().split('T')[0],
   account_id: null as number | null // Store account ID for backend
 } as any)
 
@@ -399,10 +476,17 @@ const errors = ref<Record<string, string[]>>({})
 const modalState = ref<'closed' | 'opening' | 'open' | 'closing'>('closed')
 
 // Account autocomplete
-const accounts = ref<Account[]>(accountsData.accounts)
+const accounts = ref<Account[]>(accountsData.accounts as any)
 const accountSearch = ref('')
 const showAccountDropdown = ref(false)
 const selectedAccount = ref<Account | null>(null)
+
+// Project autocomplete
+const projects = ref<any[]>([])
+const projectSearch = ref('')
+const debouncedProjectSearch = ref('')
+const showProjectDropdown = ref(false)
+const selectedProject = ref<any>(null)
 
 // Computed properties for current balance
 const currentBalance = computed(() => {
@@ -457,8 +541,20 @@ const isFormValid = computed(() => {
          form.description &&
          form.classification &&
          form.tax &&
+         form.date_disbursed &&
          currentBalance.value > 0 && // Ensure there's balance available
          (!requiresProject.value || form.project_name)
+})
+
+const filteredProjects = computed(() => {
+  const query = debouncedProjectSearch.value.toLowerCase()
+  if (!query) return projects.value.slice(0, 100) // Show all (up to 100) if no search
+  
+  return projects.value.filter(project => {
+    const jobId = (project.project_id || project.job_number || '').toLowerCase()
+    const title = (project.title || project.enquiry?.title || '').toLowerCase()
+    return jobId.includes(query) || title.includes(query)
+  }).slice(0, 100)
 })
 
 const filteredAccounts = computed(() => {
@@ -494,6 +590,40 @@ const selectAccount = (account: Account) => {
   form.account_id = account.id // Store account ID for backend
   showAccountDropdown.value = false
 }
+
+const onProjectInput = () => {
+  showProjectDropdown.value = true
+}
+
+const hideProjectDropdown = () => {
+  setTimeout(() => {
+    showProjectDropdown.value = false
+  }, 150)
+}
+
+const selectProject = (project: any) => {
+  selectedProject.value = project
+  const jobId = project.job_number || project.project_id
+  projectSearch.value = jobId
+  debouncedProjectSearch.value = jobId
+  form.job_number = jobId
+  
+  // If no project name is set, use project title
+  if (!form.project_name && (project.title || project.enquiry?.title)) {
+    form.project_name = project.title || project.enquiry?.title
+  }
+  
+  showProjectDropdown.value = false
+}
+
+// Debounce project search
+const updateDebouncedSearch = debounce((val: string) => {
+  debouncedProjectSearch.value = val
+}, 300)
+
+watch(projectSearch, (newVal) => {
+  updateDebouncedSearch(newVal)
+})
 
 const getTransactionCodePlaceholder = (): string => {
   switch (form.payment_method) {
@@ -551,6 +681,11 @@ const validateForm = (): boolean => {
       errors.value.classification = ['Invalid classification selected']
     }
 
+    // Validate date_disbursed
+    if (!form.date_disbursed) {
+      errors.value.date_disbursed = ['Date disbursed is required']
+    }
+
     // Validate tax
     if (!form.tax) {
       errors.value.tax = ['Tax option is required']
@@ -593,6 +728,11 @@ const resetForm = () => {
     accountSearch.value = ''
     selectedAccount.value = null
     showAccountDropdown.value = false
+    // Reset project autocomplete
+    projectSearch.value = ''
+    selectedProject.value = null
+    showProjectDropdown.value = false
+    form.date_disbursed = new Date().toISOString().split('T')[0]
   } catch (error) {
     console.error('Error resetting form:', error)
   }
@@ -610,10 +750,12 @@ const loadDisbursementData = () => {
       project_name: d.project_name || '',
       classification: d.classification.value,
       job_number: d.job_number || '',
+      date_disbursed: d.date_disbursed ? (typeof d.date_disbursed === 'string' ? d.date_disbursed : d.date_disbursed.raw.split(' ')[0]) : new Date().toISOString().split('T')[0],
       tax: 'etr' // Default to ETR for existing disbursements
     })
-    // Set account search to match the account name
+    // Set autocomplete search values
     accountSearch.value = d.account
+    projectSearch.value = d.job_number || ''
   }
 }
 
@@ -645,13 +787,27 @@ const initializeModal = async () => {
       resetForm()
     }
     
-    await store.fetchAvailableTopUps()
+    await Promise.all([
+      store.fetchAvailableTopUps(),
+      fetchProjects()
+    ])
     isInitialized.value = true
     modalState.value = 'open'
   } catch (error) {
     console.error('Error initializing modal:', error)
     modalError.value = 'Failed to initialize modal'
     modalState.value = 'closed'
+  }
+}
+
+const fetchProjects = async () => {
+  try {
+    const response = await pettyCashService.getProjects()
+    if (response.success && Array.isArray(response.data)) {
+      projects.value = response.data
+    }
+  } catch (error) {
+    console.error('Error fetching projects:', error)
   }
 }
 
@@ -672,6 +828,7 @@ const handleSubmit = async () => {
       project_name: form.project_name || undefined,
       classification: form.classification, // This needs to match backend validation
       job_number: form.job_number || undefined,
+      date_disbursed: form.date_disbursed,
       payment_method: 'cash', // Default payment method since we removed the field
       transaction_code: undefined, // No transaction code needed for cash
       // Add a default top_up_id for backend compatibility
@@ -683,9 +840,9 @@ const handleSubmit = async () => {
     let result: PettyCashDisbursement
 
     if (props.editMode && props.disbursement) {
-      result = await store.updateDisbursement(props.disbursement.id, formData as any)
+      result = await store.updateDisbursement(props.disbursement.id, formData as any) as unknown as PettyCashDisbursement
     } else {
-      result = await store.createDisbursement(formData as any)
+      result = await store.createDisbursement(formData as any) as unknown as PettyCashDisbursement
     }
 
     emit('success', result)

@@ -77,7 +77,7 @@
               <BalanceCard 
                 :balance="currentBalance"
                 :loading="loading.balance"
-                :error="store.error?.balance"
+                :error="store.errors?.balance"
                 @add-topup="openTopUpModal"
                 @new-disbursement="openDisbursementModal"
                 @refresh="store.fetchCurrentBalance"
@@ -213,6 +213,7 @@
           <TransactionList 
             @edit-disbursement="editDisbursement"
             @void-disbursement="voidDisbursement"
+            @delete-disbursement="deleteDisbursement"
           />
         </ErrorBoundary>
         </div>
@@ -332,6 +333,58 @@
           </div>
         </div>
     </div>
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      aria-labelledby="delete-modal-title"
+      role="dialog"
+      aria-modal="true"
+      @click.self="closeDeleteModal"
+      style="background-color: rgba(0, 0, 0, 0.5);"
+    >
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full p-6">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="delete-modal-title">
+                Delete Disbursement
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Are you sure you want to <strong>delete</strong> this disbursement? This will permanently remove it from the system and restore the amount to the available balance. 
+                </p>
+                <p class="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+            <button
+              @click="confirmDelete"
+              :disabled="isDeleting"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-700 text-base font-medium text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg v-if="isDeleting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isDeleting ? 'Deleting...' : 'Delete Permanently' }}
+            </button>
+            <button
+              @click="closeDeleteModal"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+    </div>
   </ErrorBoundary>
 </template>
 
@@ -361,9 +414,11 @@ const showTopUpModal = ref(false)
 const showDisbursementModal = ref(false)
 const showEditDisbursementModal = ref(false)
 const showVoidModal = ref(false)
+const showDeleteModal = ref(false)
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
 const voidReason = ref('')
 const isVoiding = ref(false)
+const isDeleting = ref(false)
 
 // Modal conflict prevention
 const activeModal = ref<string | null>(null)
@@ -403,7 +458,13 @@ const safeSummary = computed(() => {
       total_top_ups: 0,
       total_disbursements: 0,
       transaction_count: 0,
-      average_disbursement: 0
+      average_disbursement: 0,
+      top_up_count: 0,
+      disbursement_count: 0,
+      net_balance: 0,
+      average_top_up: 0,
+      current_balance: 0,
+      balance_status: 'normal'
     }
   } catch (error) {
     // console.warn('Error accessing summary data:', error)
@@ -411,7 +472,13 @@ const safeSummary = computed(() => {
       total_top_ups: 0,
       total_disbursements: 0,
       transaction_count: 0,
-      average_disbursement: 0
+      average_disbursement: 0,
+      top_up_count: 0,
+      disbursement_count: 0,
+      net_balance: 0,
+      average_top_up: 0,
+      current_balance: 0,
+      balance_status: 'normal'
     }
   }
 })
@@ -635,6 +702,27 @@ const voidDisbursement = async (disbursement: PettyCashDisbursement) => {
   }
 }
 
+const deleteDisbursement = async (disbursement: PettyCashDisbursement) => {
+  try {
+    // Check permissions before opening delete modal
+    permissions.requirePermission('petty_cash.delete_disbursement')
+    
+    // Prevent modal conflicts
+    if (activeModal.value && activeModal.value !== 'delete') {
+      console.warn('Another modal is already open:', activeModal.value)
+      return
+    }
+    
+    activeModal.value = 'delete'
+    selectedDisbursement.value = disbursement
+    showDeleteModal.value = true
+    await nextTick()
+  } catch (error: any) {
+    console.error('Error opening delete modal:', error)
+    handleError(error, { context: 'open_delete_modal' })
+  }
+}
+
 const closeEditModal = async () => {
   try {
     showEditDisbursementModal.value = false
@@ -664,6 +752,20 @@ const closeVoidModal = async () => {
   }
 }
 
+const closeDeleteModal = async () => {
+  try {
+    showDeleteModal.value = false
+    selectedDisbursement.value = null
+    if (activeModal.value === 'delete') {
+      activeModal.value = null
+    }
+    await nextTick() // Ensure DOM is updated
+  } catch (error: any) {
+    console.error('Error closing delete modal:', error)
+    handleError(error, { context: 'close_delete_modal' })
+  }
+}
+
 const confirmVoid = async () => {
   if (!selectedDisbursement.value || !voidReason.value) return
   
@@ -678,6 +780,24 @@ const confirmVoid = async () => {
     handleError(error, { context: 'void_disbursement' })
   } finally {
     isVoiding.value = false
+  }
+}
+
+const confirmDelete = async () => {
+  if (!selectedDisbursement.value) return
+  
+  isDeleting.value = true
+  try {
+    await withErrorHandling(async () => {
+      await store.deleteDisbursement(selectedDisbursement.value!.id)
+    }, { context: 'delete_disbursement' })
+    
+    await closeDeleteModal()
+    // Data refresh is handled by the store
+  } catch (error: any) {
+    handleError(error, { context: 'delete_disbursement' })
+  } finally {
+    isDeleting.value = false
   }
 }
 

@@ -1237,6 +1237,7 @@ const isSavingDraft = ref(false)
 const showSkipModal = ref(false)
 const skipReason = ref('')
 const isSkipping = ref(false)
+const surveyId = ref<number | null>(null)
 
 const handleSkipTask = async () => {
     if (!skipReason.value.trim()) return
@@ -1346,6 +1347,10 @@ const saveSurveyData = async (data: Record<string, unknown>, isDraft = false) =>
     }
 
     const response = await api.post('/api/projects/site-surveys', payload)
+    const savedData = response.data.data || response.data
+    if (savedData && savedData.id) {
+        surveyId.value = savedData.id
+    }
     return response.data
   } catch (error: unknown) {
     const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
@@ -1507,6 +1512,7 @@ const loadSurveyData = async () => {
       }
 
       // Populate text areas for attendees and action items
+      surveyId.value = existingData.id
       const attendeesArray = Array.isArray(existingData.attendees) ? existingData.attendees : []
       const actionItemsArray = Array.isArray(existingData.action_items) ? existingData.action_items : []
       attendeesText.value = attendeesArray.join('\n')
@@ -1514,6 +1520,7 @@ const loadSurveyData = async () => {
       
       // Load photos
       surveyPhotos.value = existingData.survey_photos || []
+      console.log('[DEBUG] SurveyTask: Loaded existing survey ID:', surveyId.value)
     } else {
       // Reset form for new task
       formData.value = {

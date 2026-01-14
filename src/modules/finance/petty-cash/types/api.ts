@@ -1,6 +1,6 @@
-import type { 
-  PettyCashTopUp, 
-  PettyCashDisbursement, 
+import type {
+  PettyCashTopUp,
+  PettyCashDisbursement,
   PettyCashBalance,
   TransactionSummary,
   SpendingAnalytics,
@@ -55,13 +55,13 @@ export interface SearchResponse<T> extends PaginatedResponse<T> {
 }
 
 // Enhanced specific API response types with strict typing
-export interface DisbursementListResponse extends PaginatedResponse<PettyCashDisbursement> {}
-export interface TopUpListResponse extends PaginatedResponse<PettyCashTopUp> {}
-export interface TransactionListResponse extends PaginatedResponse<PettyCashTopUp> {}
+export interface DisbursementListResponse extends PaginatedResponse<PettyCashDisbursement> { }
+export interface TopUpListResponse extends PaginatedResponse<PettyCashTopUp> { }
+export interface TransactionListResponse extends PaginatedResponse<PettyCashTopUp> { }
 
-export interface DisbursementResponse extends ApiResponse<PettyCashDisbursement> {}
-export interface TopUpResponse extends ApiResponse<PettyCashTopUp> {}
-export interface BalanceResponse extends ApiResponse<PettyCashBalance> {}
+export interface DisbursementResponse extends ApiResponse<PettyCashDisbursement> { }
+export interface TopUpResponse extends ApiResponse<PettyCashTopUp> { }
+export interface BalanceResponse extends ApiResponse<PettyCashBalance> { }
 
 export interface SummaryResponse extends ApiResponse<TransactionSummary> {
   readonly filters?: Record<string, unknown> | null
@@ -82,10 +82,10 @@ export interface RecentTransactionsResponse extends ApiResponse<ReadonlyArray<Re
   readonly total_available: number
 }
 
-export interface ChartDataResponse extends ApiResponse<ChartData> {}
-export interface StatisticsResponse extends ApiResponse<TopUpStatistics> {}
-export interface PaymentMethodsResponse extends ApiResponse<PaymentMethodBreakdown> {}
-export interface BalanceCheckResponse extends ApiResponse<BalanceCheck> {}
+export interface ChartDataResponse extends ApiResponse<ChartData> { }
+export interface StatisticsResponse extends ApiResponse<TopUpStatistics> { }
+export interface PaymentMethodsResponse extends ApiResponse<PaymentMethodBreakdown> { }
+export interface BalanceCheckResponse extends ApiResponse<BalanceCheck> { }
 
 export interface AvailableTopUpsResponse extends ApiResponse<ReadonlyArray<PettyCashTopUp>> {
   readonly total_available_balance: number
@@ -96,7 +96,7 @@ export interface AvailableBalanceResponse extends ApiResponse<{
   readonly top_up_id: number
   readonly available_balance: number
   readonly last_updated: string
-}> {}
+}> { }
 
 export interface ValidationResponse extends ApiResponse<null> {
   readonly errors?: Record<string, ReadonlyArray<string>> | null
@@ -109,24 +109,24 @@ export interface RecalculateBalanceResponse extends ApiResponse<{
   readonly difference: number
   readonly recalculated_at: string
   readonly transactions_processed: number
-}> {}
+}> { }
 
 export interface TrendsResponse extends ApiResponse<{
   readonly current: PettyCashBalance
   readonly trend: 'increasing' | 'decreasing' | 'stable'
   readonly days_analyzed: number
   readonly trend_percentage: number
-}> {}
+}> { }
 
 // Enhanced error response interface with comprehensive error information
 export interface ApiError {
   readonly success: false
-  readonly message: string
+  message: string
   readonly error?: NullableString
-  readonly errors?: Record<string, ReadonlyArray<string>> | null
+  errors?: Record<string, ReadonlyArray<string>> | null
   readonly code?: NullableString
   readonly status?: NullableNumber
-  readonly timestamp: string
+  readonly timestamp: Date
   readonly request_id?: NullableString
   readonly trace_id?: NullableString
 }
@@ -157,6 +157,7 @@ export interface RequestConfig {
   readonly cache?: boolean
   readonly cache_ttl?: number
   readonly priority?: 'low' | 'normal' | 'high'
+  readonly params?: Record<string, unknown>
   readonly abort_signal?: AbortSignal
 }
 

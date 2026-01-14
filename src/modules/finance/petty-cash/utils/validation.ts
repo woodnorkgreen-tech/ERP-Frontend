@@ -15,10 +15,10 @@ import type {
     VoidDisbursementFormData
 } from '../types/forms'
 
-import type { 
-    ValidationError, 
+import type {
+    ValidationError,
     Result,
-    SafeArray 
+    SafeArray
 } from '../types/utils'
 import type {
     NullableString,
@@ -45,29 +45,29 @@ export interface ValidationContext {
 
 // Enhanced type guards for runtime validation with strict typing
 export const isValidPaymentMethod = (value: unknown): value is PaymentMethod => {
-    return typeof value === 'string' && 
-           (['cash', 'mpesa', 'bank_transfer', 'other'] as const).includes(value as PaymentMethod)
+    return typeof value === 'string' &&
+        (['cash', 'mpesa', 'bank_transfer', 'equity', 'stanbic', 'ncba', 'kcb', 'family', 'other'] as const).includes(value as PaymentMethod)
 }
 
 export const isValidClassification = (value: unknown): value is Classification => {
-    return typeof value === 'string' && 
-           (['agencies', 'admin', 'operations', 'other'] as const).includes(value as Classification)
+    return typeof value === 'string' &&
+        (['agencies', 'admin', 'operations', 'other'] as const).includes(value as Classification)
 }
 
 export const isValidBalanceStatus = (value: unknown): value is BalanceStatus => {
-    return typeof value === 'string' && 
-           (['normal', 'low', 'critical'] as const).includes(value as BalanceStatus)
+    return typeof value === 'string' &&
+        (['normal', 'low', 'critical'] as const).includes(value as BalanceStatus)
 }
 
 export const isValidDisbursementStatus = (value: unknown): value is DisbursementStatus => {
-    return typeof value === 'string' && 
-           (['active', 'voided'] as const).includes(value as DisbursementStatus)
+    return typeof value === 'string' &&
+        (['active', 'voided'] as const).includes(value as DisbursementStatus)
 }
 
 // Enhanced utility functions for validation with strict typing
 const isValidNumber = (
-    value: unknown, 
-    min?: NullableNumber, 
+    value: unknown,
+    min?: NullableNumber,
     max?: NullableNumber
 ): value is number => {
     if (typeof value !== 'number' || isNaN(value)) return false
@@ -77,8 +77,8 @@ const isValidNumber = (
 }
 
 const isValidString = (
-    value: unknown, 
-    minLength?: NullableNumber, 
+    value: unknown,
+    minLength?: NullableNumber,
     maxLength?: NullableNumber
 ): value is string => {
     if (typeof value !== 'string') return false
@@ -94,12 +94,12 @@ const isValidDate = (value: unknown): value is Date | string => {
 }
 
 const hasRequiredProperties = <T extends Record<string, unknown>>(
-    obj: unknown, 
+    obj: unknown,
     properties: ReadonlyArray<keyof T>
 ): obj is T => {
-    return typeof obj === 'object' && 
-           obj !== null && 
-           properties.every(prop => obj && Object.prototype.hasOwnProperty.call(obj, prop))
+    return typeof obj === 'object' &&
+        obj !== null &&
+        properties.every(prop => obj && Object.prototype.hasOwnProperty.call(obj, prop))
 }
 
 const isNonEmptyString = (value: unknown): value is string => {
@@ -122,10 +122,10 @@ export const validateBalanceData = (data: unknown): ValidationResult<PettyCashBa
 
     if (!data || typeof data !== 'object') {
         errors.general = ['Invalid balance data structure']
-        return { 
-            isValid: false, 
-            errors, 
-            warnings, 
+        return {
+            isValid: false,
+            errors,
+            warnings,
             timestamp,
             field: 'balance'
         }
@@ -226,10 +226,10 @@ export const validateBalanceData = (data: unknown): ValidationResult<PettyCashBa
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
-        warnings, 
+    return {
+        isValid,
+        errors,
+        warnings,
         data: isValid ? balanceData as PettyCashBalance : null,
         timestamp,
         field: 'balance'
@@ -244,10 +244,10 @@ export const validateTopUpData = (data: unknown): ValidationResult<PettyCashTopU
 
     if (!data || typeof data !== 'object') {
         errors.general = ['Invalid top-up data structure']
-        return { 
-            isValid: false, 
-            errors, 
-            warnings, 
+        return {
+            isValid: false,
+            errors,
+            warnings,
             timestamp,
             field: 'topup'
         }
@@ -308,10 +308,10 @@ export const validateTopUpData = (data: unknown): ValidationResult<PettyCashTopU
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
-        warnings, 
+    return {
+        isValid,
+        errors,
+        warnings,
         data: isValid ? topUpData as PettyCashTopUp : null,
         timestamp,
         field: 'topup'
@@ -326,10 +326,10 @@ export const validateDisbursementData = (data: unknown): ValidationResult<PettyC
 
     if (!data || typeof data !== 'object') {
         errors.general = ['Invalid disbursement data structure']
-        return { 
-            isValid: false, 
-            errors, 
-            warnings, 
+        return {
+            isValid: false,
+            errors,
+            warnings,
             timestamp,
             field: 'disbursement'
         }
@@ -443,10 +443,10 @@ export const validateDisbursementData = (data: unknown): ValidationResult<PettyC
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
-        warnings, 
+    return {
+        isValid,
+        errors,
+        warnings,
         data: isValid ? disbursementData as PettyCashDisbursement : null,
         timestamp,
         field: 'disbursement'
@@ -487,9 +487,9 @@ export const validateTopUpFormData = (formData: CreateTopUpFormData): Validation
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
+    return {
+        isValid,
+        errors,
         data: isValid ? formData : null,
         timestamp,
         field: 'topup_form'
@@ -555,10 +555,15 @@ export const validateDisbursementFormData = (formData: CreateDisbursementFormDat
         errors.job_number = ['Job number cannot exceed 100 characters']
     }
 
+    // Validate date_disbursed if provided
+    if (formData.date_disbursed && !isValidDate(formData.date_disbursed)) {
+        errors.date_disbursed = ['Invalid date disbursed']
+    }
+
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
+    return {
+        isValid,
+        errors,
         data: isValid ? formData : null,
         timestamp,
         field: 'disbursement_form'
@@ -575,9 +580,9 @@ export const validateVoidFormData = (formData: VoidDisbursementFormData): Valida
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
+    return {
+        isValid,
+        errors,
         data: isValid ? formData : null,
         timestamp,
         field: 'void_form'
@@ -591,9 +596,9 @@ export const validateSummaryData = (data: unknown): ValidationResult<Transaction
 
     if (!data || typeof data !== 'object') {
         errors.general = ['Invalid summary data structure']
-        return { 
-            isValid: false, 
-            errors, 
+        return {
+            isValid: false,
+            errors,
             timestamp,
             field: 'summary'
         }
@@ -616,9 +621,9 @@ export const validateSummaryData = (data: unknown): ValidationResult<Transaction
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
+    return {
+        isValid,
+        errors,
         data: isValid ? summaryData as TransactionSummary : null,
         timestamp,
         field: 'summary'
@@ -632,9 +637,9 @@ export const validateAnalyticsData = (data: unknown): ValidationResult<SpendingA
 
     if (!data || typeof data !== 'object') {
         errors.general = ['Invalid analytics data structure']
-        return { 
-            isValid: false, 
-            errors, 
+        return {
+            isValid: false,
+            errors,
             timestamp,
             field: 'analytics'
         }
@@ -667,9 +672,9 @@ export const validateAnalyticsData = (data: unknown): ValidationResult<SpendingA
     }
 
     const isValid = Object.keys(errors).length === 0
-    return { 
-        isValid, 
-        errors, 
+    return {
+        isValid,
+        errors,
         data: isValid ? analyticsData as SpendingAnalytics : null,
         timestamp,
         field: 'analytics'
