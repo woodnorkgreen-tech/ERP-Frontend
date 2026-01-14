@@ -759,19 +759,19 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Set Down Date <span class="text-red-500">*</span>
             </label>
-            <input v-if="isEditing.safety" v-model="formData.project_deadline" type="datetime-local" :class="[
+            <input v-if="isEditing.safety" v-model="formData.set_down_date" type="datetime-local" :class="[
               'w-full text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-              fieldValidationState.project_deadline === 'invalid' ? 'border-red-500 dark:border-red-400' :
-                fieldValidationState.project_deadline === 'valid' ? 'border-green-500 dark:border-green-400' :
+              fieldValidationState.set_down_date === 'invalid' ? 'border-red-500 dark:border-red-400' :
+                fieldValidationState.set_down_date === 'valid' ? 'border-green-500 dark:border-green-400' :
                   'border-gray-300 dark:border-gray-600'
             ]" />
             <div
-              v-if="isEditing.safety && validationErrors.project_deadline && validationErrors.project_deadline.length > 0"
+              v-if="isEditing.safety && validationErrors.set_down_date && validationErrors.set_down_date.length > 0"
               class="mt-1 text-sm text-red-600 dark:text-red-400">
-              {{ validationErrors.project_deadline[0] }}
+              {{ validationErrors.set_down_date[0] }}
             </div>
             <div v-else class="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
-              {{ formatDateTime(taskData.project_deadline) || 'Not specified' }}
+              {{ formatDateTime(taskData.set_down_date) || 'Not specified' }}
             </div>
           </div>
           <div>
@@ -1282,7 +1282,7 @@ const validateForm = (tab: string): boolean => {
   // Cross-field validation for dates
   if (tab === 'safety') {
     const startDate = formData.value.set_up_date as string
-    const deadline = formData.value.project_deadline as string
+    const deadline = formData.value.set_down_date as string
 
     if (startDate && deadline) {
       const start = new Date(startDate)
@@ -1290,20 +1290,20 @@ const validateForm = (tab: string): boolean => {
 
       if (start >= end) {
         validationErrors.set_up_date = ['Start date must be before deadline']
-        validationErrors.project_deadline = ['Deadline must be after start date']
+        validationErrors.set_down_date = ['Deadline must be after start date']
         fieldValidationState.set_up_date = 'invalid'
-        fieldValidationState.project_deadline = 'invalid'
+        validationErrors.set_down_date = 'invalid'
         isValid = false
       } else {
         // Clear date validation errors if dates are valid
         if (validationErrors.set_up_date?.includes('Start date must be before deadline')) {
           validationErrors.set_up_date = validationErrors.set_up_date.filter(err => err !== 'Start date must be before deadline')
         }
-        if (validationErrors.project_deadline?.includes('Deadline must be after start date')) {
-          validationErrors.project_deadline = validationErrors.project_deadline.filter(err => err !== 'Deadline must be after start date')
+        if (validationErrors.set_down_date?.includes('Deadline must be after start date')) {
+          validationErrors.set_down_date = validationErrors.set_down_date.filter(err => err !== 'Deadline must be after start date')
         }
         if (validationErrors.set_up_date.length === 0) fieldValidationState.set_up_date = 'valid'
-        if (validationErrors.project_deadline.length === 0) fieldValidationState.project_deadline = 'valid'
+        if (validationErrors.set_down_date.length === 0) fieldValidationState.set_down_date = 'valid'
       }
     }
   }
@@ -1317,7 +1317,7 @@ const getTabFields = (tab: string): string[] => {
     assessment: ['project_description', 'objectives', 'current_condition', 'existing_branding', 'site_measurements', 'room_size', 'constraints'],
     access: ['access_logistics', 'parking_availability', 'size_accessibility', 'lifts', 'door_sizes', 'loading_areas'],
     requirements: ['branding_preferences', 'material_preferences', 'color_scheme', 'brand_guidelines', 'special_instructions', 'electrical_outlets', 'food_refreshment'],
-    safety: ['safety_conditions', 'potential_hazards', 'safety_requirements', 'set_up_date', 'project_deadline', 'milestones'],
+    safety: ['safety_conditions', 'potential_hazards', 'safety_requirements', 'set_up_date', 'set_down_date', 'milestones'],
     additional: ['additional_notes', 'special_requests', 'prepared_by', 'action_items']
   }
   return tabFieldMap[tab as keyof typeof tabFieldMap] || []
@@ -1331,9 +1331,9 @@ Object.keys(validationRules).forEach(field => {
     fieldValidationState[field] = errors.length > 0 ? 'invalid' : errors.length === 0 && newValue ? 'valid' : 'pending'
 
     // Special handling for date cross-validation
-    if (field === 'set_up_date' || field === 'project_deadline') {
+    if (field === 'set_up_date' || field === 'set_down_date') {
       const startDate = formData.value.set_up_date as string
-      const deadline = formData.value.project_deadline as string
+      const deadline = formData.value.set_down_date as string
 
       if (startDate && deadline) {
         const start = new Date(startDate)
@@ -1341,19 +1341,19 @@ Object.keys(validationRules).forEach(field => {
 
         if (start >= end) {
           validationErrors.set_up_date = ['Start date must be before deadline']
-          validationErrors.project_deadline = ['Deadline must be after start date']
+          validationErrors.set_down_date = ['Deadline must be after start date']
           fieldValidationState.set_up_date = 'invalid'
-          fieldValidationState.project_deadline = 'invalid'
+          fieldValidationState.set_down_date = 'invalid'
         } else {
           // Clear date validation errors
           if (validationErrors.set_up_date?.includes('Start date must be before deadline')) {
             validationErrors.set_up_date = validationErrors.set_up_date.filter(err => err !== 'Start date must be before deadline')
           }
-          if (validationErrors.project_deadline?.includes('Deadline must be after start date')) {
-            validationErrors.project_deadline = validationErrors.project_deadline.filter(err => err !== 'Deadline must be after start date')
+          if (validationErrors.set_down_date?.includes('Deadline must be after start date')) {
+            validationErrors.set_down_date = validationErrors.set_down_date.filter(err => err !== 'Deadline must be after start date')
           }
           if (validationErrors.set_up_date.length === 0) fieldValidationState.set_up_date = 'valid'
-          if (validationErrors.project_deadline.length === 0) fieldValidationState.project_deadline = 'valid'
+          if (validationErrors.set_down_date.length === 0) fieldValidationState.set_down_date = 'valid'
         }
       }
     }
@@ -1366,6 +1366,18 @@ const toggleEdit = (tab: keyof typeof isEditing) => {
   isEditing[tab] = !isEditing[tab]
   if (isEditing[tab]) {
     formData.value = { ...props.taskData }
+
+    // Format dates for inputs
+    if (formData.value.site_visit_date) {
+      formData.value.site_visit_date = formatToDateLocal(formData.value.site_visit_date as string)
+    }
+    if (formData.value.set_up_date) {
+      formData.value.set_up_date = formatToDateTimeLocal(formData.value.set_up_date as string)
+    }
+    if (formData.value.set_down_date) {
+      formData.value.set_down_date = formatToDateTimeLocal(formData.value.set_down_date as string)
+    }
+
     // Clear any previous messages
     error.value = ''
     successMessage.value = ''
@@ -1686,6 +1698,35 @@ onMounted(() => {
   // Fetch survey photos
   fetchSurveyPhotos()
 })
+
+// Date formatting helpers for inputs
+const formatToDateLocal = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    return date.toISOString().split('T')[0]
+  } catch (e) {
+    return ''
+  }
+}
+
+const formatToDateTimeLocal = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const pad = (num: number) => num.toString().padStart(2, '0')
+    const YYYY = date.getFullYear()
+    const MM = pad(date.getMonth() + 1)
+    const DD = pad(date.getDate())
+    const HH = pad(date.getHours())
+    const mm = pad(date.getMinutes())
+    return `${YYYY}-${MM}-${DD}T${HH}:${mm}`
+  } catch (e) {
+    return ''
+  }
+}
 
 // Watch for taskData changes to reload photos
 watch(() => props.taskData, () => {

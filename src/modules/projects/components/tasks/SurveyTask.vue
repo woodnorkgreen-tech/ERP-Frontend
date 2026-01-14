@@ -1472,7 +1472,7 @@ const loadSurveyData = async () => {
     if (existingData) {
       // Populate form with existing data
       formData.value = {
-        site_visit_date: existingData.site_visit_date || '',
+        site_visit_date: formatToDate(existingData.site_visit_date),
         location: existingData.location || '',
         client_name: existingData.client_name || '',
         attendees: Array.isArray(existingData.attendees) ? existingData.attendees : [],
@@ -1502,8 +1502,8 @@ const loadSurveyData = async () => {
         safety_conditions: existingData.safety_conditions || '',
         potential_hazards: existingData.potential_hazards || '',
         safety_requirements: existingData.safety_requirements || '',
-        set_up_date: existingData.set_up_date || '',
-        set_down_date: existingData.set_down_date || '',
+        set_up_date: formatToDateTimeLocal(existingData.set_up_date),
+        set_down_date: formatToDateTimeLocal(existingData.set_down_date),
         additional_notes: existingData.additional_notes || '',
         special_requests: existingData.special_requests || '',
         action_items: Array.isArray(existingData.action_items) ? existingData.action_items : [],
@@ -1801,6 +1801,35 @@ const getPhotoUrl = (photo: any) => {
   }
   
   return ''
+}
+
+// Date formatting helpers for inputs
+const formatToDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    return date.toISOString().split('T')[0]
+  } catch (e) {
+    return ''
+  }
+}
+
+const formatToDateTimeLocal = (dateString: string | null | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const pad = (num: number) => num.toString().padStart(2, '0')
+    const YYYY = date.getFullYear()
+    const MM = pad(date.getMonth() + 1)
+    const DD = pad(date.getDate())
+    const HH = pad(date.getHours())
+    const mm = pad(date.getMinutes())
+    return `${YYYY}-${MM}-${DD}T${HH}:${mm}`
+  } catch (e) {
+    return ''
+  }
 }
 const handleImageError = (e: Event) => {
   console.error('Failed to load image:', (e.target as HTMLImageElement).src)
