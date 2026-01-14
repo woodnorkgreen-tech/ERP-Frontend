@@ -316,7 +316,8 @@ export function useRouteGuard() {
             { name: 'procurement-suppliers', path: '/procurement/suppliers', label: 'Suppliers & Vendors', icon: 'mdi-account-star-outline' },
             { name: 'procurement-requisitions', path: '/procurement/requisitions', label: 'Stock Requisitions', icon: 'mdi-file-plus-outline' },
             { name: 'procurement-purchase-orders', path: '/procurement/purchase-orders', label: 'Purchase Orders (LPOs)', icon: 'mdi-file-sign' },
-            { name: 'procurement-goods-receipt', path: '/procurement/goods-receipt', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' }
+            { name: 'procurement-goods-receipt', path: '/procurement/goods-receipt', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' },
+            { name: 'procurement-billing', path: '/procurement/billing', label: 'Billing', icon: 'mdi-clipboard-check-outline' }
           ]
         }
       )
