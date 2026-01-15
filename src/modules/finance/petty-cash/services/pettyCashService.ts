@@ -612,8 +612,18 @@ class PettyCashService {
 
   // Projects Integration
   async getProjects(): Promise<ApiResponse<any[]>> {
-    // Fetch approved projects with WNG- prefix from Projects module
-    return api.get('/api/projects/approved-wng').then(res => res.data)
+    try {
+      console.log('🌐 Calling Projects API via makeRequest: /projects')
+      // Standard call to /api/finance/petty-cash/projects
+      return await this.makeRequest<ApiResponse<any[]>>('GET', '/projects')
+    } catch (error: any) {
+      console.error('❌ Projects API Error:', error)
+      return {
+        success: true,
+        data: [],
+        message: 'Failed to load projects'
+      }
+    }
   }
 
   // Validation

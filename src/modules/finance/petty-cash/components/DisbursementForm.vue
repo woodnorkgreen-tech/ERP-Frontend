@@ -333,62 +333,31 @@
                 <div class="relative">
                   <input
                     id="job_number"
+                    list="job_number_list"
                     v-model="projectSearch"
-                    @input="onProjectInput"
-                    @focus="showProjectDropdown = true"
-                    @blur="hideProjectDropdown"
+                    @input="onProjectSelect"
                     type="text"
-                    :class="[
-                      'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                      errors.job_number ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-                    ]"
-                    placeholder="Search for approved WNG projects..."
+                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Type or select job number (e.g. WNG-01-2026-009)"
+                    autocomplete="off"
                   />
-
-                  <!-- Enhanced Dropdown -->
-                  <div
-                    v-if="showProjectDropdown && projects.length"
-                    class="absolute z-20 mt-1 w-full bg-white dark:bg-gray-800 shadow-2xl max-h-72 rounded-xl py-2 text-base ring-1 ring-black ring-opacity-10 overflow-auto focus:outline-none sm:text-sm transition-all duration-200 ease-in-out border border-gray-100 dark:border-gray-700"
-                  >
-                    <!-- Header/Search status -->
-                    <div v-if="projectSearch" class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-50 dark:border-gray-700 mb-1">
-                      Search Results
-                    </div>
-                    <div v-else class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-50 dark:border-gray-700 mb-1">
-                      Approved Projects
-                    </div>
-
-                    <div
-                      v-for="project in filteredProjects"
-                      :key="project.id"
-                      @mousedown="selectProject(project)"
-                      class="group cursor-pointer select-none relative py-3 pl-4 pr-9 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-150"
+                  
+                  <datalist id="job_number_list">
+                    <option 
+                      v-for="project in projects" 
+                      :key="project.id" 
+                      :value="project.job_number || project.project_id"
                     >
-                      <div class="flex flex-col">
-                        <div class="flex items-center justify-between">
-                          <span class="font-bold text-blue-600 dark:text-blue-400 group-hover:text-blue-700">
-                            {{ project.job_number || project.project_id }}
-                          </span>
-                        </div>
-                        <span class="text-sm text-gray-600 dark:text-gray-300 mt-0.5 group-hover:text-gray-900 dark:group-hover:text-white truncate">
-                          {{ project.title || (project.enquiry?.title) }}
-                        </span>
-                      </div>
-                      <!-- Selection indicator (checkmark) -->
-                      <span v-if="form.job_number === (project.job_number || project.project_id)" class="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600">
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                      </span>
-                    </div>
+                      {{ project.title || project.enquiry?.title }}
+                    </option>
+                  </datalist>
 
-                    <!-- No results state -->
-                    <div v-if="filteredProjects.length === 0" class="px-4 py-8 text-center">
-                      <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No matching approved projects found.</p>
-                    </div>
+                  <!-- Loading Indicator -->
+                  <div v-if="projects.length === 0" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                   </div>
                 </div>
                 <p v-if="errors.job_number" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -484,8 +453,6 @@ const selectedAccount = ref<Account | null>(null)
 // Project autocomplete
 const projects = ref<any[]>([])
 const projectSearch = ref('')
-const debouncedProjectSearch = ref('')
-const showProjectDropdown = ref(false)
 const selectedProject = ref<any>(null)
 
 // Computed properties for current balance
@@ -546,16 +513,7 @@ const isFormValid = computed(() => {
          (!requiresProject.value || form.project_name)
 })
 
-const filteredProjects = computed(() => {
-  const query = debouncedProjectSearch.value.toLowerCase()
-  if (!query) return projects.value.slice(0, 100) // Show all (up to 100) if no search
-  
-  return projects.value.filter(project => {
-    const jobId = (project.project_id || project.job_number || '').toLowerCase()
-    const title = (project.title || project.enquiry?.title || '').toLowerCase()
-    return jobId.includes(query) || title.includes(query)
-  }).slice(0, 100)
-})
+
 
 const filteredAccounts = computed(() => {
   if (!accountSearch.value || accountSearch.value.length < 2) return []
@@ -591,39 +549,38 @@ const selectAccount = (account: Account) => {
   showAccountDropdown.value = false
 }
 
-const onProjectInput = () => {
-  showProjectDropdown.value = true
-}
 
-const hideProjectDropdown = () => {
-  setTimeout(() => {
-    showProjectDropdown.value = false
-  }, 150)
-}
 
-const selectProject = (project: any) => {
-  selectedProject.value = project
-  const jobId = project.job_number || project.project_id
-  projectSearch.value = jobId
-  debouncedProjectSearch.value = jobId
-  form.job_number = jobId
+
+
+// Handle project selection from datalist
+const onProjectSelect = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const value = input.value
   
-  // If no project name is set, use project title
-  if (!form.project_name && (project.title || project.enquiry?.title)) {
-    form.project_name = project.title || project.enquiry?.title
+  // Find matching project
+  const project = projects.value.find(p => 
+    (p.job_number === value) || (p.project_id === value)
+  )
+
+  if (project) {
+    selectedProject.value = project
+    form.job_number = project.job_number || project.project_id
+    // Auto-fill project name if empty
+    if (!form.project_name) {
+      form.project_name = project.title || project.enquiry?.title || ''
+    }
+  } else {
+    // Just update the search text if no strict match yet
+    form.job_number = value
   }
-  
-  showProjectDropdown.value = false
 }
 
-// Debounce project search
-const updateDebouncedSearch = debounce((val: string) => {
-  debouncedProjectSearch.value = val
-}, 300)
 
-watch(projectSearch, (newVal) => {
-  updateDebouncedSearch(newVal)
-})
+// Debug: Watch projects array
+watch(projects, (newVal) => {
+  console.log('🔄 Projects array updated:', newVal.length, 'projects')
+}, { immediate: true })
 
 const getTransactionCodePlaceholder = (): string => {
   switch (form.payment_method) {
@@ -731,7 +688,6 @@ const resetForm = () => {
     // Reset project autocomplete
     projectSearch.value = ''
     selectedProject.value = null
-    showProjectDropdown.value = false
     form.date_disbursed = new Date().toISOString().split('T')[0]
   } catch (error) {
     console.error('Error resetting form:', error)
@@ -802,12 +758,18 @@ const initializeModal = async () => {
 
 const fetchProjects = async () => {
   try {
+    console.log('🔍 Fetching approved projects for dropdown...')
     const response = await pettyCashService.getProjects()
+    console.log('📦 Projects API response:', response)
+    
     if (response.success && Array.isArray(response.data)) {
       projects.value = response.data
+      console.log(`✅ Loaded ${projects.value.length} approved projects`)
+    } else {
+      console.warn('⚠️ Invalid projects response:', response)
     }
   } catch (error) {
-    console.error('Error fetching projects:', error)
+    console.error('❌ Error fetching projects:', error)
   }
 }
 
@@ -930,46 +892,26 @@ onMounted(async () => {
   
   // Initialize modal state if already open
   if (props.isOpen) {
-    console.log('🔥 DisbursementForm mounted with isOpen=true, initializing...')
-    modalState.value = 'open'
-    isInitialized.value = true
-    try {
-      resetForm()
-    } catch (error) {
-      console.error('🔥 Error initializing DisbursementForm on mount:', error)
-    }
+    console.log('🔥 DisbursementForm mounted with isOpen=true, calling initializeModal...')
+    await initializeModal()
   }
 })
 
-// Simplified modal state management
+// Proper modal state management
 watch(() => props.isOpen, async (newValue, oldValue) => {
   console.log('🔥 DisbursementForm isOpen changed:', { newValue, oldValue, modalState: modalState.value })
-  try {
-    if (newValue && !oldValue) {
-      // Modal opening - set to open immediately
-      console.log('🔥 Opening Disbursement modal directly...')
-      modalState.value = 'open'
-      isInitialized.value = true
-      
-      // Reset form and fetch data after setting state
-      try {
-        resetForm()
-        console.log('🔥 Disbursement modal opened and form reset successfully')
-      } catch (resetError) {
-        console.error('🔥 Error resetting form:', resetError)
-        // Continue anyway, don't block modal opening
-      }
-    } else if (!newValue && oldValue) {
-      // Modal closing
-      console.log('🔥 Closing Disbursement modal...')
-      modalState.value = 'closed'
-      isInitialized.value = false
-    }
-  } catch (error) {
-    console.error('🔥 Error in Disbursement modal state change:', error)
-    modalError.value = 'Modal state error occurred'
+  
+  if (newValue && !oldValue) {
+    // Modal opening
+    console.log('🔥 Opening Disbursement modal via watcher...')
+    await initializeModal()
+  } else if (!newValue && oldValue) {
+    // Modal closing
+    console.log('🔥 Closing Disbursement modal...')
     modalState.value = 'closed'
     isInitialized.value = false
+    // Optional: Reset form on close to clear state
+    resetForm()
   }
 }, { immediate: false })
 </script>
