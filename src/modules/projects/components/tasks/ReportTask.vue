@@ -14,6 +14,14 @@
           Skip Task
         </button>
 
+        <button
+            v-if="['skipped', 'completed'].includes(task.status)"
+            @click="$emit('update-status', 'pending')"
+            class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded transition-colors mr-2"
+        >
+            {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+        </button>
+
         <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
         <div class="flex items-center space-x-2">
           <span :class="task.status === 'completed' ? 'text-green-600' : task.status === 'skipped' ? 'text-gray-600' : 'text-gray-500'" class="text-sm font-medium">

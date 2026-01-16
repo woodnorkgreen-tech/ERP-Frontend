@@ -935,7 +935,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Loading Sheet</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import production elements and add custom loading items</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import project elements and add custom loading items</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
@@ -946,7 +946,7 @@
               <svg v-if="itemsState.isImporting" class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Production Elements' }}</span>
+              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Project Elements' }}</span>
             </button>
             <button
               v-if="itemsState.importError"
@@ -996,196 +996,146 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:border-gray-700">
-                  <!-- Loop through grouped categories -->
-                  <template v-for="group in groupedTransportItems" :key="group.category">
-                    <!-- Category Header Row -->
-                    <tr class="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-600">
-                      <td colspan="5" class="px-4 py-3">
-                        <div class="flex items-center justify-between">
-                          <button 
-                            @click="toggleCategoryCollapse(group.category)"
-                            class="flex items-center gap-3 text-left hover:opacity-80 transition-opacity w-full"
-                          >
-                            <!-- Collapse/Expand Icon -->
-                            <svg 
-                              class="w-5 h-5 text-gray-600 dark:text-gray-300 transition-transform"
-                              :class="{ 'rotate-90': !isCategoryCollapsed(group.category) }"
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                            
-                            <!-- Category Icon -->
+                  <!-- Flat list of items -->
+                  <tr v-for="item in filteredTransportItems" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    
+                    <!-- Read Mode -->
+                    <template v-if="!isEditing(item.id)">
+                      <td class="px-6 py-4">
+                        <div class="flex items-start gap-3">
+                          <div class="flex-shrink-0 mt-1">
                             <span 
-                              class="w-3 h-3 rounded-full flex-shrink-0" 
-                              :class="group.mainCategory === 'PRODUCTION' ? 'bg-purple-500' : 
-                                      group.mainCategory === 'TOOLS_EQUIPMENTS' ? 'bg-blue-500' :
-                                      group.mainCategory === 'STORES' ? 'bg-green-500' :
-                                      'bg-yellow-500'"
+                              class="inline-block w-2.5 h-2.5 rounded-full" 
+                              :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
+                              :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
                             ></span>
-                            
-                            <!-- Category Name and Stats -->
-                            <div class="flex items-center gap-3 flex-1">
-                              <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
-                                {{ group.displayName }}
-                              </h4>
-                              <span class="text-xs bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full">
-                                {{ group.items.length }} {{ group.items.length === 1 ? 'item' : 'items' }}
-                              </span>
-                              <span v-if="group.totalQuantity" class="text-xs text-gray-500 dark:text-gray-400">
-                                Total qty: {{ group.totalQuantity }}
-                              </span>
-                            </div>
+                          </div>
+                          <div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
+                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-pre-wrap">{{ item.description }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+                          {{ item.special_handling }}
+                        </span>
+                        <span v-else class="text-gray-400 text-xs">-</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                          <button 
+                            @click="startEditingItem(item)" 
+                            class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            title="Edit"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                          </button>
+                          <button 
+                            @click="removeTransportItem(item.id.toString())" 
+                            class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
                           </button>
                         </div>
                       </td>
-                    </tr>
-                    
-                    <!-- Category Items -->
-                    <template v-if="!isCategoryCollapsed(group.category)">
-                      <tr v-for="item in group.items" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        
-                        <!-- Read Mode -->
-                        <template v-if="!isEditing(item.id)">
-                          <td class="px-6 py-4">
-                            <div class="flex items-start gap-3">
-                              <div class="flex-shrink-0 mt-1">
-                                <span 
-                                  class="inline-block w-2.5 h-2.5 rounded-full" 
-                                  :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
-                                  :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
-                                ></span>
-                              </div>
-                              <div>
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-                                <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{{ item.description }}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
-                          </td>
-                          <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
-                          </td>
-                          <td class="px-6 py-4 whitespace-nowrap">
-                            <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
-                              {{ item.special_handling }}
-                            </span>
-                            <span v-else class="text-gray-400 text-xs">-</span>
-                          </td>
-                          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
-                              <button 
-                                @click="startEditingItem(item)" 
-                                class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                                title="Edit"
-                              >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                              </button>
-                              <button 
-                                @click="removeTransportItem(item.id.toString())" 
-                                class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                                title="Delete"
-                              >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </template>
-
-                        <!-- Edit Mode -->
-                        <template v-else>
-                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
-                            <div class="space-y-2">
-                              <input 
-                                v-model="itemsState.editData[item.id].name"
-                                type="text"
-                                placeholder="Item Name"
-                                class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                                :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                              />
-                              <textarea 
-                                v-model="itemsState.editData[item.id].description"
-                                rows="1"
-                                placeholder="Description"
-                                class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                              ></textarea>
-                            </div>
-                          </td>
-                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                            <div class="flex flex-col gap-1">
-                              <div class="flex items-center gap-1">
-                                <button 
-                                  @click="adjustQuantity(item.id, -1)"
-                                  class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                                  type="button"
-                                >−</button>
-                                <input 
-                                  v-model.number="itemsState.editData[item.id].quantity"
-                                  type="number"
-                                  min="1"
-                                  class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                  :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                                />
-                                <button 
-                                  @click="adjustQuantity(item.id, 1)"
-                                  class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                                  type="button"
-                                >+</button>
-                              </div>
-                              <input 
-                                v-model="itemsState.editData[item.id].unit"
-                                type="text"
-                                placeholder="Unit"
-                                class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                              />
-                            </div>
-                          </td>
-                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                            <input 
-                              v-model="itemsState.editData[item.id].weight"
-                              type="text"
-                              placeholder="Weight"
-                              class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                            />
-                          </td>
-                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                            <input 
-                              v-model="itemsState.editData[item.id].special_handling"
-                              type="text"
-                              placeholder="Handling"
-                              class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                            />
-                          </td>
-                          <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
-                            <div class="flex flex-col gap-2 items-end">
-                              <button 
-                                @click="saveEditedItem(item.id)"
-                                :disabled="itemsState.isSaving[item.id]"
-                                class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
-                              >
-                                {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
-                              </button>
-                              <button 
-                                @click="cancelEditingItem(item.id)"
-                                class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </td>
-                        </template>
-                      </tr>
                     </template>
-                  </template>
+
+                    <!-- Edit Mode -->
+                    <template v-else>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
+                        <div class="space-y-2">
+                          <input 
+                            v-model="itemsState.editData[item.id].name"
+                            type="text"
+                            placeholder="Item Name"
+                            class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                            :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                          />
+                          <textarea 
+                            v-model="itemsState.editData[item.id].description"
+                            rows="1"
+                            placeholder="Description"
+                            class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
+                          ></textarea>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <div class="flex flex-col gap-1">
+                          <div class="flex items-center gap-1">
+                            <button 
+                              @click="adjustQuantity(item.id, -1)"
+                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                              type="button"
+                            >−</button>
+                            <input 
+                              v-model.number="itemsState.editData[item.id].quantity"
+                              type="number"
+                              min="1"
+                              class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                              :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                            />
+                            <button 
+                              @click="adjustQuantity(item.id, 1)"
+                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                              type="button"
+                            >+</button>
+                          </div>
+                          <input 
+                            v-model="itemsState.editData[item.id].unit"
+                            type="text"
+                            placeholder="Unit"
+                            class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
+                          />
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <input 
+                          v-model="itemsState.editData[item.id].weight"
+                          type="text"
+                          placeholder="Weight"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        />
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
+                        <input 
+                          v-model="itemsState.editData[item.id].special_handling"
+                          type="text"
+                          placeholder="Handling"
+                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        />
+                      </td>
+                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
+                        <div class="flex flex-col gap-2 items-end">
+                          <button 
+                            @click="saveEditedItem(item.id)"
+                            :disabled="itemsState.isSaving[item.id]"
+                            class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
+                          </button>
+                          <button 
+                            @click="cancelEditingItem(item.id)"
+                            class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </td>
+                    </template>
+                  </tr>
                   
                   <!-- Empty State -->
                   <tr v-if="filteredTransportItems.length === 0">
@@ -1358,6 +1308,17 @@
             class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
           >
             Skip Task
+          </button>
+
+          <button
+            v-if="['skipped', 'completed'].includes(task.status) && !readonly"
+            @click="$emit('update-status', 'pending')"
+            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+            </svg>
+            <span>{{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}</span>
           </button>
           
           <button
@@ -2200,6 +2161,24 @@ onMounted(async () => {
 
     // If data exists, update the local logisticsData
     if (existingData !== null) {
+      // Ensure checklist has detailed defaults to handle legacy data
+      if (existingData.checklist) {
+        existingData.checklist = {
+          items: existingData.checklist.items || [],
+          teams: { 
+            workshop: false, setup: false, setdown: false, 
+            ...(existingData.checklist.teams || {}) 
+          },
+          safety: { 
+            ppe: false, first_aid: false, fire_extinguisher: false, 
+            ...(existingData.checklist.safety || {}) 
+          },
+          equipment: { 
+            tools: false, vehicles: false, communication: false, 
+            ...(existingData.checklist.equipment || {}) 
+          }
+        }
+      }
       Object.assign(logisticsData, existingData)
       addFeedbackMessage('success', 'Logistics data loaded successfully')
     } else {
@@ -2241,7 +2220,12 @@ const initializeLogisticsData = (): LogisticsTaskData => {
         notes: ''
       },
       transport_items: [],
-      checklist: { items: [], teams: { workshop: false, setup: false, setdown: false }, safety: { ppe: false, first_aid: false, fire_extinguisher: false } },
+      checklist: { 
+        items: [], 
+        teams: { workshop: false, setup: false, setdown: false }, 
+        safety: { ppe: false, first_aid: false, fire_extinguisher: false },
+        equipment: { tools: false, vehicles: false, communication: false }
+      },
       status: 'pending'
     }
   } catch (error) {
@@ -2262,7 +2246,12 @@ const initializeLogisticsData = (): LogisticsTaskData => {
       logistics_planning: initializeLogisticsPlanning(),
       team_confirmation: initializeTeamConfirmation(),
       transport_items: [],
-      checklist: { items: [], teams: { workshop: false, setup: false, setdown: false }, safety: { ppe: false, first_aid: false, fire_extinguisher: false } },
+      checklist: { 
+        items: [], 
+        teams: { workshop: false, setup: false, setdown: false }, 
+        safety: { ppe: false, first_aid: false, fire_extinguisher: false },
+        equipment: { tools: false, vehicles: false, communication: false }
+      },
       status: 'pending'
     }
   }
@@ -2795,108 +2784,8 @@ const filteredTransportItems = computed<TransportItem[]>(() => {
   )
 })
 
-/**
- * Group transport items by main category
- */
-interface CategoryGroup {
-  category: string
-  displayName: string
-  items: TransportItem[]
-  totalQuantity: number
-  mainCategory: string
-  subCategories?: Map<string, TransportItem[]>  // For PRODUCTION sub-grouping
-}
-
-const groupedTransportItems = computed<CategoryGroup[]>(() => {
-  const items = filteredTransportItems.value
-  const mainGroups = new Map<string, TransportItem[]>()
-  
-  // Initialize main categories in order
-  const categoryOrder = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS']
-  const categoryLabels = {
-    'PRODUCTION': 'A. PRODUCTION - Boards & Produced Items',
-    'TOOLS_EQUIPMENTS': 'B. TOOLS & EQUIPMENTS - Setup Tools',
-    'STORES': 'C. STORES - Consumables & Items For Hire',
-    'ELECTRICALS': 'D. ELECTRICALS - Extensions, Power Supply'
-  }
-  
-  // Group items by main_category
-  items.forEach(item => {
-    let mainCat: string
-    
-    if (item.main_category) {
-      // Use explicit main_category if set
-      mainCat = item.main_category
-    } else if (item.category === 'production') {
-      // Production items default to PRODUCTION category
-      mainCat = 'PRODUCTION'
-    } else {
-      // Custom items without main_category go to STORES by default
-      mainCat = 'STORES'
-    }
-    
-    if (!mainGroups.has(mainCat)) {
-      mainGroups.set(mainCat, [])
-    }
-    mainGroups.get(mainCat)!.push(item)
-  })
-  
-  // Convert to array with proper ordering
-  const result: CategoryGroup[] = []
-  
-  categoryOrder.forEach(catKey => {
-    const items = mainGroups.get(catKey) || []
-    if (items.length === 0) return  // Skip empty categories
-    
-    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
-    
-    // For PRODUCTION category, create sub-categories by element_category
-    let subCategories: Map<string, TransportItem[]> | undefined
-    if (catKey === 'PRODUCTION') {
-      subCategories = new Map()
-      items.forEach(item => {
-        const subCat = item.element_category || 'Other Items'
-        if (!subCategories!.has(subCat)) {
-          subCategories!.set(subCat, [])
-        }
-        subCategories!.get(subCat)!.push(item)
-      })
-    }
-    
-    result.push({
-      category: catKey,
-      displayName: categoryLabels[catKey as keyof typeof categoryLabels] || catKey,
-      items,
-      totalQuantity,
-      mainCategory: catKey,
-      subCategories
-    })
-  })
-  
-  return result
-})
 
 
-/**
- * Collapsed category sections state
- */
-const collapsedCategories = ref<Set<string>>(new Set())
-
-const toggleCategoryCollapse = (category: string) => {
-  if (collapsedCategories.value.has(category)) {
-    collapsedCategories.value.delete(category)
-  } else {
-    collapsedCategories.value.add(category)
-  }
-}
-
-const isCategoryCollapsed = (category: string): boolean => {
-  return collapsedCategories.value.has(category)
-}
-
-/**
- * Import production elements from backend
- */
 const importProductionElements = async () => {
   try {
     itemsState.isImporting = true
@@ -2914,12 +2803,12 @@ const importProductionElements = async () => {
     })
 
     if (importedItems.length > 0) {
-      addFeedbackMessage('success', `${importedItems.length} production elements imported successfully`)
+      addFeedbackMessage('success', `${importedItems.length} elements imported successfully`)
     } else {
-      addFeedbackMessage('info', 'No production elements found to import. Please ensure the production task has been completed with production elements.')
+      addFeedbackMessage('info', 'No elements found to import. Please ensure the materials task has been populated.')
     }
   } catch (error: any) {
-    console.error('Failed to import production elements', error)
+    console.error('Failed to import elements', error)
     console.debug('Error details:', {
       message: error.message,
       response: error.response?.data,
@@ -2928,7 +2817,7 @@ const importProductionElements = async () => {
     })
 
     // Provide more specific error messages based on the error response
-    let errorMessage = 'Failed to import production elements.'
+    let errorMessage = 'Failed to import elements.'
     if (error.response?.data?.message) {
       errorMessage = error.response.data.message
     } else if (error.message) {
@@ -3244,7 +3133,12 @@ const formatCurrency = (amount: number): string => {
 /**
  * Checklist reactive helpers
  */
-const checklist = computed(() => logisticsData.checklist || { items: [], teams: { workshop: false, setup: false, setdown: false }, safety: { ppe: false, first_aid: false, fire_extinguisher: false } })
+const checklist = computed(() => logisticsData.checklist || { 
+  items: [], 
+  teams: { workshop: false, setup: false, setdown: false }, 
+  safety: { ppe: false, first_aid: false, fire_extinguisher: false },
+  equipment: { tools: false, vehicles: false, communication: false }
+})
 
 const checklistProgress = computed(() => {
   const items = checklist.value.items
@@ -3337,9 +3231,19 @@ const touchChecklistMeta = async () => {
       const result = await logistics.updateChecklist(props.task.id, logisticsData.checklist)
       console.log('✅ Checklist metadata saved successfully:', result)
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Failed to save checklist meta update:', error)
-    addFeedbackMessage('error', 'Failed to save checklist changes')
+    let errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to save checklist changes'
+    
+    // Extract specific validation error if available
+    if (error.response?.status === 422 && error.response?.data?.errors) {
+      const firstError = Object.values(error.response.data.errors)[0]
+      if (Array.isArray(firstError) && firstError.length > 0) {
+        errorMessage = firstError[0]
+      }
+    }
+
+    addFeedbackMessage('error', errorMessage)
   }
 }
 
@@ -3356,6 +3260,8 @@ const getStatusColor = (status: string): string => {
       return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
     case 'cancelled':
       return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    case 'skipped':
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
     default:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
   }
@@ -3374,6 +3280,8 @@ const getStatusLabel = (status: string): string => {
       return 'Pending'
     case 'cancelled':
       return 'Cancelled'
+    case 'skipped':
+      return 'Skipped'
     default:
       return 'Unknown'
   }

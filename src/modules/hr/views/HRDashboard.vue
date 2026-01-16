@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
+      <!-- <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
         <div class="flex items-center">
           <div class="p-2 bg-yellow-500 rounded-lg">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@
             <p class="text-2xl font-semibold text-gray-900 dark:text-white">${{ stats.averageSalary.toLocaleString() }}</p>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
         <div class="flex items-center">
@@ -167,9 +167,9 @@ const { employees, fetchEmployees } = useEmployees()
 const stats = computed(() => {
   const totalEmployees = employees.value.length
   const activeEmployees = employees.value.filter(e => e.status === 'active').length
-  const averageSalary = totalEmployees > 0
-    ? Math.round(employees.value.reduce((sum, emp) => sum + emp.salary, 0) / totalEmployees)
-    : 0
+  // const averageSalary = totalEmployees > 0
+  //   ? Math.round(employees.value.reduce((sum, emp) => sum + emp.salary, 0) / totalEmployees)
+  //   : 0
 
   const newHiresThisMonth = employees.value.filter(e => {
     const hireDate = new Date(e.hire_date)
@@ -196,7 +196,7 @@ const stats = computed(() => {
   return {
     totalEmployees,
     activeEmployees,
-    averageSalary,
+    // averageSalary,
     newHiresThisMonth,
     employeesByDepartment,
     recentHires

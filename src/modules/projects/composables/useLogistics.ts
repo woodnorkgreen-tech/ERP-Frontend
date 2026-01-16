@@ -61,6 +61,7 @@ export interface ChecklistData {
   items: ChecklistItem[]
   teams: { workshop: boolean; setup: boolean; setdown: boolean }
   safety: { ppe: boolean; first_aid: boolean; fire_extinguisher: boolean }
+  equipment: { tools: boolean; vehicles: boolean; communication: boolean }
 }
 
 export interface LogisticsTaskData {

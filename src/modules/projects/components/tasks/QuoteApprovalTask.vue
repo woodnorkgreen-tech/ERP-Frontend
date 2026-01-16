@@ -155,13 +155,22 @@
 
             <div class="flex items-center justify-between pt-8 border-t border-slate-100 dark:border-gray-700">
               <button
-                v-if="task.status !== 'completed'"
+                v-if="task.status !== 'completed' && task.status !== 'skipped'"
                 type="button"
                 @click="showSkipModal = true"
                 class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
               >
                 Skip Task
               </button>
+
+              <button
+                v-if="['skipped', 'completed'].includes(task.status)"
+                type="button"
+                @click="$emit('update-status', 'pending')"
+                class="text-xs font-black uppercase tracking-widest text-yellow-600 hover:text-yellow-700 transition-colors"
+               >
+                {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+               </button>
               <div v-else></div>
 
               <div class="flex gap-4">

@@ -519,6 +519,14 @@
           </button>
 
           <button
+            v-if="['skipped', 'completed'].includes(task.status)"
+            @click="$emit('update-status', 'pending')"
+            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors"
+          >
+            {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+          </button>
+
+          <button
             v-if="task.status !== 'completed' && task.status !== 'cancelled'"
             @click="updateStatus('completed')"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

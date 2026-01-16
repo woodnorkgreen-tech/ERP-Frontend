@@ -942,6 +942,14 @@
         >
           Skip Task
         </button>
+
+        <button
+          v-if="['skipped', 'completed'].includes(task.status)"
+          @click="$emit('update-status', 'pending')"
+          class="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-yellow-500/20 flex items-center gap-2"
+        >
+          {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+        </button>
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled'"
           @click="handleSubmit"

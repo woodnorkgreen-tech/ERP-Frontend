@@ -257,6 +257,15 @@
             >
                Skip Task
             </button>
+
+            <button
+               v-if="['skipped', 'completed'].includes(task.status)"
+               type="button"
+               @click="$emit('task-updated')"
+               class="px-6 py-2.5 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded-xl text-sm font-bold uppercase tracking-wide transition-colors"
+            >
+                {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+            </button>
             <button
                type="button"
                @click="saveDraft"

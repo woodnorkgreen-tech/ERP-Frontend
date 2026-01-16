@@ -583,6 +583,17 @@
           <span>Skip Task</span>
         </button>
 
+        <button
+          v-if="['skipped', 'completed'].includes(task.status)"
+          @click="$emit('update-status', 'pending')"
+          class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+          </svg>
+          <span>{{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}</span>
+        </button>
+
         <!-- Completed Indicator (only when task is completed and not in edit mode) -->
         <div v-if="task.status === 'completed' && !isEditMode" class="flex items-center space-x-2 text-green-600 dark:text-green-400">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -338,7 +338,7 @@ export function useRouteGuard() {
         { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
         { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
         { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
-        { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
+        // { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
       )
     }
 

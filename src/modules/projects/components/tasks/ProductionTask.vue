@@ -1442,13 +1442,22 @@
     <!-- Action Buttons -->
     <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
       <div class="flex space-x-2">
-        <button
-          v-if="task.status === 'pending' || task.status === 'in_progress'"
-          @click="showSkipModal = true"
-          class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors mr-2"
-        >
-          Skip Task
-        </button>
+          <button
+            v-if="task.status !== 'skipped' && task.status !== 'completed'"
+            @click="showSkipModal = true"
+            class="px-4 py-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors"
+          >
+            Skip Task
+          </button>
+
+          <button
+            v-if="['skipped', 'completed'].includes(task.status)"
+            @click="$emit('update-status', 'pending')"
+            class="px-4 py-2.5 text-yellow-600 hover:text-yellow-700 bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
+          >
+            <i class="mdi mdi-undo"></i>
+            {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+          </button>
         <button
           v-if="task.status === 'pending'"
           @click="updateStatus('in_progress')"
