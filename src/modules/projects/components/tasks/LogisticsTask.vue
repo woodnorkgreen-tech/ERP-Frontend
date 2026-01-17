@@ -8,15 +8,33 @@
         <h4 class="text-lg font-semibold text-gray-900 dark:text-white">
           Logistics Task - {{ task.title }}
         </h4>
-        <button
-          @click="downloadPdfReport"
-          class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-          </svg>
-          <span>Download PDF Report</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="task.status === 'completed'"
+            @click="revertTaskStatus"
+            :disabled="isReverting"
+            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="isReverting" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            <span>{{ isReverting ? 'Reverting...' : 'Revert to In Progress' }}</span>
+          </button>
+          
+          <button
+            @click="downloadPdfReport"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            <span>Download PDF Report</span>
+          </button>
+        </div>
       </div>
 
       <!-- Premium Project Information Section -->
@@ -174,506 +192,7 @@
 
     <!-- Tab Content Container -->
     <div class="tab-content-container">
-      <!-- Logistics Planning Tab -->
-      <div
-        v-show="activeTab === 'logistics-planning'"
-        class="logistics-planning-section tab-panel"
-        :id="`tab-panel-logistics-planning`"
-        role="tabpanel"
-        :aria-labelledby="`tab-logistics-planning`"
-        :class="{ 'animate-fade-in': activeTab === 'logistics-planning' }"
-      >
-        <!-- Check if logistics data exists -->
-        <div v-if="!logisticsData.logistics_planning?.vehicle_type && !logisticsData.logistics_planning?.vehicle_identification && !logisticsData.logistics_planning?.driver_name">
-          <!-- Empty State -->
-          <div class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-            <div class="text-6xl mb-4"></div>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Logistics Planning Yet</h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-              Start planning your transportation logistics by setting up vehicle assignments, routes, and timelines for this project.
-            </p>
-            <button
-              v-if="!isReadOnly"
-              @click="showPlanningModal = true"
-              class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors inline-flex items-center space-x-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              <span>Plan Logistics</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- Existing Logistics Data Display -->
-        <div v-else class="space-y-6">
-          <!-- Logistics Planning Header -->
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-            <div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">Transportation Planning</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Current logistics plan for this project
-              </p>
-            </div>
-            <div class="flex space-x-3" v-if="!isReadOnly">
-              <button
-                @click="showPlanningModal = true"
-                class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-              >
-                Edit Planning
-              </button>
-              <button
-                @click="resetLogisticsForm"
-                class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
-              >
-                Reset Form
-              </button>
-            </div>
-          </div>
-
-          <!-- Logistics Data Display Cards -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Vehicle Information Card -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl"></span>
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Vehicle Information</h4>
-              </div>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Vehicle Type:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.vehicle_type || 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Vehicle ID:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.vehicle_identification || 'Not set' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Driver Information Card -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl"></span>
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Driver Information</h4>
-              </div>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Driver Name:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.driver_name || 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Contact:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.driver_contact || 'Not set' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Route Planning Card -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl"></span>
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Route Planning</h4>
-              </div>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Origin:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.route?.origin || 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Destination:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.route?.destination || 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Distance:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.route?.distance ? `${logisticsData.logistics_planning.route.distance} km` : 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Travel Time:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.route?.travel_time || 'Not set' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Timeline Card -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center space-x-2 mb-4">
-                <span class="text-xl"></span>
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Timeline</h4>
-              </div>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Departure:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.timeline?.departure_time ? formatDate(logisticsData.logistics_planning.timeline.departure_time) : 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Arrival:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.timeline?.arrival_time ? formatDate(logisticsData.logistics_planning.timeline.arrival_time) : 'Not set' }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600 dark:text-gray-400">Setup Start:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ logisticsData.logistics_planning?.timeline?.setup_start_time ? formatDate(logisticsData.logistics_planning.timeline.setup_start_time) : 'Not set' }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Logistics Planning Modal -->
-        <div v-if="activeTab === 'logistics-planning' && showPlanningModal" class="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div class="bg-white dark:bg-gray-800 absolute inset-0 overflow-y-auto p-6">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Logistics Planning</h3>
-                <div class="flex items-center space-x-2">
-                  <button
-                    type="submit"
-                    form="logistics-planning-form"
-                    :disabled="!isFormValid"
-                    :class="[
-                      'px-3 py-1 text-xs rounded transition-colors',
-                      isFormValid
-                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                        : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                    ]"
-                  >
-                    Save
-                  </button>
-                  <button
-                    @click="showPlanningModal = false"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="p-4">
-              <!-- Logistics Planning Form -->
-              <form id="logistics-planning-form" @submit.prevent="saveLogisticsPlanning" class="space-y-4">
-          <!-- Vehicle Information Section -->
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-            <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base"></span>
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white">Vehicle Information</h4>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <!-- Vehicle Type -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Vehicle Type <span class="text-red-500">*</span>
-                </label>
-                <select
-                  v-model="logisticsData.logistics_planning.vehicle_type"
-                  @change="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('vehicleType')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  required
-                >
-                  <option value="">Select vehicle type</option>
-                  <option value="truck">Truck</option>
-                  <option value="van">Van</option>
-                  <option value="pickup">Pickup Truck</option>
-                  <option value="trailer">Trailer</option>
-                  <option value="other">Other</option>
-                </select>
-                <p v-if="hasFieldError('vehicleType')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('vehicleType') }}
-                </p>
-              </div>
-
-              <!-- Vehicle Identification -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Vehicle ID/License Plate <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  v-model="logisticsData.logistics_planning.vehicle_identification"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('vehicleId')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  placeholder="e.g., KCA 123A or Fleet #001"
-                  required
-                />
-                <p v-if="hasFieldError('vehicleId')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('vehicleId') }}
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Driver Information Section -->
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-            <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base"></span>
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white">Driver Information</h4>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <!-- Driver Selection -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Driver <span class="text-red-500">*</span>
-                </label>
-                <select
-                  v-model="selectedDriverId"
-                  @change="onDriverChange"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('driverName')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  required
-                >
-                  <option value="">Select a driver</option>
-                  <option
-                    v-for="driver in availableDrivers"
-                    :key="driver.id"
-                    :value="driver.id"
-                  >
-                    {{ driver.label }}
-                  </option>
-                </select>
-                <p v-if="hasFieldError('driverName')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('driverName') }}
-                </p>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Drivers are loaded from the HR system
-                </p>
-              </div>
-
-              <!-- Driver Contact (auto-filled from selection) -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Driver Contact <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  v-model="logisticsData.logistics_planning.driver_contact"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('driverContact')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  placeholder="+254 700 000 000"
-                  required
-                  readonly
-                />
-                <p v-if="hasFieldError('driverContact')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('driverContact') }}
-                </p>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Auto-filled from driver selection
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Route Planning Section -->
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-            <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base"></span>
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white">Route Planning</h4>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <!-- Origin -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Origin Location <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  v-model="logisticsData.logistics_planning.route.origin"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('routeOrigin')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  placeholder="Starting location/warehouse"
-                  required
-                />
-                <p v-if="hasFieldError('routeOrigin')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('routeOrigin') }}
-                </p>
-              </div>
-
-              <!-- Destination -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Destination Location <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  v-model="logisticsData.logistics_planning.route.destination"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('routeDestination')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  placeholder="Event venue/delivery location"
-                  required
-                />
-                <p v-if="hasFieldError('routeDestination')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('routeDestination') }}
-                </p>
-              </div>
-
-              <!-- Estimated Distance (Optional) -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Estimated Distance (Optional)
-                </label>
-                <input
-                  type="text"
-                  v-model="logisticsData.logistics_planning.route.distance"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                  placeholder="e.g., 25 km, 15 miles"
-                />
-              </div>
-
-              <!-- Estimated Travel Time -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Estimated Travel Time <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  v-model="logisticsData.logistics_planning.route.travel_time"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('travelTime')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  placeholder="e.g., 45 minutes, 1.5 hours"
-                  required
-                />
-                <p v-if="hasFieldError('travelTime')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('travelTime') }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Timeline Section -->
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border border-gray-200 dark:border-gray-600">
-            <div class="flex items-center space-x-2 mb-2">
-              <span class="text-base"></span>
-              <h4 class="text-sm font-medium text-gray-900 dark:text-white">Timeline</h4>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <!-- Departure Time -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Departure Time <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  v-model="logisticsData.logistics_planning.timeline.departure_time"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('departureTime')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  required
-                />
-                <p v-if="hasFieldError('departureTime')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('departureTime') }}
-                </p>
-              </div>
-
-              <!-- Arrival Time -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Arrival Time <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  v-model="logisticsData.logistics_planning.timeline.arrival_time"
-                  @input="validateLogisticsForm"
-                  :class="[
-                    'w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors',
-                    'bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
-                    hasFieldError('arrivalTime')
-                      ? 'border-red-300 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600'
-                  ]"
-                  required
-                />
-                <p v-if="hasFieldError('arrivalTime')" class="mt-1 text-sm text-red-600 dark:text-red-400">
-                  {{ getFieldError('arrivalTime') }}
-                </p>
-              </div>
-
-              <!-- Setup Start Time (Optional) -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Setup Start Time (Optional)
-                </label>
-                <input
-                  type="datetime-local"
-                  v-model="logisticsData.logistics_planning.timeline.setup_start_time"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-600">
-            <div class="flex items-center space-x-2 text-sm">
-              <span class="text-red-500">*</span>
-              <span class="text-gray-600 dark:text-gray-400">Required fields</span>
-            </div>
-
-            <button
-              type="button"
-              @click="resetLogisticsForm"
-              class="px-3 py-1 text-xs text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Reset
-            </button>
-          </div>
-        </form>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Team Confirmation Tab -->
       <div
@@ -688,9 +207,9 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Team Confirmation</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <!-- <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
               Confirm team assignments from Teams Task for logistics coordination
-            </p>
+            </p> -->
           </div>
           <div class="flex space-x-3">
             <button
@@ -1407,6 +926,7 @@
                         <option value="TOOLS_EQUIPMENTS">TOOLS & EQUIPMENTS - Setup Tools</option>
                         <option value="STORES">STORES - Consumables & Items For Hire</option>
                         <option value="ELECTRICALS">ELECTRICALS - Extensions, Power Supply</option>
+                        <option value="CLIENT ASSETS">CLIENT ASSETS</option>
                       </select>
                     </div>
 
@@ -1643,7 +1163,8 @@
                             :class="group.mainCategory === 'PRODUCTION' ? 'bg-purple-500' : 
                                     group.mainCategory === 'TOOLS_EQUIPMENTS' ? 'bg-blue-500' :
                                     group.mainCategory === 'STORES' ? 'bg-green-500' :
-                                    'bg-yellow-500'">
+                                    group.mainCategory === 'ELECTRICALS' ? 'bg-yellow-500' :
+                                    group.mainCategory === 'CLIENT ASSETS' ? 'bg-gray-500' : ''">
                           </span>
                           {{ group.category }}
                           <span class="ml-2 text-sm text-gray-500">({{ group.items.length }} items)</span>
@@ -1864,13 +1385,13 @@ interface LogisticsPlanning {
   vehicle_identification?: string
   driver_name?: string
   driver_contact?: string
-  route?: {
+  route: {
     origin?: string
     destination?: string
     distance?: number
     travel_time?: string
   }
-  timeline?: {
+  timeline: {
     departure_time?: string
     arrival_time?: string
     setup_start_time?: string
@@ -1918,9 +1439,7 @@ interface TeamType {
  * Individual team category confirmation
  */
 interface TeamConfirmation {
-  confirmed: boolean
-  teamTypes: string[]
-  memberCount: number
+  setup_teams_confirmed: boolean
   notes?: string
 }
 
@@ -1986,6 +1505,7 @@ interface ChecklistData {
   items: ChecklistItem[]
   teams: { workshop: boolean; setup: boolean; setdown: boolean }
   safety: { ppe: boolean; first_aid: boolean; fire_extinguisher: boolean }
+  equipment: { tools: boolean; vehicles: boolean; communication: boolean }
 }
 
 // Component setup
@@ -2002,10 +1522,7 @@ const logistics = useLogistics()
  */
 const feedbackMessages = ref<FeedbackMessage[]>([])
 
-/**
- * Modal state for logistics planning
- */
-const showPlanningModal = ref(false)
+
 
 /**
  * Modal state for print report
@@ -2179,6 +1696,26 @@ onMounted(async () => {
           }
         }
       }
+
+      // Ensure logistics_planning sub-objects exist
+      if (existingData.logistics_planning) {
+        if (!existingData.logistics_planning.route) {
+          existingData.logistics_planning.route = {
+            origin: '',
+            destination: '',
+            distance: undefined,
+            travel_time: ''
+          }
+        }
+        if (!existingData.logistics_planning.timeline) {
+          existingData.logistics_planning.timeline = {
+            departure_time: '',
+            arrival_time: '',
+            setup_start_time: ''
+          }
+        }
+      }
+
       Object.assign(logisticsData, existingData)
       addFeedbackMessage('success', 'Logistics data loaded successfully')
     } else {
@@ -2188,8 +1725,7 @@ onMounted(async () => {
     // Fetch team data for confirmation
     await fetchTeamData()
 
-    // Fetch available drivers
-    await fetchDrivers()
+
 
   } catch (error) {
     console.error('❌ [LogisticsTask] Failed to load logistics data:', error)
@@ -2257,178 +1793,13 @@ const initializeLogisticsData = (): LogisticsTaskData => {
   }
 }
 
-/**
- * Available drivers from HR system
- */
-const availableDrivers = ref<Array<{id: number, name: string, phone: string, label: string}>>([])
-
-/**
- * Selected driver ID for dropdown
- */
-const selectedDriverId = ref<number | null>(null)
-
-/**
- * Fetch available drivers from HR system
- */
-const fetchDrivers = async (): Promise<void> => {
-  try {
-    availableDrivers.value = await logistics.getDrivers()
-  } catch (error) {
-    console.error('Failed to fetch drivers:', error)
-    addFeedbackMessage('warning', 'Could not load driver list. Manual entry available.')
-  }
-}
-
-/**
- * Handle driver selection change
- */
-const onDriverChange = () => {
-  const selectedDriver = availableDrivers.value.find(d => d.id === selectedDriverId.value)
-  if (selectedDriver) {
-    logisticsData.logistics_planning.driver_name = selectedDriver.name
-    logisticsData.logistics_planning.driver_contact = selectedDriver.phone
-  } else {
-    logisticsData.logistics_planning.driver_name = ''
-    logisticsData.logistics_planning.driver_contact = ''
-  }
-  validateLogisticsForm()
-}
 
 /**
  * Main logistics data structure
  */
 const logisticsData = reactive<LogisticsTaskData>(initializeLogisticsData())
 
-/**
- * Form validation errors
- */
-const validationErrors = ref<ValidationErrors>({})
 
-/**
- * Form validation state
- */
-const isFormValid = ref(false)
-
-/**
- * Validate logistics planning form
- */
-const validateLogisticsForm = (): boolean => {
-  const errors: ValidationErrors = {}
-
-  // Vehicle validation
-  if (!logisticsData.logistics_planning?.vehicle_type?.trim()) {
-    errors.vehicleType = ['Vehicle type is required']
-  }
-
-  if (!logisticsData.logistics_planning?.vehicle_identification?.trim()) {
-    errors.vehicleId = ['Vehicle identification is required']
-  }
-
-  // Driver validation
-  if (!logisticsData.logistics_planning?.driver_name?.trim()) {
-    errors.driverName = ['Driver name is required']
-  }
-
-  if (!logisticsData.logistics_planning?.driver_contact?.trim()) {
-    errors.driverContact = ['Driver contact is required']
-  } else if (!/^[\+]?[0-9\s\-\(\)]{10,}$/.test(logisticsData.logistics_planning.driver_contact.trim())) {
-    errors.driverContact = ['Please enter a valid phone number']
-  }
-
-  // Route validation
-  if (!logisticsData.logistics_planning?.route?.origin?.trim()) {
-    errors.routeOrigin = ['Origin location is required']
-  }
-
-  if (!logisticsData.logistics_planning?.route?.destination?.trim()) {
-    errors.routeDestination = ['Destination location is required']
-  }
-
-  if (!logisticsData.logistics_planning?.route?.travel_time?.trim()) {
-    errors.travelTime = ['Estimated travel time is required']
-  }
-
-  // Timeline validation
-  if (!logisticsData.logistics_planning?.timeline?.departure_time) {
-    errors.departureTime = ['Departure time is required']
-  }
-
-  if (!logisticsData.logistics_planning?.timeline?.arrival_time) {
-    errors.arrivalTime = ['Arrival time is required']
-  }
-
-  // Cross-field validation
-  if (logisticsData.logistics_planning?.timeline?.departure_time && logisticsData.logistics_planning?.timeline?.arrival_time) {
-    const departure = new Date(logisticsData.logistics_planning.timeline.departure_time)
-    const arrival = new Date(logisticsData.logistics_planning.timeline.arrival_time)
-
-    if (departure >= arrival) {
-      errors.arrivalTime = ['Arrival time must be after departure time']
-    }
-  }
-
-  validationErrors.value = errors
-  isFormValid.value = Object.keys(errors).length === 0
-
-  return isFormValid.value
-}
-
-/**
- * Save logistics planning data
- */
-const saveLogisticsPlanning = async () => {
-  if (validateLogisticsForm()) {
-    try {
-      await logistics.saveLogisticsPlanning(props.task.id, {
-        vehicle_type: logisticsData.logistics_planning?.vehicle_type,
-        vehicle_identification: logisticsData.logistics_planning?.vehicle_identification,
-        driver_name: logisticsData.logistics_planning?.driver_name,
-        driver_contact: logisticsData.logistics_planning?.driver_contact,
-        route: {
-          origin: logisticsData.logistics_planning?.route?.origin,
-          destination: logisticsData.logistics_planning?.route?.destination,
-          distance: logisticsData.logistics_planning?.route?.distance ? parseFloat(logisticsData.logistics_planning.route.distance.toString()) : undefined,
-          travel_time: logisticsData.logistics_planning?.route?.travel_time
-        },
-        timeline: {
-          departure_time: logisticsData.logistics_planning?.timeline?.departure_time,
-          arrival_time: logisticsData.logistics_planning?.timeline?.arrival_time,
-          setup_start_time: logisticsData.logistics_planning?.timeline?.setup_start_time || undefined
-        }
-      })
-      addFeedbackMessage('success', 'Logistics planning saved successfully')
-    } catch (error) {
-      console.error('Failed to save logistics planning:', error)
-      addFeedbackMessage('error', 'Failed to save logistics planning. Please try again.')
-    }
-  } else {
-    addFeedbackMessage('error', 'Please fix the validation errors before saving')
-  }
-}
-
-/**
- * Reset logistics planning form
- */
-const resetLogisticsForm = () => {
-  Object.assign(logisticsData.logistics_planning, initializeLogisticsPlanning())
-  validationErrors.value = {}
-  isFormValid.value = false
-  addFeedbackMessage('info', 'Logistics planning form has been reset')
-}
-
-/**
- * Get validation error for a field
- */
-const getFieldError = (fieldName: string): string => {
-  return validationErrors.value[fieldName]?.[0] || ''
-}
-
-/**
- * Check if field has validation error
- */
-const hasFieldError = (fieldName: string): boolean => {
-  return !!validationErrors.value[fieldName]?.length
-}
 
 /**
  * Fetch team data from TeamsTask integration
@@ -2641,7 +2012,7 @@ const isAddCustomItemModalOpen = ref(false)
 // Custom Item Form State
 const customItemForm = reactive({
   name: '',
-  main_category: '' as 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | '',
+  main_category: '' as 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS' | '',
   quantity: 1,
   unit: 'pcs',
   weight: '',
@@ -2782,6 +2153,39 @@ const filteredTransportItems = computed<TransportItem[]>(() => {
     item.name.toLowerCase().includes(query) ||
     (item.description || '').toLowerCase().includes(query)
   )
+})
+
+/**
+ * Grouped transport items for loading sheet
+ */
+const groupedTransportItems = computed(() => {
+  const items = logisticsData.transport_items || []
+  const groups: Record<string, { category: string, mainCategory: string, items: TransportItem[] }> = {}
+  
+  // Standard categories to ensure order
+  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS']
+  
+  items.forEach(item => {
+    const mainCat = item.main_category || 'OTHER'
+    if (!groups[mainCat]) {
+      groups[mainCat] = {
+        category: mainCat === 'OTHER' ? 'Other Items' : mainCat.replace('_', ' '),
+        mainCategory: mainCat,
+        items: []
+      }
+    }
+    groups[mainCat].items.push(item)
+  })
+
+  // Return sorted groups: standard first, then others
+  return Object.values(groups).sort((a, b) => {
+    const idxA = standardCats.indexOf(a.mainCategory)
+    const idxB = standardCats.indexOf(b.mainCategory)
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB
+    if (idxA !== -1) return -1
+    if (idxB !== -1) return 1
+    return a.category.localeCompare(b.category)
+  })
 })
 
 
@@ -2945,10 +2349,10 @@ const isAllTeamsConfirmed = computed((): boolean => {
 })
 
 // Tab navigation with enhanced functionality
-const activeTab = ref('logistics-planning')
+// Tab navigation with enhanced functionality
+const activeTab = ref('team-confirmation')
 
 const tabs = [
-  { id: 'logistics-planning', label: 'Logistics Planning', description: 'Plan transportation details and routes' },
   { id: 'team-confirmation', label: 'Team Confirmation', description: 'Confirm team assignments from Teams Task' },
   { id: 'loading-sheet', label: 'Loading Sheet', description: 'Manage loading sheet items and production elements' },
   { id: 'logistics-log', label: 'Logistics Log', description: 'Track vehicle movements and logistics activities' },
@@ -2960,10 +2364,7 @@ const setActiveTab = (tabId: string) => {
   if (tabs.find(tab => tab.id === tabId)) {
     activeTab.value = tabId
 
-    // Close modal when switching away from logistics-planning tab
-    if (tabId !== 'logistics-planning') {
-      showPlanningModal.value = false
-    }
+
 
     // Announce tab change for screen readers
     announceTabChange(tabId)
@@ -3032,19 +2433,7 @@ const handleTabKeydown = (event: KeyboardEvent, currentIndex: number) => {
 // Tab badge functionality
 const getTabBadgeCount = (tabId: string): number => {
   switch (tabId) {
-    case 'logistics-planning':
-      // Count incomplete required fields
-      let incompleteCount = 0
-      if (!logisticsData.logistics_planning?.vehicle_type) incompleteCount++
-      if (!logisticsData.logistics_planning?.vehicle_identification) incompleteCount++
-      if (!logisticsData.logistics_planning?.driver_name) incompleteCount++
-      if (!logisticsData.logistics_planning?.driver_contact) incompleteCount++
-      if (!logisticsData.logistics_planning?.route?.origin) incompleteCount++
-      if (!logisticsData.logistics_planning?.route?.destination) incompleteCount++
-      if (!logisticsData.logistics_planning?.route?.travel_time) incompleteCount++
-      if (!logisticsData.logistics_planning?.timeline?.departure_time) incompleteCount++
-      if (!logisticsData.logistics_planning?.timeline?.arrival_time) incompleteCount++
-      return incompleteCount
+
     case 'team-confirmation':
       // Count unconfirmed setup teams only (since we only show setup teams)
       return logisticsData.team_confirmation?.setup_teams_confirmed ? 0 : 1
@@ -3065,8 +2454,7 @@ const getTabBadgeClass = (tabId: string): string => {
 
   // Different colors for different tab types
   switch (tabId) {
-    case 'logistics-planning':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+
     case 'team-confirmation':
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
     case 'loading-sheet':
@@ -3108,6 +2496,27 @@ const formatDate = (dateString: string): string => {
   } catch (error) {
     console.warn('Error formatting date:', dateString, error)
     return 'TBC'
+  }
+}
+
+/**
+ * Format checklist date for display (short format)
+ */
+const formatChecklistDate = (dateVal: Date | string): string => {
+  if (!dateVal) return ''
+  try {
+    const date = new Date(dateVal)
+    // Check if date is valid
+    if (isNaN(date.getTime())) return ''
+    
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'
+    })
+  } catch (error) {
+    return ''
   }
 }
 
@@ -3340,6 +2749,36 @@ const handleSkipTask = async () => {
         isSkipping.value = false
     }
 }
+
+const isReverting = ref(false)
+
+const revertTaskStatus = async () => {
+  if (!confirm('Are you sure you want to revert this task to "In Progress"?\n\nThis will re-enable editing for all fields.')) {
+    return
+  }
+
+  isReverting.value = true
+  try {
+    await api.put(`/api/projects/tasks/${props.task.id}/status`, {
+      status: 'in_progress',
+      notes: 'Reverted by user'
+    })
+    
+    // Emit update to parent
+    emit('update-status', 'in_progress')
+    
+    // Update local status if needed (though prop update should handle it)
+    logisticsData.status = 'in_progress'
+    
+    addFeedbackMessage('success', 'Task reverted to In Progress')
+  } catch (err: any) {
+    console.error('Revert task error:', err)
+    addFeedbackMessage('error', err.response?.data?.message || 'Failed to revert task status')
+  } finally {
+    isReverting.value = false
+  }
+}
+
 </script>
 
 <style scoped>

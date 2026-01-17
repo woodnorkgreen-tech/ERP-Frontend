@@ -210,7 +210,7 @@
     </div>
 
     <!-- Budget Import Success -->
-    <div v-else-if="quoteData.budgetImported" class="mb-6">
+    <!-- <div v-else-if="quoteData.budgetImported" class="mb-6">
       <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
         <div class="flex items-center space-x-3">
           <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,26 +225,27 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Quote Tabs -->
     <div v-if="quoteData.budgetImported || isImporting || hasExistingQuoteData" class="mb-6">
       <!-- Premium Segmented Tab Navigation -->
-      <div class="mb-8">
-        <nav class="flex p-1.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-inner w-full">
+      <!-- Premium Tab Navigation -->
+      <div class="mb-0">
+        <nav class="flex items-end px-4 gap-2 border-b border-cyan-500 dark:border-cyan-700">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
               activeTab === tab.id
-                ? 'bg-blue-600 shadow-lg shadow-blue-500/30 text-white scale-100'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 scale-95 opacity-70'
+                ? 'bg-white dark:bg-gray-800 text-cyan-600 dark:text-cyan-400 border-cyan-500 dark:border-cyan-700 border-b-white dark:border-b-gray-800 shadow-[0_-2px_4px_rgba(0,0,0,0.02)] translate-y-[1px]'
+                : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-transparent hover:bg-white dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 mb-0.5',
+              'flex-1 sm:flex-none sm:min-w-[140px] flex flex-col items-center justify-center py-3 px-4 rounded-t-xl border border-b-0 transition-all duration-200 relative group'
             ]"
-            class="flex-1 flex flex-col items-center justify-center py-3.5 rounded-xl transition-all duration-300 relative group overflow-hidden"
           >
-            <!-- Background pulse for active tab -->
-            <div v-if="activeTab === tab.id" class="absolute inset-0 bg-white/10 animate-pulse"></div>
+            <!-- Top highlight for active tab -->
+            <div v-if="activeTab === tab.id" class="absolute top-0 left-0 right-0 h-1 bg-cyan-500 rounded-t-xl"></div>
             
             <div class="flex items-center gap-2 relative z-10">
               <!-- Icons for Tabs -->
@@ -270,7 +271,7 @@
 
             <!-- Enhanced Tab Totals -->
             <span v-if="getTabTotal(tab.id) > 0" 
-              :class="activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400'"
+              :class="activeTab === tab.id ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
               class="mt-1.5 text-[9px] font-bold px-2.5 py-0.5 rounded-full transition-colors relative z-10"
             >
               {{ formatCurrency(getTabTotal(tab.id)) }}
@@ -280,7 +281,7 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div class="bg-white dark:bg-gray-800 rounded-b-lg rounded-tr-lg border border-cyan-500 dark:border-cyan-700 shadow-sm relative z-0">
         <!-- Materials Tab -->
         <div v-if="activeTab === 'materials'" class="p-8">
           <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
@@ -314,14 +315,30 @@
                   <template v-for="element in quoteData.materials" :key="element.id">
                     <!-- Element Header Row -->
                     <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                      <td colspan="8" class="py-2 px-4">
+                      <td colspan="9" class="py-2 px-4">
                         <div class="flex items-center justify-between">
-                          <input 
-                            v-model="element.name" 
-                            @input="markDirty()"
-                            :readonly="props.readonly"
-                            class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm flex-1 mr-4"
-                          >
+                          <div class="flex items-center gap-3 flex-1 mr-4">
+                            <!-- Visibility Toggle -->
+                            <div class="relative flex items-center group/tooltip">
+                              <input 
+                                type="checkbox" 
+                                v-model="element.isVisible" 
+                                @change="markDirty()"
+                                :readonly="props.readonly"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                              >
+                              <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[10px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                Show in Quote
+                              </div>
+                            </div>
+                            
+                            <input 
+                              v-model="element.name" 
+                              @input="markDirty()"
+                              :readonly="props.readonly"
+                              class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                            >
+                          </div>
                           <div class="flex items-center gap-4">
                             <div class="flex items-center bg-white/50 dark:bg-gray-800/50 rounded-lg px-2 py-1 border border-gray-100 dark:border-gray-700">
                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mr-2">Qty:</span>
@@ -356,6 +373,20 @@
                     <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td class="py-3 px-4 pl-8">
                         <div class="flex items-center space-x-2">
+                           <!-- Visibility Toggle -->
+                           <div class="relative flex items-center group/tooltip mr-2">
+                              <input 
+                                type="checkbox" 
+                                v-model="material.isVisible" 
+                                @change="updateMaterialElementTotals(); calculateAllTotals(); markDirty()"
+                                :readonly="props.readonly"
+                                class="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                              >
+                              <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[9px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                Show Item
+                              </div>
+                            </div>
+
                           <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
                           <span class="text-gray-900 dark:text-white font-medium">{{ material.description }}</span>
                         </div>
@@ -1172,6 +1203,8 @@ interface QuoteMaterialElement {
   description?: string
   /** Quantity of the element */
   quantity?: number
+  /** Whether the element should be visible in the final quote */
+  isVisible?: boolean
 }
 
 /**
@@ -1200,6 +1233,8 @@ interface QuoteMaterial {
   marginAmount: number
   /** Final price including margin */
   finalPrice: number
+  /** Whether the item should be visible in the final quote */
+  isVisible?: boolean
 }
 
 /**
@@ -1943,9 +1978,10 @@ const updateMaterialElementTotals = () => {
     // Ensure materials array exists
     if (!element.materials) element.materials = []
     
-    // Sum of individual items
-    const sumBase = element.materials.reduce((sum, material) => sum + (material.totalPrice || 0), 0)
-    const sumMargin = element.materials.reduce((sum, material) => sum + (material.marginAmount || 0), 0)
+    // Sum of individual items (excluding hidden ones)
+    const visibleItems = element.materials.filter(m => m.isVisible !== false)
+    const sumBase = visibleItems.reduce((sum, material) => sum + (material.totalPrice || 0), 0)
+    const sumMargin = visibleItems.reduce((sum, material) => sum + (material.marginAmount || 0), 0)
     
     // Apply element quantity multiplier
     element.baseTotal = sumBase * element.quantity
@@ -2113,16 +2149,18 @@ const calculateAllTotals = () => {
   // Helper function to round to 2 decimal places
   const roundCurrency = (amount: number): number => Math.round(amount * 100) / 100
 
-  // Materials totals (sum from individual materials via elements)
+  // Materials totals (sum from visible individual materials via elements)
   // Note: element.finalTotal already includes the element.quantity multiplier
+  const visibleMaterials = quoteData.materials.filter(el => el.isVisible !== false)
+  
   quoteData.totals.materialsBase = roundCurrency(
-    quoteData.materials.reduce((sum, element) => sum + (element.baseTotal || 0), 0)
+    visibleMaterials.reduce((sum, element) => sum + (element.baseTotal || 0), 0)
   )
   quoteData.totals.materialsMargin = roundCurrency(
-    quoteData.materials.reduce((sum, element) => sum + (element.marginAmount || 0), 0)
+    visibleMaterials.reduce((sum, element) => sum + (element.marginAmount || 0), 0)
   )
   quoteData.totals.materialsTotal = roundCurrency(
-    quoteData.materials.reduce((sum, element) => sum + (element.finalTotal || 0), 0)
+    visibleMaterials.reduce((sum, element) => sum + (element.finalTotal || 0), 0)
   )
 
   // Labour totals (sum from individual labour items)
@@ -2260,7 +2298,11 @@ const prepareQuotePayload = () => {
       name: el.name,
       description: el.description || '',
       quantity: typeof el.quantity === 'number' ? el.quantity : 1,
-      materials: (el.materials || []).map(m => ({ ...m }))
+      isVisible: el.isVisible ?? true,
+      materials: (el.materials || []).map(m => ({ 
+        ...m,
+        isVisible: m.isVisible ?? true 
+      }))
     })),
     labour: (quoteData.labour || []).map(item => ({ ...item })),
     expenses: (quoteData.expenses || []).map(item => ({ ...item })),

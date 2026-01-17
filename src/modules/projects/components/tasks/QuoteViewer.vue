@@ -188,7 +188,7 @@
             </thead>
             <tbody>
               <!-- Materials -->
-              <template v-for="(element, elementIndex) in quoteData.materials" :key="element.id">
+              <template v-for="(element, elementIndex) in visibleMaterials" :key="element.id">
                 <!-- Summary View (Default) -->
                 <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
                   <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
@@ -256,7 +256,7 @@
                   </tr>
 
                   <!-- Individual Materials -->
-                  <tr v-for="(material, matIndex) in element.materials" :key="material.id" class="border-b border-gray-200">
+                  <tr v-for="(material, matIndex) in (element.materials || []).filter((m: any) => m.isVisible !== false)" :key="material.id" class="border-b border-gray-200">
                     <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
                     <td class="py-1 px-2 pl-6 border-r border-gray-300">
                        <span v-if="!isEditMode" class="text-gray-900">{{ getOverride(material.id, 'name', material.description) }}</span>
@@ -297,7 +297,7 @@
               <template v-if="quoteData.totals.labourTotal > 0 || quoteData.totals.expensesTotal > 0">
                 <!-- Summary View -->
                 <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 1 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</span>
@@ -346,7 +346,7 @@
                 <template v-else>
                   <!-- Header -->
                   <tr class="bg-gray-100 border-b border-gray-300">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 1 }}</td>
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 1 }}</td>
                     <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
                       <div v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</div>
                       <input
@@ -439,7 +439,7 @@
               <!-- Logistics -->
               <template v-if="quoteData.totals.logisticsTotal > 0">
                 <tr class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ quoteData.materials.length + 2 }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 2 }}</td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ editableDescriptions['logistics_title'] || 'Transport cost' }}</span>
@@ -744,6 +744,11 @@ const isEditMode = ref(false)
 const showBankDetails = ref(!!props.quoteData?.vatEnabled) // Default to VAT status
 const editableDescriptions = ref<Record<string, string>>({})
 const overrides = ref<Record<string, any>>({})
+
+// Computed visible materials
+const visibleMaterials = computed(() => {
+  return (props.quoteData.materials || []).filter((el: any) => el.isVisible !== false)
+})
 
 const getOverride = (id: string, field: string, defaultVal: any) => {
   const key = `${id}_${field}`

@@ -243,6 +243,15 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
+              
+              <!-- Download button overlay -->
+              <button @click.stop="downloadPhoto(photo)"
+                class="absolute top-2 right-12 opacity-0 group-hover:opacity-100 bg-blue-500 hover:bg-blue-600 text-white p-1.5 rounded-full transition-all shadow-lg"
+                title="Download photo">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
 
               <!-- Photo info -->
               <div class="mt-1.5">
@@ -278,6 +287,16 @@
               <img :src="photo.url" :alt="photo.description || 'Setup photo'"
                 class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer transition-transform hover:scale-105"
                 @click="openImageModal(photo)" @error="handleImageError" />
+              
+              <!-- Download button overlay (readonly view) -->
+              <button @click.stop="downloadPhoto(photo)"
+                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-blue-500 hover:bg-blue-600 text-white p-1.5 rounded-full transition-all shadow-lg"
+                title="Download photo">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
+              
               <div class="mt-1.5">
                 <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {{ photo.uploaded_at ? new Date(photo.uploaded_at).toLocaleDateString() : 'Unknown date' }}
@@ -1314,6 +1333,43 @@ const closeImageModal = () => {
   imageModal.currentImage = null
 }
 
+/**
+ * Download a photo
+ */
+const downloadPhoto = async (photo: any) => {
+  try {
+    // Create a temporary link element
+    const link = document.createElement('a')
+    link.href = photo.url
+    link.download = photo.filename || `setup-photo-${photo.id}.jpg`
+    link.target = '_blank'
+    
+    // For cross-origin images, we need to fetch as blob first
+    if (photo.url.startsWith('http') && !photo.url.includes(window.location.hostname)) {
+      const response = await fetch(photo.url, { mode: 'cors' })
+      const blob = await response.blob()
+      const blobUrl = window.URL.createObjectURL(blob)
+      link.href = blobUrl
+    }
+    
+    // Trigger download
+    document.body.appendChild(link)
+    link.click()
+    
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link)
+      if (link.href.startsWith('blob:')) {
+        window.URL.revokeObjectURL(link.href)
+      }
+    }, 100)
+    
+    addFeedbackMessage('success', 'Photo downloaded successfully')
+  } catch (error) {
+    console.error('Failed to download photo:', error)
+    addFeedbackMessage('error', 'Failed to download photo. Please try again.')
+  }
+}
 
 /**
  * Handle image loading error

@@ -6,7 +6,7 @@
       :is="taskComponent"
       :task="task"
       :initial-tab="initialTab"
-      :readonly="readonly || (task.status === 'completed' && task.type?.toLowerCase() !== 'quote')"
+      :readonly="readonly || (task.status === 'completed' && !isEditableWhenCompleted(task.type))"
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
@@ -49,6 +49,7 @@ import HandoverTask from './HandoverTask.vue'
 import SetdownTask from './SetdownTask.vue'
 import ReportTask from './ReportTask.vue'
 import TeamsTask from './TeamsTask.vue'
+import ArchivalTask from './ArchivalTask.vue'
 import DefaultTask from './DefaultTask.vue'
 
 interface Props {
@@ -71,10 +72,22 @@ const shouldUseDirectComponent = (taskType?: string) => {
   
   const specialTypes = [
     'budget', 'design', 'quote', 'quote_approval', 'production', 
-    'logistics', 'procurement', 'site-survey', 'survey', 'site survey'
+    'logistics', 'procurement', 'site-survey', 'survey', 'site survey',
+    'archival', 'setup', 'setdown'
   ]
   
   return specialTypes.includes(taskType.toLowerCase())
+}
+
+// Helper function to determine if task should remain editable when completed
+const isEditableWhenCompleted = (taskType?: string) => {
+  if (!taskType) return false
+  
+  const editableTypes = [
+    'quote', 'setup', 'setdown', 'logistics'
+  ]
+  
+  return editableTypes.includes(taskType.toLowerCase())
 }
 
 const taskComponent = computed(() => {
@@ -128,6 +141,9 @@ const taskComponent = computed(() => {
     case 'teams':
       console.log('selected component: TeamsTask')
       return TeamsTask
+    case 'archival':
+      console.log('selected component: ArchivalTask')
+      return ArchivalTask
     default:
       console.log('selected component: unknown, using DefaultTask')
       console.warn(`Unknown task type: ${props.task.type}, falling back to DefaultTask`)

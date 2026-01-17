@@ -1222,6 +1222,17 @@
           </button>
 
           <button 
+            v-if="canMarkComplete && !['completed', 'cancelled'].includes(activeMenuEnquiry.status)"
+            @click="markAsComplete(activeMenuEnquiry); activeMenuEnquiry = null" 
+            class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-green-600 dark:text-green-400 uppercase tracking-widest hover:bg-green-50 dark:hover:bg-green-500/10 transition-all group/item"
+          >
+            <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600 group-hover/item:scale-110 transition-transform">
+              <i class="mdi mdi-check-circle-outline text-lg"></i>
+            </div>
+            <span>Mark as Complete</span>
+          </button>
+
+          <button 
             @click="confirmDelete(activeMenuEnquiry); activeMenuEnquiry = null" 
             class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-black text-red-500 uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group/item"
           >
@@ -1277,6 +1288,10 @@ const canLogEnquiry = computed(() => {
 
 const isProjectOfficer = computed(() => {
   return user.value?.roles?.includes('Project Officer')
+})
+
+const canMarkComplete = computed(() => {
+  return user.value?.roles?.some(role => ['Super Admin', 'Project Manager'].includes(role))
 })
 
 // Automatically default to "My Projects" for Project Officers when user data loads
@@ -1452,11 +1467,12 @@ const removeDeliverable = (index: number) => {
 }
 
 
-const currentView = ref<'enquiries' | 'projects'>('enquiries')
+const currentView = ref<'enquiries' | 'projects' | 'completed'>('enquiries')
 
 const dashboardTabs = [
   { id: 'enquiries', label: 'Enquiries Pipeline', icon: 'mdi-magnify-scan', desc: 'Pipeline' },
-  { id: 'projects', label: 'Active Projects', icon: 'mdi-rocket-launch', desc: 'In Progress' }
+  { id: 'projects', label: 'Active Projects', icon: 'mdi-rocket-launch', desc: 'In Progress' },
+  { id: 'completed', label: 'Completed Projects', icon: 'mdi-check-circle', desc: 'Finished' }
 ]
 
 const statusTabs = computed(() => {
@@ -1479,15 +1495,19 @@ const statusTabs = computed(() => {
 const filteredEnquiries = computed(() => {
   let filtered = enquiries.value.filter(e => e !== undefined && e !== null)
 
-  // 1. Separate Enquiries from Projects based on "Quote Approved" milestone
-  const projectStatuses = ['quote_approved', 'planning', 'in_progress', 'completed', 'cancelled']
+  // 1. Separate Enquiries, Projects, and Completed based on status
+  const completedStatuses = ['completed', 'cancelled']
+  const activeProjectStatuses = ['quote_approved', 'planning', 'in_progress']
   
-  if (currentView.value === 'projects') {
-      // Projects View: Status must be quote_approved OR later
-      filtered = filtered.filter(e => projectStatuses.includes(e.status))
+  if (currentView.value === 'completed') {
+      // Completed View: Only completed or cancelled projects
+      filtered = filtered.filter(e => completedStatuses.includes(e.status))
+  } else if (currentView.value === 'projects') {
+      // Projects View: Active projects only (quote_approved to in_progress, excluding completed/cancelled)
+      filtered = filtered.filter(e => activeProjectStatuses.includes(e.status))
   } else {
       // Enquiries View: Status must be BEFORE quote_approved
-      filtered = filtered.filter(e => !projectStatuses.includes(e.status))
+      filtered = filtered.filter(e => !activeProjectStatuses.includes(e.status) && !completedStatuses.includes(e.status))
   }
 
   // 2. Filter by status tab (activeTab)
@@ -1587,6 +1607,20 @@ const confirmDelete = async (enquiry: ProjectEnquiry) => {
   }
 }
 
+const markAsComplete = async (enquiry: ProjectEnquiry) => {
+  if (!confirm(`Mark project "${enquiry.title}" as completed?\n\nThis will move the project to the Completed tab.`)) {
+    return
+  }
+
+  try {
+    await updateEnquiry(enquiry.id, { status: 'completed' } as any)
+    // Refresh the list after updating
+    await fetchEnquiries({ ...filters.value, page: pagination.value.current_page })
+  } catch (err) {
+    console.error('Failed to mark project as complete:', err)
+    alert('Failed to complete project. Please try again.')
+  }
+}
 
 
 const openTaskAssignment = (enquiry: ProjectEnquiry) => {
