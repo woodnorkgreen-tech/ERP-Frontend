@@ -29,6 +29,11 @@ export interface DesignAsset {
   }
   created_at: string
   updated_at: string
+  original_name?: string
+  file_size?: number
+  file_path?: string
+  file_url?: string
+  mime_type?: string
 }
 
 export interface AssetMetadata {
