@@ -227,8 +227,8 @@ const formData = ref({
 
 const fetchProjects = async () => {
   try {
-    const response = await axios.get('/api/projects/projects')
-    projects.value = response.data.data || response.data
+    const response = await axios.get('/api/projects')
+    projects.value = response.data.data.data || response.data.data || []
   } catch (e) {
     console.error('Failed to fetch projects:', e)
   }
