@@ -211,9 +211,9 @@ const loading = ref(false)
 const errorMessage = ref('')
 const errors = ref<Record<string, string[]>>({})
 
-const projects = ref([])
-const employees = ref([])
-const departments = ref([])
+const projects = ref<Array<{ id: number; name: string }>>([])
+const employees = ref<Array<{ id: number; name: string }>>([])
+const departments = ref<Array<{ id: number; name: string }>>([])
 
 const formData = ref({
   date: new Date().toISOString().split('T')[0],

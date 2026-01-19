@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 <template>
   <div class="p-8 space-y-8 max-w-5xl mx-auto">
     <!-- Premium Header -->
@@ -235,4 +233,3 @@ onMounted(() => {
   fetchInventory()
 })
 </script>
->>>>>>> 3d98d46a7334de7193e06ba3bad4f54f8daf4a14
