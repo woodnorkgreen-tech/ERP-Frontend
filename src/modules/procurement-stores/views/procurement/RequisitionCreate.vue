@@ -104,7 +104,7 @@
             >
               <option value="">Select Project</option>
               <option v-for="project in projects" :key="project.id" :value="project.id">
-                {{ project.name }}
+                {{ project.project_id }} - {{ project.enquiry?.title }}
               </option>
             </select>
           </div>
@@ -211,9 +211,9 @@ const loading = ref(false)
 const errorMessage = ref('')
 const errors = ref<Record<string, string[]>>({})
 
-const projects = ref([])
-const employees = ref([])
-const departments = ref([])
+const projects = ref<any[]>([])
+const employees = ref<any[]>([])
+const departments = ref<any[]>([])
 
 const formData = ref({
   date: new Date().toISOString().split('T')[0],
@@ -229,10 +229,12 @@ const fetchProjects = async () => {
   try {
     const response = await axios.get('/api/projects')
     projects.value = response.data.data.data || response.data.data || []
+    console.log('Projects loaded:', projects.value)
   } catch (e) {
     console.error('Failed to fetch projects:', e)
   }
 }
+
 const fetchEmployees = async () => {
   try {
     const response = await axios.get('/api/hr/employees')
