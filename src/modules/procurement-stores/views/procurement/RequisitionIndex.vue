@@ -124,7 +124,7 @@
                 Requested By
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Department
+                Created By
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Items
@@ -154,12 +154,10 @@
                 {{ formatDate(requisition.date) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                <span v-if="requisition.project">{{ requisition.project.name }}</span>
-                <span v-else-if="requisition.employee">{{ requisition.employee.name }}</span>
-                <span v-else-if="requisition.department">{{ requisition.department.name }}</span>
+                {{ getRequestedBy(requisition) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ requisition.department?.name || 'N/A' }}
+                {{ getCreatedBy(requisition) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ requisition.items?.length || 0 }}
@@ -246,6 +244,26 @@ const applyFilters = async () => {
 
 const viewRequisition = (id: number) => {
   router.push(`/procurement/requisition/${id}`)
+}
+
+const getRequestedBy = (requisition: any) => {
+  if (requisition.project) {
+    return `${requisition.project.project_id} - ${requisition.project.enquiry?.title || ''}`
+  }
+  if (requisition.employee) {
+    return requisition.employee.name
+  }
+  if (requisition.department) {
+    return requisition.department.name
+  }
+  return 'N/A'
+}
+
+const getCreatedBy = (requisition: any) => {
+  if (requisition.createdBy) {
+    return `${requisition.createdBy.first_name || ''} ${requisition.createdBy.last_name || ''}`.trim()
+  }
+  return 'N/A'
 }
 
 const formatDate = (date: string) => {

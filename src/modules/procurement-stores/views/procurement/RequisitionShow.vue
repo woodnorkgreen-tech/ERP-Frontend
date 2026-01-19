@@ -129,11 +129,13 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Requested By Type</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ requisition.requested_by_type }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatRequestedByType(requisition.requested_by_type) }}</p>
           </div>
           <div v-if="requisition.project">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Project</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ requisition.project.name }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">
+              {{ requisition.project.project_id }} - {{ requisition.project.enquiry?.title }}
+            </p>
           </div>
           <div v-if="requisition.employee">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Employee</label>
@@ -336,6 +338,15 @@ const formatDate = (date: string) => {
 
 const formatStatus = (status: string) => {
   return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const formatRequestedByType = (type: string) => {
+  const types: Record<string, string> = {
+    project: 'Project',
+    employee: 'Employee',
+    office: 'Office/Department'
+  }
+  return types[type] || type
 }
 
 const getStatusClass = (status: string) => {
