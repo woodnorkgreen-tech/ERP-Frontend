@@ -460,7 +460,7 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                       {{ asset.category }} • 
                       Uploaded {{ new Date(asset.created_at).toLocaleDateString() }}
-                      <span v-if="(asset as any).file_size"> • {{ formatFileSize((asset as any).file_size) }}</span>
+                      <span v-if="asset.file_size"> • {{ formatFileSize(asset.file_size) }}</span>
                     </p>
                   </div>
                   <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
@@ -473,9 +473,9 @@
                 </p>
 
                 <!-- Tags -->
-                <div v-if="(asset as any).tags && (asset as any).tags.length > 0" class="flex flex-wrap gap-1 mb-3">
+                <div v-if="asset.tags && asset.tags.length > 0" class="flex flex-wrap gap-1 mb-3">
                   <span
-                    v-for="tag in (asset as any).tags"
+                    v-for="tag in asset.tags"
                     :key="tag"
                     class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                   >
@@ -615,7 +615,7 @@
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {{ previewAsset.category }} • 
-                  <span v-if="(previewAsset as any).file_size">{{ formatFileSize((previewAsset as any).file_size) }}</span>
+                  <span v-if="previewAsset.file_size">{{ formatFileSize(previewAsset.file_size) }}</span>
                 </p>
               </div>
               
@@ -918,18 +918,18 @@ const formatFileSize = (bytes: number): string => {
 }
 
 const getAssetUrl = (asset: DesignAsset): string => {
-  const filePath = (asset as any).file_path || ''
+  const filePath = asset.file_path || ''
   // Use relative path - Vite proxy handles /storage in dev, works directly in production
-  return (asset as any).file_url || ''
+  return asset.file_url || ''
 }
 
 const isImageAsset = (asset: DesignAsset): boolean => {
-  const mimeType = (asset as any).mime_type || asset.type || ''
+  const mimeType = asset.mime_type || asset.type || ''
   return mimeType.startsWith('image/')
 }
 
 const isPdfAsset = (asset: DesignAsset): boolean => {
-  const mimeType = (asset as any).mime_type || asset.type || ''
+  const mimeType = asset.mime_type || asset.type || ''
   return mimeType.includes('pdf')
 }
 

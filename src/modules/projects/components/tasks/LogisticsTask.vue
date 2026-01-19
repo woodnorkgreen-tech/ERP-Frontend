@@ -197,7 +197,7 @@
       <!-- Team Confirmation Tab -->
       <div
         v-show="activeTab === 'team-confirmation'"
-        class="team-confirmation-section tab-panel"
+        class="team-confirmation-section tab-panel transition-opacity duration-200"
         :id="`tab-panel-team-confirmation`"
         role="tabpanel"
         :aria-labelledby="`tab-team-confirmation`"
@@ -373,7 +373,7 @@
             <div v-else class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
               <div class="text-4xl mb-4"></div>
               <h5 class="text-lg font-medium mb-2">No Setup Teams Assigned</h5>
-              <p class="text-sm">Setup teams need to be created in the Teams Task first before they can be confirmed for logistics.</p>
+             
             </div>
 
             <!-- Notes Section -->
@@ -444,7 +444,7 @@
       <!-- Items Management Tab -->
       <div
         v-show="activeTab === 'loading-sheet'"
-        class="loading-sheet-section tab-panel"
+        class="loading-sheet-section tab-panel transition-opacity duration-200"
         :id="`tab-panel-loading-sheet`"
         role="tabpanel"
         :aria-labelledby="`tab-loading-sheet`"
@@ -680,7 +680,7 @@
       <!-- Logistics Log Tab -->
       <div
         v-show="activeTab === 'logistics-log'"
-        class="logistics-log-section tab-panel"
+        class="logistics-log-section tab-panel transition-opacity duration-200"
         :id="`tab-panel-logistics-log`"
         role="tabpanel"
         :aria-labelledby="`tab-logistics-log`"
@@ -696,7 +696,7 @@
       <!-- Checklist Tab -->
       <div
         v-show="activeTab === 'checklist'"
-        class="checklist-section tab-panel"
+        class="checklist-section tab-panel transition-opacity duration-200"
         :id="`tab-panel-checklist`"
         role="tabpanel"
         :aria-labelledby="`tab-checklist`"
@@ -1313,6 +1313,7 @@ import api from '@/plugins/axios'
 
 import { useTeams } from '../../composables/useTeams'
 import { useLogistics } from '../../composables/useLogistics'
+import type { EnquiryTask } from '../../types'
 
 /**
  * Props interface for the LogisticsTask component
@@ -1482,7 +1483,7 @@ interface TransportItem {
   quantity: number
   unit: string
   category: 'production' | 'custom'
-  main_category?: 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS'  // Main loading sheet category
+  main_category?: 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS'  // Main loading sheet category
   element_category?: string  // Sub-category for production items (e.g., "Banners", "Signage", "Furniture")
   weight?: string
   special_handling?: string
@@ -1606,7 +1607,7 @@ const extractProjectInfo = (): ProjectInfo => {
     const projectInfo: ProjectInfo = {
       projectId: enquiry?.job_number || enquiry?.enquiry_number || 'N/A',
       enquiryTitle: enquiry?.title || 'Untitled Project',
-      clientName: enquiry?.client?.full_name || enquiry?.client?.FullName || enquiry?.contact_person || 'N/A',
+      clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
       eventVenue: enquiry?.venue || 'TBC',
       setupDate: enquiry?.expected_delivery_date || 'TBC',
       setDownDate: 'TBC', // This would come from project data when available
@@ -1682,18 +1683,15 @@ onMounted(async () => {
       if (existingData.checklist) {
         existingData.checklist = {
           items: existingData.checklist.items || [],
-          teams: { 
-            workshop: false, setup: false, setdown: false, 
-            ...(existingData.checklist.teams || {}) 
-          },
-          safety: { 
-            ppe: false, first_aid: false, fire_extinguisher: false, 
-            ...(existingData.checklist.safety || {}) 
-          },
-          equipment: { 
-            tools: false, vehicles: false, communication: false, 
-            ...(existingData.checklist.equipment || {}) 
-          }
+          teams: Object.assign({ 
+            workshop: false, setup: false, setdown: false 
+          }, existingData.checklist.teams || {}),
+          safety: Object.assign({ 
+            ppe: false, first_aid: false, fire_extinguisher: false 
+          }, existingData.checklist.safety || {}),
+          equipment: Object.assign({ 
+            tools: false, vehicles: false, communication: false 
+          }, existingData.checklist.equipment || {})
         }
       }
 
@@ -1837,11 +1835,11 @@ const fetchTeamData = async (): Promise<void> => {
 
     // Group teams by category and transform to our expected format
     teams.teamsTasks.value.forEach(team => {
-      const categoryKey = team.category?.category_key || 'workshop'
+      const categoryKey = (team.category?.category_key || 'workshop') as keyof TeamsTaskData['categories']
       console.log('Processing team:', team.id, 'Category:', categoryKey, 'Members:', team.members?.length || 0)
 
       if (transformedData.categories[categoryKey]) {
-        const teamTypeKey = team.teamType?.type_key || `team-${team.id}`
+        const teamTypeKey = team.team_type?.type_key || `team-${team.id}`
         transformedData.categories[categoryKey].teamTypes[teamTypeKey] = {
           id: teamTypeKey,
           name: team.team_type?.display_name || team.category?.display_name || `${categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1)} Team`,
@@ -2163,7 +2161,7 @@ const groupedTransportItems = computed(() => {
   const groups: Record<string, { category: string, mainCategory: string, items: TransportItem[] }> = {}
   
   // Standard categories to ensure order
-  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS']
+  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT ASSETS']
   
   items.forEach(item => {
     const mainCat = item.main_category || 'OTHER'
@@ -2474,17 +2472,17 @@ const projectInfo = computed(() => logisticsData.projectInfo)
 /**
  * Format date for display with enhanced error handling
  */
-const formatDate = (dateString: string): string => {
-  if (!dateString || dateString === 'TBC' || dateString === 'N/A') {
+const formatDate = (dateVal: string | Date | undefined | null): string => {
+  if (!dateVal || dateVal === 'TBC' || dateVal === 'N/A') {
     return 'TBC'
   }
 
   try {
-    const date = new Date(dateString)
+    const date = typeof dateVal === 'string' ? new Date(dateVal) : dateVal
 
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      console.warn('Invalid date string:', dateString)
+      console.warn('Invalid date:', dateVal)
       return 'TBC'
     }
 
@@ -2494,7 +2492,7 @@ const formatDate = (dateString: string): string => {
       day: 'numeric'
     })
   } catch (error) {
-    console.warn('Error formatting date:', dateString, error)
+    console.warn('Error formatting date:', dateVal, error)
     return 'TBC'
   }
 }
@@ -2782,16 +2780,8 @@ const revertTaskStatus = async () => {
 </script>
 
 <style scoped>
-@reference "tailwindcss";
-
-.project-info-card {
-  @apply p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600;
-}
-
 /* Tab panel animations */
-.tab-panel {
-  @apply transition-opacity duration-200;
-}
+
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease-in-out;
