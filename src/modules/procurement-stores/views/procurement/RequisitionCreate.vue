@@ -211,9 +211,9 @@ const loading = ref(false)
 const errorMessage = ref('')
 const errors = ref<Record<string, string[]>>({})
 
-const projects = ref<Array<{ id: number; name: string }>>([])
-const employees = ref<Array<{ id: number; name: string }>>([])
-const departments = ref<Array<{ id: number; name: string }>>([])
+const projects = ref([])
+const employees = ref([])
+const departments = ref([])
 
 const formData = ref({
   date: new Date().toISOString().split('T')[0],
@@ -233,7 +233,6 @@ const fetchProjects = async () => {
     console.error('Failed to fetch projects:', e)
   }
 }
-
 const fetchEmployees = async () => {
   try {
     const response = await axios.get('/api/hr/employees')
