@@ -146,6 +146,17 @@
             class="!text-xs !font-bold !uppercase !tracking-wider !px-3 !py-2 !rounded-xl"
           />
 
+          <!-- Download PDF -->
+          <button
+            @click="downloadBudgetPdf"
+            :disabled="isDownloading"
+            class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
+          >
+            <i v-if="isDownloading" class="mdi mdi-loading mdi-spin"></i>
+            <i v-else class="mdi mdi-file-pdf-box"></i> 
+            {{ isDownloading ? 'Generating...' : 'Download PDF' }}
+          </button>
+
           <!-- Toggle Edit Mode (Completed Tasks) -->
           <button
             v-if="task.status === 'completed'"
@@ -493,6 +504,31 @@ const materialsUpdateStatus = ref({
   budgetLastImported: null as string | null
 })
 const isRefreshing = ref(false)
+const isDownloading = ref(false)
+
+const downloadBudgetPdf = async () => {
+  try {
+    isDownloading.value = true
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/budget/pdf`, {
+      responseType: 'blob'
+    })
+    
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `Budget_Report_${projectInfo.value.projectId}.pdf`
+    link.click()
+    window.URL.revokeObjectURL(link.href)
+    
+    state.successMessage = 'PDF generated and download started'
+    setTimeout(() => state.successMessage = '', 3000)
+  } catch (error) {
+    console.error('Failed to download PDF:', error)
+    state.error = 'Failed to generate PDF. Please try again later.'
+  } finally {
+    isDownloading.value = false
+  }
+}
 
 const checkMaterialsUpdateStatus = async () => {
   try {

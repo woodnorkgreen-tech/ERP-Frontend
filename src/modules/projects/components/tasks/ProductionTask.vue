@@ -78,151 +78,77 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="mb-8">
-      <nav class="flex space-x-2 p-1 bg-gray-100 dark:bg-gray-700/50 rounded-xl overflow-x-auto" aria-label="Tabs">
+    <div class="relative z-20">
+      <nav class="flex space-x-1 px-1" aria-label="Tabs">
         <button
           @click="activeTab = 'production-management'"
           :class="[
             activeTab === 'production-management'
-              ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xl shadow-blue-500/10 ring-1 ring-blue-500/20'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
-            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
+              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
+            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
           ]"
         >
-          <i class="mdi mdi-factory mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-blue-500': activeTab === 'production-management' }"></i>
+          <i class="mdi mdi-factory mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'production-management' ? 'text-white' : 'text-blue-500'"></i>
           <span>Fabrication</span>
-        </button>
-
-        <button
-          @click="activeTab = 'procurement-status'"
-          :class="[
-            activeTab === 'procurement-status'
-              ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-xl shadow-amber-500/10 ring-1 ring-amber-500/20'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
-            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
-          ]"
-        >
-          <i class="mdi mdi-truck-delivery mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-amber-500': activeTab === 'procurement-status' }"></i>
-          <span>Inventory</span>
+          <div v-if="activeTab === 'production-management'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
         </button>
 
         <button
           @click="activeTab = 'quality'"
           :class="[
             activeTab === 'quality'
-              ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-500/20'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
-            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
+              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
+            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
           ]"
         >
-          <i class="mdi mdi-shield-check mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-emerald-500': activeTab === 'quality' }"></i>
+          <i class="mdi mdi-shield-check mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'quality' ? 'text-white' : 'text-emerald-500'"></i>
           <span>QA Checks</span>
+          <div v-if="activeTab === 'quality'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
         </button>
 
         <button
           @click="activeTab = 'design'"
           :class="[
             activeTab === 'design'
-              ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xl shadow-indigo-500/10 ring-1 ring-indigo-500/20'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
-            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
+              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
+            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
           ]"
         >
-          <i class="mdi mdi-palette-swatch mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-indigo-500': activeTab === 'design' }"></i>
-          <span>Blueprints</span>
+          <i class="mdi mdi-palette-swatch mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'design' ? 'text-white' : 'text-indigo-500'"></i>
+          <span>Designs</span>
+          <div v-if="activeTab === 'design'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
         </button>
 
         <button
           @click="activeTab = 'issues'"
           :class="[
             activeTab === 'issues'
-              ? 'bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-xl shadow-rose-500/10 ring-1 ring-rose-500/20'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50',
-            'group flex items-center justify-center py-3 px-6 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[140px] flex-1'
+              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
+              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
+            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
           ]"
         >
-          <i class="mdi mdi-alert-octagon mr-2 text-lg transition-transform group-hover:scale-110" :class="{ 'text-rose-500': activeTab === 'issues' }"></i>
-          <span>Troubleshoot</span>
-          <span v-if="getTabBadgeCount('issues') > 0" class="ml-2 bg-rose-500 text-white py-0.5 px-2 rounded-full text-[10px] font-black shadow-lg shadow-rose-500/20">
+          <i class="mdi mdi-alert-octagon mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'issues' ? 'text-white' : 'text-rose-500'"></i>
+          <span>Issues</span>
+          <span v-if="getTabBadgeCount('issues') > 0" class="ml-2 bg-white text-blue-600 py-0.5 px-2 rounded-full text-[10px] font-black shadow-sm">
             {{ getTabBadgeCount('issues') }}
           </span>
+          <div v-if="activeTab === 'issues'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
         </button>
       </nav>
     </div>
 
     <!-- Tab Content Container -->
-    <div class="tab-content-container">
+    <div class="tab-content-container relative z-10 bg-white dark:bg-slate-800 border-2 border-blue-600 rounded-b-3xl rounded-tr-3xl shadow-2xl shadow-blue-500/5 p-8 -mt-[2px]">
       <!-- Production Management Tab -->
       <div
         v-show="activeTab === 'production-management'"
         class="tab-panel animate-fade-in"
       >
-        <!-- Production Dashboard Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-           <!-- Total Scope -->
-           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-blue-500">
-              <div class="flex flex-col h-full">
-                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Fabrication Units</p>
-                 <div class="flex items-end justify-between mt-auto">
-                   <div class="flex items-baseline gap-1">
-                     <span class="text-3xl font-black text-slate-900 dark:text-white">{{ productionData.productionElements.length }}</span>
-                     <span class="text-xs font-bold text-slate-500 uppercase">Items</span>
-                   </div>
-                   <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-110">
-                     <i class="mdi mdi-cube-send text-xl"></i>
-                   </div>
-                 </div>
-              </div>
-           </div>
 
-           <!-- Readiness -->
-           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-emerald-500">
-              <div class="flex flex-col h-full">
-                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Material Readiness</p>
-                 <div class="flex items-end justify-between mt-auto">
-                   <div class="flex items-baseline gap-1">
-                     <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400">{{ readyForAssemblyPercentage }}%</span>
-                     <span class="text-xs font-bold text-slate-500 uppercase">Ready</span>
-                   </div>
-                   <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 transition-transform group-hover:scale-110">
-                     <i class="mdi mdi-check-circle-outline text-xl"></i>
-                   </div>
-                 </div>
-              </div>
-           </div>
-
-           <!-- QC Load -->
-           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-amber-500">
-              <div class="flex flex-col h-full">
-                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">QA Backlog</p>
-                 <div class="flex items-end justify-between mt-auto">
-                   <div class="flex items-baseline gap-1">
-                     <span class="text-3xl font-black text-amber-600 dark:text-amber-400">{{ productionData.qualityControl.filter(q => q.status === 'pending').length }}</span>
-                     <span class="text-xs font-bold text-slate-500 uppercase">Pending</span>
-                   </div>
-                   <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 transition-transform group-hover:scale-110">
-                     <i class="mdi mdi-clipboard-text-clock-outline text-xl"></i>
-                   </div>
-                 </div>
-              </div>
-           </div>
-
-           <!-- High Priority Issues -->
-           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-red-500">
-              <div class="flex flex-col h-full">
-                 <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Active Bottlenecks</p>
-                 <div class="flex items-end justify-between mt-auto">
-                   <div class="flex items-baseline gap-1">
-                     <span class="text-3xl font-black text-red-600 dark:text-red-400">{{ productionData.issues.filter(i => i.status !== 'resolved').length }}</span>
-                     <span class="text-xs font-bold text-slate-500 uppercase">Issues</span>
-                   </div>
-                   <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 transition-transform group-hover:scale-110">
-                     <i class="mdi mdi-alert-decagram-outline text-xl"></i>
-                   </div>
-                 </div>
-              </div>
-           </div>
-        </div>
 
         <div v-if="productionData.productionElements.length > 0" class="space-y-6">
            <div v-for="category in categoriesWithElements" :key="category.id" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -263,14 +189,11 @@
               </div>
 
               <!-- Modern Production Table -->
-              <div v-if="!isCategoryCollapsed(category.id)" class="border-t border-slate-100 dark:border-slate-700 overflow-x-auto">
+              <div v-if="isCategoryExpanded(category.id)" class="border-t border-slate-100 dark:border-slate-700 overflow-x-auto">
                  <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
                     <thead class="bg-slate-50/50 dark:bg-slate-900/30">
                        <tr>
                           <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                          <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory</th>
-                          <th class="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                          <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Control</th>
                        </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
@@ -289,52 +212,6 @@
                                       </span>
                                    </div>
                                 </div>
-                             </div>
-                          </td>
-
-                          <!-- Real-time Inventory -->
-                          <td class="px-6 py-5 text-center">
-                             <div 
-                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all shadow-sm"
-                                :class="getInventoryStatusClass(element.id)"
-                             >
-                                <span class="w-2 h-2 rounded-full animate-pulse" :class="getInventoryStatusDotClass(element.id)"></span>
-                                <span class="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{{ getInventoryStatusLabel(element.id).replace('_', ' ') }}</span>
-                             </div>
-                          </td>
-
-                          <!-- Direct Status Control -->
-                          <td class="px-6 py-5 text-center">
-                             <select 
-                                v-model="element.status"
-                                @change="updateElementStatus(element.id, element.status)"
-                                class="text-[10px] font-black uppercase tracking-widest rounded-xl px-4 py-2 border outline-none transition-all cursor-pointer hover:shadow-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-inner"
-                                :class="getQCStatusClass(element.id)"
-                             >
-                                <option value="pending">Pending</option>
-                                <option value="in progress">Processing</option>
-                                <option value="completed">Finished</option>
-                                <option value="qc_passed">QA Passed</option>
-                                <option value="qc_failed">QA Failed</option>
-                             </select>
-                          </td>
-
-                          <!-- Actions -->
-                          <td class="px-6 py-5 text-right">
-                             <div class="flex justify-end items-center gap-2">
-                                <button
-                                   @click="openIssueModal(element)"
-                                   class="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100 dark:border-red-800"
-                                   title="Report Production Issue"
-                                >
-                                   <i class="mdi mdi-alert-outline text-lg"></i>
-                                </button>
-                                <button
-                                   class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm border border-slate-200 dark:border-slate-600"
-                                   title="View Technical Details"
-                                >
-                                   <i class="mdi mdi-scan-helper text-lg"></i>
-                                </button>
                              </div>
                           </td>
                        </tr>
@@ -389,156 +266,7 @@
         </div>
       </div>
 
-      <!-- Procurement Status Tab -->
-      <div v-show="activeTab === 'procurement-status'" class="tab-panel animate-fade-in">
-               <!-- Procurement Dashboard Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-           <!-- In Stock -->
-           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div class="relative z-10">
-                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Items In Stock</p>
-                 <div class="flex items-center gap-2">
-                   <p class="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                      {{ productionData.relatedProcurementItems.filter((i: any) => i.stockStatus === 'in_stock' || i.stock_status === 'in_stock').length }}
-                   </p>
-                   <span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Available</span>
-                 </div>
-              </div>
-              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
-                 <i class="mdi mdi-warehouse text-7xl text-emerald-600"></i>
-              </div>
-              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
-           </div>
-           
-           <!-- Procurement Orders -->
-           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div class="relative z-10">
-                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Active Orders</p>
-                 <div class="flex items-center gap-2">
-                   <p class="text-3xl font-black text-blue-600 dark:text-blue-400">
-                      {{ productionData.relatedProcurementItems.filter((i: any) => i.procurementStatus === 'ordered' || i.procurement_status === 'ordered').length }}
-                   </p>
-                   <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">In Transit</span>
-                 </div>
-              </div>
-              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
-                 <i class="mdi mdi-cart-arrow-down text-7xl text-blue-600"></i>
-              </div>
-              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-           </div>
 
-           <!-- Low Stock -->
-           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div class="relative z-10">
-                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Shortages</p>
-                 <div class="flex items-center gap-2">
-                   <p class="text-3xl font-black text-red-600 dark:text-red-400">
-                      {{ productionData.relatedProcurementItems.filter((i: any) => i.stockStatus === 'out_of_stock' || i.stock_status === 'out_of_stock').length }}
-                   </p>
-                   <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Urgent</span>
-                 </div>
-              </div>
-              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
-                 <i class="mdi mdi-alert-box-outline text-7xl text-red-600"></i>
-              </div>
-              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
-           </div>
-
-           <!-- Total Required -->
-           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div class="relative z-10">
-                 <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Total SKU Items</p>
-                 <div class="flex items-center gap-2">
-                   <p class="text-3xl font-black text-slate-800 dark:text-white">
-                      {{ productionData.relatedProcurementItems.length }}
-                   </p>
-                   <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Materials</span>
-                 </div>
-              </div>
-              <div class="absolute right-0 bottom-0 opacity-10 group-hover:opacity-20 transition-opacity transform translate-y-2 translate-x-2">
-                 <i class="mdi mdi-format-list-bulleted-type text-7xl text-slate-500"></i>
-              </div>
-              <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-slate-400 to-slate-500"></div>
-           </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
-          <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-             <div>
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Procurement & Stock Status</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Real-time status of materials required for this production</p>
-             </div>
-             <button class="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1">
-                <i class="mdi mdi-refresh"></i> Refresh Data
-             </button>
-          </div>
-          
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead class="bg-slate-50 dark:bg-slate-900/50">
-                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item Details</th>
-                    <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Availability</th>
-                    <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Procurement</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Required Qty</th>
-                 </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                 <tr v-for="(item, index) in productionData.relatedProcurementItems" :key="index" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-6 py-4">
-                       <div class="flex flex-col">
-                          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ item.elementName || item.item_name }}</span>
-                          <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{{ item.description }}</span>
-                          <span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded self-start mt-1 font-mono">
-                             {{ item.category }}
-                          </span>
-                       </div>
-                    </td>
-                     <td class="px-6 py-4 text-center">
-                        <span 
-                           class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm"
-                           :class="getStockStatusClass(item.stockStatus || item.stock_status)"
-                        >
-                           <i 
-                              class="mdi mr-1.5 text-lg" 
-                              :class="{
-                                 'mdi-check-circle': item.stockStatus === 'in_stock',
-                                 'mdi-alert-circle': item.stockStatus === 'out_of_stock',
-                                 'mdi-information': !['in_stock', 'out_of_stock'].includes(item.stockStatus)
-                              }"
-                           ></i>
-                           {{ (item.stockStatus || 'pending_check').replace(/_/g, ' ').toUpperCase() }}
-                        </span>
-                        <div class="mt-1 text-xs text-slate-500 font-mono">
-                           SOH: {{ item.stockQuantity || item.stock_quantity || 0 }}
-                        </div>
-                     </td>
-                     <td class="px-6 py-4 text-center">
-                        <span 
-                           class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border shadow-sm"
-                           :class="getProcurementStatusClass(item.procurementStatus || item.procurement_status)"
-                        >
-                           {{ (item.procurementStatus || 'not_needed').replace(/_/g, ' ').toUpperCase() }}
-                        </span>
-                     </td>
-                     <td class="px-6 py-4 text-right text-sm font-bold text-slate-900 dark:text-white">
-                        {{ item.quantity }}
-                     </td>
-                 </tr>
-                 <tr v-if="!productionData.relatedProcurementItems || productionData.relatedProcurementItems.length === 0">
-                    <td colspan="4" class="px-6 py-12 text-center">
-                       <div class="flex flex-col items-center justify-center text-slate-400">
-                          <i class="mdi mdi-clipboard-text-off-outline text-4xl mb-2"></i>
-                          <p class="font-medium">No procurement data available.</p>
-                          <p class="text-xs mt-1">Make sure the Materials and Procurement tasks are initiated.</p>
-                       </div>
-                    </td>
-                 </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
       <div
         v-show="activeTab === 'quality'"
         class="quality-control-section tab-panel"
@@ -585,68 +313,12 @@
         <div v-if="productionData.qualityControl.length > 0" class="mb-10">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Scope -->
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-blue-500">
-               <div class="flex flex-col h-full">
-                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Audit Scope</p>
-                  <div class="flex items-end justify-between mt-auto">
-                    <div class="flex items-baseline gap-1">
-                      <span class="text-3xl font-black text-slate-900 dark:text-white">{{ productionData.qualityControl.length }}</span>
-                      <span class="text-xs font-bold text-slate-500 uppercase">Points</span>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-110">
-                      <i class="mdi mdi-clipboard-check-outline text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-            </div>
+            
 
-            <!-- Passed Checks -->
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-emerald-500">
-               <div class="flex flex-col h-full">
-                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Compliance Rate</p>
-                  <div class="flex items-end justify-between mt-auto">
-                    <div class="flex items-baseline gap-1">
-                      <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400 transition-all group-hover:scale-105 inline-block">{{ getQualityStatusCount('passed') }}</span>
-                      <span class="text-xs font-bold text-slate-500 uppercase">Verified</span>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 transition-transform group-hover:scale-110">
-                      <i class="mdi mdi-check-circle-outline text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-            </div>
+            
 
-            <!-- Failed/Issues -->
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-red-500">
-               <div class="flex flex-col h-full">
-                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Non-Conformance</p>
-                  <div class="flex items-end justify-between mt-auto">
-                    <div class="flex items-baseline gap-1">
-                      <span class="text-3xl font-black" :class="getQualityStatusCount('failed') > 0 ? 'text-red-600 animate-pulse' : 'text-slate-900 dark:text-white'">{{ getQualityStatusCount('failed') }}</span>
-                      <span class="text-xs font-bold text-slate-500 uppercase">Findings</span>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 transition-transform group-hover:scale-110">
-                      <i class="mdi mdi-alert-octagon-outline text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-            </div>
-
-            <!-- Completion Progress -->
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:shadow-md transition-all border-b-4 border-b-indigo-500">
-               <div class="flex flex-col h-full">
-                  <p class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Final Readiness</p>
-                  <div class="flex items-end justify-between mt-auto">
-                    <div class="flex items-baseline gap-1">
-                      <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400">{{ qualityProgressPercentage }}%</span>
-                      <span class="text-xs font-bold text-slate-500 uppercase">Ready</span>
-                    </div>
-                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-110">
-                      <i class="mdi mdi-rocket-launch-outline text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-            </div>
+            
+            
           </div>
 
           <!-- Overall Progress Bar Detailed -->
@@ -1468,13 +1140,7 @@
         <button
           v-if="task.status === 'in_progress'"
           @click="updateStatus('completed')"
-          :disabled="completionPercentage < 100"
-          :class="[
-            'px-4 py-2 text-white rounded-lg transition-colors',
-            completionPercentage >= 100
-              ? 'bg-green-500 hover:bg-green-600'
-              : 'bg-gray-400 cursor-not-allowed'
-          ]"
+          class="px-4 py-2 text-white rounded-lg transition-colors bg-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
         >
           Complete Production
         </button>
@@ -1661,27 +1327,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import api from '@/plugins/axios'
 
-// Status styling helpers
-const getStockStatusClass = (status: string) => {
-  const classes: Record<string, string> = {
-    'in_stock': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
-    'partial_stock': 'border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-600 text-amber-700 dark:text-amber-300',
-    'out_of_stock': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300',
-    'pending_check': 'border-gray-300 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-  }
-  return classes[status] || classes['pending_check']
-}
 
-const getProcurementStatusClass = (status: string) => {
-  const classes: Record<string, string> = {
-    'not_needed': 'border-gray-200 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 text-gray-400 dark:text-gray-500',
-    'pending': 'border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-600 text-blue-700 dark:text-blue-300',
-    'ordered': 'border-purple-300 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-600 text-purple-700 dark:text-purple-300',
-    'received': 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-600 text-green-700 dark:text-green-300',
-    'cancelled': 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 text-red-700 dark:text-red-300'
-  }
-  return classes[status] || classes['pending']
-}
 
 
 // Type definitions
@@ -1847,7 +1493,6 @@ watch(() => props.initialTab, (newTab) => {
 // Tab navigation with enhanced functionality
 const tabs = [
   { id: 'production-management', label: 'Production Management', description: 'View and manage production workflow' },
-  { id: 'procurement-status', label: 'Procurement Status', description: 'View procurement and stock status' },
   { id: 'quality', label: 'Quality Assurance', description: 'Manage quality control checkpoints' },
   { id: 'design', label: 'Design Assets', description: 'View Design Artworks and Renders' }
 ]
@@ -3901,18 +3546,22 @@ const getCategoryBgClass = (categoryId: string): string => {
 }
 
 // Category collapse/expand functionality
-const collapsedCategories = ref<Set<string>>(new Set())
+const expandedCategories = ref<Set<string>>(new Set())
 
 function toggleCategoryCollapse(categoryId: string) {
-  if (collapsedCategories.value.has(categoryId)) {
-    collapsedCategories.value.delete(categoryId)
+  if (expandedCategories.value.has(categoryId)) {
+    expandedCategories.value.delete(categoryId)
   } else {
-    collapsedCategories.value.add(categoryId)
+    expandedCategories.value.add(categoryId)
   }
 }
 
+function isCategoryExpanded(categoryId: string): boolean {
+  return expandedCategories.value.has(categoryId)
+}
+
 function isCategoryCollapsed(categoryId: string): boolean {
-  return collapsedCategories.value.has(categoryId)
+  return !expandedCategories.value.has(categoryId)
 }
 
 const getCategoryHeaderClass = (categoryId: string): string => {
@@ -3931,7 +3580,7 @@ const getCategoryHeaderClass = (categoryId: string): string => {
 // Toggle all categories expand/collapse
 const allCategoriesCollapsed = computed(() => {
   const categoryIds = new Set(productionData.value.productionElements.map(element => element.category))
-  return categoryIds.size > 0 && Array.from(categoryIds).every(id => collapsedCategories.value.has(id))
+  return categoryIds.size > 0 && Array.from(categoryIds).every(id => !expandedCategories.value.has(id))
 })
 
 const toggleAllCategories = () => {
@@ -3939,80 +3588,15 @@ const toggleAllCategories = () => {
 
   if (allCategoriesCollapsed.value) {
     // Expand all categories
-    collapsedCategories.value.clear()
+    expandedCategories.value = new Set(categoryIds)
   } else {
     // Collapse all categories
-    collapsedCategories.value = new Set(categoryIds)
+    expandedCategories.value.clear()
   }
 }
 
 // Helper functions for Workflow Table
-const getInventoryStatusLabel = (elementId: string) => {
-  const element = productionData.value.productionElements.find(e => e.id === elementId)
-  if (!element) return 'Unknown'
-  
-  // Try to find matching procurement item
-  const procurementItem = productionData.value.relatedProcurementItems.find(
-    i => i.elementName === element.name || i.item_name === element.name
-  )
-  
-  if (procurementItem) {
-     const status = procurementItem.stockStatus || procurementItem.stock_status || 'pending_check'
-     return status.replace(/_/g, ' ').toUpperCase()
-  }
-  
-  return 'PENDING CHECK'
-}
 
-const getInventoryStatusClass = (elementId: string) => {
-  const element = productionData.value.productionElements.find(e => e.id === elementId)
-  if (!element) return 'border-gray-200 bg-gray-50 text-gray-500' // Default
-  
-  const procurementItem = productionData.value.relatedProcurementItems.find(
-    i => i.elementName === element.name || i.item_name === element.name
-  )
-  
-  const status = procurementItem?.stockStatus || procurementItem?.stock_status || 'pending_check'
-  return getStockStatusClass(status)
-}
-
-const getInventoryStatusDotClass = (elementId: string) => {
-  const element = productionData.value.productionElements.find(e => e.id === elementId)
-  if (!element) return 'bg-gray-400'
-  
-  const procurementItem = productionData.value.relatedProcurementItems.find(
-    i => i.elementName === element.name || i.item_name === element.name
-  )
-    
-  const status = procurementItem?.stockStatus || procurementItem?.stock_status || 'pending_check'
-  
-  switch (status) {
-    case 'in_stock': return 'bg-blue-500'
-    case 'partial_stock': return 'bg-amber-500'
-    case 'out_of_stock': return 'bg-red-500'
-    default: return 'bg-gray-400'
-  }
-}
-
-const getQCStatusLabel = (elementId: string) => {
-    const element = productionData.value.productionElements.find(e => e.id === elementId)
-    if (!element) return 'PENDING'
-    return (element.status || 'pending').replace(/_/g, ' ').toUpperCase()
-}
-
-const getQCStatusClass = (elementId: string) => {
-  const element = productionData.value.productionElements.find(e => e.id === elementId)
-  if (!element) return 'border-gray-200 bg-gray-50 text-gray-500'
-  
-  const status = element.status || 'pending'
-  
-  switch (status) {
-      case 'passed': return 'border-green-300 bg-green-50 text-green-700 dark:bg-green-900/20 dark:border-green-600 dark:text-green-300'
-      case 'failed': return 'border-red-300 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300'
-      case 'in_progress': return 'border-blue-300 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300'
-      default: return 'border-gray-200 bg-gray-50 text-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
-  }
-}
 
 // Initialize component data
 onMounted(async () => {
