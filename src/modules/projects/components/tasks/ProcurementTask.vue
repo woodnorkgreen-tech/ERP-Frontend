@@ -569,16 +569,23 @@
             @click="saveNow"
             :disabled="isSaving"
             :class="[
-              'px-4 py-2 rounded-lg transition-colors flex items-center space-x-2',
+              'px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg',
               isSaving
                 ? 'bg-gray-400 text-white cursor-not-allowed'
-                : hasUnsavedChanges
-                  ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                : saveSuccess
+                  ? 'bg-emerald-600 text-white scale-105 shadow-emerald-500/30'
+                  : hasUnsavedChanges
+                    ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/30'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/30'
             ]"
           >
             <span v-if="isSaving" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-            <span>{{ isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save Changes' : 'Save Procurement Data' }}</span>
+            <i v-else-if="saveSuccess" class="mdi mdi-check-circle text-lg"></i>
+            <i v-else-if="hasUnsavedChanges" class="mdi mdi-content-save-edit text-lg"></i>
+            <i v-else class="mdi mdi-content-save text-lg"></i>
+            <span class="font-bold tracking-wide uppercase text-xs">
+              {{ isSaving ? 'Saving...' : saveSuccess ? 'Data Saved!' : hasUnsavedChanges ? 'Save Changes' : 'Save Procurement' }}
+            </span>
           </button>
         </div>
       </div>
@@ -780,8 +787,14 @@ const {
   saveSuccess,
   lastSaveTime,
   hasUnsavedChanges,
-  save
+  markAsChanged,
+  save: saveProcurement
 } = useProcurementSave(props.task.id)
+
+// Track changes to procurement data
+watch(() => procurementData, () => {
+  markAsChanged()
+}, { deep: true })
 
 
 const formatDate = (dateValue: string | Date | null | undefined) => {
@@ -1079,7 +1092,7 @@ const handleSkipTask = async () => {
 
 // Save function
 const saveNow = async () => {
-  await saveData()
+  await saveProcurement(procurementData)
 }
 
 // Auto-save setup
@@ -1087,7 +1100,7 @@ useAutoSave(
   () => procurementData,
   async () => {
     if (hasUnsavedChanges.value) {
-      await saveData()
+      await saveProcurement(procurementData)
     }
   }
 )
