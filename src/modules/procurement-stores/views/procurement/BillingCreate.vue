@@ -22,7 +22,7 @@
             >
               <option value="">Select Approved Purchase Order</option>
               <option v-for="po in purchaseOrders" :key="po.id" :value="po.id">
-                {{ po.po_number }} - {{ po.supplier?.supplier_name }} - ${{ formatNumber(po.total_amount) }}
+                {{ po.po_number }} - {{ po.supplier?.supplier_name }} - KES{{ formatNumber(po.total_amount) }}
               </option>
             </select>
             <p v-if="errors.purchase_order_id" class="mt-1 text-sm text-red-600">{{ errors.purchase_order_id[0] }}</p>

@@ -58,7 +58,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <div class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatNumber(stats.pending_amount || 0) }}</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">KES{{ formatNumber(stats.pending_amount || 0) }}</div>
       </div>
 
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
@@ -68,7 +68,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <div class="text-2xl font-bold text-gray-900 dark:text-white">${{ formatNumber(stats.paid_amount || 0) }}</div>
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">KES{{ formatNumber(stats.paid_amount || 0) }}</div>
       </div>
 
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
@@ -192,7 +192,7 @@
                 {{ formatDate(invoice.due_date) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                ${{ formatNumber(invoice.amount) }}
+                KES{{ formatNumber(invoice.amount) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span

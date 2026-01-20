@@ -90,7 +90,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Amount</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">${{ formatNumber(purchaseOrder.total_amount) }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">KES{{ formatNumber(purchaseOrder.total_amount) }}</p>
           </div>
           <div v-if="purchaseOrder.createdBy">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</label>
@@ -120,8 +120,8 @@
               <tr v-for="item in purchaseOrder.items" :key="item.id">
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.material?.material_name }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${{ formatNumber(item.unit_price) }}</td>
-                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">${{ formatNumber(item.total) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">KES{{ formatNumber(item.unit_price) }}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">KES{{ formatNumber(item.total) }}</td>
               </tr>
             </tbody>
           </table>

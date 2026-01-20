@@ -214,7 +214,7 @@
 
                   <!-- Total -->
                   <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                    ${{ formatNumber(item.total || 0) }}
+                    KES{{ formatNumber(item.total || 0) }}
                   </td>
 
                   <!-- Actions -->
@@ -247,7 +247,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
               <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
               <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                ${{ formatNumber(totalAmount) }}
+              KES{{ formatNumber(totalAmount) }}
               </div>
             </div>
           </div>

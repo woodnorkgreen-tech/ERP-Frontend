@@ -114,7 +114,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Amount</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">${{ formatNumber(invoice.amount) }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">KES{{ formatNumber(invoice.amount) }}</p>
           </div>
           <div v-if="invoice.payment_date">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Payment Date</label>
