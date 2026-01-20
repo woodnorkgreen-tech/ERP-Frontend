@@ -4,11 +4,9 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z" />
+              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
             </svg>
             Home
           </router-link>
@@ -16,7 +14,7 @@
         <li>
           <div class="flex items-center">
             <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
             </svg>
             <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Requisitions</span>
           </div>
@@ -100,36 +98,22 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 REQ Number
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Date
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Requested By
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Created By
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Items
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Urgency
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -143,10 +127,6 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ formatDate(requisition.date) }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ getRequestedBy(requisition) }}
-              </td>
-
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ requisition.items?.length || 0 }}
               </td>
@@ -190,11 +170,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRequisitions } from '../../shared/composables/useRequisitions'
+import axios from '@/plugins/axios'
 
 const router = useRouter()
-const { requisitions, loading, error, fetchRequisitions, searchRequisitions } = useRequisitions()
 
+const requisitions = ref<any[]>([])
+const loading = ref(false)
+const error = ref('')
 const searchTerm = ref('')
 const filters = ref({
   date_filter: '',
@@ -204,41 +186,73 @@ const filters = ref({
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-const handleSearch = () => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout)
+const fetchRequisitions = async () => {
+  loading.value = true
+  error.value = ''
+  
+  try {
+    const params: any = {}
+    
+    if (filters.value.date_filter) params.date_filter = filters.value.date_filter
+    if (filters.value.status) params.status = filters.value.status
+    if (filters.value.urgency) params.urgency = filters.value.urgency
+
+    const response = await axios.get('/api/procurement-stores/requisitions', { params })
+    
+    if (response.data && response.data.data && Array.isArray(response.data.data)) {
+      requisitions.value = response.data.data
+    } else if (Array.isArray(response.data)) {
+      requisitions.value = response.data
+    } else {
+      requisitions.value = []
+    }
+  } catch (err: any) {
+    error.value = err.response?.data?.message || 'Failed to fetch requisitions'
+    requisitions.value = []
+  } finally {
+    loading.value = false
   }
+}
+
+const handleSearch = () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
 
   searchTimeout = setTimeout(async () => {
     if (searchTerm.value.trim()) {
-      await searchRequisitions(searchTerm.value)
+      loading.value = true
+      error.value = ''
+      
+      try {
+        const response = await axios.post('/api/procurement-stores/search/requisitions', { 
+          searchTerm: searchTerm.value 
+        })
+        
+        if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          requisitions.value = response.data.data
+        } else if (Array.isArray(response.data)) {
+          requisitions.value = response.data
+        } else {
+          requisitions.value = []
+        }
+      } catch (err: any) {
+        error.value = err.response?.data?.message || 'Failed to search requisitions'
+      } finally {
+        loading.value = false
+      }
     } else {
-      await applyFilters()
+      await fetchRequisitions()
     }
   }, 300)
 }
 
 const applyFilters = async () => {
-  await fetchRequisitions(filters.value)
+  searchTerm.value = ''
+  await fetchRequisitions()
 }
 
 const viewRequisition = (id: number) => {
   router.push(`/procurement/requisition/${id}`)
 }
-
-const getRequestedBy = (requisition: any) => {
-  if (requisition.requested_by_type === 'project' && requisition.project) {
-    return `Project: ${requisition.project.project_id || ''} - ${requisition.project.name || 'N/A'}`
-  }
-  if (requisition.requested_by_type === 'employee' && requisition.employee) {
-    return `Employee: ${requisition.employee.name}`
-  }
-  if (requisition.requested_by_type === 'office' && requisition.department) {
-    return `Department: ${requisition.department.name}`
-  }
-  return 'N/A'
-}
-
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString()
