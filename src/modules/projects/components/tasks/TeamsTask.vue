@@ -35,173 +35,204 @@
       </button>
     </div>
 
-    <!-- Teams List -->
-    <div class="overflow-hidden border border-slate-200 dark:border-slate-700 sm:rounded-lg">
-      <table v-if="allTeams.length > 0" class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-        <thead class="bg-slate-50 dark:bg-slate-800">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-1/4">Team Type</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Assigned Members</th>
-            <th scope="col" class="relative px-6 py-3 text-right">
-                <span class="sr-only">Actions</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="team in allTeams" :key="team.id" class="group hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-            <!-- Team Info Column -->
-            <td class="px-6 py-4 align-top whitespace-nowrap">
-              <div class="flex items-center">
-                 <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100/50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                    <i class="mdi mdi-account-group text-xl"></i>
-                 </div>
-                 <div class="ml-4">
-                    <div class="text-sm font-bold text-slate-900 dark:text-white">{{ getTeamTypeDisplayName(team) }}</div>
-                    <span :class="getStatusColorClass(team.status)" class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium lowercase">
-                      {{ getStatusLabel(team.status) }}
-                    </span>
-                 </div>
+    <!-- Clearer Teams List by Category -->
+    <div class="space-y-10">
+      <div v-for="category in TEAM_CATEGORIES" :key="category.key" class="category-card">
+        <!-- Distinct Category Section Header -->
+        <div class="flex items-center justify-between mb-4 px-1">
+          <div class="flex items-center gap-3">
+             <div :class="[
+                'w-10 h-10 rounded-xl flex items-center justify-center shadow-sm',
+                category.color === 'blue' ? 'bg-blue-600 text-white' :
+                category.color === 'amber' ? 'bg-amber-500 text-white' : 'bg-rose-500 text-white'
+             ]">
+                <i :class="['mdi', category.icon, 'text-xl']"></i>
+             </div>
+             <div>
+                <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest">{{ category.label }}</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                   <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500">{{ teamsByCategory[category.key]?.length || 0 }} teams assigned</span>
+                </div>
+             </div>
+          </div>
+          
+          <button
+            v-if="canAssignTeams && !isReadonly"
+            @click="openAddTeamModal(category.key)"
+            :class="[
+              'px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all border flex items-center gap-2',
+              category.color === 'blue' ? 'text-blue-600 border-blue-100 bg-blue-50/50 hover:bg-blue-100' :
+              category.color === 'amber' ? 'text-amber-600 border-amber-100 bg-amber-50/50 hover:bg-amber-100' : 
+              'text-rose-600 border-rose-100 bg-rose-50/50 hover:bg-rose-100'
+            ]"
+          >
+            <i class="mdi mdi-plus-circle"></i>
+            Assign {{ category.key }}
+          </button>
+        </div>
+
+        <!-- Team Items Card -->
+        <div class="bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/50 overflow-hidden">
+          <div v-if="teamsByCategory[category.key]?.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800/40">
+            <div v-for="team in teamsByCategory[category.key]" :key="team.id" class="p-5 hover:bg-white dark:hover:bg-slate-800/40 transition-all flex flex-col sm:flex-row sm:items-start gap-6">
+              <!-- Team Type Identity -->
+              <div class="w-full sm:w-1/4">
+                <div class="text-[14px] font-black text-slate-900 dark:text-white flex items-center gap-2">
+                   <i class="mdi mdi-account-group-outline text-slate-400"></i>
+                   {{ getTeamTypeDisplayName(team) }}
+                </div>
+                <div class="flex flex-wrap items-center gap-2 mt-2">
+                  <span :class="getStatusColorClass(team.status)" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg leading-none shadow-sm">
+                    {{ getStatusLabel(team.status) }}
+                  </span>
+                  <span v-if="team.start_date" class="text-[10px] text-slate-400 font-bold bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                     <i class="mdi mdi-calendar-blank text-xs mr-1"></i>
+                     {{ formatDate(team.start_date) }}
+                  </span>
+                </div>
               </div>
-            </td>
 
-            <!-- Members Column -->
-            <td class="px-6 py-4 align-top">
-               <div class="space-y-3">
-                  <!-- Existing Members -->
-                  <div class="flex flex-wrap gap-2">
-                     <span 
-                        v-for="member in team.members || []" 
-                        :key="member.id"
-                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 group/tag"
-                     >
-                        <i class="mdi mdi-account-circle mr-1.5 text-slate-400"></i>
-                        {{ member.member_name }}
-                        <button
-                           v-if="canManageMembers && !isReadonly"
-                           @click="removeMember(team.id, member.id)"
-                           class="ml-1.5 text-slate-400 hover:text-red-500 transition-colors focus:outline-none"
-                        >
-                           <i class="mdi mdi-close text-xs"></i>
-                        </button>
-                     </span>
-                     <span v-if="(!team.members || team.members.length === 0)" class="text-xs text-slate-400 italic py-1">No members assigned yet</span>
-                  </div>
+              <!-- Assigned Personnel Grid -->
+              <div class="flex-1">
+                <div class="flex flex-wrap gap-2 mb-4">
+                   <div 
+                      v-for="member in team.members || []" 
+                      :key="member.id"
+                      class="inline-flex items-center pl-3 pr-2 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 shadow-sm group/member"
+                   >
+                      <i class="mdi mdi-account text-slate-400 mr-2 group-hover/member:text-blue-500 transition-colors"></i>
+                      {{ member.member_name }}
+                      <button
+                         v-if="canManageMembers && !isReadonly"
+                         @click="removeMember(team.id, member.id)"
+                         class="ml-2 text-slate-300 hover:text-rose-500 transition-colors bg-slate-50 dark:bg-slate-800 p-0.5 rounded-full"
+                      >
+                         <i class="mdi mdi-close text-[10px]"></i>
+                      </button>
+                   </div>
+                </div>
 
-                  <!-- Add Member Input -->
-                  <div v-if="canManageMembers && !isReadonly" class="flex items-center gap-2 max-w-sm">
-                     <input
-                        v-model="newMemberInputs[team.id]"
-                        type="text"
-                        placeholder="+ Add member..."
-                        class="block w-full text-xs rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 bg-transparent sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-600"
-                        @keydown.enter="addMemberToTeam(team.id)"
-                     />
-                     <button
-                        @click="addMemberToTeam(team.id)"
-                        :disabled="!newMemberInputs[team.id]?.trim()"
-                        class="inline-flex items-center p-1.5 border border-transparent rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-slate-400 transition-all font-bold"
-                     >
-                        <i class="mdi mdi-plus text-sm"></i>
-                     </button>
-                  </div>
-               </div>
-            </td>
+                <!-- Personnel Addition Input -->
+                <div v-if="canManageMembers && !isReadonly" class="flex items-center gap-3 max-w-sm group">
+                   <div class="relative flex-1">
+                      <i class="mdi mdi-account-plus absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      <input
+                         v-model="newMemberInputs[team.id]"
+                         type="text"
+                         placeholder="Type name and press Enter..."
+                         class="block w-full pl-10 pr-4 py-2 text-xs font-bold bg-slate-100/50 dark:bg-slate-800/80 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 rounded-xl focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all italic"
+                         @keydown.enter="addMemberToTeam(team.id)"
+                      />
+                   </div>
+                   <button
+                      @click="addMemberToTeam(team.id)"
+                      v-show="newMemberInputs[team.id]?.trim()"
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none active:scale-95 transition-all"
+                   >
+                      <i class="mdi mdi-check text-base"></i>
+                   </button>
+                </div>
+              </div>
 
-            <!-- Actions Column -->
-            <td class="px-6 py-4 align-top text-right text-sm font-medium">
-               <button
-                  v-if="canDeleteTeams && !isReadonly"
-                  @click="deleteTeam(team.id)"
-                  class="text-slate-400 hover:text-red-600 transition-colors bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-full"
-                  title="Remove Team"
-               >
-                  <i class="mdi mdi-trash-can-outline text-lg"></i>
-               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <!-- Item Actions -->
+              <div class="sm:w-12 flex justify-end">
+                 <button
+                    v-if="canDeleteTeams && !isReadonly"
+                    @click="deleteTeam(team.id)"
+                    class="text-slate-200 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all w-10 h-10 flex items-center justify-center rounded-xl"
+                    title="Remove Team"
+                 >
+                    <i class="mdi mdi-trash-can-outline text-xl"></i>
+                 </button>
+              </div>
+            </div>
+          </div>
 
-      <!-- Empty State -->
-      <div v-else class="text-center py-16 bg-white dark:bg-slate-800">
-         <div class="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600">
-            <i class="mdi mdi-account-group-outline text-5xl"></i>
-         </div>
-         <h3 class="mt-2 text-sm font-bold text-slate-900 dark:text-white">No Teams Assigned</h3>
-         <p class="mt-1 text-xs text-slate-500 max-w-xs mx-auto mb-6">Start by adding a specific team type to this phase of the project.</p>
-         <button
-           v-if="canAssignTeams && !isReadonly"
-           @click="showAddTeamModal = true"
-           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-         >
-           <i class="mdi mdi-plus -ml-1 mr-2 text-lg"></i>
-           Add Team
-         </button>
+          <!-- Enhanced Empty State -->
+          <div v-else class="py-12 flex flex-col items-center justify-center text-center">
+             <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center text-slate-300 dark:text-slate-700 mb-4 border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <i :class="['mdi', category.icon, 'text-3xl']"></i>
+             </div>
+             <h5 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Assignment Pending</h5>
+             <button 
+                v-if="canAssignTeams && !isReadonly"
+                @click="openAddTeamModal(category.key)"
+                class="text-xs text-blue-500 hover:text-blue-600 font-black flex items-center gap-2 group"
+             >
+                <i class="mdi mdi-plus transition-transform group-hover:rotate-90"></i>
+                Create first {{ category.key }} team
+             </button>
+             <span v-else class="text-xs text-slate-400 italic">No personnel mapped yet</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Add Team Modal -->
-    <div v-if="showAddTeamModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <!-- Simple Add Team Modal -->
+    <div v-if="showAddTeamModal" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
         <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Team</h3>
-            <button
-              @click="closeAddTeamModal"
-              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-base font-black text-slate-800 dark:text-white uppercase tracking-wider">Quick Team Setup</h3>
+            <button @click="closeAddTeamModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+              <i class="mdi mdi-close text-xl"></i>
             </button>
           </div>
 
-          <form @submit.prevent="submitAddTeam" class="space-y-4">
-            <!-- Team Selection -->
+          <form @submit.prevent="submitAddTeam" class="space-y-6">
+            <!-- Category Chips -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team</label>
+              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Stage</label>
+              <div class="flex gap-2">
+                <button
+                  v-for="cat in TEAM_CATEGORIES"
+                  :key="cat.key"
+                  type="button"
+                  @click="newTeamModal.category = cat.key"
+                  :class="[
+                    'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border',
+                    newTeamModal.category === cat.key
+                      ? 'bg-slate-800 text-white border-slate-800 dark:bg-blue-600 dark:border-blue-600'
+                      : 'bg-transparent text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                  ]"
+                >
+                  {{ cat.key }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Team Specialty -->
+            <div>
+              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Specialty</label>
               <select
                 v-model="newTeamModal.team_type_id"
-                class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
+                class="w-full px-0 py-2 text-[13px] font-bold border-0 border-b-2 border-slate-100 dark:border-slate-800 focus:border-blue-500 focus:ring-0 bg-transparent text-slate-900 dark:text-white transition-all"
               >
-                <option value="">Select Team</option>
-                <option
-                  v-for="teamType in COMMON_TEAM_TYPES"
-                  :key="teamType.id"
-                  :value="teamType.team_type_id"
-                >
+                <option :value="null">Choose specialty...</option>
+                <option v-for="teamType in COMMON_TEAM_TYPES" :key="teamType.id" :value="teamType.team_type_id">
                   {{ teamType.display_name }}
                 </option>
               </select>
             </div>
 
-            <!-- Start Date -->
+            <!-- Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date (Optional)</label>
+              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Start Date</label>
               <input
                 v-model="newTeamModal.start_date"
                 type="date"
-                class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
+                class="w-full px-0 py-2 text-[13px] font-bold border-0 border-b-2 border-slate-100 dark:border-slate-800 focus:border-blue-500 focus:ring-0 bg-transparent text-slate-900 dark:text-white transition-all"
               />
             </div>
 
-            <!-- Form Actions -->
-            <div class="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                @click="closeAddTeamModal"
-                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                :disabled="!newTeamModal.category || !newTeamModal.team_type_id"
-                class="px-4 py-2 text-sm font-medium text-white bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors"
-              >
-                Create Team
-              </button>
-            </div>
+            <!-- Modal Action -->
+            <button
+              type="submit"
+              :disabled="!newTeamModal.category || !newTeamModal.team_type_id"
+              class="w-full py-3 text-xs font-black uppercase tracking-[0.2em] text-white bg-slate-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-20 rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-none"
+            >
+              Assign Team
+            </button>
           </form>
         </div>
       </div>
@@ -354,7 +385,22 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // Teams API integration
-const teams = useTeams()
+const {
+  teamsTasks,
+  teamsByCategory,
+  fetchTeamsForTask,
+  fetchTeamCategories,
+  createTeamTask,
+  addTeamMember,
+  removeTeamMember,
+  deleteTeamTask
+} = useTeams()
+
+const TEAM_CATEGORIES = [
+  { id: 1, key: 'workshop', label: 'Workshop Teams', icon: 'mdi-hammer-wrench', color: 'blue' },
+  { id: 2, key: 'setup', label: 'Setup Teams', icon: 'mdi-truck-delivery-outline', color: 'amber' },
+  { id: 3, key: 'setdown', label: 'Setdown Teams', icon: 'mdi-archive-arrow-down-outline', color: 'rose' }
+]
 
 
 
@@ -430,7 +476,7 @@ const feedbackMessages = ref<FeedbackMessage[]>([])
 onMounted(async () => {
   try {
     // Load team categories
-    await teams.fetchTeamCategories()
+    await fetchTeamCategories()
     // Teams data is loaded by the immediate watcher on props.task
   } catch (error) {
     console.error('Error loading teams categories:', error)
@@ -442,7 +488,7 @@ onMounted(async () => {
  * Get all teams flat list
  */
 const allTeams = computed(() => {
-  return teams.teamsTasks.value || []
+  return teamsTasks.value || []
 })
 
 /**
@@ -491,6 +537,16 @@ const closeAddTeamModal = () => {
 }
 
 /**
+ * Open add team modal with optional category
+ */
+const openAddTeamModal = (categoryKey?: string) => {
+  if (categoryKey) {
+    newTeamModal.category = categoryKey
+  }
+  showAddTeamModal.value = true
+}
+
+/**
  * Submit add team form
  */
 const submitAddTeam = async () => {
@@ -501,38 +557,24 @@ const submitAddTeam = async () => {
 
   try {
     // Map category to proper category_id
-    const categoryMap = {
+    const categoryMap: Record<string, number> = {
       workshop: 1,
       setup: 2,
       setdown: 3
     }
 
-    const newTeam = await teams.createTeamTask(props.task.id, {
-      category_id: categoryMap[newTeamModal.category as keyof typeof categoryMap],
+    const newTeam = await createTeamTask(props.task.id, {
+      category_id: categoryMap[newTeamModal.category],
       team_type_id: newTeamModal.team_type_id,
       required_members: 1, // Default to 1, members added individually
       start_date: newTeamModal.start_date || undefined,
       priority: 'medium'
     })
 
-    // Try to refresh teams data to show the newly created team
-    try {
-      await teams.fetchTeamsForTask(props.task.id)
-      addFeedbackMessage('success', 'Team added successfully')
-      closeAddTeamModal()
-    } catch (refreshError) {
-      console.warn('Failed to refresh teams data after team creation:', refreshError)
-      addFeedbackMessage('success', `Team added to ${newTeamModal.category} category (UI may not update immediately)`)
-      closeAddTeamModal()
-      // Optionally trigger a manual refresh after a short delay
-      setTimeout(async () => {
-        try {
-          await teams.fetchTeamsForTask(props.task.id)
-        } catch (retryError) {
-          console.error('Retry refresh also failed:', retryError)
-        }
-      }, 2000)
-    }
+    // Refresh teams data
+    await fetchTeamsForTask(props.task.id)
+    addFeedbackMessage('success', 'Team added successfully')
+    closeAddTeamModal()
   } catch (error) {
     console.error('Error adding team:', error)
     addFeedbackMessage('error', 'Failed to add team. Please try again.')
@@ -551,29 +593,16 @@ const addMemberToTeam = async (teamTaskId: number) => {
   }
 
   try {
-    await teams.addTeamMember(props.task.id, teamTaskId, {
+    await addTeamMember(props.task.id, teamTaskId, {
       member_name: memberName
     })
 
     // Clear input immediately
     newMemberInputs[teamTaskId] = ''
 
-    // Try to refresh teams data to show the newly added member
-    try {
-      await teams.fetchTeamsForTask(props.task.id)
-      addFeedbackMessage('success', 'Member added successfully')
-    } catch (refreshError) {
-      console.warn('Failed to refresh teams data after member addition:', refreshError)
-      addFeedbackMessage('success', 'Member added successfully (UI may not update immediately)')
-      // Optionally trigger a manual refresh after a short delay
-      setTimeout(async () => {
-        try {
-          await teams.fetchTeamsForTask(props.task.id)
-        } catch (retryError) {
-          console.error('Retry refresh also failed:', retryError)
-        }
-      }, 2000)
-    }
+    // Refresh teams data
+    await fetchTeamsForTask(props.task.id)
+    addFeedbackMessage('success', 'Member added successfully')
   } catch (error) {
     console.error('Error adding member:', error)
     addFeedbackMessage('error', 'Failed to add member. Please try again.')
@@ -585,24 +614,9 @@ const addMemberToTeam = async (teamTaskId: number) => {
  */
 const removeMember = async (teamTaskId: number, memberId: number) => {
   try {
-    await teams.removeTeamMember(props.task.id, teamTaskId, memberId)
-
-    // Try to refresh teams data to show the updated member list
-    try {
-      await teams.fetchTeamsForTask(props.task.id)
-      addFeedbackMessage('success', 'Member removed successfully')
-    } catch (refreshError) {
-      console.warn('Failed to refresh teams data after member removal:', refreshError)
-      addFeedbackMessage('success', 'Member removed successfully (UI may not update immediately)')
-      // Optionally trigger a manual refresh after a short delay
-      setTimeout(async () => {
-        try {
-          await teams.fetchTeamsForTask(props.task.id)
-        } catch (retryError) {
-          console.error('Retry refresh also failed:', retryError)
-        }
-      }, 2000)
-    }
+    await removeTeamMember(props.task.id, teamTaskId, memberId)
+    await fetchTeamsForTask(props.task.id)
+    addFeedbackMessage('success', 'Member removed successfully')
   } catch (error) {
     console.error('Error removing member:', error)
     addFeedbackMessage('error', 'Failed to remove member. Please try again.')
@@ -618,24 +632,9 @@ const deleteTeam = async (teamTaskId: number) => {
   }
 
   try {
-    await teams.deleteTeamTask(props.task.id, teamTaskId)
-
-    // Try to refresh teams data to remove the deleted team
-    try {
-      await teams.fetchTeamsForTask(props.task.id)
-      addFeedbackMessage('success', 'Team deleted successfully')
-    } catch (refreshError) {
-      console.warn('Failed to refresh teams data after team deletion:', refreshError)
-      addFeedbackMessage('success', 'Team deleted successfully (UI may not update immediately)')
-      // Optionally trigger a manual refresh after a short delay
-      setTimeout(async () => {
-        try {
-          await teams.fetchTeamsForTask(props.task.id)
-        } catch (retryError) {
-          console.error('Retry refresh also failed:', retryError)
-        }
-      }, 2000)
-    }
+    await deleteTeamTask(props.task.id, teamTaskId)
+    await fetchTeamsForTask(props.task.id)
+    addFeedbackMessage('success', 'Team deleted successfully')
   } catch (error) {
     console.error('Error deleting team:', error)
     addFeedbackMessage('error', 'Failed to delete team. Please try again.')
@@ -794,19 +793,16 @@ const getTeamTypeDisplayName = (team: any): string => {
  */
 watch(
   () => props.task,
-  (newTask, oldTask) => {
+  async (newTask, oldTask) => {
     // updateProjectInfo() removed as part of simplification
     try {
       // Fetch teams if task ID changed or on initial load (immediate)
       if (newTask && (!oldTask || newTask.id !== oldTask.id)) {
-        teams.fetchTeamsForTask(newTask.id).catch(error => {
-          console.error('Error updating teams data for new task:', error)
-          addFeedbackMessage('error', 'Failed to load teams data')
-        })
+        await fetchTeamsForTask(newTask.id)
       }
-    } catch (error) {
-      console.error('Error updating task data:', error)
-      addFeedbackMessage('error', 'Failed to update teams data')
+    } catch (err: any) { // Added type for error
+      console.error('Error updating teams data for new task:', err)
+      addFeedbackMessage('error', 'Failed to load teams data')
     }
   },
   { deep: true, immediate: true }
