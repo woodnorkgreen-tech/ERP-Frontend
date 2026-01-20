@@ -798,9 +798,6 @@
         </div>
         <!-- Premium Empty State for Issues -->
         <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-           <div class="w-20 h-20 rounded-full bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 text-emerald-500">
-              <i class="mdi mdi-check-decagram text-4xl animate-bounce"></i>
-           </div>
            
            <div class="text-center max-w-md px-6">
               <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">
@@ -978,7 +975,6 @@
             <div class="w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 text-slate-300">
                <i class="mdi mdi-folder-zip-outline text-4xl"></i>
             </div>
-            <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">Manifest Not Found</h3>
             <p class="text-slate-500 dark:text-slate-400 mb-0 font-medium tracking-tight">No design components have been pushed to this task yet.</p>
          </div>
 
