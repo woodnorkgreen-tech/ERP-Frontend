@@ -161,13 +161,13 @@
           <div v-if="requisition.createdBy">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</label>
             <p class="text-base font-medium text-gray-900 dark:text-white">
-              {{ requisition.createdBy.first_name }} {{ requisition.createdBy.last_name }}
+             {{ requisition.createdBy.name }}
             </p>
           </div>
           <div v-if="requisition.approvedBy">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Approved By</label>
             <p class="text-base font-medium text-gray-900 dark:text-white">
-              {{ requisition.approvedBy.first_name }} {{ requisition.approvedBy.last_name }}
+             {{ requisition.approvedBy.name }}
             </p>
           </div>
         </div>
