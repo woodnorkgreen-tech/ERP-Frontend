@@ -214,10 +214,15 @@ export function useRouteGuard() {
       return
     }
 
-    // Production, Logistics, Stores, and Procurement users go to projects dashboard
+    // Production users go to Production module
+    if (userRoles.includes('Production')) {
+      router.push('/production/work-orders')
+      return
+    }
+
+    // Logistics, Stores, and Procurement users go to projects dashboard
     // (temporary until their dedicated modules are developed)
-    if (userRoles.includes('Production') ||
-      userRoles.includes('Logistics') ||
+    if (userRoles.includes('Logistics') ||
       userRoles.includes('Stores') ||
       userRoles.includes('Designer') ||
       userRoles.includes('Procurement')) {
@@ -290,6 +295,12 @@ export function useRouteGuard() {
           ]
         },
         {
+          department: 'Production',
+          routes: [
+            { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' }
+          ]
+        },
+        {
           department: 'Finance',
           routes: [
             { name: 'finance-dashboard', path: '/finance', label: 'Petty Cash Dashboard', icon: 'mdi-wallet' },
@@ -357,6 +368,13 @@ export function useRouteGuard() {
         { name: 'client-service-clients', path: '/client-service/clients', label: 'Client Management', icon: 'mdi-account-multiple' },
         { name: 'client-service-leads', path: '/client-service/leads', label: 'Public Leads', icon: 'mdi-magnet' },
         { name: 'client-service-enquiries', path: '/client-service/enquiries', label: 'Enquiry Management', icon: 'mdi-fountain-pen-tip' }
+      )
+    }
+
+    // Add production routes for authorized users (skip for Super Admin as they're already included in departments)
+    if (userRoles.includes('Production') && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' }
       )
     }
 

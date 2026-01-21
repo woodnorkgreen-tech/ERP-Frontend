@@ -7,6 +7,7 @@ import { adminRoutes } from './admin'
 import { hrRoutes } from './hr'
 import { projectsRoutes } from './projects'
 import { clientServiceRoutes } from './clientService'
+import { productionRoutes } from './production'
 
 import { financeRoutes } from './finance'
 import materialsLibraryRoutes from '@/modules/materials-library/routes'
@@ -35,6 +36,7 @@ const routes: RouteRecordRaw[] = [
   ...hrRoutes,
   ...projectsRoutes,
   ...clientServiceRoutes,
+  ...productionRoutes,
 
   ...financeRoutes,
   ...materialsLibraryRoutes,

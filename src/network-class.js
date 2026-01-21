@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './plugins/axios';
 
 class Network {
   /**
@@ -6,7 +6,7 @@ class Network {
    */
   static async get(url) {
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       return this.handleError(error);
@@ -18,7 +18,7 @@ class Network {
    */
   static async store(url, data) {
     try {
-      const response = await axios.post(url, data);
+      const response = await api.post(url, data);
       return response.data;
     } catch (error) {
       return this.handleError(error);
@@ -30,7 +30,7 @@ class Network {
    */
   static async update(url, data) {
     try {
-      const response = await axios.put(url, data);
+      const response = await api.put(url, data);
       return response.data;
     } catch (error) {
       return this.handleError(error);
@@ -42,7 +42,7 @@ class Network {
    */
   static async delete(url) {
     try {
-      const response = await axios.delete(url);
+      const response = await api.delete(url);
       return response.data;
     } catch (error) {
       return this.handleError(error);
@@ -54,7 +54,7 @@ class Network {
    */
   static async search(url, data) {
     try {
-      const response = await axios.post(url, data);
+      const response = await api.post(url, data);
       return response.data;
     } catch (error) {
       return this.handleError(error);

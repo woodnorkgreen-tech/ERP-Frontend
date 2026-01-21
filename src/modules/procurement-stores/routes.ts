@@ -75,6 +75,18 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                 path: '/procurement',
                 children: [
                     {
+                        path: 'dashboard',
+                        name: 'procurement-dashboard',
+                        component: () => import('./views/procurement/Dashboard.vue'),
+                        meta: { requiresAuth: true, title: 'Procurement Dashboard' }
+                    },
+                    {
+                        path: 'goods-receipt',
+                        name: 'procurement-goods-receipt',
+                        component: () => import('./views/procurement/GoodsReceipt.vue'),
+                        meta: { requiresAuth: true, title: 'Goods Receipt' }
+                    },
+                    {
                         path: 'suppliers',
                         name: 'procurement-suppliers',
                         component: () => import('./views/procurement/SupplierIndex.vue'),
