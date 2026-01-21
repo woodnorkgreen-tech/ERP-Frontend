@@ -141,12 +141,12 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/procurement/PurchaseOrdersIndex.vue'),
                         meta: { requiresAuth: true, title: 'Purchase Orders' }
                     },
-                    {
-                        path: 'purchase-order/create',
-                        name: 'procurement-purchase-order-create',
-                        component: () => import('./views/procurement/PurchaseOrderCreate.vue'),
-                        meta: { requiresAuth: true, title: 'Create Purchase Order' }
-                    },
+                    // {
+                    //     path: 'purchase-order/create',
+                    //     name: 'procurement-purchase-order-create',
+                    //     component: () => import('./views/procurement/PurchaseOrderCreate.vue'),
+                    //     meta: { requiresAuth: true, title: 'Create Purchase Order' }
+                    // },
                     {
                         path: 'purchase-order/:id',
                         name: 'procurement-purchase-order-show',
@@ -180,9 +180,9 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                     {
                         path: '/procurement/purchase-order/link-from-requisition/:requisitionId',
                         name: 'LinkPurchaseOrder',
-                        component: () => import('@/views/procurement/purchase-orders/LinkPurchaseOrder.vue'),
+                        component: () => import('@/modules/procurement-stores/views/procurement/PurchaseOrderCreate.vue'),
                         meta: { requiresAuth: true }
-                    },
+                    }
                 ]
             }
         ]
