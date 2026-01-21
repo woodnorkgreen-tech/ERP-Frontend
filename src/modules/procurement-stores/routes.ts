@@ -69,6 +69,7 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/stores/Reports.vue'),
                         meta: { requiresAuth: true, title: 'Inventory Reports' }
                     }
+
                 ]
             },
             {
@@ -175,7 +176,13 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         name: 'procurement-billing-show',
                         component: () => import('./views/procurement/BillingShow.vue'),
                         meta: { requiresAuth: true, title: 'Invoice Details' }
-                    }
+                    },
+                    {
+                        path: '/procurement/purchase-order/link-from-requisition/:requisitionId',
+                        name: 'LinkPurchaseOrder',
+                        component: () => import('@/views/procurement/purchase-orders/LinkPurchaseOrder.vue'),
+                        meta: { requiresAuth: true }
+                    },
                 ]
             }
         ]
