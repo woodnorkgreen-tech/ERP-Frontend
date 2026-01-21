@@ -131,7 +131,7 @@
           <div v-if="invoice.createdBy">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</label>
             <p class="text-base font-medium text-gray-900 dark:text-white">
-              {{ invoice.createdBy.first_name }} {{ invoice.createdBy.last_name }}
+              {{ invoice.createdBy.name }}
             </p>
           </div>
         </div>

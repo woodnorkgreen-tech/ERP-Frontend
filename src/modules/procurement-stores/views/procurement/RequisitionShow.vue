@@ -67,6 +67,16 @@
           Reject
         </button>
         <router-link
+          v-if="requisition.status === 'approved'"
+          :to="`/procurement/purchase-order/link-from-requisition/${id}`"
+          class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Create Purchase Order
+        </router-link>
+        <router-link
           v-if="requisition.status === 'draft'"
           :to="`/procurement/requisition/${id}/edit`"
           class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
@@ -257,7 +267,7 @@ const requisition = ref<any>({})
 const showRejectModal = ref(false)
 const rejectReason = ref('')
 
-const canApprove = computed(() => true) // Implement permission check
+const canApprove = computed(() => true)
 
 const fetchRequisition = async () => {
   loading.value = true
