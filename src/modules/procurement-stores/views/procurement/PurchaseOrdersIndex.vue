@@ -22,22 +22,7 @@
       </ol>
     </nav>
 
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Purchase Orders</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage purchase orders</p>
-      </div>
-      <router-link
-        to="/procurement/purchase-order/create"
-        class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
-      >
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        New Purchase Order
-      </router-link>
-    </div>
+  
 
     <!-- Filters -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
