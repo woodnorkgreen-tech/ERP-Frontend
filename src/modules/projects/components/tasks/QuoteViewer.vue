@@ -10,7 +10,7 @@
             <i class="mdi mdi-file-document-outline text-emerald-600 text-2xl"></i>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Financial Prospectus</h3>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">Financial Quote</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Validating project valuation & deliverables</p>
           </div>
         </div>
@@ -87,7 +87,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
               </svg>
-              <span class="uppercase tracking-wider whitespace-nowrap">Print Prospectus</span>
+              <span class="uppercase tracking-wider whitespace-nowrap">Print Quote</span>
             </button>
           </div>
 

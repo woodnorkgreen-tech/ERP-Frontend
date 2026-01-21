@@ -71,6 +71,9 @@
                   <option value="Installation">Installation</option>
                   <option value="Technical">Technical</option>
                   <option value="Supervision">Supervision</option>
+                  <option value="Labour & transport cost">Labour & transport cost</option>
+                  <option value="Labour & team per diem">Labour & team per diem</option>
+                  <option value="Labour & team transport cost">Labour & team transport cost</option>
                   <option value="Other">Other</option>
                 </select>
               </td>

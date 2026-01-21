@@ -409,7 +409,7 @@
              <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Department Approvals</h3>
                 <p v-if="showApprovals" class="text-sm text-gray-600 dark:text-gray-400">
-                  All three departments must approve the materials list before budget can be created
+                  Project Officer or Manager must approve the materials list before budget can be created
                 </p>
              </div>
           </div>
@@ -428,7 +428,7 @@
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
               <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                ✓ All departments approved. Budget import enabled.
+                ✓ Materials list approved. Budget import enabled.
               </span>
             </div>
           </div>
@@ -447,24 +447,8 @@
           <div class="flex flex-col md:flex-row bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
             <ApprovalCard
               class="flex-1 border-0 rounded-none shadow-none"
-              department="design"
-              title="Design"
-              :approval-data="approvalStatus.design"
-              :can-approve="canApproveForDepartment('design')"
-              @approve="approveForDepartment('design', $event)"
-            />
-            <ApprovalCard
-              class="flex-1 border-0 rounded-none shadow-none"
-              department="production"
-              title="Production"
-              :approval-data="approvalStatus.production"
-              :can-approve="canApproveForDepartment('production')"
-              @approve="approveForDepartment('production', $event)"
-            />
-            <ApprovalCard
-              class="flex-1 border-0 rounded-none shadow-none"
               department="project_officer"
-              title="Project Officer"
+              title="Project Approval"
               :approval-data="approvalStatus.project_officer"
               :can-approve="canApproveForDepartment('project_officer')"
               @approve="approveForDepartment('project_officer', $event)"
@@ -734,7 +718,7 @@
             <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Department Approvals</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                All three departments must approve the materials list before budget can be created
+                Project Officer or Manager must approve the materials list before budget can be created
               </p>
 
               <!-- Overall Status Banner -->
@@ -744,7 +728,7 @@
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                   </svg>
                   <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    ✓ All departments approved. Budget import enabled.
+                    ✓ Materials list approved. Budget import enabled.
                   </span>
                 </div>
               </div>
@@ -760,24 +744,10 @@
               </div>
 
               <!-- Approval Cards Grid -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ApprovalCard
-                  department="design"
-                  title="Design Team"
-                  :approval-data="approvalStatus.design"
-                  :can-approve="canApproveForDepartment('design')"
-                  @approve="approveForDepartment('design', $event)"
-                />
-                <ApprovalCard
-                  department="production"
-                  title="Production"
-                  :approval-data="approvalStatus.production"
-                  :can-approve="canApproveForDepartment('production')"
-                  @approve="approveForDepartment('production', $event)"
-                />
+              <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <ApprovalCard
                   department="project_officer"
-                  title="Project Officer"
+                  title="Project Approval"
                   :approval-data="approvalStatus.project_officer"
                   :can-approve="canApproveForDepartment('project_officer')"
                   @approve="approveForDepartment('project_officer', $event)"
@@ -1271,16 +1241,12 @@ interface ApprovalDepartmentData {
 }
 
 interface ApprovalStatus {
-  design: ApprovalDepartmentData
-  production: ApprovalDepartmentData
   project_officer: ApprovalDepartmentData
   all_approved: boolean
   last_approval_at?: string | null
 }
 
 const approvalStatus = ref<ApprovalStatus>({
-  design: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
-  production: {approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
   project_officer: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
   all_approved: false,
   last_approval_at: null
@@ -1289,9 +1255,7 @@ const approvalStatus = ref<ApprovalStatus>({
 // Computed: Pending departments
 const pendingDepartments = computed(() => {
   const pending: string[] = []
-  if (!approvalStatus.value?.design?.approved) pending.push('Design')
-  if (!approvalStatus.value?.production?.approved) pending.push('Production')
-  if (!approvalStatus.value?.project_officer?.approved) pending.push('Project Officer')
+  if (!approvalStatus.value?.project_officer?.approved) pending.push('Project Approval')
   return pending
 })
 
@@ -1323,8 +1287,8 @@ const canApproveForDepartment = (department: 'design' | 'production' | 'project_
   })
   
   const roleMap: Record<string, string[]> = {
-    design: ['designer', 'design_lead', 'creative_director', 'design manager', 'admin', 'superadmin', 'super-admin', 'super admin', 'design'],
-    production: ['production', 'production_manager', 'production manager', 'operations_manager', 'operations manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
+    design: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
+    production: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
     project_officer: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin']
   }
 

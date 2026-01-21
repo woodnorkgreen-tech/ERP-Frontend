@@ -3,9 +3,9 @@
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Logistics Log</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Transport Log</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-          Track vehicle movements and logistics activities
+          Track vehicle movements and transport activities
         </p>
       </div>
       <div class="flex gap-2">
@@ -13,19 +13,13 @@
           @click="$emit('edit-mode')"
           class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
           <span>Edit</span>
         </button>
         <button
           @click="openAddModal"
           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Add Log Entry
+          Add Record
         </button>
       </div>
     </div>
@@ -38,9 +32,6 @@
     <!-- Error State -->
     <div v-else-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
       <div class="flex items-center space-x-2 text-red-800 dark:text-red-200">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
         <span>{{ error }}</span>
       </div>
     </div>
@@ -55,9 +46,9 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Loading Time</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Departure</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Setdown Time</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Officer In-Charge</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Departure Time</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Collection Time</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Person in Charge</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
@@ -110,11 +101,8 @@
             </tr>
             <tr v-if="logs.length === 0">
               <td colspan="9" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p class="mt-2 text-sm font-medium">No log entries found</p>
-                <p class="mt-1 text-sm">Get started by adding a new logistics log entry.</p>
+                <p class="mt-2 text-sm font-medium">No records found</p>
+                <p class="mt-1 text-sm">Add a new record to get started.</p>
               </td>
             </tr>
           </tbody>
@@ -191,7 +179,7 @@
             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                  {{ isEditing ? 'Edit Log Entry' : 'Add Log Entry' }}
+                  {{ isEditing ? 'Edit Record' : 'Add Record' }}
                 </h3>
                 <div class="mt-4 space-y-4">
                   <!-- Site -->
@@ -205,14 +193,14 @@
                     />
                   </div>
 
-                  <!-- Vehicle Allocated -->
+                  <!-- Assigned Vehicle -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Allocated</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle</label>
                     <input
                       type="text"
                       v-model="form.vehicle_allocated"
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                      placeholder="Enter vehicle details"
+                      placeholder="Number plate or description"
                     />
                   </div>
 
@@ -227,14 +215,14 @@
                     />
                   </div>
 
-                  <!-- Officer In-Charge -->
+                  <!-- Person in Charge -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Officer In-Charge</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Person in Charge</label>
                     <input
                       type="text"
                       v-model="form.project_officer_incharge"
                       class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                      placeholder="Enter officer name"
+                      placeholder="Name of supervisor"
                     />
                   </div>
 
@@ -257,7 +245,7 @@
                       />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Setdown Time</label>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Collection Time</label>
                       <input
                         type="datetime-local"
                         v-model="form.setdown_time"
@@ -324,18 +312,13 @@
         <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
-              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                  Delete Log Entry
+                  Delete Record
                 </h3>
                 <div class="mt-2">
                   <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Are you sure you want to delete this log entry? This action cannot be undone.
+                    Are you sure you want to delete this record? This action cannot be undone.
                   </p>
                 </div>
               </div>
@@ -367,7 +350,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import api from '@/plugins/axios'
-import type { EnquiryTask } from '../../types/enquiry'
+import type { EnquiryTask } from '../../../types/enquiry'
 
 interface Props {
   task: EnquiryTask

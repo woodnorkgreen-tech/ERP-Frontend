@@ -933,7 +933,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
               </svg>
-              <span class="relative z-10">Generate Final Prospectus</span>
+              <span class="relative z-10">Generate Final Quote</span>
             </button>
             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Ready for strategic review</p>
           </div>
@@ -1001,7 +1001,7 @@
                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                </svg>
             </div>
-            <span class="text-xs font-black uppercase tracking-widest">Mission Completed</span>
+            <span class="text-xs font-black uppercase tracking-widest">Task Completed</span>
           </div>
 
           <!-- Master Preview Trigger -->
@@ -1013,7 +1013,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
-            <span>Review Prospectus</span>
+            <span>Review Quote</span>
           </button>
         </div>
       </div>

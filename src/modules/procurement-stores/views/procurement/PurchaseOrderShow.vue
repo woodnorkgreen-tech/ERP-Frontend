@@ -3,11 +3,11 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h1>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Order Details</h1>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ purchaseOrder.po_number }}</p>
       </div>
       <div class="flex gap-2">
-        <!-- Submit for Approval Button -->
+        <!-- Ask for Approval Button -->
         <button
           v-if="purchaseOrder.status === 'pending'"
           @click="submitForApproval"
@@ -17,7 +17,7 @@
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          Submit for Approval
+          Ask for Approval
         </button>
 
         <!-- Approve Button -->
@@ -64,7 +64,7 @@
       </div>
     </div>
 
-    <!-- Purchase Order Details -->
+    <!-- Order Details -->
     <div v-else>
       <!-- Basic Info -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
@@ -150,14 +150,14 @@ const fetchPurchaseOrder = async () => {
     const response = await axios.get(`/api/procurement-stores/purchase-orders/${id}`)
     purchaseOrder.value = response.data.data || response.data
   } catch (error) {
-    console.error('Failed to load purchase order:', error)
+    console.error('Failed to load order:', error)
   } finally {
     loading.value = false
   }
 }
 
 const submitForApproval = async () => {
-  if (!confirm('Submit this purchase order for approval?')) return
+  if (!confirm('Ask for approval for this order?')) return
   
   submitting.value = true
   try {
@@ -171,13 +171,13 @@ const submitForApproval = async () => {
 }
 
 const approvePO = async () => {
-  if (!confirm('Approve this purchase order?')) return
+  if (!confirm('Approve this order?')) return
   
   submitting.value = true
   try {
     await axios.post(`/api/procurement-stores/purchase-orders/${id}/approve`)
     await fetchPurchaseOrder()
-    alert('Purchase order approved! You can now create an invoice.')
+    alert('Order approved! You can now create an invoice.')
   } catch (error: any) {
     alert(error.response?.data?.error || 'Failed to approve')
   } finally {

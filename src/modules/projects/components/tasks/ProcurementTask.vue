@@ -32,7 +32,7 @@
 
     <!-- Main Content -->
     <div v-else>
-      <!-- Premium Project Information Section -->
+      <!-- Project Details -->
       <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
         <!-- Decorative background elements -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
@@ -44,7 +44,7 @@
                 <i class="mdi mdi-office-building text-2xl"></i>
               </div>
               <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
                 <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
               </div>
             </div>
@@ -55,7 +55,7 @@
                   <i class="mdi mdi-identifier"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
                    <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
                 </div>
               </div>
@@ -65,7 +65,7 @@
                   <i class="mdi mdi-account-tie"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
                 </div>
               </div>
@@ -75,7 +75,7 @@
                   <i class="mdi mdi-map-marker"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
                 </div>
               </div>
@@ -85,7 +85,7 @@
           <!-- Right Side: Status/Highlights -->
           <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
              <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Schedule</p>
                 <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
                   <i class="mdi mdi-calendar-check text-blue-400"></i>
                   {{ formatDate(projectInfo.setupDate) }}
@@ -126,7 +126,7 @@
       <!-- Items Tab -->
       <div v-if="activeTab === 'items'" class="space-y-6">
         
-        <!-- Procurement Dashboard -->
+        <!-- Order Summary -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Metric 1: Total Budget -->
           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
@@ -142,7 +142,7 @@
           <!-- Metric 2: Stock Availability -->
           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
             <div class="relative z-10">
-              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Inventory Available</p>
+               <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Items in Stock</p>
               <div class="flex items-baseline space-x-2">
                 <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">
                   {{ Math.round((procurementData.procurementItems.filter(i => i.stockStatus === 'in_stock').length / (procurementData.procurementItems.length || 1)) * 100) }}%
@@ -158,7 +158,7 @@
           <!-- Metric 3: To Procure -->
           <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
             <div class="relative z-10">
-              <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pending Purchases</p>
+               <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Items to Buy</p>
               <div class="flex items-baseline space-x-2">
                 <p class="text-2xl font-black text-amber-600 dark:text-amber-400">
                   {{ procurementData.procurementItems.filter(i => i.purchaseQuantity > 0 && i.procurementStatus !== 'received').length }}
@@ -390,8 +390,8 @@
            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
-                <h3 class="text-2xl font-black text-white tracking-tight mb-2">Procurement Reporting Center</h3>
-                <p class="text-slate-400 max-w-xl">Generate official documentation, analyze spending, and export datasets for external processing.</p>
+                 <h3 class="text-2xl font-black text-white tracking-tight mb-2">Order Report Center</h3>
+                <p class="text-slate-400 max-w-xl">Download documents and check spending for this project.</p>
               </div>
               <div class="flex gap-4">
                  <div class="text-right">
@@ -410,7 +410,7 @@
               <div class="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                  <i class="mdi mdi-file-excel-box text-3xl text-emerald-600 dark:text-emerald-400"></i>
               </div>
-              <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Comprehensive Spreadsheet</h4>
+               <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Download Data</h4>
               <p class="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
                  Download the full procurement dataset including vendor assignments, stock levels, and purchasing quantities. Ideal for accounting and inventory reconciliation.
               </p>
@@ -763,8 +763,8 @@ watch(() => props.initialTab, (newTab) => {
   }
 })
 const tabs = [
-  { id: 'items', label: 'Procurement Progress', icon: '📦' },
-  { id: 'report', label: 'Export Data', icon: '📄' }
+  { id: 'items', label: 'Order Progress', icon: '📦' },
+  { id: 'report', label: 'Download Report', icon: '📄' }
 ]
 
 // Use composables
