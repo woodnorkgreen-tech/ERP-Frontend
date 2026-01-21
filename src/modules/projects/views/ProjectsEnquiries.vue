@@ -899,7 +899,8 @@
                       class="w-full h-14 pl-5 pr-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     >
                       <option :value="null">Inquiry Selection...</option>
-                      <option v-for="enquiry in enquiries" :key="enquiry.id" :value="enquiry.id">
+                      <!-- Combine allApprovedProjects and current enquiries to ensure selection works -->
+                      <option v-for="enquiry in [...allApprovedProjects, ...enquiries.filter(e => !allApprovedProjects.some(ae => ae.id === e.id))]" :key="enquiry.id" :value="enquiry.id">
                         {{ enquiry.job_number || '---' }} | {{ enquiry.title }}
                       </option>
                     </select>
@@ -1336,6 +1337,10 @@ const logisticsEntryForm = ref({
   remarks: ''
 })
 
+// All Approved Projects for Logistics Selection
+const allApprovedProjects = ref<ProjectEnquiry[]>([])
+const loadingApprovedProjects = ref(false)
+
 // Vehicle options
 const vehicleOptions = ['KDR 843B', 'KCT 082T', 'KBU 006M', 'KDS 198E']
 
@@ -1581,6 +1586,21 @@ const openLogisticsLogModal = async () => {
 
   // Fetch all logistics entries
   await fetchLogisticsEntries()
+  
+  // Fetch all approved projects for selection and lookup
+  await fetchApprovedProjects()
+}
+
+const fetchApprovedProjects = async () => {
+  loadingApprovedProjects.value = true
+  try {
+    const response = await api.get('/api/projects/approved-wng')
+    allApprovedProjects.value = response.data.data || []
+  } catch (err) {
+    console.error('Failed to fetch approved projects:', err)
+  } finally {
+    loadingApprovedProjects.value = false
+  }
 }
 
 const closeLogisticsLogModal = () => {
@@ -1606,7 +1626,8 @@ const fetchLogisticsEntries = async () => {
 const handleProjectSelection = () => {
   if (!logisticsEntryForm.value.project_id) return
 
-  const project = enquiries.value.find(e => e.id === logisticsEntryForm.value.project_id)
+  const project = allApprovedProjects.value.find(e => e.id === logisticsEntryForm.value.project_id) || 
+                  enquiries.value.find(e => e.id === logisticsEntryForm.value.project_id)
   if (project) {
     logisticsEntryForm.value.site = project.venue || ''
     logisticsEntryForm.value.project_officer_incharge = project.project_officer?.name || ''
@@ -1773,7 +1794,8 @@ const formatDateTime = (dateString: string) => {
 }
 
 const getProjectName = (projectId: number) => {
-  const project = enquiries.value.find(e => e.id === projectId)
+  const project = allApprovedProjects.value.find(e => e.id === projectId) || 
+                  enquiries.value.find(e => e.id === projectId)
   return project?.title || 'Unknown Project'
 }
 
@@ -2011,7 +2033,8 @@ const closeLogisticsEntry = async (entryId: number) => {
 
 const getProjectJobNumber = (projectId: number | null) => {
   if (!projectId) return 'N/A'
-  const enquiry = enquiries.value.find(e => e.id === projectId)
+  const enquiry = allApprovedProjects.value.find(e => e.id === projectId) || 
+                  enquiries.value.find(e => e.id === projectId)
   return enquiry?.job_number || 'PENDING'
 }
 

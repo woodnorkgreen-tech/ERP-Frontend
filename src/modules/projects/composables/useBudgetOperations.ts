@@ -460,7 +460,12 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
       }
 
       // Final validation: ensure budget is not empty for submission
-      if (budgetData.budgetSummary.grandTotal === 0) {
+      const isEmpty = budgetData.materials.length === 0 &&
+        budgetData.labour.length === 0 &&
+        budgetData.expenses.length === 0 &&
+        budgetData.logistics.length === 0;
+
+      if (isEmpty) {
         state.error = 'Cannot submit an empty budget. Please add items to at least one category before submitting.'
         return
       }

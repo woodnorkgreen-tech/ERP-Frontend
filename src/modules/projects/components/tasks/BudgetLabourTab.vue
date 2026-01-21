@@ -68,12 +68,13 @@
                   class="w-full px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 dark:bg-gray-700 dark:text-white cursor-pointer"
                 >
                   <option value="Production">Production</option>
-                  <option value="Installation">Installation</option>
+                  <option value="Installation">Set Up</option>
+                  <option value="Installation">Set down</option>
                   <option value="Technical">Technical</option>
                   <option value="Supervision">Supervision</option>
-                  <option value="Labour & transport cost">Labour & transport cost</option>
+                  <!-- <option value="Labour & transport cost">Labour & transport cost</option>
                   <option value="Labour & team per diem">Labour & team per diem</option>
-                  <option value="Labour & team transport cost">Labour & team transport cost</option>
+                  <option value="Labour & team transport cost">Labour & team transport cost</option> -->
                   <option value="Other">Other</option>
                 </select>
               </td>
