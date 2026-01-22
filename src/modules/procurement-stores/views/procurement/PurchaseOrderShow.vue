@@ -212,8 +212,14 @@ const checkForBill = async () => {
   try {
     const response = await axios.get(`/api/procurement-stores/bills?purchase_order_id=${id}`)
     const bills = response.data.data || response.data
-    if (bills && bills.length > 0) {
-      billId.value = bills[0].id
+    
+    // Filter bills to only those matching this specific purchase order
+    const matchingBills = Array.isArray(bills) 
+      ? bills.filter(bill => bill.purchase_order_id === id || bill.purchase_order_id === parseInt(id))
+      : []
+    
+    if (matchingBills.length > 0) {
+      billId.value = matchingBills[0].id
     }
   } catch (error) {
     console.error('Failed to check for bill:', error)
