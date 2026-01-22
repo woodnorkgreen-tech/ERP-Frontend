@@ -108,7 +108,7 @@
 
       <!-- Quote Body (No internal scroll, let parent handle it) -->
       <div class="flex-grow bg-gray-100/50 dark:bg-gray-950 p-4 sm:p-12 print:p-0 print:bg-white h-auto overflow-visible">
-        <div class="quote-content max-w-5xl mx-auto bg-white shadow-2xl rounded-sm p-10 sm:p-16 print:p-0 print:shadow-none print:max-w-none print:mx-0">
+        <div class="quote-content max-w-5xl mx-auto bg-white shadow-2xl rounded-sm p-10 sm:p-16 print:p-0 print:shadow-none print:max-w-none print:mx-0 print:min-h-[268mm] print:flex print:flex-col">
 
         <!-- Header Section -->
         <div class="flex items-start justify-between mb-6">
@@ -174,6 +174,40 @@
           </div>
         </div>
 
+        <!-- Project Brief Section -->
+        <div v-if="quoteData.projectInfo.description || (quoteData.projectInfo.projectScope && quoteData.projectInfo.projectScope.length > 0) || isEditMode" class="mb-6 break-inside-avoid">
+          <div class="bg-slate-800 text-white px-2 py-1 font-bold text-xs uppercase tracking-widest w-1/2">
+            PROJECT BRIEF & SCOPE
+          </div>
+          <div class="border border-gray-200 p-4 bg-slate-50/50 text-xs shadow-sm">
+            <!-- Project Description -->
+            <div class="mb-3">
+              <h4 class="font-black text-gray-500 uppercase text-[9px] mb-1 tracking-wider">Mission Statement / Description</h4>
+              <div v-if="!isEditMode && (editableDescriptions['project_overview'] || quoteData.projectInfo.description)" class="text-gray-900 leading-relaxed font-medium">
+                {{ editableDescriptions['project_overview'] || quoteData.projectInfo.description }}
+              </div>
+              <div v-else-if="!isEditMode" class="text-gray-400 italic font-medium">No detailed mission description available.</div>
+              <textarea
+                v-else
+                v-model="editableDescriptions['project_overview']"
+                :placeholder="quoteData.projectInfo.description || 'Enter project specific description...'"
+                class="w-full bg-yellow-50 border border-yellow-200 rounded p-2 text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <!-- Project Scope (Deliverables) -->
+            <div v-if="quoteData.projectInfo.projectScope && quoteData.projectInfo.projectScope.length > 0">
+              <h4 class="font-black text-gray-500 uppercase text-[9px] mb-1 tracking-wider">Key Deliverables</h4>
+              <ul class="list-disc list-inside space-y-1 text-gray-800 font-bold">
+                <li v-for="(item, index) in quoteData.projectInfo.projectScope" :key="index" class="text-[10px]">
+                  {{ typeof item === 'string' ? item : (item.deliverable || item.item || 'Scope Item') }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Quote Table -->
         <div class="mb-6">
           <table class="w-full text-xs border-collapse">
@@ -188,10 +222,20 @@
             </thead>
             <tbody>
               <!-- Materials -->
-              <template v-for="(element, elementIndex) in visibleMaterials" :key="element.id">
+              <template v-for="(element, elementIndex) in displayMaterials" :key="element.id">
                 <!-- Summary View (Default) -->
-                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
+                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50 transition-opacity" :class="{'opacity-40 bg-gray-100': isEditMode && element.isVisible === false}">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">
+                    <div class="flex flex-col items-center gap-1">
+                      <input 
+                        v-if="isEditMode"
+                        type="checkbox" 
+                        v-model="element.isVisible" 
+                        class="w-3 h-3 text-blue-600 rounded cursor-pointer"
+                      />
+                      <span>{{ Number(elementIndex) + 1 }}</span>
+                    </div>
+                  </td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ getOverride(element.id, 'name', element.name) }}</span>
@@ -202,16 +246,18 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs font-bold w-full"
                       />
                     </div>
-                    <div v-if="!isEditMode && getDescription(element.id, element)" class="text-gray-600">{{ getDescription(element.id, element) }}</div>
+                    <div v-if="!isEditMode && getDescription(element.id, element)" class="text-[10px] text-gray-500 mt-0.5 leading-tight italic">
+                      {{ getDescription(element.id, element) }}
+                    </div>
                     <textarea
-                      v-else
+                      v-if="isEditMode"
                       v-model="editableDescriptions[element.id]"
-                      class="w-full mt-1 text-xs text-gray-600 bg-yellow-50 border border-yellow-300 rounded px-2 py-1 resize-none"
+                      class="w-full mt-1 text-[10px] text-gray-600 bg-yellow-50 border border-yellow-200 rounded px-2 py-1 resize-none outline-none focus:border-yellow-400"
                       rows="2"
-                      placeholder="Enter description..."
+                      placeholder="Enter item description..."
                     ></textarea>
                   </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">
                      <span v-if="!isEditMode">{{ getOverride(element.id, 'qty', element.quantity || 1) }}</span>
                      <input
                         v-else
@@ -221,8 +267,8 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                   </td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">
-                     <span v-if="!isEditMode">{{ formatCurrency(getOverride(element.id, 'price', element.finalTotal / (element.quantity || 1))) }}</span>
+                  <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">
+                     <span v-if="!isEditMode">{{ formatCurrency(getOverride(element.id, 'price', (element.finalTotal || 0) / (element.quantity || 1))) }}</span>
                      <input
                         v-else
                         type="number"
@@ -231,14 +277,24 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                   </td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal(element.id, element.quantity || 1, element.finalTotal)) }}</td>
+                  <td class="py-1 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(getRowTotal(element.id, element.quantity || 1, element.finalTotal || 0)) }}</td>
                 </tr>
 
                 <!-- Detailed View -->
                 <template v-else>
                   <!-- Element Header -->
-                  <tr class="bg-gray-100 border-b border-gray-300">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ Number(elementIndex) + 1 }}</td>
+                  <tr class="bg-gray-100 border-b border-gray-300 transition-opacity" :class="{'opacity-40': isEditMode && element.isVisible === false}">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">
+                       <div class="flex flex-col items-center gap-1">
+                        <input 
+                          v-if="isEditMode"
+                          type="checkbox" 
+                          v-model="element.isVisible" 
+                          class="w-3 h-3 text-blue-600 rounded cursor-pointer"
+                        />
+                        <span>{{ Number(elementIndex) + 1 }}</span>
+                      </div>
+                    </td>
                     <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
                       <div v-if="!isEditMode">
                         {{ element.name }}
@@ -267,7 +323,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
                       />
                     </td>
-                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ getOverride(material.id, 'qty', material.quantity) }}</span>
                        <input
                         v-else
@@ -277,7 +333,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                    <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ formatCurrency(getRowTotal(material.id, material.quantity, material.finalPrice) / Number(getOverride(material.id, 'qty', material.quantity))) }}</span>
                        <!-- Edit Unit Price directly -->
                        <input
@@ -288,7 +344,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(material.id, material.quantity, material.finalPrice)) }}</td>
+                    <td class="py-1 px-2 text-right text-emerald-600 dark:text-emerald-400">{{ formatCurrency(getRowTotal(material.id, material.quantity, material.finalPrice)) }}</td>
                   </tr>
                 </template>
               </template>
@@ -296,8 +352,23 @@
               <!-- Labour & Expenses -->
               <template v-if="quoteData.totals.labourTotal > 0 || quoteData.totals.expensesTotal > 0">
                 <!-- Summary View -->
-                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 1 }}</td>
+                <tr v-if="!showDetailedItems" class="border-b border-gray-300 hover:bg-gray-50 transition-opacity" :class="{'opacity-40 bg-gray-100': isEditMode && displayLabour.every((l: any) => l.isVisible === false) && displayExpenses.every((e: any) => e.isVisible === false)}">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">
+                    <div class="flex flex-col items-center gap-1">
+                      <input 
+                        v-if="isEditMode"
+                        type="checkbox" 
+                        :checked="displayLabour.some((l: any) => l.isVisible !== false) || displayExpenses.some((e: any) => e.isVisible !== false)"
+                        @change="(ev: any) => { 
+                          const checked = ev.target.checked;
+                          displayLabour.forEach((l: any) => l.isVisible = checked);
+                          displayExpenses.forEach((e: any) => e.isVisible = checked);
+                        }"
+                        class="w-3 h-3 text-blue-600 rounded cursor-pointer"
+                      />
+                      <span>{{ visibleMaterials.length + 1 }}</span>
+                    </div>
+                  </td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</span>
@@ -319,7 +390,7 @@
                       placeholder="Labour & Expenses description (optional)..."
                     ></textarea>
                   </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">
                      <span v-if="!isEditMode">{{ getOverride('labour_expenses_summary', 'qty', 1) }}</span>
                      <input
                         v-else
@@ -329,8 +400,8 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                   </td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">
-                     <span v-if="!isEditMode">{{ formatCurrency(getOverride('labour_expenses_summary', 'price', quoteData.totals.labourTotal + quoteData.totals.expensesTotal)) }}</span>
+                  <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">
+                     <span v-if="!isEditMode">{{ formatCurrency(getOverride('labour_expenses_summary', 'price', computedTotals.labourTotal + computedTotals.expensesTotal)) }}</span>
                      <input
                         v-else
                         type="number"
@@ -339,14 +410,29 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                   </td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(getRowTotal('labour_expenses_summary', 1, quoteData.totals.labourTotal + quoteData.totals.expensesTotal)) }}</td>
+                  <td class="py-1 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(getRowTotal('labour_expenses_summary', 1, computedTotals.labourTotal + computedTotals.expensesTotal)) }}</td>
                 </tr>
 
                 <!-- Detailed View -->
                 <template v-else>
                   <!-- Header -->
-                  <tr class="bg-gray-100 border-b border-gray-300">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 1 }}</td>
+                  <tr class="bg-gray-100 border-b border-gray-300 transition-opacity" :class="{'opacity-40': isEditMode && displayLabour.every((l: any) => l.isVisible === false) && displayExpenses.every((e: any) => e.isVisible === false)}">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">
+                       <div class="flex flex-col items-center gap-1">
+                        <input 
+                          v-if="isEditMode"
+                          type="checkbox" 
+                          :checked="displayLabour.some((l: any) => l.isVisible !== false) || displayExpenses.some((e: any) => e.isVisible !== false)"
+                          @change="(ev: any) => { 
+                            const checked = ev.target.checked;
+                            displayLabour.forEach((l: any) => l.isVisible = checked);
+                            displayExpenses.forEach((e: any) => e.isVisible = checked);
+                          }"
+                          class="w-3 h-3 text-blue-600 rounded cursor-pointer"
+                        />
+                        <span>{{ visibleMaterials.length + 1 }}</span>
+                      </div>
+                    </td>
                     <td colspan="4" class="py-1 px-2 font-bold text-gray-800">
                       <div v-if="!isEditMode">{{ editableDescriptions['labour_title'] || 'Provision of Labour and Expenses' }}</div>
                       <input
@@ -359,8 +445,15 @@
                   </tr>
 
                   <!-- Labour Items -->
-                  <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-b border-gray-200">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
+                  <tr v-for="labour in displayLabour" :key="labour.id" class="border-b border-gray-200 transition-opacity" :class="{'opacity-40 bg-gray-50': isEditMode && labour.isVisible === false}">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500">
+                      <input 
+                        v-if="isEditMode"
+                        type="checkbox" 
+                        v-model="labour.isVisible" 
+                        class="w-3 h-3 text-amber-600 rounded cursor-pointer"
+                      />
+                    </td>
                     <td class="py-1 px-2 pl-6 border-r border-gray-300">
                       <div v-if="!isEditMode">
                          <span class="text-gray-900">{{ getOverride(labour.id, 'name', labour.type) }}</span>
@@ -373,7 +466,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
                        />
                     </td>
-                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ getOverride(labour.id, 'qty', labour.quantity) }}</span>
                        <input
                         v-else
@@ -383,7 +476,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                    <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ formatCurrency(getOverride(labour.id, 'price', labour.unitRate * (1 + (quoteData.margins.labour || 0) / 100))) }}</span>
                        <input
                         v-else
@@ -393,12 +486,19 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(labour.id, labour.quantity, labour.amount * (1 + (quoteData.margins.labour || 0) / 100))) }}</td>
+                    <td class="py-1 px-2 text-right text-emerald-600 dark:text-emerald-400">{{ formatCurrency(getRowTotal(labour.id, labour.quantity, labour.amount * (1 + (quoteData.margins.labour || 0) / 100))) }}</td>
                   </tr>
 
                   <!-- Expense Items -->
-                  <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-b border-gray-200">
-                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500"></td>
+                  <tr v-for="expense in displayExpenses" :key="expense.id" class="border-b border-gray-200 transition-opacity" :class="{'opacity-40 bg-gray-50': isEditMode && expense.isVisible === false}">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-gray-500">
+                      <input 
+                        v-if="isEditMode"
+                        type="checkbox" 
+                        v-model="expense.isVisible" 
+                        class="w-3 h-3 text-emerald-600 rounded cursor-pointer"
+                      />
+                    </td>
                     <td class="py-1 px-2 pl-6 border-r border-gray-300">
                       <div v-if="!isEditMode">
                          <span class="text-gray-900">{{ getOverride(expense.id, 'name', expense.description) }}</span>
@@ -411,7 +511,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs w-full"
                        />
                     </td>
-                    <td class="py-1 px-2 text-center border-r border-gray-300">
+                    <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ getOverride(expense.id, 'qty', 1) }}</span>
                        <input
                         v-else
@@ -421,7 +521,7 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-center w-12"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right border-r border-gray-300">
+                    <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">
                        <span v-if="!isEditMode">{{ formatCurrency(getOverride(expense.id, 'price', expense.finalPrice)) }}</span>
                        <input
                         v-else
@@ -431,15 +531,26 @@
                         class="bg-yellow-50 border border-yellow-300 rounded px-1 py-0.5 text-xs text-right w-20"
                       />
                     </td>
-                    <td class="py-1 px-2 text-right">{{ formatCurrency(getRowTotal(expense.id, 1, expense.finalPrice)) }}</td>
+                    <td class="py-1 px-2 text-right text-emerald-600 dark:text-emerald-400">{{ formatCurrency(getRowTotal(expense.id, 1, expense.finalPrice)) }}</td>
                   </tr>
                 </template>
               </template>
 
               <!-- Logistics -->
-              <template v-if="quoteData.totals.logisticsTotal > 0">
-                <tr class="border-b border-gray-300 hover:bg-gray-50">
-                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">{{ visibleMaterials.length + 2 }}</td>
+              <template v-if="displayLogistics.length > 0">
+                <tr class="border-b border-gray-300 hover:bg-gray-50 transition-opacity" :class="{'opacity-40 bg-gray-100': isEditMode && displayLogistics.every((l: any) => l.isVisible === false)}">
+                  <td class="py-1 px-2 text-center border-r border-gray-300 font-bold">
+                    <div class="flex flex-col items-center gap-1">
+                      <input 
+                        v-if="isEditMode"
+                        type="checkbox" 
+                        :checked="displayLogistics.some((l: any) => l.isVisible !== false)"
+                        @change="(e: any) => displayLogistics.forEach((l: any) => l.isVisible = e.target.checked)"
+                        class="w-3 h-3 text-emerald-600 rounded cursor-pointer"
+                      />
+                      <span>{{ visibleMaterials.length + (displayLabour.length > 0 || displayExpenses.length > 0 ? 2 : 1) }}</span>
+                    </div>
+                  </td>
                   <td class="py-1 px-2 border-r border-gray-300">
                     <div class="font-bold text-gray-900">
                       <span v-if="!isEditMode">{{ editableDescriptions['logistics_title'] || 'Transport cost' }}</span>
@@ -461,9 +572,9 @@
                       placeholder="Logistics description (optional)..."
                     ></textarea>
                   </td>
-                  <td class="py-1 px-2 text-center border-r border-gray-300">1</td>
-                  <td class="py-1 px-2 text-right border-r border-gray-300">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
-                  <td class="py-1 px-2 text-right font-bold">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
+                  <td class="py-1 px-2 text-center border-r border-gray-300 text-blue-600 dark:text-blue-400">1</td>
+                  <td class="py-1 px-2 text-right border-r border-gray-300 text-blue-600 dark:text-blue-400">{{ formatCurrency(computedTotals.logisticsTotal) }}</td>
+                  <td class="py-1 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(computedTotals.logisticsTotal) }}</td>
                 </tr>
               </template>
 
@@ -472,218 +583,143 @@
               <!-- Subtotal Row -->
               <tr class="border-t-2 border-gray-400">
                 <td colspan="3" class="border-r border-gray-300"></td>
-                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">Sub Total</td>
-                <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.subtotal) }}</td>
+                <td class="py-1 px-2 font-bold text-blue-600 dark:text-blue-400 border-r border-gray-300 border-b border-gray-300">Sub Total</td>
+                <td class="py-1 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400 border-b border-gray-300">{{ formatCurrency(computedTotals.subtotal) }}</td>
               </tr>
               
               <!-- VAT Row (if enabled) -->
               <tr v-if="quoteData.vatEnabled && quoteData.totals.vatAmount > 0">
                 <td colspan="3" class="border-r border-gray-300"></td>
-                <td class="py-1 px-2 font-bold text-purple-700 border-r border-gray-300 border-b border-gray-300">VAT (16%)</td>
-                <td class="py-1 px-2 text-right font-bold text-purple-700 border-b border-gray-300">{{ formatCurrency(quoteData.totals.vatAmount) }}</td>
+                <td class="py-1 px-2 font-bold text-purple-700 dark:text-purple-400 border-r border-gray-300 border-b border-gray-300">VAT (16%)</td>
+                <td class="py-1 px-2 text-right font-bold text-purple-700 dark:text-purple-400 border-b border-gray-300">{{ formatCurrency(computedTotals.vatAmount) }}</td>
               </tr>
 
               <!-- Total Row -->
               <tr>
                 <td colspan="3" class="border-r border-gray-300"></td>
-                <td class="py-1 px-2 font-bold text-gray-900 border-r border-gray-300 border-b border-gray-300">
-                  {{ quoteData.vatEnabled && quoteData.totals.vatAmount > 0 ? 'Total (Inc. VAT)' : 'Total' }}
+                <td class="py-1 px-2 font-bold text-blue-600 dark:text-blue-400 border-r border-gray-300 border-b border-gray-300">
+                  {{ quoteData.vatEnabled && computedTotals.vatAmount > 0 ? 'Total (Inc. VAT)' : 'Total' }}
                 </td>
-                <td class="py-1 px-2 text-right font-bold text-gray-900 border-b border-gray-300">{{ formatCurrency(quoteData.totals.grandTotal) }}</td>
+                <td class="py-1 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400 border-b border-gray-300">{{ formatCurrency(computedTotals.grandTotal) }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Terms and Conditions & Footer -->
-        <div class="flex flex-col md:flex-row gap-8 break-inside-avoid">
-          <!-- Terms Section (Left) -->
-          <div class="w-full md:w-2/3">
-            <div class="bg-green-500 text-white px-2 py-1 font-bold text-xs uppercase tracking-wide mb-1">
-              TERMS AND CONDITIONS
-            </div>
-            <div class="border border-gray-300 p-3 bg-gray-50 text-[10px] leading-tight">
+        <!-- Sticky Bottom Section (Pushed to bottom by mt-auto in flex container) -->
+        <div class="mt-auto pt-6 print:mt-auto">
+          <!-- Terms and Conditions & Footer -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 break-inside-avoid mb-4">
+            <!-- Terms Section (Left & Center) -->
+            <div class="md:col-span-2">
+              <div class="bg-slate-800 text-white px-2 py-0.5 font-bold text-[9px] uppercase tracking-widest mb-2 inline-block">
+                TERMS AND CONDITIONS
+              </div>
               
-              <!-- Payment Terms -->
-              <div class="mb-2">
-                <h4 class="font-bold text-red-600 mb-1">PAYMENT TERMS</h4>
-                <ul class="list-none space-y-0.5 text-gray-800">
-                  <li>
-                    <span class="font-semibold">Deposit Payment:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['payment_deposit'] || 'Within Agreed Timelines (Per Email)' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['payment_deposit']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
-                      placeholder="Deposit payment terms..."
-                    />
-                  </li>
-                  <li>
-                    <span class="font-semibold">Balance Payment:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['payment_balance'] || 'Upon complete delivery' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['payment_balance']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
-                      placeholder="Balance payment terms..."
-                    />
-                  </li>
-                  <li>
-                    <span class="font-semibold">Late Payment Penalty:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['payment_penalty'] || '2% Monthly for Late Payments' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['payment_penalty']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-64"
-                      placeholder="Late payment penalty..."
-                    />
-                  </li>
-                  <li v-if="!isEditMode">{{ editableDescriptions['payment_production'] || 'Production begins after receipt of LPO and payment of 70% Deposit' }}</li>
-                  <textarea
-                    v-else
-                    v-model="editableDescriptions['payment_production']"
-                    class="w-full bg-yellow-50 border border-yellow-300 rounded px-2 py-1 text-[10px] resize-none"
-                    rows="1"
-                    placeholder="Production start condition..."
-                  ></textarea>
-                  <li v-if="!isEditMode">
-                    The Total Quote amount is <span class="text-red-600 font-semibold">{{ editableDescriptions['payment_vat'] || 'exclusive of 16% VAT' }}</span>
-                  </li>
-                  <li v-else class="flex items-center gap-1">
-                    The Total Quote amount is 
-                    <input
-                      v-model="editableDescriptions['payment_vat']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] text-red-600 font-semibold flex-1"
-                      placeholder="VAT terms..."
-                    />
-                  </li>
-                </ul>
-              </div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[9px] leading-snug text-gray-700">
+                <!-- Payment Terms -->
+                <div>
+                  <h4 class="font-black text-gray-900 border-b border-gray-200 mb-1 pb-0.5 uppercase tracking-tighter">01. Payment & Pricing</h4>
+                  <ul class="space-y-1">
+                    <li class="flex gap-1">
+                      <span class="font-bold text-gray-500 whitespace-nowrap">Deposit:</span>
+                      <span v-if="!isEditMode" class="font-medium underline decoration-slate-200">{{ editableDescriptions['payment_deposit'] || 'Within Agreed Timelines' }}</span>
+                      <input v-else v-model="editableDescriptions['payment_deposit']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                    <li class="flex gap-1">
+                      <span class="font-bold text-gray-500 whitespace-nowrap">Balance:</span>
+                      <span v-if="!isEditMode" class="font-medium underline decoration-slate-200">{{ editableDescriptions['payment_balance'] || 'Upon complete delivery' }}</span>
+                      <input v-else v-model="editableDescriptions['payment_balance']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                    <li class="flex gap-1">
+                      <span class="font-bold text-gray-500 whitespace-nowrap">Penalty:</span>
+                      <span v-if="!isEditMode" class="font-medium italic">{{ editableDescriptions['payment_penalty'] || '2% Monthly for Late Payments' }}</span>
+                      <input v-else v-model="editableDescriptions['payment_penalty']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                    <li class="text-[8.5px] leading-tight text-gray-500 pt-1">
+                      <span v-if="!isEditMode">{{ editableDescriptions['payment_production'] || 'Production initiates upon LPO & 70% deposit.' }}</span>
+                      <textarea v-else v-model="editableDescriptions['payment_production']" class="w-full bg-yellow-50 border border-yellow-200 rounded p-1" rows="1"></textarea>
+                    </li>
+                    <li class="font-bold text-red-700 decoration-red-100 decoration-2">
+                      Total quote is <span v-if="!isEditMode">{{ editableDescriptions['payment_vat'] || 'exclusive of 16% VAT' }}</span>
+                      <input v-else v-model="editableDescriptions['payment_vat']" class="bg-yellow-50 border-b border-yellow-200 w-32 outline-none" />
+                    </li>
+                  </ul>
+                </div>
 
-              <!-- Client Obligations -->
-              <div class="mb-2">
-                <h4 class="font-bold text-red-600 mb-1">CLIENT OBLIGATIONS</h4>
-                <ul class="list-none space-y-0.5 text-gray-800">
-                  <li>
-                    <span class="font-semibold">Setup & Branding Time:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['client_setup_time'] || 'Client must provide ample time for setup' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['client_setup_time']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
-                      placeholder="Setup time requirement..."
-                    />
-                  </li>
-                  <li>
-                    <span class="font-semibold">Pre-Production Approvals:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['client_approvals'] || 'Client must approve pre-production on time' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['client_approvals']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
-                      placeholder="Approval requirement..."
-                    />
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Approval & Execution -->
-              <div class="mb-2">
-                <h4 class="font-bold text-red-600 mb-1">APPROVAL & EXECUTION</h4>
-                <ul class="list-none space-y-0.5 text-gray-800">
-                  <li>
-                    <span class="font-semibold">Approval Required Before Work:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['approval_required'] || 'Client must approve before work starts' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['approval_required']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
-                      placeholder="Approval requirement..."
-                    />
-                  </li>
-                  <li>
-                    <span class="font-semibold">Change Requests Process:</span> 
-                    <span v-if="!isEditMode">{{ editableDescriptions['change_requests'] || 'Changes to initial quote will be billed separately' }}</span>
-                    <input
-                      v-else
-                      v-model="editableDescriptions['change_requests']"
-                      class="bg-yellow-50 border border-yellow-300 rounded px-2 py-0.5 text-[10px] w-72"
-                      placeholder="Change request policy..."
-                    />
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Bank Details -->
-              <div v-if="showBankDetails" class="mt-4 break-inside-avoid">
-                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
-                  <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
-                    </svg>
-                    <span class="text-xs font-black text-gray-900 uppercase tracking-widest">Electronic Fund Transfer Details</span>
-                  </div>
-                  
-                  <div class="grid grid-cols-2 gap-y-3 text-[10px]">
-                    <div class="space-y-0.5">
-                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Cheques Payable To</div>
-                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_cheque_payable'] || 'Woodnork Green Limited' }}</div>
-                    </div>
-                    
-                    <div class="space-y-0.5">
-                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Account Name</div>
-                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_account_name'] || 'Woodnork Green Ltd' }}</div>
-                    </div>
-
-                    <div class="space-y-0.5">
-                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Financial Institution</div>
-                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_name'] || 'NCBA Bank' }} (Code: {{ editableDescriptions['bank_code'] || '07000' }})</div>
-                    </div>
-
-                    <div class="space-y-0.5">
-                      <div class="text-gray-400 font-bold uppercase tracking-tighter">Branch Information</div>
-                      <div class="text-gray-900 font-black">{{ editableDescriptions['bank_branch'] || 'Kenyatta Avenue' }} (Code: {{ editableDescriptions['bank_branch_code'] || '125' }})</div>
-                    </div>
-
-                    <div class="col-span-2 mt-4 pt-3 border-t border-gray-200 grid grid-cols-2 gap-4">
-                      <div class="space-y-0.5">
-                        <div class="text-gray-400 font-bold uppercase tracking-tighter">SWIFT / BIC Code</div>
-                        <div class="text-gray-900 font-black">{{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}</div>
-                      </div>
-                      
-                      <div class="space-y-0.5">
-                        <div class="text-gray-400 font-bold uppercase tracking-tighter">Mpesa Paybill</div>
-                        <div class="flex items-center gap-2">
-                          <span class="text-emerald-700 font-black">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
-                          <span class="text-gray-400 font-bold px-1.5 py-0.5 border border-gray-200 rounded text-[8px] uppercase">Business</span>
-                        </div>
-                      </div>
-
-                      <div class="col-span-2 space-y-0.5">
-                        <div class="text-gray-400 font-bold uppercase tracking-tighter">Account Number</div>
-                        <div class="text-sm font-black text-emerald-700 select-all">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</div>
-                      </div>
-                    </div>
-                  </div>
+                <!-- Obligations & Execution -->
+                <div>
+                  <h4 class="font-black text-gray-900 border-b border-gray-200 mb-1 pb-0.5 uppercase tracking-tighter">02. Execution & Delivery</h4>
+                  <ul class="space-y-1">
+                    <li class="flex flex-col">
+                      <span class="font-bold text-gray-500 uppercase text-[8px]">Setup & Branding:</span>
+                      <span v-if="!isEditMode">{{ editableDescriptions['client_setup_time'] || 'Provide ample time for site setup.' }}</span>
+                      <input v-else v-model="editableDescriptions['client_setup_time']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                    <li class="flex flex-col">
+                      <span v-if="!isEditMode" class="italic">{{ editableDescriptions['client_approvals'] || 'All pre-production must be approved on time.' }}</span>
+                      <input v-else v-model="editableDescriptions['client_approvals']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                    <li class="pt-1 border-t border-gray-100 mt-1">
+                      <span class="font-bold text-gray-500 uppercase text-[8px]">Changes:</span>
+                      <span v-if="!isEditMode">{{ editableDescriptions['change_requests'] || 'Scope variations billed separately.' }}</span>
+                      <input v-else v-model="editableDescriptions['change_requests']" class="bg-yellow-50 border-b border-yellow-200 w-full outline-none" />
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
+
+            <!-- Bank Details (Compact Right Column) -->
+            <div v-if="showBankDetails" class="bg-slate-50 border-l border-gray-200 pl-6 flex flex-col justify-end">
+              <div class="text-[9px] font-black text-gray-900 uppercase tracking-tighter mb-2 pb-1 border-b border-gray-300 flex items-center gap-1">
+                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Bank Transfer Details
+              </div>
+              
+              <div class="space-y-2 text-[9px]">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-gray-400 font-bold uppercase text-[7px] leading-tight shrink-0">Payable To:</span>
+                  <span class="text-gray-900 font-black text-right">{{ editableDescriptions['bank_cheque_payable'] || 'Woodnork Green Limited' }}</span>
+                </div>
+                
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-gray-400 font-bold uppercase text-[7px] leading-tight shrink-0">Bank:</span>
+                  <span class="text-gray-900 font-black text-right">{{ editableDescriptions['bank_name'] || 'NCBA Bank' }} ({{ editableDescriptions['bank_branch'] || 'Kenyatta Ave' }})</span>
+                </div>
+
+                <div class="flex justify-between items-center py-1.5 border-y border-gray-200 border-dashed">
+                  <span class="text-gray-400 font-bold uppercase text-[7px]">Paybill:</span>
+                  <span class="text-emerald-700 font-black tracking-widest">{{ editableDescriptions['bank_paybill'] || '880100' }}</span>
+                </div>
+
+                <div class="pt-1">
+                  <span class="text-gray-400 font-bold uppercase text-[7px] block mb-0.5">Account Number</span>
+                  <div class="text-[11px] font-black text-emerald-700 leading-none tracking-tight">{{ editableDescriptions['bank_account_number'] || '1002970089' }}</div>
+                  <span class="text-[8px] text-gray-400 font-medium">SWIFT: {{ editableDescriptions['bank_swift'] || 'CBAFKENX' }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Minimal Placeholder if no bank details -->
+            <div v-else class="flex items-end justify-center border-l border-gray-100">
+               <div class="text-[8px] text-gray-300 italic uppercase">Woodnork Green Official Quote</div>
+            </div>
           </div>
 
-          <!-- Right Side (Image Placeholder or Empty) -->
-          <div class="w-full md:w-1/3 flex items-end justify-center">
-             <!-- Placeholder for 3D render if available, or just empty space as per design -->
-             <div class="h-48 w-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs italic">
-               Project Render / Image
-             </div>
+          <!-- Final Footer Strip -->
+          <div class="flex items-center justify-between text-[8px] text-gray-400 pt-3 border-t border-gray-100 mt-2">
+            <div class="flex gap-4">
+              <span class="font-black text-gray-600 uppercase">Woodnork Green Ltd</span>
+              <span>+254 780 397 798</span>
+              <span>admin@woodnorkgreen.co.ke</span>
+            </div>
+            <div class="text-right">
+              Karen Village, Ngong Road, Nairobi | www.woodnorkgreen.co.ke
+            </div>
           </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="text-center text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-200">
-          <p class="font-bold text-gray-800">Woodnork Green Ltd</p>
-          <p>Tel: +254 780 397 798 | Email: admin@woodnorkgreen.co.ke</p>
-          <p>Physical Address: Karen Village, Ngong Road, Nairobi, Kenya | Website: www.woodnorkgreen.co.ke</p>
         </div>
       </div>
     </div>
@@ -745,9 +781,72 @@ const showBankDetails = ref(!!props.quoteData?.vatEnabled) // Default to VAT sta
 const editableDescriptions = ref<Record<string, string>>({})
 const overrides = ref<Record<string, any>>({})
 
-// Computed visible materials
-const visibleMaterials = computed(() => {
+// Computed display lists (visible only in view mode, all in edit mode)
+const displayMaterials = computed(() => {
+  if (isEditMode.value) return props.quoteData.materials || []
   return (props.quoteData.materials || []).filter((el: any) => el.isVisible !== false)
+})
+
+const displayLabour = computed(() => {
+  if (isEditMode.value) return props.quoteData.labour || []
+  return (props.quoteData.labour || []).filter((el: any) => el.isVisible !== false)
+})
+
+const displayExpenses = computed(() => {
+  if (isEditMode.value) return props.quoteData.expenses || []
+  return (props.quoteData.expenses || []).filter((el: any) => el.isVisible !== false)
+})
+
+const displayLogistics = computed(() => {
+  const logistics = props.quoteData.logistics || []
+  if (isEditMode.value) return logistics
+  return logistics.filter((el: any) => el.isVisible !== false)
+})
+
+const visibleMaterials = computed(() => {
+  return props.quoteData.materials.filter((m: any) => m.isVisible !== false)
+})
+
+// Computed totals based on visible items
+const computedTotals = computed(() => {
+  let materialsTotal = 0
+  let labourTotal = 0
+  let expensesTotal = 0
+  let logisticsTotal = 0
+
+  // Calculate materials total (only visible elements)
+  displayMaterials.value.forEach((element: any) => {
+    materialsTotal += element.finalTotal || 0
+  })
+
+  // Calculate labour total (only visible items)
+  displayLabour.value.forEach((labour: any) => {
+    labourTotal += labour.finalPrice || 0
+  })
+
+  // Calculate expenses total (only visible items)
+  displayExpenses.value.forEach((expense: any) => {
+    expensesTotal += expense.finalPrice || 0
+  })
+
+  // Calculate logistics total (only visible items)
+  displayLogistics.value.forEach((logistics: any) => {
+    logisticsTotal += logistics.finalPrice || 0
+  })
+
+  const subtotal = materialsTotal + labourTotal + expensesTotal + logisticsTotal
+  const vatAmount = props.quoteData.vatEnabled ? subtotal * 0.16 : 0
+  const grandTotal = subtotal + vatAmount
+
+  return {
+    materialsTotal,
+    labourTotal,
+    expensesTotal,
+    logisticsTotal,
+    subtotal,
+    vatAmount,
+    grandTotal
+  }
 })
 
 const getOverride = (id: string, field: string, defaultVal: any) => {
