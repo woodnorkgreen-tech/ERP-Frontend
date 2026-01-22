@@ -179,9 +179,15 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" @click.stop>
                 <router-link :to="`/procurement/billing/${bill.id}`"
-                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">
                   View
                 </router-link>
+                <button
+                  @click="deleteBill(bill.id)"
+                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           </tbody>
@@ -195,6 +201,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBills } from '../../shared/composables/useBills.ts'
+import axios from '@/plugins/axios'
 
 const router = useRouter()
 const { bills, loading, error, fetchBills, searchBills, getStats } = useBills()
@@ -232,6 +239,18 @@ const applyFilters = async () => {
 
 const viewBill = (id: number) => {
   router.push(`/procurement/bills/${id}`)
+}
+
+const deleteBill = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this bill?')) return
+  
+  try {
+    await axios.delete(`/api/procurement-stores/bills/${id}`)
+    await fetchBills(filters.value)
+    await loadStats()
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Failed to delete bill')
+  }
 }
 
 const loadStats = async () => {

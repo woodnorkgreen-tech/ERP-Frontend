@@ -22,8 +22,6 @@
       </ol>
     </nav>
 
-  
-
     <!-- Filters -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -156,10 +154,16 @@
                 <router-link
                   v-if="po.status === 'pending'"
                   :to="`/procurement/purchase-order/${po.id}/edit`"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
                 >
                   Edit
                 </router-link>
+                <button
+                  @click="deletePurchaseOrder(po.id)"
+                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           </tbody>
@@ -173,6 +177,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePurchaseOrders } from '../../shared/composables/usePurchaseOrders'
+import axios from '@/plugins/axios'
 
 const router = useRouter()
 const { purchaseOrders, loading, error, fetchPurchaseOrders, searchPurchaseOrders } = usePurchaseOrders()
@@ -205,6 +210,17 @@ const applyFilters = async () => {
 
 const viewPurchaseOrder = (id: number) => {
   router.push(`/procurement/purchase-order/${id}`)
+}
+
+const deletePurchaseOrder = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this purchase order?')) return
+  
+  try {
+    await axios.delete(`/api/procurement-stores/purchase-orders/${id}`)
+    await fetchPurchaseOrders(filters.value)
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Failed to delete purchase order')
+  }
 }
 
 const formatDate = (date: string) => {
