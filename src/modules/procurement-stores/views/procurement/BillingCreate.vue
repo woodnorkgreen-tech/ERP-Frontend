@@ -202,6 +202,8 @@ const handleSubmit = async () => {
   try {
     const response = await axios.post('/api/procurement-stores/bills', formData.value)
     const bill = response.data.data || response.data
+    
+    // Navigate to the bill details page
     router.push(`/procurement/billing/${bill.id}`)
   } catch (error: any) {
     if (error.response?.data?.error) {

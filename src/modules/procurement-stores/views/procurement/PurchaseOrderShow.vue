@@ -1,9 +1,41 @@
 <template>
   <div class="space-y-6">
+    <!-- Breadcrumb -->
+    <nav class="flex" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+            <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
+            </svg>
+            Home
+          </router-link>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+            </svg>
+            <router-link to="/procurement/purchase-orders" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
+              Purchase Orders
+            </router-link>
+          </div>
+        </li>
+        <li aria-current="page">
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+            </svg>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">{{ purchaseOrder.po_number }}</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Order Details</h1>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Purchase Order Details</h1>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ purchaseOrder.po_number }}</p>
       </div>
       <div class="flex gap-2">
@@ -12,9 +44,9 @@
           v-if="purchaseOrder.status === 'pending'"
           @click="submitForApproval"
           :disabled="submitting"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center disabled:opacity-50"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Ask for Approval
@@ -25,22 +57,34 @@
           v-if="purchaseOrder.status === 'pending_approval'"
           @click="approvePO"
           :disabled="submitting"
-          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center disabled:opacity-50"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
         >
           Approve
         </button>
 
-        <!-- Link to Bill Button -->
+        <!-- Create Bill Button (only if approved and no bill exists) -->
         <router-link
-          v-if="purchaseOrder.status === 'approved'"
-          to="/procurement/billing/create"
-          :state="{ purchaseOrderId: purchaseOrder.id }"
+          v-if="purchaseOrder.status === 'approved' && !hasBill"
+          :to="`/procurement/billing/create?purchaseOrderId=${purchaseOrder.id}`"
           class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          Create Bill 
+          Create Bill
+        </router-link>
+
+        <!-- View Bill Button (if bill exists) -->
+        <router-link
+          v-if="hasBill && billId"
+          :to="`/procurement/billing/${billId}`"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          View Bill
         </router-link>
 
         <button @click="handlePrint" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
@@ -90,7 +134,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Amount</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">KES{{ formatNumber(purchaseOrder.total_amount) }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">KES {{ formatNumber(purchaseOrder.total_amount) }}</p>
           </div>
           <div v-if="purchaseOrder.createdBy">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</label>
@@ -120,8 +164,8 @@
               <tr v-for="item in purchaseOrder.items" :key="item.id">
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.material?.material_name }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">KES{{ formatNumber(item.unit_price) }}</td>
-                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">KES{{ formatNumber(item.total) }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price) }}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">KES {{ formatNumber(item.total) }}</td>
               </tr>
             </tbody>
           </table>
@@ -132,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
 
@@ -143,16 +187,36 @@ const id = route.params.id as string
 const loading = ref(true)
 const submitting = ref(false)
 const purchaseOrder = ref<any>({})
+const billId = ref<number | null>(null)
+
+const hasBill = computed(() => billId.value !== null)
 
 const fetchPurchaseOrder = async () => {
   loading.value = true
   try {
     const response = await axios.get(`/api/procurement-stores/purchase-orders/${id}`)
     purchaseOrder.value = response.data.data || response.data
+    
+    // Check if bill exists
+    if (purchaseOrder.value.status === 'approved') {
+      await checkForBill()
+    }
   } catch (error) {
     console.error('Failed to load order:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const checkForBill = async () => {
+  try {
+    const response = await axios.get(`/api/procurement-stores/bills?purchase_order_id=${id}`)
+    const bills = response.data.data || response.data
+    if (bills && bills.length > 0) {
+      billId.value = bills[0].id
+    }
+  } catch (error) {
+    console.error('Failed to check for bill:', error)
   }
 }
 
@@ -177,7 +241,6 @@ const approvePO = async () => {
   try {
     await axios.post(`/api/procurement-stores/purchase-orders/${id}/approve`)
     await fetchPurchaseOrder()
-    alert('Order approved! You can now create an invoice.')
   } catch (error: any) {
     alert(error.response?.data?.error || 'Failed to approve')
   } finally {
@@ -186,7 +249,6 @@ const approvePO = async () => {
 }
 
 const handlePrint = () => window.print()
-
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 const formatNumber = (num: number) => new Intl.NumberFormat().format(num)
 const formatStatus = (status: string) => status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
