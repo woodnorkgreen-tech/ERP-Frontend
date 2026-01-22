@@ -47,7 +47,7 @@
         </button>
         <button
           v-if="bill.balance > 0"
-          @click="showPaymentModal = true"
+          @click="openPaymentModal"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,155 +202,193 @@
     </div>
 
     <!-- Record Payment Modal -->
-    <div v-if="showPaymentModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closePaymentModal"></div>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Record Payment</h3>
-            
-            <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Balance Due</div>
-              <div class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.balance || 0) }}</div>
+    <Teleport to="body">
+      <div 
+        v-if="showPaymentModal" 
+        class="fixed inset-0 z-[9999] overflow-y-auto"
+        @click.self="closePaymentModal"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div 
+            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full"
+            @click.stop
+          >
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Record Payment</h3>
             </div>
 
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Amount to Pay <span class="text-red-500">*</span>
-                </label>
-                <input
-                  v-model.number="paymentForm.amount_paid"
-                  type="number"
-                  step="0.01"
-                  :max="bill.balance"
-                  min="0.01"
-                  required
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+              <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Balance Due</div>
+                <div class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.balance || 0) }}</div>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Payment Date <span class="text-red-500">*</span>
-                </label>
-                <input
-                  v-model="paymentForm.payment_date"
-                  type="date"
-                  required
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Payment Method <span class="text-red-500">*</span>
-                </label>
-                <div class="flex gap-2">
-                  <select
-                    v-model.number="paymentForm.payment_method_id"
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Amount to Pay <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model.number="paymentForm.amount_paid"
+                    type="number"
+                    step="0.01"
+                    :max="bill.balance"
+                    min="0.01"
                     required
-                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option :value="0">Select Method</option>
-                    <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
-                      {{ method.method_name }}
-                    </option>
-                  </select>
-                  <button
-                    type="button"
-                    @click="showAddMethodModal = true"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-                    title="Add new payment method"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                  </button>
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Payment Date <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="paymentForm.payment_date"
+                    type="date"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Payment Method <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex gap-2">
+                    <select
+                      v-model.number="paymentForm.payment_method_id"
+                      required
+                      class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option :value="0">Select Method</option>
+                      <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
+                        {{ method.method_name }}
+                      </option>
+                    </select>
+                    <button
+                      type="button"
+                      @click="showAddMethodModal = true"
+                      class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      title="Add new payment method"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                  <textarea
+                    v-model="paymentForm.notes"
+                    rows="3"
+                    placeholder="Optional payment notes..."
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  ></textarea>
                 </div>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-                <textarea
-                  v-model="paymentForm.notes"
-                  rows="3"
-                  placeholder="Optional payment notes..."
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                ></textarea>
+              <div v-if="paymentError" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
+                <p class="text-sm text-red-600 dark:text-red-400">{{ paymentError }}</p>
               </div>
             </div>
 
-            <div v-if="paymentError" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
-              <p class="text-sm text-red-600">{{ paymentError }}</p>
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-end gap-3">
+              <button
+                type="button"
+                @click="closePaymentModal"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="submitPayment"
+                :disabled="submitting || !isPaymentFormValid"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              >
+                {{ submitting ? 'Processing...' : 'Record Payment' }}
+              </button>
             </div>
-          </div>
-          
-          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              @click="submitPayment"
-              :disabled="submitting || !paymentForm.amount_paid || !paymentForm.payment_method_id"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-            >
-              {{ submitting ? 'Processing...' : 'Record Payment' }}
-            </button>
-            <button
-              type="button"
-              @click="closePaymentModal"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Cancel
-            </button>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Add Payment Method Modal -->
-    <div v-if="showAddMethodModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showAddMethodModal = false"></div>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add Payment Method</h3>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Method Name <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="newMethodName"
-                type="text"
-                placeholder="e.g., Mobile Money, PayPal"
-                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
+    <Teleport to="body">
+      <div 
+        v-if="showAddMethodModal" 
+        class="fixed inset-0 z-[10000] overflow-y-auto"
+        @click.self="showAddMethodModal = false"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div 
+            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
+            @click.stop
+          >
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Payment Method</h3>
             </div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              @click="addNewPaymentMethod"
-              :disabled="!newMethodName.trim()"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-            >
-              Add Method
-            </button>
-            <button
-              type="button"
-              @click="showAddMethodModal = false"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Cancel
-            </button>
+
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Method Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="newMethodName"
+                  type="text"
+                  placeholder="e.g., Mobile Money, PayPal"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  @keyup.enter="addNewPaymentMethod"
+                />
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-end gap-3">
+              <button
+                type="button"
+                @click="showAddMethodModal = false"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="addNewPaymentMethod"
+                :disabled="!newMethodName.trim()"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              >
+                Add Method
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBills } from '../../shared/composables/useBills'
 
@@ -376,6 +414,12 @@ const paymentForm = ref({
   notes: ''
 })
 
+const isPaymentFormValid = computed(() => {
+  return paymentForm.value.amount_paid > 0 && 
+         paymentForm.value.payment_method_id > 0 &&
+         paymentForm.value.payment_date !== ''
+})
+
 const fetchBill = async () => {
   loading.value = true
   error.value = ''
@@ -398,9 +442,16 @@ const fetchBill = async () => {
 const loadPaymentMethods = async () => {
   try {
     paymentMethods.value = await getPaymentMethods()
+    console.log('Payment methods loaded:', paymentMethods.value)
   } catch (err) {
     console.error('Failed to load payment methods:', err)
   }
+}
+
+const openPaymentModal = () => {
+  console.log('Opening payment modal')
+  paymentForm.value.amount_paid = bill.value.balance || 0
+  showPaymentModal.value = true
 }
 
 const closePaymentModal = () => {
@@ -415,14 +466,21 @@ const closePaymentModal = () => {
 }
 
 const submitPayment = async () => {
+  if (!isPaymentFormValid.value) {
+    paymentError.value = 'Please fill in all required fields'
+    return
+  }
+
   submitting.value = true
   paymentError.value = ''
   
   try {
+    console.log('Submitting payment:', paymentForm.value)
     await recordPayment(id, paymentForm.value)
     closePaymentModal()
     await fetchBill()
   } catch (err: any) {
+    console.error('Payment error:', err)
     paymentError.value = err.response?.data?.error || err.message || 'Failed to record payment'
   } finally {
     submitting.value = false
@@ -430,6 +488,8 @@ const submitPayment = async () => {
 }
 
 const addNewPaymentMethod = async () => {
+  if (!newMethodName.value.trim()) return
+  
   try {
     const newMethod = await addPaymentMethod(newMethodName.value)
     paymentMethods.value.push(newMethod)
@@ -437,16 +497,20 @@ const addNewPaymentMethod = async () => {
     newMethodName.value = ''
     showAddMethodModal.value = false
   } catch (err) {
+    console.error('Failed to add payment method:', err)
     alert('Failed to add payment method')
   }
 }
 
 const handlePrint = () => window.print()
+
 const formatDate = (date: string) => {
   if (!date) return 'N/A'
   return new Date(date).toLocaleDateString()
 }
+
 const formatNumber = (num: number) => new Intl.NumberFormat().format(num || 0)
+
 const formatStatus = (status: string) => {
   if (!status) return 'Unknown'
   return status.charAt(0).toUpperCase() + status.slice(1)
