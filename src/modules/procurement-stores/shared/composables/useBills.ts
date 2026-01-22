@@ -1,13 +1,13 @@
 import { ref, readonly } from 'vue'
-import type { Invoice, CreateInvoiceData, InvoiceFilters } from '../types/purchaseOrders'
+import type { Bill, CreateBillData, RecordPaymentData, BillFilters, PaymentMethod } from '../types/bills'
 import api from '@/plugins/axios'
 
-export function useInvoices() {
-  const invoices = ref<Invoice[]>([])
+export function useBills() {
+  const bills = ref<Bill[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const fetchInvoices = async (filters?: InvoiceFilters) => {
+  const fetchBills = async (filters?: BillFilters) => {
     loading.value = true
     error.value = null
     
@@ -17,58 +17,59 @@ export function useInvoices() {
       if (filters?.searchTerm) params.searchTerm = filters.searchTerm
       if (filters?.status) params.status = filters.status
       if (filters?.date_filter) params.date_filter = filters.date_filter
+      if (filters?.supplier_id) params.supplier_id = filters.supplier_id
       if (filters?.page) params.page = filters.page
 
-      const response = await api.get('/api/procurement-stores/invoices', { params })
+      const response = await api.get('/api/procurement-stores/bills', { params })
       
       if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        invoices.value = response.data.data
+        bills.value = response.data.data
       } else if (Array.isArray(response.data)) {
-        invoices.value = response.data
+        bills.value = response.data
       } else {
-        invoices.value = []
+        bills.value = []
       }
       
       return response.data
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to fetch invoices'
-      invoices.value = []
+      error.value = err.response?.data?.message || 'Failed to fetch bills'
+      bills.value = []
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  const searchInvoices = async (searchTerm: string) => {
+  const searchBills = async (searchTerm: string) => {
     loading.value = true
     error.value = null
     
     try {
-      const response = await api.post('/api/procurement-stores/search/invoices', { searchTerm })
+      const response = await api.post('/api/procurement-stores/search/bills', { searchTerm })
       
       if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        invoices.value = response.data.data
+        bills.value = response.data.data
       } else if (Array.isArray(response.data)) {
-        invoices.value = response.data
+        bills.value = response.data
       } else {
-        invoices.value = []
+        bills.value = []
       }
       
       return response.data
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to search invoices'
+      error.value = err.response?.data?.message || 'Failed to search bills'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  const getInvoice = async (id: number): Promise<Invoice | null> => {
+  const getBill = async (id: number): Promise<Bill | null> => {
     loading.value = true
     error.value = null
     
     try {
-      const response = await api.get(`/api/procurement-stores/invoices/${id}`)
+      const response = await api.get(`/api/procurement-stores/bills/${id}`)
       
       if (response.data && response.data.data) {
         return response.data.data
@@ -78,19 +79,30 @@ export function useInvoices() {
       
       return null
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to fetch invoice'
+      error.value = err.response?.data?.message || 'Failed to fetch bill'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  const createInvoice = async (data: CreateInvoiceData): Promise<Invoice> => {
+  const getPendingBills = async (supplierId?: number) => {
+    try {
+      const params = supplierId ? { supplier_id: supplierId } : {}
+      const response = await api.get('/api/procurement-stores/pending-bills', { params })
+      return response.data.data || []
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to fetch pending bills'
+      throw err
+    }
+  }
+
+  const createBill = async (data: CreateBillData): Promise<Bill> => {
     loading.value = true
     error.value = null
     
     try {
-      const response = await api.post('/api/procurement-stores/invoices', data)
+      const response = await api.post('/api/procurement-stores/bills', data)
       
       if (response.data.error) {
         throw new Error(JSON.stringify(response.data.error))
@@ -110,10 +122,10 @@ export function useInvoices() {
         } else if (err.response.data.message) {
           error.value = err.response.data.message
         } else {
-          error.value = 'Failed to create invoice'
+          error.value = 'Failed to create bill'
         }
       } else {
-        error.value = err.message || 'Failed to create invoice'
+        error.value = err.message || 'Failed to create bill'
       }
       
       throw err
@@ -122,12 +134,12 @@ export function useInvoices() {
     }
   }
 
-  const recordPayment = async (id: number, paymentData: { payment_date: string, payment_method: string }): Promise<Invoice> => {
+  const recordPayment = async (billId: number, paymentData: RecordPaymentData): Promise<Bill> => {
     loading.value = true
     error.value = null
     
     try {
-      const response = await api.post(`/api/procurement-stores/invoices/${id}/record-payment`, paymentData)
+      const response = await api.post(`/api/procurement-stores/bills/${billId}/record-payment`, paymentData)
       
       if (response.data && response.data.data) {
         return response.data.data
@@ -144,9 +156,31 @@ export function useInvoices() {
     }
   }
 
+  const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
+    try {
+      const response = await api.get('/api/procurement-stores/payment-methods')
+      return response.data.data || []
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to fetch payment methods'
+      throw err
+    }
+  }
+
+  const addPaymentMethod = async (methodName: string): Promise<PaymentMethod> => {
+    try {
+      const response = await api.post('/api/procurement-stores/payment-methods', {
+        method_name: methodName
+      })
+      return response.data.data
+    } catch (err: any) {
+      error.value = err.response?.data?.error || 'Failed to add payment method'
+      throw err
+    }
+  }
+
   const getStats = async () => {
     try {
-      const response = await api.get('/api/procurement-stores/invoices-stats')
+      const response = await api.get('/api/procurement-stores/bills-stats')
       return response.data
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch stats'
@@ -155,14 +189,17 @@ export function useInvoices() {
   }
 
   return {
-    invoices: readonly(invoices),
+    bills: readonly(bills),
     loading: readonly(loading),
     error: readonly(error),
-    fetchInvoices,
-    searchInvoices,
-    getInvoice,
-    createInvoice,
+    fetchBills,
+    searchBills,
+    getBill,
+    getPendingBills,
+    createBill,
     recordPayment,
+    getPaymentMethods,
+    addPaymentMethod,
     getStats
   }
 }
