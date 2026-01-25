@@ -167,9 +167,19 @@ export class BudgetService {
   /**
    * Import materials from the materials task into budget
    */
+  /**
+   * Import materials from the materials task into budget
+   */
   static async importMaterials(taskId: number, force: boolean = false): Promise<BudgetData> {
-    const response = await axios.post(`/api/projects/tasks/${taskId}/budget/import-materials`, { force })
-    return response.data.data
+    try {
+      const response = await axios.post(`/api/projects/tasks/${taskId}/budget/import-materials`, { force })
+      return response.data.data
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      }
+      throw error
+    }
   }
 
   /**

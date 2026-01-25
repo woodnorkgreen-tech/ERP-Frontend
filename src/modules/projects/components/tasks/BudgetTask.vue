@@ -660,7 +660,8 @@ const refreshFromMaterials = async () => {
     setTimeout(() => state.successMessage = '', 3000)
   } catch (error: any) {
     console.error('Sync failed:', error)
-    alert(error.message || 'Failed to refresh from materials')
+    state.error = error.response?.data?.message || error.message || 'Sync failed: Materials might need approval.'
+    state.successMessage = ''
   } finally {
     isRefreshing.value = false
   }

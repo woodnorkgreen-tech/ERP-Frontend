@@ -453,6 +453,14 @@
               :can-approve="canApproveForDepartment('project_officer')"
               @approve="approveForDepartment('project_officer', $event)"
             />
+            <ApprovalCard
+              class="flex-1 border-0 rounded-none shadow-none"
+              department="production"
+              title="Production Approval"
+              :approval-data="approvalStatus.production"
+              :can-approve="canApproveForDepartment('production')"
+              @approve="approveForDepartment('production', $event)"
+            />
           </div>
         </div>
       </div>
@@ -604,6 +612,7 @@
               </svg>
               <span>{{ isGeneratingPDF ? 'Generating PDF...' : 'Download PDF' }}</span>
             </button>
+            <!-- Commented out Print button for now
             <button
               @click="printMaterialsList"
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
@@ -613,6 +622,7 @@
               </svg>
               <span>Print</span>
             </button>
+            -->
             <button
               @click="closeViewModal"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
@@ -625,156 +635,117 @@
         </div>
 
         <!-- Printable Content (Forced Light Mode for PDF) -->
-        <div id="printable-materials-list" class="p-6 overflow-y-auto max-h-[calc(95vh-140px)] print:overflow-visible print:max-h-none bg-white text-black">
-          <!-- Project Header for Print -->
-          <div class="mb-8 print:mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 print:text-black">
-              Materials List
-            </h1>
-
-            <!-- Project Information -->
-            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Project Title</label>
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white print:text-black">{{ materialsData.projectInfo.enquiryTitle }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Enquiry Number</label>
-                  <p class="text-sm font-medium text-gray-900 dark:text-white print:text-black">{{ materialsData.projectInfo.projectId }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Client Name</label>
-                  <p class="text-sm text-gray-900 dark:text-white print:text-black">{{ materialsData.projectInfo.clientName }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Event Venue</label>
-                  <p class="text-sm text-gray-900 dark:text-white print:text-black">{{ materialsData.projectInfo.eventVenue }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Expected Delivery Date</label>
-                  <p class="text-sm text-gray-900 dark:text-white print:text-black">{{ formatDate(materialsData.projectInfo.setupDate) }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Generated On</label>
-                  <p class="text-sm text-gray-900 dark:text-white print:text-black">{{ formatDateTime(new Date()) }}</p>
-                </div>
+        <!-- Printable Content (Matches backend PDF standard) -->
+        <div id="printable-materials-list" class="p-8 overflow-y-auto max-h-[calc(95vh-140px)] print:overflow-visible print:max-h-none bg-white text-black font-sans">
+          <!-- Header -->
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">W</div>
+                <div class="font-bold text-gray-900 tracking-wide uppercase text-lg">Woodnork Green</div>
               </div>
+              <p class="text-[10px] text-gray-500">Premium Branding & Event Fabrication</p>
             </div>
-          </div>
-
-          <!-- Materials by Element -->
-          <div class="space-y-6 print:space-y-4">
-            <div v-for="element in getIncludedElements()" :key="element.id" class="print:break-inside-avoid">
-              <!-- Element Header -->
-              <div class="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-t-lg print:bg-gray-100 print:border print:border-gray-300">
-                <div class="flex items-center space-x-3">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white print:text-black">
-                    {{ element.name }}
-                  </h3>
-                  <span :class="getElementCategoryClass(element.category)" class="text-xs px-2 py-1 rounded-full font-medium print:text-black print:border print:border-gray-400">
-                    {{ getElementCategoryLabel(element.category) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Materials Table -->
-              <div class="border border-gray-200 dark:border-gray-600 rounded-b-lg overflow-hidden print:border-gray-300">
-                <table class="w-full text-sm">
-                  <thead class="bg-gray-50 dark:bg-gray-600 print:bg-gray-50">
-                    <tr>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Particulars</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Unit</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Quantity</th>
-                      <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 print:text-black border-b print:border-gray-300">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="material in getIncludedMaterials(element)" :key="material.id" class="border-b border-gray-100 dark:border-gray-700 print:border-gray-200">
-                      <td class="py-3 px-4 text-gray-900 dark:text-white print:text-black">{{ material.description }}</td>
-                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black">{{ material.unitOfMeasurement }}</td>
-                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black font-medium">{{ material.quantity }}</td>
-                      <td class="py-3 px-4 text-gray-600 dark:text-gray-400 print:text-black">{{ material.notes || '-' }}</td>
-                    </tr>
-                    <tr v-if="getIncludedMaterials(element).length === 0">
-                      <td colspan="4" class="py-4 text-center text-gray-500 dark:text-gray-400 print:text-gray-600 italic">
-                        No materials included for this element
-                      </td>
-                    </tr>
-                  </tbody>
+            <div class="text-right">
+              <h2 class="text-blue-600 font-bold uppercase tracking-widest text-2xl m-0 mb-3">MATERIALS SPECIFICATION</h2>
+              <div class="inline-block border border-gray-300">
+                <table class="border-collapse">
+                  <tr>
+                    <td class="bg-gray-50 text-gray-700 font-bold border-r border-gray-300 px-3 py-1 uppercase text-[10px]">Date</td>
+                    <td class="bg-white text-blue-600 font-bold px-3 py-1 text-center min-w-[100px] text-[10px]">{{ new Date().toLocaleDateString('en-GB') }}</td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray-50 text-gray-700 font-bold border-r border-gray-300 px-3 py-1 uppercase text-[10px] border-t">Job #</td>
+                    <td class="bg-white text-red-600 font-bold px-3 py-1 text-center text-[10px] border-t">{{ materialsData.projectInfo.projectId }}</td>
+                  </tr>
                 </table>
               </div>
             </div>
-
-            <div v-if="getIncludedElements().length === 0" class="text-center py-8">
-              <p class="text-gray-500 dark:text-gray-400 print:text-gray-600 italic">
-                No elements are currently included in this project
-              </p>
-            </div>
           </div>
 
-          <!-- Department Approvals Section -->
-          <div class="mt-8 print:hidden">
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Department Approvals</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Project Officer or Manager must approve the materials list before budget can be created
-              </p>
-
-              <!-- Overall Status Banner -->
-              <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    ✓ Materials list approved. Budget import enabled.
-                  </span>
+          <!-- Project Information -->
+          <div class="mb-6">
+            <div class="bg-blue-600 text-white px-2 py-1 font-bold text-[10px] uppercase tracking-wider mb-1 w-1/3">PROJECT INFORMATION</div>
+            <div class="bg-gray-50 p-4 border border-gray-200 rounded-sm">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-[10px] mb-1"><span class="font-bold">Project Title:</span> {{ materialsData.projectInfo.enquiryTitle }}</p>
+                  <p class="text-[10px]"><span class="font-bold">Client:</span> {{ materialsData.projectInfo.clientName }}</p>
                 </div>
-              </div>
-              <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                    ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
-                  </span>
+                <div>
+                  <p class="text-[10px] mb-1"><span class="font-bold">Location:</span> {{ materialsData.projectInfo.eventVenue }}</p>
+                  <p class="text-[10px]"><span class="font-bold">Setup Date:</span> {{ formatDate(materialsData.projectInfo.setupDate) }}</p>
                 </div>
-              </div>
-
-              <!-- Approval Cards Grid -->
-              <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <ApprovalCard
-                  department="project_officer"
-                  title="Project Approval"
-                  :approval-data="approvalStatus.project_officer"
-                  :can-approve="canApproveForDepartment('project_officer')"
-                  @approve="approveForDepartment('project_officer', $event)"
-                />
               </div>
             </div>
           </div>
 
-          <!-- Summary Section -->
-          <div v-if="getIncludedElements().length > 0" class="mt-8 print:mt-6 print:break-inside-avoid">
-            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg print:bg-white print:border print:border-gray-300">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white print:text-black mb-3">Summary</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Total Elements</label>
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white print:text-black">{{ getIncludedElements().length }}</p>
+          <!-- Approval Status -->
+          <div class="mb-6">
+            <div class="bg-blue-600 text-white px-2 py-1 font-bold text-[10px] uppercase tracking-wider mb-1 w-1/3">APPROVAL STATUS</div>
+            <div class="bg-gray-50 p-4 border border-gray-200 rounded-sm">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-[10px]">Project Officer:</span>
+                  <template v-if="approvalStatus.project_officer.approved">
+                    <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Approved</span>
+                    <span class="text-[9px] text-gray-500 italic">by {{ approvalStatus.project_officer.approved_by_name }}</span>
+                  </template>
+                  <span v-else class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Pending</span>
                 </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Total Materials</label>
-                  <p class="text-sm font-semibold text-gray-900 dark:text-white print:text-black">{{ getTotalMaterialsCount() }}</p>
-                </div>
-                <div>
-                  <label class="text-xs font-medium text-gray-500 dark:text-gray-400 print:text-gray-700">Prepared By</label>
-                  <p class="text-sm text-gray-900 dark:text-white print:text-black">_________________</p>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-[10px]">Production:</span>
+                  <template v-if="approvalStatus.production.approved">
+                    <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Approved</span>
+                    <span class="text-[9px] text-gray-500 italic">by {{ approvalStatus.production.approved_by_name }}</span>
+                  </template>
+                  <span v-else class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase">Pending</span>
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Elements & Materials -->
+          <div class="space-y-8">
+            <div v-for="element in getIncludedElements()" :key="element.id" class="print:break-inside-avoid">
+              <div class="bg-blue-50 border-l-4 border-blue-600 px-4 py-2 mb-2">
+                <h3 class="text-sm font-bold text-blue-900 uppercase tracking-tight">
+                  {{ element.name }} 
+                  <span class="text-[10px] font-normal text-gray-500 ml-2">({{ element.category.toUpperCase() }})</span>
+                </h3>
+              </div>
+              
+              <table class="w-full border-collapse mb-4">
+                <thead>
+                  <tr class="bg-gray-50 border-b-2 border-gray-200">
+                    <th class="text-left p-2 text-[10px] font-bold text-gray-600 uppercase tracking-wider w-1/2">Description</th>
+                    <th class="text-center p-2 text-[10px] font-bold text-gray-600 uppercase tracking-wider">Unit</th>
+                    <th class="text-center p-2 text-[10px] font-bold text-gray-600 uppercase tracking-wider">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="material in getIncludedMaterials(element)" :key="material.id" class="border-b border-gray-100">
+                    <td class="p-2 text-[10px] text-gray-800">
+                      {{ material.description }}
+                      <span v-if="material.isAdditional" class="text-blue-600 text-[8px] font-bold ml-1 uppercase">(Additional)</span>
+                    </td>
+                    <td class="text-center p-2 text-[10px] text-gray-600">{{ material.unitOfMeasurement }}</td>
+                    <td class="text-center p-2 text-[10px] font-bold text-gray-900">{{ material.quantity }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div v-if="element.notes" class="bg-gray-50 p-2 border border-dashed border-gray-300 rounded text-[9px] italic text-gray-600 -mt-2 mb-4">
+                <span class="font-bold not-italic">Notes:</span> {{ element.notes }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="mt-12 pt-4 border-t border-gray-200 text-center text-gray-500 text-[9px]">
+            <p class="font-bold text-gray-700 mb-1">Woodnork Green Ltd</p>
+            <p>Tel: +254 780 397 798 | Email: admin@woodnorkgreen.co.ke</p>
+            <p>Karen Village, Ngong Road, Nairobi, Kenya | www.woodnorkgreen.co.ke</p>
           </div>
         </div>
       </div>
@@ -849,7 +820,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { jsPDF } from 'jspdf'
 import { useAuth } from '@/composables/useAuth'
 import { useVersioning } from '@/composables/useVersioning'
 import type { EnquiryTask } from '../../types/enquiry'
@@ -860,6 +830,9 @@ import ApprovalCard from './materials/ApprovalCard.vue'
 import ExcelUploadModal from './materials/ExcelUploadModal.vue'
 import { MaterialsService } from '../../services/materialsService'
 import api from '@/plugins/axios'
+
+// Auth
+const { user } = useAuth()
 
 // Skip Task Logic
 const showSkipModal = ref(false)
@@ -939,6 +912,8 @@ interface ProjectInfo {
   setupDate: string
   /** Date when project set down occurs (ISO date string or "tbc") */
   setDownDate: string
+  /** Optional approval status for the materials task */
+  approval_status?: ApprovalStatus
 }
 
 /**
@@ -1237,76 +1212,77 @@ const initializeCollapsedState = () => {
 initializeCollapsedState()
 
 // Approval state management
-interface ApprovalDepartmentData {
-  approved: boolean
-  approved_by?: number | null
-  approved_by_name?: string | null
-  approved_at?: string | null
-  comments?: string
-}
-
 interface ApprovalStatus {
-  project_officer: ApprovalDepartmentData
+  project_officer: {
+    approved: boolean
+    approved_by?: number | null
+    approved_by_name?: string | null
+    approved_at?: string | null
+    comments?: string
+  }
+  production: {
+    approved: boolean
+    approved_by?: number | null
+    approved_by_name?: string | null
+    approved_at?: string | null
+    comments?: string
+  }
   all_approved: boolean
   last_approval_at?: string | null
 }
 
+// Initialize with safe defaults including production
 const approvalStatus = ref<ApprovalStatus>({
-  project_officer: { approved: false, approved_by: null, approved_by_name: null, approved_at: null, comments: '' },
-  all_approved: false,
-  last_approval_at: null
+  project_officer: { approved: false },
+  production: { approved: false },
+  all_approved: false
 })
 
 // Computed: Pending departments
 const pendingDepartments = computed(() => {
-  const pending: string[] = []
-  if (!approvalStatus.value?.project_officer?.approved) pending.push('Project Approval')
-  return pending
+  const departments = []
+  if (!approvalStatus.value.project_officer?.approved) departments.push('Project Officer')
+  if (!approvalStatus.value.production?.approved) departments.push('Production')
+  return departments.length > 0 ? departments : ['None']
 })
 
 // Load approval status from backend
 const loadApprovalStatus = async () => {
-  try {
-    const response = await api.get(`/api/projects/tasks/${props.task.id}/materials/approval-status`)
-    approvalStatus.value = response.data.approval_status
-  } catch (err) {
-    console.error('Failed to load approval status:', err)
+  if (materialsData.projectInfo?.approval_status) {
+    approvalStatus.value = materialsData.projectInfo.approval_status
   }
 }
 
-// Check if current user can approve for a department
-const canApproveForDepartment = (department: 'design' | 'production' | 'project_officer'): boolean => {
-  // Get user roles from useAuth composable
-  const { user } = useAuth()
+// Check permissions
+const canApproveForDepartment = (dept: string) => {
+  if (!user.value) return false
   
-  // Ensure user.value is available
-  if (!user.value) {
-    console.warn('User not found in auth store')
-    return false
-  }
- 
-  // Extract roles - handle both array of strings (from fetchUser) and array of objects (if structure differs)
-  const userRoles = (user.value.roles || []).map((r: any) => {
-    if (typeof r === 'string') return r.toLowerCase()
-    return r.name?.toLowerCase()
+  const userRoles = user.value.roles || []
+  
+  // Helper to check role (case insensitive)
+  const hasRole = (role: string) => userRoles.some((r: any) => {
+    const roleName = typeof r === 'string' ? r : r.name
+    return roleName?.toLowerCase() === role.toLowerCase()
   })
+
+  // Super Admin override
+  if (hasRole('Super Admin')) return true
   
-  const roleMap: Record<string, string[]> = {
-    design: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
-    production: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin'],
-    project_officer: ['project officer', 'project_officer', 'project manager', 'project_manager', 'admin', 'superadmin', 'super-admin', 'super admin']
+  // Project Officer - allows Project Managers or Project Officers
+  if (dept === 'project_officer') {
+    return hasRole('Project Manager') || 
+           hasRole('Project Officer') ||
+           hasRole('Admin')
   }
 
-  console.log('Debug Roles:', { 
-    userEmail: user.value.email,
-    userRoles, 
-    department, 
-    checkingFor: roleMap[department],
-    hasPermission: (roleMap[department] || []).some(role => userRoles.includes(role.toLowerCase()))
-  })
+  // Production - allows Production Manager or Production roles
+  if (dept === 'production') {
+    return hasRole('Production') || 
+           hasRole('Production Manager') ||
+           hasRole('Admin')
+  }
   
-  const allowedRoles = roleMap[department] || []
-  return allowedRoles.some(role => userRoles.includes(role.toLowerCase()))
+  return false
 }
 
 // Approve materials for a department
@@ -1892,51 +1868,47 @@ const formatDate = (dateString: string): string => {
 }
 
 /**
- * Download the materials list as a PDF
- * Uses jsPDF to generate a PDF from the printable content
+ * Download the materials list as a PDF from the backend
+ * Matches system standard for PDF reports
  */
 const isGeneratingPDF = ref(false)
 const downloadPDF = async () => {
-  const element = document.getElementById('printable-materials-list')
-  if (!element) return
-
-  isGeneratingPDF.value = true
-  
-  // Temporarily disable dark mode for capture
-  const isDark = document.documentElement.classList.contains('dark')
-  if (isDark) {
-    document.documentElement.classList.remove('dark')
-  }
-
   try {
-    // Create new PDF instance
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    })
-
-    // Generate PDF from HTML
-    await doc.html(element, {
-      callback: function (doc) {
-        doc.save(`Materials-List-${materialsData.projectInfo.projectId}.pdf`)
-        // Restore dark mode immediately after save if needed, although finally block covers it
-      },
-      x: 10,
-      y: 10,
-      width: 190, // A4 width (210) - 20mm margin
-      windowWidth: 1200 // Force desktop width for rendering
+    isGeneratingPDF.value = true
+    
+    // Call the backend API for PDF generation
+    const response = await api.get(`/api/projects/tasks/${props.task.id}/materials/pdf`, {
+      responseType: 'blob'
     })
     
-    console.log('PDF generated successfully')
-  } catch (err) {
-    console.error('Failed to generate PDF:', err)
-    alert('Failed to generate PDF. Please try using the Print button and "Save as PDF".')
-  } finally {
-    // Restore dark mode
-    if (isDark) {
-      document.documentElement.classList.add('dark')
+    // Create a link element to trigger downloading
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    
+    // Get filename from header if possible, or use default
+    let filename = `Materials-Specification-${materialsData.projectInfo.projectId}.pdf`
+    const contentDisposition = response.headers['content-disposition']
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/)
+      if (filenameMatch) {
+        filename = filenameMatch[1]
+      }
     }
+    
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    
+    // Clean up
+    link.remove()
+    window.URL.revokeObjectURL(url)
+    
+    console.log('PDF generated successfully via backend')
+  } catch (err: any) {
+    console.error('Failed to generate PDF:', err)
+    alert('Failed to generate PDF. Please try again later or use the Print button.')
+  } finally {
     isGeneratingPDF.value = false
   }
 }

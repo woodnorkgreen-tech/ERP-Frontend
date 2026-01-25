@@ -212,8 +212,21 @@ watch(unreadNotifications, (newNotifs) => {
    
    if (activationEvents.length > 0 && activationPopup.value) {
       console.log('Project Activation Sequence:', activationEvents.length, 'events')
+      
+      // PLAY SYSTEM SOUND: High-fidelity notification chime
+      try {
+         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+         audio.volume = 0.5
+         audio.play().catch(e => console.warn('Audio playback blocked by browser until user interacts with page.', e))
+      } catch (err) {
+         console.error('Audio initialization failed', err)
+      }
+
       // Pass the entire batch to the popup for carousel handling
       activationPopup.value.show(activationEvents)
+      
+      // TRIGGER REFRESH: Send global signal for components to refresh data automatically
+      window.dispatchEvent(new CustomEvent('project-activated'))
    }
 }, { deep: true, immediate: true })
 
@@ -291,6 +304,14 @@ const sidebarTitle = computed(() => {
     return 'Creatives Panel'
   }
 
+  if (userRoles.includes('Stores')) {
+    return 'Stores & Inventory'
+  }
+
+  if (userRoles.includes('Procurement')) {
+    return 'Procurement Panel'
+  }
+
   return 'ERP System'
 })
 
@@ -313,6 +334,14 @@ const sidebarSubtitle = computed(() => {
 
   if (userRoles.includes('Designer')) {
     return 'Design & Production'
+  }
+
+  if (userRoles.includes('Stores')) {
+    return 'Equipment & Materials'
+  }
+
+  if (userRoles.includes('Procurement')) {
+    return 'Supply Chain Management'
   }
 
   return 'Management Dashboard'

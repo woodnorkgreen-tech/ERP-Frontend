@@ -220,13 +220,21 @@ export function useRouteGuard() {
       return
     }
 
-    // Logistics, Stores, and Procurement users go to projects dashboard
-    // (temporary until their dedicated modules are developed)
-    if (userRoles.includes('Logistics') ||
-      userRoles.includes('Stores') ||
-      userRoles.includes('Designer') ||
-      userRoles.includes('Procurement')) {
+    // Logistics & Designers go to projects dashboard
+    if (userRoles.includes('Logistics') || userRoles.includes('Designer')) {
       router.push('/projects/dashboard')
+      return
+    }
+
+    // Stores users go to stores dashboard
+    if (userRoles.includes('Stores')) {
+      router.push('/stores/dashboard')
+      return
+    }
+
+    // Procurement users go to procurement dashboard
+    if (userRoles.includes('Procurement')) {
+      router.push('/procurement/dashboard')
       return
     }
 
@@ -375,6 +383,31 @@ export function useRouteGuard() {
     if (userRoles.includes('Production') && !userRoles.includes('Super Admin')) {
       routes.push(
         { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' }
+      )
+    }
+
+    // Add stores routes
+    if (userRoles.includes('Stores') && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'stores-dashboard', path: '/stores/dashboard', label: 'Stores Dashboard', icon: 'mdi-view-dashboard-variant' },
+        { name: 'stores-materials-library', path: '/stores/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' },
+        { name: 'stores-check-in', path: '/stores/check-in', label: 'Check Inns (GRN)', icon: 'mdi-package-variant-closed' },
+        { name: 'stores-check-out', path: '/stores/check-out', label: 'Check Outs (Issues)', icon: 'mdi-truck-delivery' },
+        { name: 'stores-returns', path: '/stores/returns', label: 'Stock Returns', icon: 'mdi-keyboard-return' },
+        { name: 'stores-defective', path: '/stores/defective', label: 'Defective & Repairs', icon: 'mdi-alert-circle-outline' },
+        { name: 'stores-alerts', path: '/stores/alerts', label: 'Inventory Alerts', icon: 'mdi-bell-ring-outline' }
+      )
+    }
+
+    // Add procurement routes
+    if (userRoles.includes('Procurement') && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'procurement-dashboard', path: '/procurement/dashboard', label: 'Procurement Dashboard', icon: 'mdi-shopping' },
+        { name: 'procurement-suppliers', path: '/procurement/suppliers', label: 'Suppliers & Vendors', icon: 'mdi-account-star-outline' },
+        { name: 'procurement-requisitions', path: '/procurement/requisitions', label: 'Stock Requisitions', icon: 'mdi-file-plus-outline' },
+        { name: 'procurement-purchase-orders', path: '/procurement/purchase-orders', label: 'Purchase Orders (LPOs)', icon: 'mdi-file-sign' },
+        { name: 'procurement-goods-receipt', path: '/procurement/goods-receipt', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' },
+        { name: 'procurement-billing', path: '/procurement/billing', label: 'Billing', icon: 'mdi-clipboard-check-outline' }
       )
     }
 

@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useProjectsDashboard } from '../composables/useProjectsDashboard'
 import DashboardHeader from '../components/DashboardHeader.vue'
 import ProjectPipelineFunnel from '../components/ProjectPipelineFunnel.vue'
@@ -93,7 +93,6 @@ import AlertsPanel from '../components/AlertsPanel.vue'
 import ActivityFeed from '../components/ActivityFeed.vue'
 import KPICards from '../components/KPICards.vue'
 import FlashQuoter from '../components/tasks/FlashQuoter.vue'
-import { ref } from 'vue'
 
 const showFlashQuoter = ref(false)
 
@@ -112,7 +111,19 @@ const handleRefresh = () => {
   fetchDashboardMetrics()
 }
 
+const handleProjectActivatedSignal = async () => {
+  console.log('Project Activated signal received. Refreshing dashboard...')
+  await fetchDashboardMetrics()
+}
+
 onMounted(() => {
   fetchDashboardMetrics()
+  
+  // Listen for global project activation signal (Auto-Refresh)
+  window.addEventListener('project-activated', handleProjectActivatedSignal)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('project-activated', handleProjectActivatedSignal)
 })
 </script>

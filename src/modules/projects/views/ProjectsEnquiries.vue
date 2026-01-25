@@ -1289,7 +1289,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ProjectEnquiry, CreateProjectEnquiryData, UpdateProjectEnquiryData, EnquiryTask } from '../types/enquiry'
 import { useClients } from '../../clientService/composables/useClients'
@@ -2277,6 +2277,11 @@ const fetchLogisticsDrivers = async () => {
   }
 }
 
+const handleProjectActivatedSignal = async () => {
+  console.log('Project Activated signal received. Refreshing data...')
+  await fetchEnquiries(filters.value)
+}
+
 onMounted(async () => {
   if (isProjectOfficer.value) {
       filters.value.assigned_to_me = true
@@ -2295,5 +2300,12 @@ onMounted(async () => {
       viewEnquiryDetails(target)
     }
   }
+
+  // Listen for global project activation signal (Auto-Refresh)
+  window.addEventListener('project-activated', handleProjectActivatedSignal)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('project-activated', handleProjectActivatedSignal)
 })
 </script>
