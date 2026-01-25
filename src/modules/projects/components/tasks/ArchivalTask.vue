@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <div v-else-if="isReportEmpty" class="flex-1 flex flex-col items-center justify-center p-12 text-center bg-gray-50 dark:bg-gray-900/50">
+    <div v-else-if="reportData && !reportData.id" class="flex-1 flex flex-col items-center justify-center p-12 text-center bg-gray-50 dark:bg-gray-900/50">
       <div class="w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-sm flex items-center justify-center mb-4">
         <i class="mdi mdi-file-document-edit-outline text-3xl text-gray-400"></i>
       </div>
@@ -59,7 +59,7 @@
       </button>
     </div>
 
-    <div v-else class="flex-1 overflow-y-auto p-6 space-y-6">
+    <div v-else-if="reportData" class="flex-1 overflow-y-auto p-6 space-y-6">
       
       <!-- Report Status Banner -->
       <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
@@ -133,8 +133,45 @@
             <i class="mdi mdi-image-multiple-outline"></i> Design Assets
           </h3>
            <div class="text-sm text-gray-600 dark:text-gray-300">
-             <p class="mb-2">Assets from Design Task will be attached to the final PDF.</p>
-             <!-- We could list asset counts here if available in reportData -->
+             <p v-if="!reportData.system_documents?.some(d => d.category === 'Design')" class="mb-2">Assets from Design Task will be attached to the final PDF.</p>
+             <div v-else class="space-y-2">
+                <div v-for="doc in reportData.system_documents.filter(d => d.category === 'Design')" :key="doc.name" class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i class="mdi mdi-file-image text-blue-500"></i>
+                        <span class="truncate">{{ doc.name }}</span>
+                    </div>
+                    <button @click="handleDownloadSystemDoc(doc)" class="text-purple-600 hover:text-purple-700 text-xs font-bold uppercase">View</button>
+                </div>
+             </div>
+           </div>
+        </section>
+
+        <!-- System Generated Documents -->
+        <section class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 border border-gray-200 dark:border-gray-700 lg:col-span-2">
+           <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="mdi mdi-file-cabinet"></i> System Generated Documents
+          </h3>
+           <div v-if="reportData.system_documents?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div v-for="doc in reportData.system_documents.filter(d => d.category !== 'Design')" :key="doc.name" 
+                class="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+                        <i :class="doc.type === 'PDF' ? 'mdi mdi-file-pdf-box' : 'mdi mdi-file-document-outline'" class="text-xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ doc.name }}</p>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{{ doc.category }} • {{ doc.type }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button @click="handleDownloadSystemDoc(doc)" class="p-2 text-gray-400 hover:text-purple-600 transition-colors">
+                        <i class="mdi mdi-download text-lg"></i>
+                    </button>
+                </div>
+              </div>
+           </div>
+           <div v-else class="text-center py-6 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+               <p class="text-sm text-gray-500">No system documents found for this project yet.</p>
            </div>
         </section>
 
@@ -146,6 +183,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import api from '@/plugins/axios'
 import { useArchivalReport, type ArchivalReportData } from '../../composables/useArchivalReport'
 import type { EnquiryTask } from '../../types/enquiry'
 
@@ -215,6 +253,27 @@ const handleDownloadPdf = async () => {
     } catch (error) {
         console.error('PDF download failed:', error)
         alert('Failed to download PDF report.')
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleDownloadSystemDoc = async (doc: any) => {
+    loading.value = true
+    try {
+        const response = await api.get(doc.url, {
+            responseType: 'blob'
+        })
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${doc.name}.${doc.type.toLowerCase() === 'pdf' ? 'pdf' : 'zip'}`)
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+    } catch (error) {
+        console.error('Document download failed:', error)
+        alert('Failed to download document.')
     } finally {
         loading.value = false
     }

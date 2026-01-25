@@ -88,6 +88,7 @@ export interface ArchivalReportData {
     // Related data
     setup_items?: SetupItem[]
     item_placements?: ItemPlacement[]
+    system_documents?: any[]
 }
 
 export interface SetupItem {

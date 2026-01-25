@@ -171,7 +171,7 @@
 
       <!-- Read-Only View -->
       <div v-if="readonly">
-         <TaskDataViewer :task="task" />
+         <TaskDataViewer :task="task" @edit="toggleEditMode" />
       </div>
 
       <!-- Edit Form -->

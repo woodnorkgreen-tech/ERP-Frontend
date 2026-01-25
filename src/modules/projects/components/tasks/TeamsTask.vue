@@ -254,23 +254,44 @@
                 </div>
 
                 <!-- Personnel Addition Input -->
-                <div v-if="canManageMembers && !isReadonly" class="flex items-center gap-4 max-w-sm group/add">
+                <div v-if="canManageMembers && !isReadonly" class="flex flex-col sm:flex-row items-stretch gap-4 max-w-2xl group/add">
+                   <!-- Registry Selection -->
                    <div class="relative flex-1">
-                      <i class="mdi mdi-account-plus-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors"></i>
-                      <input
-                         v-model="newMemberInputs[team.id]"
-                         type="text"
-                         placeholder="New Member Name..."
-                         class="block w-full h-11 pl-11 pr-4 text-xs font-black bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 focus:border-purple-500 focus:bg-white dark:focus:bg-slate-900 rounded-xl focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all uppercase tracking-widest"
-                         @keydown.enter="addMemberToTeam(team.id)"
-                      />
+                      <i class="mdi mdi-book-open-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors z-10"></i>
+                      <select
+                         v-model="selectedLabourId[team.id]"
+                         class="block w-full h-11 pl-11 pr-4 text-xs font-black bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 focus:border-purple-500 rounded-xl focus:ring-0 text-slate-900 dark:text-white appearance-none uppercase tracking-widest transition-all"
+                      >
+                         <option :value="null">Pick from Registry...</option>
+                         <option v-for="labour in labours" :key="labour.id" :value="labour.id">
+                           {{ labour.full_name }} ({{ labour.specialization }})
+                         </option>
+                      </select>
+                      <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                    </div>
+
+                   <div class="flex items-center gap-2">
+                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">OR</span>
+                     
+                     <div class="relative flex-1 min-w-[200px]">
+                        <i class="mdi mdi-account-plus-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors"></i>
+                        <input
+                           v-model="newMemberInputs[team.id]"
+                           type="text"
+                           placeholder="Manual Entry..."
+                           class="block w-full h-11 pl-11 pr-4 text-xs font-black bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 focus:border-purple-500 rounded-xl focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all uppercase tracking-widest"
+                           @keydown.enter="addMemberToTeam(team.id)"
+                        />
+                     </div>
+                   </div>
+
                    <button
                       @click="addMemberToTeam(team.id)"
-                      v-show="newMemberInputs[team.id]?.trim()"
-                      class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl active:scale-95 transition-all"
+                      :disabled="!selectedLabourId[team.id] && !newMemberInputs[team.id]?.trim()"
+                      class="px-6 h-11 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl active:scale-95 transition-all text-xs font-black uppercase tracking-widest disabled:opacity-30"
                    >
-                      <i class="mdi mdi-plus-circle text-xl"></i>
+                      <i class="mdi mdi-plus-circle text-lg mr-2"></i>
+                      Assign
                    </button>
                 </div>
               </div>
@@ -333,7 +354,7 @@
 
         <div v-if="task.status === 'completed'" class="flex items-center gap-3 px-5 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50">
           <i class="mdi mdi-check-circle text-emerald-500 text-xl"></i>
-          <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Workflow Synchronized</span>
+          <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Workflow synchronized</span>
         </div>
       </div>
     </div>
@@ -391,6 +412,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types'
 import { useTeams } from '../../composables/useTeams'
+import { useTechnicalLabour } from '@/modules/hr/composables/useTechnicalLabour'
 import TaskDataViewer from './TaskDataViewer.vue'
 import api from '@/plugins/axios'
 
@@ -400,6 +422,7 @@ import api from '@/plugins/axios'
 interface Props {
   task: EnquiryTask
   readonly?: boolean
+  initialEditMode?: boolean
 }
 
 interface Emits {
@@ -407,7 +430,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  readonly: false
+  readonly: false,
+  initialEditMode: false
 })
 const emit = defineEmits<Emits>()
 
@@ -449,6 +473,8 @@ const {
   deleteTeamTask
 } = useTeams()
 
+const { labours, fetchLabours } = useTechnicalLabour()
+
 const TEAM_CATEGORIES = [
   { id: 1, key: 'workshop', label: 'Workshop Fabrication', icon: 'mdi-hammer-wrench', color: 'blue' },
   { id: 2, key: 'setup', label: 'On-Site Installation', icon: 'mdi-truck-delivery-outline', color: 'amber' },
@@ -467,12 +493,13 @@ const COMMON_TEAM_TYPES = [
   { id: 9, team_type_id: 9, display_name: 'Carpenters' }
 ]
 
-const isEditMode = ref(false)
+const isEditMode = ref(props.initialEditMode)
 const showSkipModal = ref(false)
 const skipReason = ref('')
 const isSkipping = ref(false)
 const feedbackMessages = ref<FeedbackMessage[]>([])
 const newMemberInputs = reactive<Record<number, string>>({})
+const selectedLabourId = reactive<Record<number, number | null>>({})
 
 /**
  * Computed Properties
@@ -510,6 +537,7 @@ const canDeleteTeams = computed(() => true)
 onMounted(async () => {
   try {
     await fetchTeamCategories()
+    await fetchLabours()
     if (props.task?.id) {
         await fetchTeamsForTask(props.task.id)
     }
@@ -544,12 +572,35 @@ const submitAddTeam = async () => {
 }
 
 const addMemberToTeam = async (teamTaskId: number) => {
-  const memberName = newMemberInputs[teamTaskId]?.trim()
-  if (!memberName) return
+  const labourId = selectedLabourId[teamTaskId]
+  const manualName = newMemberInputs[teamTaskId]?.trim()
+  
+  if (!labourId && !manualName) return
 
   try {
-    await addTeamMember(props.task.id, teamTaskId, { member_name: memberName })
+    let payload: any = {}
+    
+    if (labourId) {
+      const labour = labours.value.find(l => l.id === labourId)
+      if (labour) {
+        payload = {
+          technical_labour_id: labour.id,
+          member_name: labour.full_name,
+          member_email: labour.email,
+          member_phone: labour.phone,
+          member_role: labour.specialization,
+          hourly_rate: Number(labour.day_rate) / 8 // Assuming 8hr day
+        }
+      }
+    } else {
+      payload = { member_name: manualName }
+    }
+
+    await addTeamMember(props.task.id, teamTaskId, payload)
+    
     newMemberInputs[teamTaskId] = ''
+    selectedLabourId[teamTaskId] = null
+    
     await fetchTeamsForTask(props.task.id)
     addFeedbackMessage('success', 'Personnel added')
   } catch (error) {

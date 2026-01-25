@@ -213,14 +213,10 @@ watch(unreadNotifications, (newNotifs) => {
    if (activationEvents.length > 0 && activationPopup.value) {
       console.log('Project Activation Sequence:', activationEvents.length, 'events')
       
-      // PLAY SYSTEM SOUND: High-fidelity notification chime
-      try {
-         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
-         audio.volume = 0.5
-         audio.play().catch(e => console.warn('Audio playback blocked by browser until user interacts with page.', e))
-      } catch (err) {
-         console.error('Audio initialization failed', err)
-      }
+      console.log('Project Activation Sequence:', activationEvents.length, 'events')
+      
+      // Audio playback is handled entirely by ProjectActivationPopup now to prevent loops
+      // and ensure the "Double Beep" requirement is met.
 
       // Pass the entire batch to the popup for carousel handling
       activationPopup.value.show(activationEvents)

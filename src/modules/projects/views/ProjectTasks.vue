@@ -215,10 +215,11 @@
 
                 <div class="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-700">
                   <div class="flex items-center space-x-2">
-                     <template v-if="!getAssignedUserName(task)">
+                   <!-- Claim button temporarily disabled -->
+                   <!-- <template v-if="!getAssignedUserName(task)">
                        <button @click.stop="claimTask(task)" class="text-xs font-semibold text-primary hover:text-primary-dark transition-colors">Claim Task</button>
-                     </template>
-                     <div v-else class="flex items-center space-x-2">
+                     </template> -->
+                     <div v-if="getAssignedUserName(task)" class="flex items-center space-x-2">
                        <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-400">
                          {{ getInitials(getAssignedUserName(task)) }}
                        </div>
@@ -314,12 +315,13 @@
              <!-- Card Footer -->
              <div class="px-5 py-4 mt-2 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between bg-slate-50/30 dark:bg-slate-800/20">
                 <div class="flex items-center gap-3">
-                   <div v-if="!getAssignedUserName(task)">
+                   <!-- Claim button temporarily disabled -->
+                   <!-- <div v-if="!getAssignedUserName(task)">
                       <button @click.stop="claimTask(task)" class="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline uppercase tracking-wide transition-colors">
                         Claim Task
                       </button>
-                   </div>
-                   <div v-else class="flex flex-col">
+                   </div> -->
+                   <div v-if="getAssignedUserName(task)" class="flex flex-col">
                       <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Assigned To</span>
                        <div class="flex items-center gap-2">
                           <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-xs font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 shadow-sm">
@@ -415,10 +417,11 @@
                     </div>
                   </td>
                   <td class="px-6 py-4 text-sm">
-                     <template v-if="!getAssignedUserName(task)">
+                     <!-- Claim button temporarily disabled -->
+                     <!-- <template v-if="!getAssignedUserName(task)">
                        <button @click.stop="claimTask(task)" class="text-xs font-bold text-primary hover:underline">Claim</button>
-                     </template>
-                     <div v-else class="inline-flex space-x-2 bg-white dark:bg-gray-700 rounded-full px-3 py-1 items-center">
+                     </template> -->
+                     <div v-if="getAssignedUserName(task)" class="inline-flex space-x-2 bg-white dark:bg-gray-700 rounded-full px-3 py-1 items-center">
                            <div class="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center">
                              <span class="text-[10px] font-bold text-white">
                              {{ getInitials(getAssignedUserName(task)) }}

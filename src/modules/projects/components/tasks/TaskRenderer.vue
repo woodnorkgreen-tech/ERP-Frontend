@@ -73,7 +73,7 @@ const shouldUseDirectComponent = (taskType?: string) => {
   const specialTypes = [
     'budget', 'design', 'quote', 'quote_approval', 'production', 
     'logistics', 'procurement', 'site-survey', 'survey', 'site survey',
-    'archival', 'setup', 'setdown'
+    'archival', 'setup', 'setdown', 'teams'
   ]
   
   return specialTypes.includes(taskType.toLowerCase())

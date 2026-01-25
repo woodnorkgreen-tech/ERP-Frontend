@@ -77,6 +77,16 @@
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
                 </div>
               </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-account-star-outline text-slate-400"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Officer</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.projectOfficer }}</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -168,6 +178,201 @@
     <!-- Tab Content Container -->
     <div class="tab-content-container">
 
+
+      <!-- Dispatch & Route Planning Tab -->
+      <div
+        v-show="activeTab === 'dispatch-planning'"
+        class="dispatch-planning-section tab-panel transition-opacity duration-200"
+        :id="`tab-panel-dispatch-planning`"
+        role="tabpanel"
+        :aria-labelledby="`tab-dispatch-planning`"
+        :class="{ 'animate-fade-in': activeTab === 'dispatch-planning' }"
+      >
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Dispatch & Route Planning</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Configure vehicle, driver, and travel timeline for this project
+            </p>
+          </div>
+          <div class="flex space-x-3">
+            <button
+              v-if="!isReadOnly"
+              @click="importLatestLog"
+              :disabled="isSavingPlanning"
+              class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
+            >
+              <i class="mdi mdi-sync"></i>
+              <span>Import from Transport Log</span>
+            </button>
+            <button
+              v-if="!isReadOnly"
+              @click="saveDispatchPlanning"
+              :disabled="isSavingPlanning"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
+            >
+              <i v-if="isSavingPlanning" class="mdi mdi-loading mdi-spin"></i>
+              <span>{{ isSavingPlanning ? 'Saving...' : 'Save Planning' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <!-- Transport Details -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  <i class="mdi mdi-truck-delivery text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Detail</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle Type</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.vehicle_type"
+                    type="text"
+                    placeholder="e.g. 10 Ton Lorry, Pickup"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle ID / Plate #</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.vehicle_identification"
+                    type="text"
+                    placeholder="e.g. KCA 123X"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Assigned Driver</label>
+                  <select 
+                    v-model="logisticsData.logistics_planning.driver_name"
+                    @change="onSelectDriver(logisticsData.logistics_planning.driver_name || '')"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all appearance-none"
+                  >
+                    <option value="">Select a driver...</option>
+                    <option v-for="driver in drivers" :key="driver.id" :value="driver.name">{{ driver.name }}</option>
+                    <option value="Third-party">Third-party Driver</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Driver Contact</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.driver_contact"
+                    type="text"
+                    placeholder="e.g. +254 7..."
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Route Planning -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <i class="mdi mdi-map-marker-distance text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Route Planning</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Origin</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.origin"
+                    type="text"
+                    placeholder="e.g. Workshop"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Destination</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.destination"
+                    type="text"
+                    placeholder="Project Venue"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Distance (KM)</label>
+                  <input 
+                    v-model.number="logisticsData.logistics_planning.route.distance"
+                    type="number"
+                    step="0.1"
+                    placeholder="Approx km"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Estimated Travel Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.travel_time"
+                    type="text"
+                    placeholder="e.g. 1 hour 30 mins"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <i class="mdi mdi-clock-outline text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Timeline</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Departure Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.departure_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Arrival Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.arrival_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Target Setup Start</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.setup_start_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
+                <div class="flex gap-3">
+                  <i class="mdi mdi-information-outline text-amber-500 text-xl"></i>
+                  <p class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase leading-relaxed">
+                    These arrival/departure times will be reflected on the official Logistics Manifest report.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Team Confirmation Tab -->
       <div
@@ -1002,6 +1207,10 @@
                       <div class="text-sm text-gray-900 mt-1">{{ projectInfo.eventVenue || 'TBC' }}</div>
                     </div>
                     <div>
+                      <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Officer</div>
+                      <div class="text-sm text-gray-900 mt-1">{{ projectInfo.projectOfficer || 'Unassigned' }}</div>
+                    </div>
+                    <div>
                       <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Setup Date</div>
                       <div class="text-sm text-gray-900 mt-1">{{ formatDate(projectInfo.setupDate) }}</div>
                     </div>
@@ -1086,7 +1295,7 @@
                                     group.mainCategory === 'TOOLS_EQUIPMENTS' ? 'bg-blue-500' :
                                     group.mainCategory === 'STORES' ? 'bg-green-500' :
                                     group.mainCategory === 'ELECTRICALS' ? 'bg-yellow-500' :
-                                    group.mainCategory === 'CLIENT ASSETS' ? 'bg-gray-500' : ''">
+                                    group.mainCategory === 'CLIENT_ASSETS' ? 'bg-gray-500' : ''">
                           </span>
                           {{ group.category }}
                           <span class="ml-2 text-sm text-gray-500">({{ group.items.length }} items)</span>
@@ -1234,7 +1443,7 @@ import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
 import api from '@/plugins/axios'
 
 import { useTeams } from '../../composables/useTeams'
-import { useLogistics } from '../../composables/useLogistics'
+import { useLogistics, type Driver } from '../../composables/useLogistics'
 import type { EnquiryTask } from '../../types'
 
 /**
@@ -1282,6 +1491,8 @@ interface ProjectInfo {
   contactPerson: string
   /** Contact phone number */
   contactPhone?: string
+  /** Project officer assigned */
+  projectOfficer?: string
 }
 
 /**
@@ -1395,7 +1606,7 @@ interface LogisticsTaskData {
   status: string
 }
 
-const DEPLOYMENT_CATEGORIES = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT ASSETS'] as const
+const DEPLOYMENT_CATEGORIES = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT_ASSETS'] as const
 type DeploymentCategory = typeof DEPLOYMENT_CATEGORIES[number]
 
 /**
@@ -1504,6 +1715,91 @@ const addFeedbackMessage = (type: FeedbackMessage['type'], message: string, time
 }
 
 /**
+ * Dispatch planning state
+ */
+const isSavingPlanning = ref(false)
+const drivers = ref<Driver[]>([])
+
+const fetchDrivers = async () => {
+  try {
+    drivers.value = await logistics.getDrivers()
+  } catch (err) {
+    console.error('Failed to fetch drivers:', err)
+  }
+}
+
+const saveDispatchPlanning = async () => {
+  try {
+    isSavingPlanning.value = true
+    await logistics.saveLogisticsPlanning(props.task.id, logisticsData.logistics_planning)
+    addFeedbackMessage('success', 'Dispatch planning saved successfully')
+  } catch (error) {
+    console.error('Failed to save planning:', error)
+    addFeedbackMessage('error', 'Failed to save dispatch planning')
+  } finally {
+    isSavingPlanning.value = false
+  }
+}
+
+const onSelectDriver = (driverName: string) => {
+  const driver = drivers.value.find(d => d.name === driverName)
+  if (driver) {
+    logisticsData.logistics_planning.driver_contact = driver.phone
+  }
+}
+
+/**
+ * Import latest data from logistics log
+ */
+const importLatestLog = async () => {
+  try {
+    isSavingPlanning.value = true
+    const response = await api.get('/api/projects/logistics-log', {
+      params: {
+        project_id: props.task.project_enquiry_id,
+        per_page: 1
+      }
+    })
+
+    const logs = response.data?.data?.data || []
+    if (logs.length === 0) {
+      addFeedbackMessage('info', 'No transport logs found for this project')
+      return
+    }
+
+    const latestLog = logs[0]
+    
+    // Map log fields to planning structure
+    logisticsData.logistics_planning.vehicle_identification = latestLog.vehicle_allocated || logisticsData.logistics_planning.vehicle_identification
+    logisticsData.logistics_planning.driver_name = latestLog.driver || logisticsData.logistics_planning.driver_name
+    logisticsData.logistics_planning.route.destination = latestLog.site || logisticsData.logistics_planning.route.destination
+    
+    // Format dates for datetime-local
+    const pivotDateForInput = (dateString: string) => {
+      if (!dateString) return undefined
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return undefined
+      return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
+    }
+
+    logisticsData.logistics_planning.timeline.departure_time = pivotDateForInput(latestLog.departure) || logisticsData.logistics_planning.timeline.departure_time
+    logisticsData.logistics_planning.timeline.arrival_time = pivotDateForInput(latestLog.setdown_time) || logisticsData.logistics_planning.timeline.arrival_time
+
+    // Try to auto-populate driver contact if we have drivers list
+    if (latestLog.driver) {
+      onSelectDriver(latestLog.driver)
+    }
+
+    addFeedbackMessage('success', 'Imported data from transport log. Please review and save.')
+  } catch (error) {
+    console.error('Failed to import log:', error)
+    addFeedbackMessage('error', 'Failed to import transport log data')
+  } finally {
+    isSavingPlanning.value = false
+  }
+}
+
+/**
  * Remove feedback message
  */
 const removeFeedbackMessage = (messageId: string) => {
@@ -1537,8 +1833,8 @@ const extractProjectInfo = (): ProjectInfo => {
       eventVenue: enquiry?.venue || 'TBC',
       setupDate: enquiry?.expected_delivery_date || 'TBC',
       setDownDate: 'TBC', // This would come from project data when available
-      estimatedBudget: enquiry?.estimated_budget,
-      contactPerson: enquiry?.contact_person || 'N/A'
+      contactPerson: enquiry?.contact_person || 'N/A',
+      projectOfficer: enquiry?.project_officer?.name || 'Unassigned'
     }
 
     // Check for critical missing information
@@ -1648,6 +1944,7 @@ onMounted(async () => {
 
     // Fetch team data for confirmation
     await fetchTeamData()
+    await fetchDrivers()
 
 
 
@@ -2088,7 +2385,7 @@ const groupedTransportItems = computed(() => {
   const groups: Record<string, { category: string, mainCategory: string, items: TransportItem[] }> = {}
   
   // Standard categories to ensure order
-  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT ASSETS']
+  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT_ASSETS']
   
   items.forEach(item => {
     const mainCat = item.main_category || 'OTHER'
@@ -2124,7 +2421,7 @@ const getCategoryColor = (category: string) => {
     case 'TOOLS_EQUIPMENTS': return 'bg-blue-500'
     case 'STORES': return 'bg-green-500'
     case 'ELECTRICALS': return 'bg-amber-500'
-    case 'CLIENT ASSETS': return 'bg-rose-500'
+    case 'CLIENT_ASSETS': return 'bg-rose-500'
     default: return 'bg-slate-500'
   }
 }
@@ -2138,7 +2435,7 @@ const getCategoryIcon = (category: string) => {
     case 'TOOLS_EQUIPMENTS': return 'mdi-tools'
     case 'STORES': return 'mdi-warehouse'
     case 'ELECTRICALS': return 'mdi-lightning-bolt'
-    case 'CLIENT ASSETS': return 'mdi-domain'
+    case 'CLIENT_ASSETS': return 'mdi-domain'
     default: return 'mdi-cube-outline'
   }
 }
@@ -2307,9 +2604,10 @@ const isAllTeamsConfirmed = computed((): boolean => {
 
 // Tab navigation with enhanced functionality
 // Tab navigation with enhanced functionality
-const activeTab = ref('team-confirmation')
+const activeTab = ref('dispatch-planning')
 
 const tabs = [
+  { id: 'dispatch-planning', label: 'Dispatch Planning', description: 'Plan vehicle, driver, and transport route' },
   { id: 'team-confirmation', label: 'Team Assignment', description: 'Check team members assigned to this project' },
   { id: 'loading-sheet', label: 'Delivery List', description: 'List of items to be transported and delivered' },
   { id: 'logistics-log', label: 'Transport Log', description: 'Track vehicle movements and transport times' },

@@ -34,9 +34,9 @@
                     <div class="relative mb-6">
                         <!-- Particle Background for Icon -->
                         <div class="absolute inset-0 scale-150 opacity-50 bg-indigo-500 blur-2xl rounded-full animate-glow"></div>
-                        <div class="w-24 h-24 bg-gradient-to-b from-white to-indigo-100 rounded-3xl rotate-12 flex items-center justify-center shadow-2xl relative z-10">
+                        <!-- <div class="w-24 h-24 bg-gradient-to-b from-white to-indigo-100 rounded-3xl rotate-12 flex items-center justify-center shadow-2xl relative z-10">
                             <i class="mdi mdi-rocket-launch text-5xl text-indigo-600 -rotate-12"></i>
-                        </div>
+                        </div> -->
                         <!-- Mini Badge -->
                         <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-full border-4 border-slate-900 flex items-center justify-center z-20">
                             <i class="mdi mdi-check text-white text-xl"></i>
@@ -147,13 +147,70 @@ const itemsPending = computed(() => queue.value.length)
 
 const visibleQueue = computed(() => queue.value.slice(0, 3))
 
+const playSuccessSound = () => {
+    try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+        if (!AudioContext) return
+
+        const audioCtx = new AudioContext()
+        const now = audioCtx.currentTime
+
+        const playNote = (freq: number, startTime: number, duration: number) => {
+            const oscillator = audioCtx.createOscillator()
+            const gainNode = audioCtx.createGain()
+            
+            oscillator.connect(gainNode)
+            gainNode.connect(audioCtx.destination)
+            
+            // Bell-like tone
+            oscillator.type = 'triangle'
+            oscillator.frequency.setValueAtTime(freq, startTime)
+            
+            // Envelope: Fast attack, slow exponential decay
+            gainNode.gain.setValueAtTime(0, startTime)
+            gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.02)
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration)
+            
+            oscillator.start(startTime)
+            oscillator.stop(startTime + duration)
+        }
+
+        // Play "Success" Chime (C5 -> E5)
+        playNote(523.25, now, 0.5)       // C5
+        playNote(659.25, now + 0.1, 0.8) // E5 (Major third, ringing out)
+
+        // Cleanup
+        setTimeout(() => {
+            if (audioCtx.state !== 'closed') {
+                audioCtx.close()
+            }
+        }, 1000)
+    } catch (e) {
+        console.error('Audio playback failed', e)
+    }
+}
+
 const show = (activations: any[]) => {
-    // Update queue with new data. Replace existing queue to prevent stale state.
+    // Prevent duplicate triggers if data hasn't changed
+    const currentIds = new Set(queue.value.map(i => i.id))
+    const hasNewItems = activations.some(a => !currentIds.has(a.id))
+    
+    // If the queue content is identical (same items, same length), just ensure visibility
+    if (!hasNewItems && activations.length === queue.value.length) {
+        if (queue.value.length > 0) {
+            isVisible.value = true
+        }
+        return
+    }
+
+    // Update queue with new data
     queue.value = activations
     
     if (queue.value.length > 0) {
         isVisible.value = true
         showConfetti.value = true
+        // Only beep if there is genuinely new content to announce
+        playSuccessSound()
     }
 }
 
