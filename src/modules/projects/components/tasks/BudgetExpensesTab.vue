@@ -39,7 +39,6 @@
           <thead class="bg-gray-50/80 dark:bg-gray-900/50 text-xs uppercase tracking-wider font-bold text-gray-400 border-b border-gray-100 dark:border-gray-700">
             <tr>
               <th class="text-left py-4 px-6">Description</th>
-              <th class="text-left py-4 px-4 w-48">Category</th>
               <th class="text-right py-4 px-6 w-48">Amount</th>
               <th class="w-16"></th>
             </tr>
@@ -51,25 +50,14 @@
               class="group hover:bg-green-50/30 dark:hover:bg-green-900/10 transition-colors"
             >
               <td class="py-3 px-6">
-                <input
-                  v-model="expense.description"
-                  type="text"
-                  placeholder="e.g., Team Lunch"
-                  class="w-full px-0 py-1.5 bg-transparent border-0 border-b border-transparent focus:border-green-500 focus:ring-0 font-bold text-gray-900 dark:text-white placeholder-gray-400 transition-colors"
-                />
-              </td>
-              <td class="py-3 px-4">
                 <select
-                  v-model="expense.category"
-                  class="w-full px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:bg-gray-700 dark:text-white cursor-pointer"
+                  v-model="expense.description"
+                  class="w-full px-3 py-1.5 text-xs font-bold border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500/20 focus:border-green-500 bg-transparent dark:bg-gray-700 dark:text-white cursor-pointer"
                 >
-                  <option value="">Select Category</option>
-                  <option value="transport">Transportation</option>
-                  <option value="accommodation">Accommodation</option>
-                  <option value="meals">Meals & Refreshments</option>
-                  <option value="utilities">Utilities</option>
-                  <option value="permits">Permits & Licenses</option>
-                  <option value="miscellaneous">Miscellaneous</option>
+                  <option value="" disabled>Select Expense Type</option>
+                  <option v-for="type in COMMON_EXPENSE_TYPES" :key="type.id" :value="type.display_name">
+                    {{ type.display_name }}
+                  </option>
                 </select>
               </td>
               <td class="py-3 px-6 text-right">
@@ -124,4 +112,17 @@ const addExpense = () => {
 const removeExpense = (index: number) => {
   emit('remove-expense', index)
 }
+
+const COMMON_EXPENSE_TYPES = [
+  { id: 1, display_name: 'Council Permits' },
+  { id: 2, display_name: 'NEMA Licenses' },
+  { id: 3, display_name: 'Parking Fees' },
+  { id: 4, display_name: 'Accommodation' },
+  { id: 5, display_name: 'Meals' },
+  { id: 6, display_name: 'Airtime/Data' },
+  { id: 7, display_name: 'Fuel' },
+  { id: 8, display_name: 'Vehicle Hire' },
+  { id: 9, display_name: 'Consultency Fees' },
+  { id: 10, display_name: 'Miscellaneous' }
+]
 </script>

@@ -954,6 +954,8 @@ interface ProjectElement {
   elementType: string
   /** Display name for this element in the project */
   name: string
+  /** Persistent identifier (UUID) */
+  persistent_id?: string
   /** Element category for sourcing classification */
   category: 'production' | 'hire' | 'outsourced'
   /** Element dimensions */
@@ -1004,6 +1006,8 @@ interface MaterialItem {
   id: string
   /** Linked material library ID */
   libraryMaterialId?: number | null
+  /** Persistent identifier (UUID) */
+  persistent_id?: string
   /** Descriptive name or description of the material */
   description: string
   /** Unit of measurement (e.g., "Pcs", "Ltrs", "Mtrs", "sqm") */
@@ -1052,10 +1056,11 @@ const COMMON_UNITS = [
   { value: 'Ltrs', label: 'Liters (Ltrs)' },
   { value: 'Mtrs', label: 'Meters (Mtrs)' },
   { value: 'sqm', label: 'Square Meters (sqm)' },
-  { value: 'custom', label: 'Custom Unit' },
+  { value: 'Gallons', label: 'Gallons (Gals)' },
+  { value: 'Bouquet', label: 'Bouquet' },
   { value: 'Pks', label: 'Packets (Pks)' },
   { value: 'Kgs', label: 'Kilograms (Kgs)' },
-  
+  { value: 'custom', label: 'Custom Unit' },
 ]
 
 // Component setup

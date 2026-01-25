@@ -67,32 +67,32 @@
               <div class="flex-1">
                 <div class="flex items-center space-x-4 mb-4">
                   <span
-                    class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                    class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
                   >
-                    REL v{{ version.version_number }}
+                    Snapshot #{{ version.version_number }}
                   </span>
-                  <h4 class="text-base font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h4 class="text-base font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {{ version.label }}
                   </h4>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    <i class="mdi mdi-account-star-outline mr-2 text-lg text-gray-400"></i>
+                    <i class="mdi mdi-account-card-outline mr-2 text-lg text-gray-400"></i>
                     <span>{{ version.created_by_name }}</span>
                   </div>
 
                   <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    <i class="mdi mdi-clock-outline mr-2 text-lg text-gray-400"></i>
+                    <i class="mdi mdi-calendar-clock mr-2 text-lg text-gray-400"></i>
                     <span>{{ formatDate(version.created_at) }}</span>
                   </div>
 
                   <div
                     v-if="version.materials_version_number"
-                    class="flex items-center text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest"
+                    class="flex items-center text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest"
                   >
                     <i class="mdi mdi-link-variant mr-1 text-base"></i>
-                    <span>Linked Material v{{ version.materials_version_number }}</span>
+                    <span>Base MQ v{{ version.materials_version_number }}</span>
                   </div>
                 </div>
               </div>
@@ -100,14 +100,15 @@
               <div class="ml-6 flex items-center space-x-2">
                 <button
                   @click="previewVersion(version)"
-                  class="p-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 rounded-xl transition-all duration-200 text-gray-500 dark:text-gray-400 shadow-sm"
-                  title="Preview Version"
+                  class="px-4 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-300 text-[10px] font-black uppercase tracking-widest border border-transparent hover:border-indigo-600"
+                  title="Open this snapshot for inspection"
                 >
-                   <i class="mdi mdi-eye-outline text-xl"></i>
+                   <i class="mdi mdi-eye-outline mr-2"></i>
+                   View Snapshot
                 </button>
                 <button
                   @click="confirmRestore(version)"
-                  class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center space-x-2"
+                  class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center space-x-2"
                 >
                    <i class="mdi mdi-backup-restore text-lg"></i>
                    <span>Restore</span>

@@ -20,19 +20,27 @@
           
           <button
             @click="downloadPdfReport"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+            :disabled="isDownloading"
+            class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
           >
-            <span>Download PDF Report</span>
+            <i v-if="isDownloading" class="mdi mdi-loading mdi-spin"></i>
+            <i v-else class="mdi mdi-file-pdf-box text-base"></i> 
+            {{ isDownloading ? 'Generating...' : 'Download PDF' }}
           </button>
         </div>
       </div>
 
       <!-- Project Details -->
       <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
         
         <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
           <div class="space-y-4">
             <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                <i class="mdi mdi-truck-delivery text-2xl"></i>
+              </div>
               <div>
                 <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
                 <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
@@ -41,6 +49,9 @@
             
             <div class="flex flex-wrap items-center gap-6 pt-2">
               <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-tag-outline text-slate-400"></i>
+                </div>
                 <div>
                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
                    <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
@@ -48,6 +59,9 @@
               </div>
               
               <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-account-tie-outline text-slate-400"></i>
+                </div>
                 <div>
                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
@@ -55,6 +69,9 @@
               </div>
 
               <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-map-marker-outline text-slate-400"></i>
+                </div>
                 <div>
                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
@@ -391,28 +408,165 @@
         :class="{ 'animate-fade-in': activeTab === 'loading-sheet' }"
       >
         <!-- Header actions -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Loading Sheet</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import project elements and add custom loading items</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Delivery List</h3>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Manage project elements and custom loading items</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
               @click="importProductionElements"
               :disabled="itemsState.isImporting"
-              class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center space-x-2"
+              class="h-10 px-6 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center gap-2"
             >
-              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Project Elements' }}</span>
+              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Elements' }}</span>
             </button>
             <button
               v-if="itemsState.importError"
               @click="importProductionElements"
-              class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-            >Retry Import</button>
-            <button
-              @click="openAddCustomItemModal"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >Add Custom Item</button>
+              class="h-10 px-6 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95"
+            >Retry</button>
+          </div>
+        </div>
+
+        <!-- Inline Add Custom Item Interface -->
+        <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-8 mb-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all group hover:border-blue-500/50">
+          <div class="flex flex-col gap-6">
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+               <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                 <i class="mdi mdi-plus text-xl"></i>
+               </div>
+               <div>
+                 <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Rapid Item Add</h4>
+                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Add custom items to your manifest instantly</p>
+               </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- Item Name -->
+              <div class="lg:col-span-6">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Item Designation*</label>
+                <div class="relative">
+                  <input 
+                    v-model="customItemForm.name"
+                    @keydown.enter="addCustomTransportItem"
+                    type="text"
+                    placeholder="Enter item name (e.g. Stage Deck, Truss)..."
+                    class="w-full h-14 pl-12 pr-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:opacity-50"
+                  />
+                  <i class="mdi mdi-cube-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+              </div>
+
+              <!-- Quantity & Unit -->
+              <div class="lg:col-span-3">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Quantity & Unit*</label>
+                <div class="flex gap-2">
+                  <div class="relative flex-1">
+                    <input 
+                      v-model.number="customItemForm.quantity"
+                      type="number"
+                      min="1"
+                      class="w-full h-14 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-center"
+                    />
+                  </div>
+                  <div class="relative flex-1">
+                    <select 
+                      v-model="customItemForm.unit"
+                      class="w-full h-14 pl-4 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-widest"
+                    >
+                      <option value="pcs">pcs</option>
+                      <option value="sets">sets</option>
+                      <option value="boxes">boxes</option>
+                      <option value="rolls">rolls</option>
+                      <option value="meters">meters</option>
+                    </select>
+                    <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div class="lg:col-span-3 flex items-end">
+                <button 
+                  @click="addCustomTransportItem"
+                  class="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3"
+                >
+                  <i class="mdi mdi-check-circle"></i>
+                  <span>Commit to List</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Categories (Toggle Buttons/Check buttons) -->
+            <div>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-3 block">Deployment Category*</label>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  v-for="cat in DEPLOYMENT_CATEGORIES" 
+                  :key="cat"
+                  @click="customItemForm.main_category = cat"
+                  type="button"
+                  class="px-5 py-3 rounded-xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2"
+                  :class="customItemForm.main_category === cat 
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                    : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-blue-500 hover:text-blue-500'"
+                >
+                  <i :class="[
+                    'mdi',
+                    cat === 'PRODUCTION' ? 'mdi-factory' :
+                    cat === 'TOOLS_EQUIPMENTS' ? 'mdi-tools' :
+                    cat === 'STORES' ? 'mdi-warehouse' :
+                    cat === 'ELECTRICALS' ? 'mdi-lightning-bolt' : 'mdi-domain'
+                  ]"></i>
+                  {{ cat.replace('_', ' ') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Secondary Metadata (Optional) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
+               <div>
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Weight Metadata</label>
+                 <div class="relative">
+                   <input 
+                      v-model="customItemForm.weight"
+                      type="text"
+                      placeholder="e.g. 50kg, 2 Tons"
+                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
+                   />
+                   <i class="mdi mdi-weight absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                 </div>
+               </div>
+               <div>
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Handling Protocol</label>
+                 <div class="relative">
+                   <select 
+                      v-model="customItemForm.special_handling"
+                      class="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 appearance-none transition-all focus:border-blue-500"
+                   >
+                      <option value="">Normal Handling</option>
+                      <option value="FRAGILE">Fragile / High Risk</option>
+                      <option value="HEAVY">Oversized / Heavy Load</option>
+                      <option value="FLAMMABLE">Flammable Material</option>
+                   </select>
+                   <i class="mdi mdi-hand-pointing-up absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                   <i class="mdi mdi-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                 </div>
+               </div>
+               <div class="md:col-span-2 lg:col-span-1">
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Internal Notes</label>
+                 <div class="relative">
+                   <input 
+                      v-model="customItemForm.description"
+                      type="text"
+                      placeholder="Special instructions or details..."
+                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
+                   />
+                   <i class="mdi mdi-note-text-outline absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                 </div>
+               </div>
+            </div>
           </div>
         </div>
 
@@ -451,26 +605,40 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:border-gray-700">
-                  <!-- Flat list of items -->
-                  <tr v-for="item in filteredTransportItems" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    
-                    <!-- Read Mode -->
-                    <template v-if="!isEditing(item.id)">
-                      <td class="px-6 py-4">
-                        <div class="flex items-start gap-3">
-                          <div class="flex-shrink-0 mt-1">
-                            <span 
-                              class="inline-block w-2.5 h-2.5 rounded-full" 
-                              :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
-                              :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
-                            ></span>
-                          </div>
-                          <div>
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-pre-wrap">{{ item.description }}</div>
-                          </div>
-                        </div>
+                  <template v-for="group in groupedTransportItems" :key="group.mainCategory">
+                    <!-- Group Header Row -->
+                    <tr class="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm sticky top-0 z-10">
+                      <td colspan="5" class="px-6 py-2 border-y border-slate-100 dark:border-slate-800">
+                         <div class="flex items-center gap-3">
+                            <i :class="['mdi', getCategoryIcon(group.mainCategory), 'text-slate-400']"></i>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                              {{ group.category }} 
+                              <span class="ml-2 text-slate-300 dark:text-slate-600">|</span>
+                              <span class="ml-2 text-blue-600 dark:text-blue-400">{{ group.items.length }} Items</span>
+                            </span>
+                         </div>
                       </td>
+                    </tr>
+
+                    <!-- Flat list of items in this group -->
+                    <tr v-for="item in group.items" :key="item.id" class="group/row hover:bg-blue-50/30 dark:hover:bg-blue-900/5 transition-colors">
+                      
+                      <!-- Read Mode -->
+                      <template v-if="!isEditing(item.id)">
+                        <td class="px-6 py-4">
+                          <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                              <span 
+                                class="inline-block w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)] transition-transform group-hover/row:scale-125" 
+                                :class="getCategoryColor(item.main_category || '')"
+                              ></span>
+                            </div>
+                            <div>
+                               <div class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{{ item.name }}</div>
+                               <div v-if="item.description" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1 whitespace-pre-wrap">{{ item.description }}</div>
+                            </div>
+                          </div>
+                        </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
                       </td>
@@ -585,8 +753,9 @@
                           </button>
                         </div>
                       </td>
-                    </template>
-                  </tr>
+                      </template>
+                    </tr>
+                  </template>
                   
                   <!-- Empty State -->
                   <tr v-if="filteredTransportItems.length === 0">
@@ -775,162 +944,7 @@
         </div>
       </div>
     </div>
-    <!-- Add Custom Item Modal using Teleport -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 z-[99999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <!-- Background overlay with transition -->
-          <Transition name="modal-bg">
-            <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="closeAddCustomItemModal"></div>
-          </Transition>
-
-          <!-- Modal container -->
-          <div class="flex min-h-screen items-center justify-center p-4">
-            <!-- Modal panel -->
-            <Transition name="modal-content">
-              <div v-if="isAddCustomItemModalOpen" class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full">
-                <!-- Close button -->
-                <button 
-                  @click="closeAddCustomItemModal"
-                  class="absolute top-4 right-4 text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  CLOSE
-                </button>
-
-                <!-- Modal header -->
-                <div class="px-6 pt-6 pb-4">
-                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">
-                    Add Custom Loading Item
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Add a custom item to the loading sheet
-                  </p>
-                </div>
-
-                <!-- Modal body -->
-                <div class="px-6 pb-6">
-                  <div class="space-y-4">
-                    <!-- Item Name -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Item Name <span class="text-red-500">*</span>
-                      </label>
-                      <input 
-                        v-model="customItemForm.name" 
-                        type="text" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Stage Deck"
-                      />
-                    </div>
-
-                    <!-- Category Selector -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Category <span class="text-red-500">*</span>
-                      </label>
-                      <select 
-                        v-model="customItemForm.main_category"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select a category...</option>
-                        <option value="PRODUCTION">PRODUCTION - Boards & Produced Items</option>
-                        <option value="TOOLS_EQUIPMENTS">TOOLS & EQUIPMENTS - Setup Tools</option>
-                        <option value="STORES">STORES - Consumables & Items For Hire</option>
-                        <option value="ELECTRICALS">ELECTRICALS - Extensions, Power Supply</option>
-                        <option value="CLIENT ASSETS">CLIENT ASSETS</option>
-                      </select>
-                    </div>
-
-                    <!-- Quantity & Unit -->
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Quantity <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                          v-model.number="customItemForm.quantity" 
-                          type="number" 
-                          min="1"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Unit <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                          v-model="customItemForm.unit" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="pcs, kg, box"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Weight & Handling -->
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Weight (optional)
-                        </label>
-                        <input 
-                          v-model="customItemForm.weight" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="e.g., 50kg"
-                        />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Special Handling
-                        </label>
-                        <input 
-                          v-model="customItemForm.special_handling" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="e.g., Fragile"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Description -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Description (optional)
-                      </label>
-                      <textarea 
-                        v-model="customItemForm.description" 
-                        rows="3" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Additional details..."
-                      ></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Modal footer -->
-                <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
-                  <button 
-                    type="button" 
-                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    @click="closeAddCustomItemModal"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="button" 
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    @click="addCustomTransportItem"
-                  >
-                    Add Item
-                  </button>
-                </div>
-              </div>
-            </Transition>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+    <!-- Removed Custom Item Modal -->
 
     <!-- Print Report Modal -->
     <Teleport to="body">
@@ -1381,6 +1395,9 @@ interface LogisticsTaskData {
   status: string
 }
 
+const DEPLOYMENT_CATEGORIES = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT ASSETS'] as const
+type DeploymentCategory = typeof DEPLOYMENT_CATEGORIES[number]
+
 /**
  * Transport item structure
  */
@@ -1391,7 +1408,7 @@ interface TransportItem {
   quantity: number
   unit: string
   category: 'production' | 'custom'
-  main_category?: 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS'  // Main loading sheet category
+  main_category?: DeploymentCategory  // Main loading sheet category
   element_category?: string  // Sub-category for production items (e.g., "Banners", "Signage", "Furniture")
   weight?: string
   special_handling?: string
@@ -1437,6 +1454,7 @@ const feedbackMessages = ref<FeedbackMessage[]>([])
  * Modal state for print report
  */
 const showPrintModal = ref(false)
+const isDownloading = ref(false)
 
 /**
  * Project information loading/error state
@@ -1913,12 +1931,13 @@ const itemsState = reactive({
 })
 
 // Standalone ref for modal visibility (better reactivity)
-const isAddCustomItemModalOpen = ref(false)
+// Removed: isAddCustomItemModalOpen
+
 
 // Custom Item Form State
 const customItemForm = reactive({
   name: '',
-  main_category: '' as 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS' | '',
+  main_category: '' as DeploymentCategory | '',
   quantity: 1,
   unit: 'pcs',
   weight: '',
@@ -2065,7 +2084,7 @@ const filteredTransportItems = computed<TransportItem[]>(() => {
  * Grouped transport items for loading sheet
  */
 const groupedTransportItems = computed(() => {
-  const items = logisticsData.transport_items || []
+  const items = filteredTransportItems.value || []
   const groups: Record<string, { category: string, mainCategory: string, items: TransportItem[] }> = {}
   
   // Standard categories to ensure order
@@ -2095,6 +2114,34 @@ const groupedTransportItems = computed(() => {
 })
 
 
+
+/**
+ * Get category color for UI elements
+ */
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'PRODUCTION': return 'bg-purple-500'
+    case 'TOOLS_EQUIPMENTS': return 'bg-blue-500'
+    case 'STORES': return 'bg-green-500'
+    case 'ELECTRICALS': return 'bg-amber-500'
+    case 'CLIENT ASSETS': return 'bg-rose-500'
+    default: return 'bg-slate-500'
+  }
+}
+
+/**
+ * Get category icon for UI elements
+ */
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'PRODUCTION': return 'mdi-factory'
+    case 'TOOLS_EQUIPMENTS': return 'mdi-tools'
+    case 'STORES': return 'mdi-warehouse'
+    case 'ELECTRICALS': return 'mdi-lightning-bolt'
+    case 'CLIENT ASSETS': return 'mdi-domain'
+    default: return 'mdi-cube-outline'
+  }
+}
 
 const importProductionElements = async () => {
   try {
@@ -2178,8 +2225,16 @@ const addCustomTransportItem = async () => {
       description: ''
     })
 
-    // Close modal on success
-    closeAddCustomItemModal()
+    // Clear form on success
+    Object.assign(customItemForm, {
+      name: '',
+      // We keep the main_category selected for convenience
+      quantity: 1,
+      unit: 'pcs',
+      weight: '',
+      special_handling: '',
+      description: ''
+    })
 
     addFeedbackMessage('success', 'Item added successfully')
   } catch (error: any) {
@@ -2196,18 +2251,14 @@ const addCustomTransportItem = async () => {
 
 // Modal Control Methods
 const openAddCustomItemModal = () => {
-  console.log('🔵 Opening Add Custom Item Modal')
-  isAddCustomItemModalOpen.value = true
-  console.log('🔵 Modal state:', isAddCustomItemModalOpen.value)
+  // Modal is removed, this method is no longer used for opening modals
 }
 
 const closeAddCustomItemModal = () => {
-  console.log('🔴 Closing Add Custom Item Modal')
-  isAddCustomItemModalOpen.value = false
-  // Reset form when closing
+  // Modal is removed, reset form manually if needed
   Object.assign(customItemForm, {
     name: '',
-    main_category: '',
+    main_category: '' as any,
     quantity: 1,
     unit: 'pcs',
     weight: '',
@@ -2492,16 +2543,16 @@ const printReport = () => {
  */
 const downloadPdfReport = async () => {
   try {
+    isDownloading.value = true
     addFeedbackMessage('info', 'Generating PDF report...')
     await logistics.downloadPdf(props.task.id)
     addFeedbackMessage('success', 'PDF Report downloaded successfully')
   } catch (error: any) {
     console.error('Failed to download PDF:', error)
-    console.error('Error response:', error.response?.data)
-    console.error('Error status:', error.response?.status)
-    
     const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to download PDF report'
     addFeedbackMessage('error', errorMessage)
+  } finally {
+    isDownloading.value = false
   }
 }
 

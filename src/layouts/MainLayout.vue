@@ -155,6 +155,9 @@
       <!-- Notification Popup -->
       <NotificationPopup ref="notificationPopup" />
 
+      <!-- Project Activation Kinetic Modal -->
+      <ProjectActivationPopup ref="activationPopup" />
+
       <!-- Toast Notifications -->
       <ToastContainer />
 
@@ -178,22 +181,41 @@ import { useRouter, useRoute } from 'vue-router'
 import DynamicSidebar from '../components/DynamicSidebar.vue'
 import NotificationCenter from '../modules/shared/components/NotificationCenter.vue'
 import NotificationPopup from '../modules/shared/components/NotificationPopup.vue'
+import ProjectActivationPopup from '../modules/shared/components/ProjectActivationPopup.vue'
 import ToastContainer from '../modules/universal-task/components/ToastContainer.vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouteGuard } from '../composables/useRouteGuard'
 import { useTheme } from '../composables/useTheme'
+import { useNotifications } from '../modules/projects/composables/useNotifications'
+import { watch } from 'vue'
 
 const { user, logout } = useAuth()
 const { getAllowedRoutes } = useRouteGuard()
 const { theme, toggleTheme } = useTheme()
+const { unreadNotifications, markAsRead } = useNotifications()
 const router = useRouter()
 const route = useRoute()
 
 const sidebarCollapsed = ref(true)
 const notificationCenter = ref()
 const notificationPopup = ref()
+const activationPopup = ref()
 const profileMenuOpen = ref(false)
 const profileMenuRef = ref<HTMLElement | null>(null)
+
+// Kinetic Popup Logic for Global Events
+watch(unreadNotifications, (newNotifs) => {
+   if (!newNotifs || newNotifs.length === 0) return
+   
+   // Find all activation events
+   const activationEvents = newNotifs.filter(n => n.type === 'project_activated')
+   
+   if (activationEvents.length > 0 && activationPopup.value) {
+      console.log('Project Activation Sequence:', activationEvents.length, 'events')
+      // Pass the entire batch to the popup for carousel handling
+      activationPopup.value.show(activationEvents)
+   }
+}, { deep: true, immediate: true })
 
 // Check if device supports hover (desktop) vs touch
 const canHover = () => {

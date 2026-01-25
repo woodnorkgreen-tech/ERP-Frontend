@@ -211,15 +211,15 @@ const handleNotificationClick = async (notification: any) => {
       if (enquiryId && taskId) {
         // Navigate to enquiries management page with task dashboard open
         router.push({
-          path: '/projects/enquiries',
+          path: '/projects/tasks',
           query: {
-            open_tasks: String(enquiryId),
+            enquiry_id: String(enquiryId),
             highlight_task: String(taskId)
           }
         })
       } else {
         // Fallback - just go to enquiries page
-        router.push('/projects/enquiries')
+        router.push('/projects/tasks')
       }
       closePanel()
     } 
@@ -337,14 +337,14 @@ onMounted(async () => {
     console.error('Failed to fetch notifications on mount:', err)
   }
 
-  // Start polling for new notifications every 30 seconds
+  // Start polling for new notifications every 5 seconds (Reduced for high-response events like project activation)
   pollingInterval.value = setInterval(async () => {
     try {
       await fetchNotifications()
     } catch (err) {
       console.error('Failed to poll notifications:', err)
     }
-  }, 30000)
+  }, 5000)
 
   // Listen for clicks outside to close panel
   document.addEventListener('click', handleClickOutside)

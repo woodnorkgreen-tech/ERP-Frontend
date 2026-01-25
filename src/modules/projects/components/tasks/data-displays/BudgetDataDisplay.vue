@@ -62,17 +62,24 @@
         :expenses-total="expensesTotal"
         :logistics-total="logisticsTotal"
         :grand-total="grandTotal"
+        :baseline-total="baselineTotal"
         :readonly="true"
       />
 
-
-
+      <!-- Comparison Tab - Readonly -->
+      <BudgetComparisonTab
+        v-show="activeTab === 'comparison'"
+        :current-data="state.formData"
+        :task-id="task.id"
+        :grand-total="grandTotal"
+      />
       <!-- No action buttons in readonly display -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useBudgetState } from '../../../composables/useBudgetState'
 import { useBudgetOperations } from '../../../composables/useBudgetOperations'
 import BudgetMaterialsTab from '../BudgetMaterialsTab.vue'
@@ -80,6 +87,7 @@ import BudgetLabourTab from '../BudgetLabourTab.vue'
 import BudgetExpensesTab from '../BudgetExpensesTab.vue'
 import BudgetLogisticsTab from '../BudgetLogisticsTab.vue'
 import BudgetSummaryTab from '../BudgetSummaryTab.vue'
+import BudgetComparisonTab from '../BudgetComparisonTab.vue'
 import type { EnquiryTask } from '../../../types/enquiry'
 import type { BudgetData } from '../../../services/budgetService'
 
@@ -100,6 +108,46 @@ const { state, materialsTotal, labourTotal, expensesTotal, logisticsTotal, grand
 const { activeTab, tabs, loadBudgetData } = useBudgetOperations(state, props.task, { 'task-completed': () => {}, 'task-updated': () => {} })
 
 // Remove duplicate additions tab since it's already included in useBudgetOperations
+
+const baselineTotal = computed(() => {
+   const analysis = state.materialsUpdateCheck as any
+   if (!analysis || !analysis.analysis?.analysis_raw_materials) return grandTotal.value
+
+   const masterMaterials = analysis.analysis.analysis_raw_materials
+   let total = 0
+
+   const pricingMap = new Map()
+   state.formData.materials.forEach((el: any) => {
+      el.materials?.forEach((m: any) => {
+         if (m.isIncluded) {
+            let key = m.persistent_id
+            if (!key) {
+               const eName = el.name.toLowerCase().replace(/\s+/g, '')
+               const mDesc = m.description.toLowerCase().replace(/\s+/g, '')
+               key = `legacy_${eName}_${mDesc}`
+            }
+            pricingMap.set(key, m.unitPrice || 0)
+         }
+      })
+   })
+
+   masterMaterials.forEach((el: any) => {
+      el.materials?.forEach((m: any) => {
+         let key = m.persistent_id
+         if (!key) {
+            const eName = el.name.toLowerCase().replace(/\s+/g, '')
+            const mDesc = m.description.toLowerCase().replace(/\s+/g, '')
+            key = `legacy_${eName}_${mDesc}`
+         }
+         const priceAtBudget = pricingMap.get(key)
+         if (priceAtBudget !== undefined) {
+             total += (m.quantity || 0) * priceAtBudget
+         }
+      })
+   })
+
+   return total + labourTotal.value + expensesTotal.value + logisticsTotal.value
+})
 
 // Initialize with task data if provided, otherwise load from API
 if (props.taskData) {

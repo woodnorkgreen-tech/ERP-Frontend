@@ -115,7 +115,6 @@
             ]"
           >
             <span class="flex items-center justify-center space-x-2">
-              <span class="text-lg">{{ tab.icon }}</span>
               <span>{{ tab.label }}</span>
             </span>
             <div v-if="activeTab === tab.id" class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-t-full"></div>
@@ -307,10 +306,10 @@
                               getStockStatusClass(material.stockStatus)
                             ]"
                           >
-                            <option value="pending_check">⚠️ Unverified</option>
-                            <option value="in_stock">✅ Fully Stocked</option>
-                            <option value="partial_stock">🚧 Partial Stock</option>
-                            <option value="out_of_stock">❌ Not in Stock</option>
+                            <option value="pending_check" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">⚠️ Unverified</option>
+                            <option value="in_stock" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">✅ Fully Stocked</option>
+                            <option value="partial_stock" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">🚧 Partial Stock</option>
+                            <option value="out_of_stock" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">❌ Not in Stock</option>
                           </select>
 
                           <div class="flex items-center space-x-2">
@@ -352,11 +351,11 @@
                               getProcurementStatusClass(material.procurementStatus)
                             ]"
                           >
-                            <option value="not_needed">No Purchase</option>
-                            <option value="pending">⏳ Needs PO</option>
-                            <option value="ordered">🚚 PO Sent</option>
-                            <option value="received">📦 Goods Received</option>
-                            <option value="cancelled">🚫 Cancelled</option>
+                            <option value="not_needed" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">No Purchase</option>
+                            <option value="pending" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">⏳ Needs PO</option>
+                            <option value="ordered" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">🚚 PO Sent</option>
+                            <option value="received" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">📦 Goods Received</option>
+                            <option value="cancelled" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">🚫 Cancelled</option>
                           </select>
                     </td>
 

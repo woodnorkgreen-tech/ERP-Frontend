@@ -326,6 +326,7 @@ import { ref, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import { useAuth } from '@/composables/useAuth'
+import { useNotifications } from '../../composables/useNotifications'
 import QuoteViewer from './QuoteViewer.vue'
 
 interface Props {
@@ -538,6 +539,15 @@ const handleConvertToProject = async () => {
 
   try {
     await axios.post(`/api/projects/enquiries/${props.task.project_enquiry_id}/approve-quote`)
+    
+    // Force instant notification sync to trigger the kinetic achievement popup
+    try {
+      const { fetchNotifications } = useNotifications()
+      await fetchNotifications()
+    } catch (nErr) {
+      console.warn('Silent notification sync failure', nErr)
+    }
+
     await loadQuoteData()
     successMessage.value = 'Project activated successfully!'
     updateStatus('completed')
