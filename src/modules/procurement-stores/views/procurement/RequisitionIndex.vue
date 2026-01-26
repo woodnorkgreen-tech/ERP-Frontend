@@ -155,9 +155,15 @@
                 </router-link>
                 <router-link v-if="requisition.status === 'draft'"
                   :to="`/procurement/requisition/${requisition.id}/edit`"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
                   Edit
                 </router-link>
+                <button
+                  @click="deleteRequisition(requisition.id)"
+                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           </tbody>
@@ -252,6 +258,17 @@ const applyFilters = async () => {
 
 const viewRequisition = (id: number) => {
   router.push(`/procurement/requisition/${id}`)
+}
+
+const deleteRequisition = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this requisition?')) return
+  
+  try {
+    await axios.delete(`/api/procurement-stores/requisitions/${id}`)
+    await fetchRequisitions()
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Failed to delete requisition')
+  }
 }
 
 const formatDate = (date: string) => {

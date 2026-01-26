@@ -20,6 +20,7 @@ export interface ProjectElement {
   templateId?: string
   elementType: string
   name: string
+  persistent_id?: string
   category: 'production' | 'hire' | 'outsourced'
   dimensions: {
     length: string
@@ -35,6 +36,7 @@ export interface ProjectElement {
 export interface MaterialItem {
   id: string
   libraryMaterialId?: number | null // Linked to materials library
+  persistent_id?: string
   description: string
   unitOfMeasurement: string
   quantity: number
@@ -175,6 +177,7 @@ export class MaterialsService {
         elementType: element.elementType,
         templateId: element.templateId || null,
         name: element.name,
+        persistent_id: element.persistent_id || null,
         category: element.category,
         dimensions: element.dimensions || {},
         isIncluded: element.isIncluded,
@@ -182,6 +185,7 @@ export class MaterialsService {
         materials: element.materials.map(material => ({
           id: material.id,
           libraryMaterialId: material.libraryMaterialId || null,
+          persistent_id: material.persistent_id || null,
           description: material.description,
           unitOfMeasurement: material.unitOfMeasurement,
           quantity: material.quantity,

@@ -17,7 +17,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
             </svg>
             <router-link to="/procurement/billing" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
-              Billing
+              Bills
             </router-link>
           </div>
         </li>
@@ -26,7 +26,7 @@
             <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
             </svg>
-            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Details</span>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">{{ bill.bill_number || 'Bill Details' }}</span>
           </div>
         </li>
       </ol>
@@ -35,26 +35,23 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Invoice Details</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ invoice.invoice_number }}</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Bill Details</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ bill.bill_number }}</p>
       </div>
       <div class="flex gap-2">
-        <button
-          @click="handlePrint"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
-        >
+        <button @click="handlePrint" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
           </svg>
           Print
         </button>
         <button
-          v-if="invoice.status === 'pending'"
-          @click="showPaymentModal"
-          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
+          v-if="bill.balance > 0"
+          @click="openPaymentModal"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Record Payment
         </button>
@@ -65,217 +62,472 @@
     <div v-if="loading" class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-8">
       <div class="flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <p class="ml-3 text-gray-600 dark:text-gray-400">Loading invoice details...</p>
+        <p class="ml-3 text-gray-600 dark:text-gray-400">Loading bill details...</p>
       </div>
     </div>
 
-    <!-- Error Message -->
-    <div v-else-if="errorMessage" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-      <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
+    <!-- Error State -->
+    <div v-else-if="error" class="bg-white dark:bg-gray-800 rounded-lg shadow border border-red-200 dark:border-red-700 p-8">
+      <div class="text-center">
+        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">Error Loading Bill</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ error }}</p>
+        <div class="mt-6">
+          <router-link to="/procurement/billing" class="text-blue-600 hover:text-blue-500">
+            ← Back to Bills
+          </router-link>
+        </div>
+      </div>
     </div>
 
-    <!-- Invoice Details -->
-    <div v-else>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Invoice Information</h2>
+    <!-- Bill Details -->
+    <div v-else-if="bill.id">
+      <!-- Bill Information -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Bill Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Invoice Number</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ invoice.invoice_number }}</p>
+            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Bill Number</label>
+            <p class="text-base font-medium text-gray-900 dark:text-white">{{ bill.bill_number }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">PO Number</label>
-            <router-link :to="`/procurement/purchase-order/${invoice.purchase_order?.id}`" class="text-base font-medium text-blue-600 hover:text-blue-800">
-              {{ invoice.purchase_order?.po_number }}
+            <router-link 
+              v-if="bill.purchase_order?.id" 
+              :to="`/procurement/purchase-order/${bill.purchase_order.id}`" 
+              class="text-base font-medium text-blue-600 hover:text-blue-800"
+            >
+              {{ bill.purchase_order?.po_number }}
             </router-link>
+            <p v-else class="text-base font-medium text-gray-900 dark:text-white">N/A</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
-            <span
-              :class="[
-                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                getStatusClass(invoice.status)
-              ]"
-            >
-              {{ formatStatus(invoice.status) }}
+            <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', getStatusClass(bill.status)]">
+              {{ formatStatus(bill.status) }}
             </span>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Supplier</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ invoice.supplier?.supplier_name }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">{{ bill.supplier?.supplier_name || 'N/A' }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Invoice Date</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatDate(invoice.invoice_date) }}</p>
+            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Bill Date</label>
+            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatDate(bill.bill_date) }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Due Date</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatDate(invoice.due_date) }}</p>
+            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatDate(bill.due_date) }}</p>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Amount</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">KES{{ formatNumber(invoice.amount) }}</p>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Summary</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <label class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Original Amount</label>
+              <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.amount || 0) }}</p>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+              <label class="block text-sm font-medium text-green-600 dark:text-green-400 mb-1">Already Paid</label>
+              <p class="text-2xl font-bold text-green-900 dark:text-green-300">KES {{ formatNumber(bill.paid_amount || 0) }}</p>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+              <label class="block text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">Balance Due</label>
+              <p class="text-2xl font-bold text-yellow-900 dark:text-yellow-300">KES {{ formatNumber(bill.balance || 0) }}</p>
+            </div>
           </div>
-          <div v-if="invoice.payment_date">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Payment Date</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ formatDate(invoice.payment_date) }}</p>
-          </div>
-          <div v-if="invoice.payment_method">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Payment Method</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ invoice.payment_method }}</p>
-          </div>
-          <div v-if="invoice.notes" class="md:col-span-3">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Notes</label>
-            <p class="text-base text-gray-900 dark:text-white">{{ invoice.notes }}</p>
-          </div>
-          <div v-if="invoice.createdBy">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Created By</label>
-            <p class="text-base font-medium text-gray-900 dark:text-white">
-              {{ invoice.createdBy.first_name }} {{ invoice.createdBy.last_name }}
-            </p>
-          </div>
+        </div>
+
+        <div v-if="bill.notes" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Notes</label>
+          <p class="text-base text-gray-900 dark:text-white">{{ bill.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div v-if="bill.payments && bill.payments.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Payment History</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Payment Code</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Method</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Processed By</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Notes</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="payment in bill.payments" :key="payment.id">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  {{ payment.payment_code }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ formatDate(payment.payment_date) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
+                  KES {{ formatNumber(payment.amount_paid) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ payment.payment_method?.method_name || 'N/A' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                  {{ payment.created_by?.name || 'N/A' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                  {{ payment.notes || '-' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- No Payments Message -->
+      <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-6">
+        <div class="text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No payments recorded</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by recording a payment for this bill.</p>
         </div>
       </div>
     </div>
 
-    <!-- Payment Modal -->
-    <div v-if="paymentModal.show" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="paymentModal.show = false"></div>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Record Payment</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Date</label>
-                <input
-                  v-model="paymentModal.payment_date"
-                  type="date"
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
+    <!-- Record Payment Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showPaymentModal" 
+        class="fixed inset-0 z-[9999] overflow-y-auto"
+        @click.self="closePaymentModal"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div 
+            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full"
+            @click.stop
+          >
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Record Payment</h3>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+              <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Balance Due</div>
+                <div class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.balance || 0) }}</div>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Method</label>
-                <select
-                  v-model="paymentModal.payment_method"
-                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="">Select Method</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Check">Check</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Credit Card">Credit Card</option>
-                </select>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Amount to Pay <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model.number="paymentForm.amount_paid"
+                    type="number"
+                    step="0.01"
+                    :max="bill.balance"
+                    min="0.01"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Payment Date <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="paymentForm.payment_date"
+                    type="date"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Payment Method <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex gap-2">
+                    <select
+                      v-model.number="paymentForm.payment_method_id"
+                      required
+                      class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option :value="0">Select Method</option>
+                      <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
+                        {{ method.method_name }}
+                      </option>
+                    </select>
+                    <button
+                      type="button"
+                      @click="showAddMethodModal = true"
+                      class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                      title="Add new payment method"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                  <textarea
+                    v-model="paymentForm.notes"
+                    rows="3"
+                    placeholder="Optional payment notes..."
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div v-if="paymentError" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
+                <p class="text-sm text-red-600 dark:text-red-400">{{ paymentError }}</p>
               </div>
             </div>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              @click="recordPayment"
-              :disabled="!paymentModal.payment_date || !paymentModal.payment_method"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-            >
-              Record Payment
-            </button>
-            <button
-              @click="paymentModal.show = false"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Cancel
-            </button>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-end gap-3">
+              <button
+                type="button"
+                @click="closePaymentModal"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="submitPayment"
+                :disabled="submitting || !isPaymentFormValid"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              >
+                {{ submitting ? 'Processing...' : 'Record Payment' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
+
+    <!-- Add Payment Method Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showAddMethodModal" 
+        class="fixed inset-0 z-[10000] overflow-y-auto"
+        @click.self="showAddMethodModal = false"
+      >
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div 
+            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
+            @click.stop
+          >
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Payment Method</h3>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Method Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="newMethodName"
+                  type="text"
+                  placeholder="e.g., Mobile Money, PayPal"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  @keyup.enter="addNewPaymentMethod"
+                />
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-end gap-3">
+              <button
+                type="button"
+                @click="showAddMethodModal = false"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="addNewPaymentMethod"
+                :disabled="!newMethodName.trim()"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              >
+                Add Method
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from '@/plugins/axios'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useBills } from '../../shared/composables/useBills'
 
-const router = useRouter()
 const route = useRoute()
-const id = route.params.id as string
+const id = Number(route.params.id)
+
+const { getBill, recordPayment, getPaymentMethods, addPaymentMethod } = useBills()
 
 const loading = ref(true)
-const errorMessage = ref('')
-const invoice = ref<any>({})
+const submitting = ref(false)
+const paymentError = ref('')
+const error = ref('')
+const bill = ref<any>({})
+const paymentMethods = ref<any[]>([])
+const showPaymentModal = ref(false)
+const showAddMethodModal = ref(false)
+const newMethodName = ref('')
 
-const paymentModal = ref({
-  show: false,
+const paymentForm = ref({
+  amount_paid: 0,
   payment_date: new Date().toISOString().split('T')[0],
-  payment_method: ''
+  payment_method_id: 0,
+  notes: ''
 })
 
-const fetchInvoice = async () => {
+const isPaymentFormValid = computed(() => {
+  return paymentForm.value.amount_paid > 0 && 
+         paymentForm.value.payment_method_id > 0 &&
+         paymentForm.value.payment_date !== ''
+})
+
+const fetchBill = async () => {
   loading.value = true
-  errorMessage.value = ''
-  
+  error.value = ''
   try {
-    const response = await axios.get(`/api/procurement-stores/invoices/${id}`)
-    if (response.data && response.data.data) {
-      invoice.value = response.data.data
+    const data = await getBill(id)
+    if (data) {
+      bill.value = data
+      console.log('Bill loaded:', bill.value)
     } else {
-      invoice.value = response.data
+      error.value = 'Bill not found'
     }
-  } catch (error: any) {
-    errorMessage.value = error.response?.data?.message || 'Failed to load invoice details'
+  } catch (err: any) {
+    console.error('Failed to load bill:', err)
+    error.value = err.message || 'Failed to load bill'
   } finally {
     loading.value = false
   }
 }
 
-const handlePrint = () => {
-  window.print()
-}
-
-const showPaymentModal = () => {
-  paymentModal.value = {
-    show: true,
-    payment_date: new Date().toISOString().split('T')[0],
-    payment_method: ''
-  }
-}
-
-const recordPayment = async () => {
+const loadPaymentMethods = async () => {
   try {
-    await axios.post(`/api/procurement-stores/invoices/${id}/record-payment`, {
-      payment_date: paymentModal.value.payment_date,
-      payment_method: paymentModal.value.payment_method
-    })
-    
-    paymentModal.value.show = false
-    await fetchInvoice()
-  } catch (error: any) {
-    alert(error.response?.data?.error || 'Failed to record payment')
+    paymentMethods.value = await getPaymentMethods()
+    console.log('Payment methods loaded:', paymentMethods.value)
+  } catch (err) {
+    console.error('Failed to load payment methods:', err)
   }
 }
+
+const openPaymentModal = () => {
+  console.log('Opening payment modal')
+  paymentForm.value.amount_paid = bill.value.balance || 0
+  showPaymentModal.value = true
+}
+
+const closePaymentModal = () => {
+  showPaymentModal.value = false
+  paymentForm.value = {
+    amount_paid: 0,
+    payment_date: new Date().toISOString().split('T')[0],
+    payment_method_id: 0,
+    notes: ''
+  }
+  paymentError.value = ''
+}
+
+const submitPayment = async () => {
+  if (!isPaymentFormValid.value) {
+    paymentError.value = 'Please fill in all required fields'
+    return
+  }
+
+  submitting.value = true
+  paymentError.value = ''
+  
+  try {
+    console.log('Submitting payment:', paymentForm.value)
+    await recordPayment(id, paymentForm.value)
+    closePaymentModal()
+    await fetchBill()
+  } catch (err: any) {
+    console.error('Payment error:', err)
+    paymentError.value = err.response?.data?.error || err.message || 'Failed to record payment'
+  } finally {
+    submitting.value = false
+  }
+}
+
+const addNewPaymentMethod = async () => {
+  if (!newMethodName.value.trim()) return
+  
+  try {
+    const newMethod = await addPaymentMethod(newMethodName.value)
+    paymentMethods.value.push(newMethod)
+    paymentForm.value.payment_method_id = newMethod.id
+    newMethodName.value = ''
+    showAddMethodModal.value = false
+  } catch (err) {
+    console.error('Failed to add payment method:', err)
+    alert('Failed to add payment method')
+  }
+}
+
+const handlePrint = () => window.print()
 
 const formatDate = (date: string) => {
+  if (!date) return 'N/A'
   return new Date(date).toLocaleDateString()
 }
 
-const formatNumber = (num: number) => {
-  return new Intl.NumberFormat().format(num)
-}
+const formatNumber = (num: number) => new Intl.NumberFormat().format(num || 0)
 
 const formatStatus = (status: string) => {
+  if (!status) return 'Unknown'
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
 const getStatusClass = (status: string) => {
   const classes: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    partial: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
   }
   return classes[status] || classes.pending
 }
 
 onMounted(async () => {
-  await fetchInvoice()
+  await fetchBill()
+  await loadPaymentMethods()
 })
 </script>

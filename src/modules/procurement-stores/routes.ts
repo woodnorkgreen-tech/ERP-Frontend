@@ -69,6 +69,7 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/stores/Reports.vue'),
                         meta: { requiresAuth: true, title: 'Inventory Reports' }
                     }
+
                 ]
             },
             {
@@ -140,12 +141,12 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/procurement/PurchaseOrdersIndex.vue'),
                         meta: { requiresAuth: true, title: 'Purchase Orders' }
                     },
-                    {
-                        path: 'purchase-order/create',
-                        name: 'procurement-purchase-order-create',
-                        component: () => import('./views/procurement/PurchaseOrderCreate.vue'),
-                        meta: { requiresAuth: true, title: 'Create Purchase Order' }
-                    },
+                    // {
+                    //     path: 'purchase-order/create',
+                    //     name: 'procurement-purchase-order-create',
+                    //     component: () => import('./views/procurement/PurchaseOrderCreate.vue'),
+                    //     meta: { requiresAuth: true, title: 'Create Purchase Order' }
+                    // },
                     {
                         path: 'purchase-order/:id',
                         name: 'procurement-purchase-order-show',
@@ -175,6 +176,12 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         name: 'procurement-billing-show',
                         component: () => import('./views/procurement/BillingShow.vue'),
                         meta: { requiresAuth: true, title: 'Invoice Details' }
+                    },
+                    {
+                        path: '/procurement/purchase-order/link-from-requisition/:requisitionId',
+                        name: 'LinkPurchaseOrder',
+                        component: () => import('@/modules/procurement-stores/views/procurement/PurchaseOrderCreate.vue'),
+                        meta: { requiresAuth: true }
                     }
                 ]
             }

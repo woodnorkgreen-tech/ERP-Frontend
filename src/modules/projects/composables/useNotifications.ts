@@ -39,7 +39,7 @@ export function useNotifications() {
 
   const markAsRead = async (notificationId: number) => {
     try {
-      await api.put(`/api/notifications/${notificationId}/read`)
+      await api.put(`/api/projects/notifications/${notificationId}/read`)
       const notification = notifications.value.find(n => n.id === notificationId)
       if (notification) {
         notification.is_read = true
@@ -53,7 +53,7 @@ export function useNotifications() {
 
   const markAllAsRead = async () => {
     try {
-      await api.put('/api/notifications/mark-all-read')
+      await api.put('/api/projects/notifications/mark-all-read')
       notifications.value.forEach(notification => {
         notification.is_read = true
         notification.read_at = new Date().toISOString()
@@ -66,7 +66,7 @@ export function useNotifications() {
 
   const deleteNotification = async (notificationId: number) => {
     try {
-      await api.delete(`/api/notifications/${notificationId}`)
+      await api.delete(`/api/projects/notifications/${notificationId}`)
       const index = notifications.value.findIndex(n => n.id === notificationId)
       if (index !== -1) {
         notifications.value.splice(index, 1)

@@ -641,6 +641,49 @@
           <span>Section 8: Attachments</span>
         </h4>
 
+        <!-- System Generated Documents Section -->
+        <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 p-6 rounded-xl border-2 border-purple-200 dark:border-purple-800 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h5 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <i class="mdi mdi-file-cabinet text-purple-600 text-2xl"></i>
+              System Generated Documents
+            </h5>
+            <span v-if="formData.system_documents?.length" class="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full">
+              {{ formData.system_documents.length }} Files
+            </span>
+          </div>
+          
+          <div v-if="formData.system_documents?.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="doc in formData.system_documents" :key="doc.name" 
+              class="flex flex-col p-4 bg-white dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-lg transition-all">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white flex-shrink-0">
+                  <i :class="doc.type === 'PDF' ? 'mdi mdi-file-pdf-box' : 'mdi mdi-file-document-outline'" class="text-2xl"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ doc.name }}</p>
+                  <p class="text-xs text-gray-500 uppercase font-semibold tracking-wider mt-1">{{ doc.category }}</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-600 text-[10px] font-bold text-gray-600 dark:text-gray-300 rounded">
+                    {{ doc.type }}
+                  </span>
+                </div>
+              </div>
+              <button @click="handleDownloadSystemDoc(doc)" 
+                class="w-full px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                <i class="mdi mdi-download"></i>
+                Download
+              </button>
+            </div>
+          </div>
+          
+          <div v-else class="text-center py-8 border-2 border-dashed border-purple-200 dark:border-purple-700 rounded-xl bg-white/50 dark:bg-gray-800/50">
+            <i class="mdi mdi-file-search text-4xl text-gray-400 mb-2"></i>
+            <p class="text-sm text-gray-500 dark:text-gray-400">No system documents found for this project yet.</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Documents will appear as tasks are completed.</p>
+          </div>
+        </div>
+
+        <!-- Documentation Checklist -->
         <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
           <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 uppercase tracking-wide">Documentation Checklist</h5>
           <div class="space-y-3">
@@ -1193,11 +1236,11 @@ const autoFillHandoverData = async () => {
 }
 
 // Helper to map 1-5 rating to string values used in select options
-const mapRating = (val: number): string => {
+const mapRating = (val: number): 'good' | 'fair' | 'poor' | undefined => {
     if (val >= 4) return 'good' // 4-5
     if (val === 3) return 'fair' // 3
     if (val <= 2) return 'poor' // 1-2
-    return ''
+    return undefined
 }
 
 const toggleTaskCompletion = async () => {
@@ -1337,13 +1380,13 @@ const performAutoSave = async () => {
   autoSaveStatus.value = 'saving'
   
   try {
-    const dataToSave = {
+    const dataToSave: ArchivalReportData = {
       ...formData,
       recommendations_action_points: reportData.value.recommendations,
       archive_reference: reportData.value.archive_reference,
       archive_location: reportData.value.archive_location,
       retention_period: reportData.value.retention_period,
-      status: 'draft' as const
+      status: 'draft'
     }
     
     await updateReport(props.task.id, formData.id, dataToSave)
@@ -1457,6 +1500,29 @@ const handleSkipTask = async () => {
     }
 }
 
+// Download system document handler
+const handleDownloadSystemDoc = async (doc: any) => {
+    loading.value = true
+    try {
+        const response = await api.get(doc.url, {
+            responseType: 'blob'
+        })
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${doc.name}.${doc.type.toLowerCase() === 'pdf' ? 'pdf' : 'zip'}`)
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        window.URL.revokeObjectURL(url)
+    } catch (error) {
+        console.error('Document download failed:', error)
+        errorMessage.value = 'Failed to download document.'
+    } finally {
+        loading.value = false
+    }
+}
+
 const updateStatus = (status: EnquiryTask['status']) => {
   emit('update-status', status)
   if (status === 'completed') {
@@ -1480,7 +1546,7 @@ const handleSubmit = async () => {
   
   try {
     // Map UI data to backend fields
-    const dataToSave = {
+    const dataToSave: ArchivalReportData = {
       ...formData,
       recommendations_action_points: reportData.value.recommendations,
       archive_reference: reportData.value.archive_reference,

@@ -46,6 +46,17 @@
                 New Disbursement
               </button>
               <button
+                v-if="permissions.canUploadExcel"
+                @click="openUploadModal"
+                :disabled="isRefreshing"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                Upload Excel
+              </button>
+              <button
                 v-if="permissions.canView"
                 @click="handleRefreshAll"
                 :disabled="isRefreshing"
@@ -252,6 +263,22 @@
         @success="onDisbursementSuccess"
       />
     </ErrorBoundary>
+
+    <ErrorBoundary 
+      v-if="showUploadModal"
+      type="component" 
+      :can-retry="true"
+      title="Upload Excel Error"
+      message="Unable to load upload form"
+      @retry="handleUploadModalRetry"
+      @reset="closeUploadModal"
+    >
+      <ExcelUploadModal 
+        :is-open="showUploadModal" 
+        @close="closeUploadModal"
+        @success="onUploadSuccess"
+      />
+    </ErrorBoundary>
     
     <ErrorBoundary 
       v-if="selectedDisbursement && showEditDisbursementModal"
@@ -398,6 +425,7 @@ import BalanceCard from '../components/BalanceCard.vue'
 import TransactionList from '../components/TransactionList.vue'
 import TopUpForm from '../components/TopUpForm.vue'
 import DisbursementForm from '../components/DisbursementForm.vue'
+import ExcelUploadModal from '../components/ExcelUploadModal.vue'
 import ErrorBoundary from '../components/ErrorBoundary.vue'
 
 
@@ -413,6 +441,7 @@ const isRefreshing = ref(false)
 const showTopUpModal = ref(false)
 const showDisbursementModal = ref(false)
 const showEditDisbursementModal = ref(false)
+const showUploadModal = ref(false)
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
@@ -508,6 +537,7 @@ const modalStates = computed(() => {
     topUp: showTopUpModal.value,
     disbursement: showDisbursementModal.value,
     edit: showEditDisbursementModal.value,
+    upload: showUploadModal.value,
     void: showVoidModal.value
   }
 })
@@ -615,6 +645,23 @@ const openDisbursementModal = async () => {
   }
 }
 
+const openUploadModal = async () => {
+  try {
+    if (activeModal.value && activeModal.value !== 'upload') {
+      return
+    }
+    activeModal.value = 'upload'
+    showUploadModal.value = true
+    await nextTick()
+  } catch (error: any) {
+    handleError(error, { context: 'open_upload_modal' })
+  }
+}
+
+const handleUploadModalRetry = () => {
+  openUploadModal()
+}
+
 const closeTopUpModal = async () => {
   try {
     showTopUpModal.value = false
@@ -641,6 +688,18 @@ const closeDisbursementModal = async () => {
   }
 }
 
+const closeUploadModal = async () => {
+  try {
+    showUploadModal.value = false
+    if (activeModal.value === 'upload') {
+      activeModal.value = null
+    }
+    await nextTick()
+  } catch (error: any) {
+    handleError(error, { context: 'close_upload_modal' })
+  }
+}
+
 const onTopUpSuccess = async () => {
   try {
     await closeTopUpModal()
@@ -657,6 +716,15 @@ const onDisbursementSuccess = async () => {
     // Store will automatically refresh data
   } catch (error) {
     console.error('Error handling disbursement success:', error)
+  }
+}
+
+const onUploadSuccess = async () => {
+  try {
+    // Modal stays open to show results, but we can refresh background data
+    await store.refreshAll()
+  } catch (error) {
+    console.error('Error handling upload success:', error)
   }
 }
 

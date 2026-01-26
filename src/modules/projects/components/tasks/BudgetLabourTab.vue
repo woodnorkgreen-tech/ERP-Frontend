@@ -55,12 +55,15 @@
               class="group hover:bg-yellow-50/30 dark:hover:bg-yellow-900/10 transition-colors"
             >
               <td class="py-3 px-6">
-                <input
+                <select
                   v-model="labour.type"
-                  type="text"
-                  placeholder="e.g., Lead Carpenter"
-                  class="w-full px-0 py-1.5 bg-transparent border-0 border-b border-transparent focus:border-yellow-500 focus:ring-0 font-bold text-gray-900 dark:text-white placeholder-gray-400 transition-colors"
-                />
+                  class="w-full px-3 py-1.5 text-xs font-bold border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 bg-transparent dark:bg-gray-700 dark:text-white cursor-pointer"
+                >
+                  <option value="" disabled>Select Role</option>
+                  <option v-for="type in COMMON_TEAM_TYPES" :key="type.id" :value="type.display_name">
+                    {{ type.display_name }}
+                  </option>
+                </select>
               </td>
               <td class="py-3 px-4">
                 <select
@@ -68,9 +71,13 @@
                   class="w-full px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 dark:bg-gray-700 dark:text-white cursor-pointer"
                 >
                   <option value="Production">Production</option>
-                  <option value="Installation">Installation</option>
+                  <option value="Installation">Set Up</option>
+                  <option value="Installation">Set down</option>
                   <option value="Technical">Technical</option>
                   <option value="Supervision">Supervision</option>
+                  <!-- <option value="Labour & transport cost">Labour & transport cost</option>
+                  <option value="Labour & team per diem">Labour & team per diem</option>
+                  <option value="Labour & team transport cost">Labour & team transport cost</option> -->
                   <option value="Other">Other</option>
                 </select>
               </td>
@@ -175,4 +182,16 @@ const formatCurrency = (amount: number) => {
     maximumFractionDigits: 0,
   }).format(amount)
 }
+
+const COMMON_TEAM_TYPES = [
+  { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
+  { id: 2, team_type_id: 2, display_name: 'Technicians' },
+  { id: 3, team_type_id: 3, display_name: 'Painters' },
+  { id: 4, team_type_id: 4, display_name: 'Welders' },
+  { id: 5, team_type_id: 5, display_name: 'Electricians' },
+  { id: 6, team_type_id: 6, display_name: 'ICT' },
+  { id: 7, team_type_id: 7, display_name: 'Loading' },
+  { id: 8, team_type_id: 8, display_name: 'Offloading' },
+  { id: 9, team_type_id: 9, display_name: 'Carpenters' }
+]
 </script>

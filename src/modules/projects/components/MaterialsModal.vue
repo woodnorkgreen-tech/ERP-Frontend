@@ -247,11 +247,11 @@
                       <td class="px-4 py-4 border-b border-gray-50 dark:border-gray-800">
                         <select
                           v-model="material.unitOfMeasurement"
-                          class="bg-transparent border-0 text-sm font-medium focus:ring-0 w-full dark:text-white"
+                          class="bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 w-full dark:text-white transition-all shadow-sm"
                           :class="{ 'text-red-500 font-bold underline': errors[`materials.${index}.unit`] }"
                         >
-                          <option value="">Select Unit</option>
-                          <option v-for="u in ['Pcs', 'Ltrs', 'Mtrs', 'sqm', 'Kgs', 'Sets', 'Rolls', 'Boxes', 'Cans', 'Bags', 'Packets', 'Cartons']" :key="u" :value="u">{{ u }}</option>
+                          <option value="" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Select Unit</option>
+                          <option v-for="u in ['Pcs', 'Ltrs', 'Mtrs', 'sqm', 'Gallons', 'Bouquet', 'Kgs', 'Sets', 'Rolls', 'Boxes', 'Cans', 'Bags', 'Packets', 'Cartons']" :key="u" :value="u" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{{ u }}</option>
                         </select>
                       </td>
 
@@ -345,15 +345,15 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Technical Category</label>
-            <select v-model="newElementType.category" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl outline-none dark:text-white">
-              <option value="">Select Category</option>
-              <option value="structure">Structure</option>
-              <option value="decoration">Decoration</option>
-              <option value="flooring">Flooring</option>
-              <option value="technical">Technical</option>
-              <option value="furniture">Furniture</option>
-              <option value="branding">Branding</option>
-              <option value="custom">Custom</option>
+            <select v-model="newElementType.category" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-0 rounded-xl outline-none dark:text-white transition-all shadow-sm">
+              <option value="" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Select Category</option>
+              <option value="structure" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Structure</option>
+              <option value="decoration" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Decoration</option>
+              <option value="flooring" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Flooring</option>
+              <option value="technical" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Technical</option>
+              <option value="furniture" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Furniture</option>
+              <option value="branding" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Branding</option>
+              <option value="custom" class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">Custom</option>
             </select>
           </div>
         </div>
@@ -378,6 +378,7 @@ import { useElementTypes, type ElementType as APIElementType } from '@/composabl
 interface MaterialItem {
   id: string
   libraryMaterialId?: number | null
+  persistent_id?: string
   description: string
   unitOfMeasurement: string
   quantity: number
@@ -396,6 +397,7 @@ interface ProjectElement {
   templateId: string
   elementType: string
   name: string
+  persistent_id?: string
   category: 'production' | 'hire' | 'outsourced'
   dimensions: {
     length: string
@@ -437,6 +439,7 @@ interface Emits {
 interface MaterialForm {
   tempId: string
   libraryMaterialId?: number | null
+  persistent_id?: string
   description: string
   unitOfMeasurement: string
   defaultQuantity: number
@@ -576,6 +579,7 @@ const initializeForm = () => {
 const createEmptyMaterial = (): MaterialForm => ({
   tempId: `temp-${Date.now()}-${Math.random()}`,
   libraryMaterialId: null,
+  persistent_id: undefined,
   description: '',
   unitOfMeasurement: '',
   defaultQuantity: 1,
@@ -688,7 +692,7 @@ const selectMaterialSuggestion = (suggestion: any, index: number) => {
   material.unitCost = cost != null ? parseFloat(cost) : null
   
   // Try to match unit (case insensitive)
-  const availableUnits = ['Pcs', 'Ltrs', 'Mtrs', 'sqm', 'Kgs', 'Sets', 'Rolls', 'Boxes', 'Cans', 'Bags', 'Packets', 'Cartons']
+  const availableUnits = ['Pcs', 'Ltrs', 'Mtrs', 'sqm', 'Gallons', 'Bouquet', 'Kgs', 'Sets', 'Rolls', 'Boxes', 'Cans', 'Bags', 'Packets', 'Cartons']
   const matchedUnit = availableUnits.find(u => u.toLowerCase() === (suggestion.unit_of_measure || suggestion.unitOfMeasure || '').toLowerCase())
   if (matchedUnit) {
     material.unitOfMeasurement = matchedUnit
@@ -723,6 +727,7 @@ const saveElement = () => {
       materials: elementForm.materials.map(material => ({
         id: material.tempId.startsWith('edit-') ? material.tempId.replace('edit-', '') : `${material.tempId}-${now.getTime()}`,
         libraryMaterialId: material.libraryMaterialId || null,
+        persistent_id: material.persistent_id,
         description: material.description,
         unitOfMeasurement: material.unitOfMeasurement,
         quantity: material.defaultQuantity,
@@ -748,6 +753,7 @@ const saveElement = () => {
       materials: elementForm.materials.map(material => ({
         id: `${material.tempId}-${now.getTime()}`,
         libraryMaterialId: material.libraryMaterialId || null,
+        persistent_id: material.persistent_id,
         description: material.description,
         unitOfMeasurement: material.unitOfMeasurement,
         quantity: material.defaultQuantity,
@@ -790,6 +796,7 @@ const loadElementForEdit = (element: ProjectElement) => {
   elementForm.materials = element.materials.map(material => ({
     tempId: `edit-${material.id}`,
     libraryMaterialId: material.libraryMaterialId || null,
+    persistent_id: material.persistent_id,
     description: material.description,
     unitOfMeasurement: material.unitOfMeasurement,
     defaultQuantity: material.quantity,

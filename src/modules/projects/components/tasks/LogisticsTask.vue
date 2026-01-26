@@ -6,7 +6,7 @@
     <div class="mb-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <h4 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Logistics Task - {{ task.title }}
+          Delivery Task - {{ task.title }}
         </h4>
         <div class="flex items-center gap-2">
           <button
@@ -15,73 +15,76 @@
             :disabled="isReverting"
             class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg v-if="isReverting" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-            </svg>
             <span>{{ isReverting ? 'Reverting...' : 'Revert to In Progress' }}</span>
           </button>
           
           <button
             @click="downloadPdfReport"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+            :disabled="isDownloading"
+            class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
-            <span>Download PDF Report</span>
+            <i v-if="isDownloading" class="mdi mdi-loading mdi-spin"></i>
+            <i v-else class="mdi mdi-file-pdf-box text-base"></i> 
+            {{ isDownloading ? 'Generating...' : 'Download PDF' }}
           </button>
         </div>
       </div>
 
-      <!-- Premium Project Information Section -->
+      <!-- Project Details -->
       <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
         <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
         
         <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
           <div class="space-y-4">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <i class="mdi mdi-office-building text-2xl"></i>
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                <i class="mdi mdi-truck-delivery text-2xl"></i>
               </div>
               <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
                 <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
               </div>
             </div>
             
             <div class="flex flex-wrap items-center gap-6 pt-2">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-identifier"></i>
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-tag-outline text-slate-400"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
                    <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
                 </div>
               </div>
               
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
-                  <i class="mdi mdi-account-tie"></i>
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-account-tie-outline text-slate-400"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
                 </div>
               </div>
 
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
-                  <i class="mdi mdi-map-marker"></i>
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-map-marker-outline text-slate-400"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                  <i class="mdi mdi-account-star-outline text-slate-400"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Officer</p>
+                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.projectOfficer }}</p>
                 </div>
               </div>
             </div>
@@ -90,16 +93,15 @@
           <!-- Right Side: Status/Highlights -->
           <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
              <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Project Schedule</p>
                 <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                  <i class="mdi mdi-calendar-check text-blue-400"></i>
                   {{ formatDate(projectInfo.setupDate) }}
                 </div>
              </div>
              
              <div class="flex items-center gap-2">
                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Live Status</span>
              </div>
           </div>
         </div>
@@ -122,22 +124,7 @@
         ]"
       >
         <div class="flex items-center space-x-2">
-          <!-- Success Icon -->
-          <svg v-if="message.type === 'success'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <!-- Error Icon -->
-          <svg v-else-if="message.type === 'error'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          <!-- Warning Icon -->
-          <svg v-else-if="message.type === 'warning'" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-          </svg>
-          <!-- Info Icon -->
-          <svg v-else class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
+          <span>{{ message.type.toUpperCase() }}:</span>
           <span>{{ message.message }}</span>
         </div>
         <button
@@ -145,9 +132,7 @@
           class="text-current hover:opacity-70 transition-opacity p-1 rounded-md"
           :aria-label="'Dismiss message'"
         >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+          Dismiss
         </button>
       </div>
     </div>
@@ -194,6 +179,201 @@
     <div class="tab-content-container">
 
 
+      <!-- Dispatch & Route Planning Tab -->
+      <div
+        v-show="activeTab === 'dispatch-planning'"
+        class="dispatch-planning-section tab-panel transition-opacity duration-200"
+        :id="`tab-panel-dispatch-planning`"
+        role="tabpanel"
+        :aria-labelledby="`tab-dispatch-planning`"
+        :class="{ 'animate-fade-in': activeTab === 'dispatch-planning' }"
+      >
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Dispatch & Route Planning</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Configure vehicle, driver, and travel timeline for this project
+            </p>
+          </div>
+          <div class="flex space-x-3">
+            <button
+              v-if="!isReadOnly"
+              @click="importLatestLog"
+              :disabled="isSavingPlanning"
+              class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
+            >
+              <i class="mdi mdi-sync"></i>
+              <span>Import from Transport Log</span>
+            </button>
+            <button
+              v-if="!isReadOnly"
+              @click="saveDispatchPlanning"
+              :disabled="isSavingPlanning"
+              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
+            >
+              <i v-if="isSavingPlanning" class="mdi mdi-loading mdi-spin"></i>
+              <span>{{ isSavingPlanning ? 'Saving...' : 'Save Planning' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <!-- Transport Details -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  <i class="mdi mdi-truck-delivery text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Detail</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle Type</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.vehicle_type"
+                    type="text"
+                    placeholder="e.g. 10 Ton Lorry, Pickup"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle ID / Plate #</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.vehicle_identification"
+                    type="text"
+                    placeholder="e.g. KCA 123X"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Assigned Driver</label>
+                  <select 
+                    v-model="logisticsData.logistics_planning.driver_name"
+                    @change="onSelectDriver(logisticsData.logistics_planning.driver_name || '')"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all appearance-none"
+                  >
+                    <option value="">Select a driver...</option>
+                    <option v-for="driver in drivers" :key="driver.id" :value="driver.name">{{ driver.name }}</option>
+                    <option value="Third-party">Third-party Driver</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Driver Contact</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.driver_contact"
+                    type="text"
+                    placeholder="e.g. +254 7..."
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Route Planning -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <i class="mdi mdi-map-marker-distance text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Route Planning</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Origin</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.origin"
+                    type="text"
+                    placeholder="e.g. Workshop"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Destination</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.destination"
+                    type="text"
+                    placeholder="Project Venue"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Distance (KM)</label>
+                  <input 
+                    v-model.number="logisticsData.logistics_planning.route.distance"
+                    type="number"
+                    step="0.1"
+                    placeholder="Approx km"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Estimated Travel Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.route.travel_time"
+                    type="text"
+                    placeholder="e.g. 1 hour 30 mins"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <i class="mdi mdi-clock-outline text-2xl"></i>
+                </div>
+                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Timeline</h4>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Departure Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.departure_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Arrival Time</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.arrival_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Target Setup Start</label>
+                  <input 
+                    v-model="logisticsData.logistics_planning.timeline.setup_start_time"
+                    type="datetime-local"
+                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
+                <div class="flex gap-3">
+                  <i class="mdi mdi-information-outline text-amber-500 text-xl"></i>
+                  <p class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase leading-relaxed">
+                    These arrival/departure times will be reflected on the official Logistics Manifest report.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Team Confirmation Tab -->
       <div
         v-show="activeTab === 'team-confirmation'"
@@ -217,12 +397,6 @@
               :disabled="teamDataState.isLoading"
               class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center space-x-2"
             >
-              <svg v-if="teamDataState.isLoading" class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
               <span>{{ teamDataState.isLoading ? 'Loading...' : 'Refresh' }}</span>
             </button>
             <button
@@ -239,9 +413,6 @@
         <!-- Loading State -->
         <div v-if="teamDataState.isLoading" class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
           <div class="flex items-center space-x-3">
-            <svg class="w-5 h-5 animate-spin text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-            </svg>
             <p class="text-sm text-blue-800 dark:text-blue-200">Loading team assignments...</p>
           </div>
         </div>
@@ -249,9 +420,7 @@
 
         <div v-else-if="teamDataState.hasError" class="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800">
           <div class="flex items-start space-x-3">
-            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
+            <span>Error:</span>
             <div class="flex-1">
               <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Unable to Load Team Assignments</h4>
               <p class="text-sm text-red-700 dark:text-red-300 mt-1">
@@ -278,9 +447,7 @@
         <!-- No Team Data Available State -->
         <div v-if="!teamDataState.isLoading && !teamDataState.hasError && !teamDataState.data" class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800">
           <div class="flex items-start space-x-3">
-            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
+            <span>Note:</span>
             <div class="flex-1">
               <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">No Team Assignments Found</h4>
               <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
@@ -302,7 +469,6 @@
           <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-3">
-                <span class="text-2xl"></span>
                 <div>
                   <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Setup Teams</h4>
                   <p class="text-sm text-gray-600 dark:text-gray-400">Teams assigned for event setup and installation</p>
@@ -371,7 +537,6 @@
 
             <!-- No Setup Teams Message -->
             <div v-else class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
-              <div class="text-4xl mb-4"></div>
               <h5 class="text-lg font-medium mb-2">No Setup Teams Assigned</h5>
              
             </div>
@@ -410,7 +575,6 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-blue-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Team Assignment</span>
                 </div>
                 <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ getSelectedTeamTypes('setup').length }}</div>
@@ -419,7 +583,6 @@
 
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-green-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Team Members</span>
                 </div>
                 <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getSelectedTeamTypes('setup').reduce((sum, team) => sum + team.members.length, 0) }}</div>
@@ -428,7 +591,6 @@
 
               <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-purple-500"></span>
                   <span class="text-sm font-medium text-gray-900 dark:text-white">Confirmation</span>
                 </div>
                 <div class="text-2xl font-bold" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'">
@@ -451,31 +613,165 @@
         :class="{ 'animate-fade-in': activeTab === 'loading-sheet' }"
       >
         <!-- Header actions -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Loading Sheet</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Import project elements and add custom loading items</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Delivery List</h3>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Manage project elements and custom loading items</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
               @click="importProductionElements"
               :disabled="itemsState.isImporting"
-              class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center space-x-2"
+              class="h-10 px-6 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center gap-2"
             >
-              <svg v-if="itemsState.isImporting" class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Project Elements' }}</span>
+              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Elements' }}</span>
             </button>
             <button
               v-if="itemsState.importError"
               @click="importProductionElements"
-              class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-            >Retry Import</button>
-            <button
-              @click="openAddCustomItemModal"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >Add Custom Item</button>
+              class="h-10 px-6 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95"
+            >Retry</button>
+          </div>
+        </div>
+
+        <!-- Inline Add Custom Item Interface -->
+        <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-8 mb-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all group hover:border-blue-500/50">
+          <div class="flex flex-col gap-6">
+            <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+               <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                 <i class="mdi mdi-plus text-xl"></i>
+               </div>
+               <div>
+                 <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Rapid Item Add</h4>
+                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Add custom items to your manifest instantly</p>
+               </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- Item Name -->
+              <div class="lg:col-span-6">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Item Designation*</label>
+                <div class="relative">
+                  <input 
+                    v-model="customItemForm.name"
+                    @keydown.enter="addCustomTransportItem"
+                    type="text"
+                    placeholder="Enter item name (e.g. Stage Deck, Truss)..."
+                    class="w-full h-14 pl-12 pr-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:opacity-50"
+                  />
+                  <i class="mdi mdi-cube-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+              </div>
+
+              <!-- Quantity & Unit -->
+              <div class="lg:col-span-3">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Quantity & Unit*</label>
+                <div class="flex gap-2">
+                  <div class="relative flex-1">
+                    <input 
+                      v-model.number="customItemForm.quantity"
+                      type="number"
+                      min="1"
+                      class="w-full h-14 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-center"
+                    />
+                  </div>
+                  <div class="relative flex-1">
+                    <select 
+                      v-model="customItemForm.unit"
+                      class="w-full h-14 pl-4 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-widest"
+                    >
+                      <option value="pcs">pcs</option>
+                      <option value="sets">sets</option>
+                      <option value="boxes">boxes</option>
+                      <option value="rolls">rolls</option>
+                      <option value="meters">meters</option>
+                    </select>
+                    <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div class="lg:col-span-3 flex items-end">
+                <button 
+                  @click="addCustomTransportItem"
+                  class="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3"
+                >
+                  <i class="mdi mdi-check-circle"></i>
+                  <span>Commit to List</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Categories (Toggle Buttons/Check buttons) -->
+            <div>
+              <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-3 block">Deployment Category*</label>
+              <div class="flex flex-wrap gap-2">
+                <button 
+                  v-for="cat in DEPLOYMENT_CATEGORIES" 
+                  :key="cat"
+                  @click="customItemForm.main_category = cat"
+                  type="button"
+                  class="px-5 py-3 rounded-xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2"
+                  :class="customItemForm.main_category === cat 
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                    : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-blue-500 hover:text-blue-500'"
+                >
+                  <i :class="[
+                    'mdi',
+                    cat === 'PRODUCTION' ? 'mdi-factory' :
+                    cat === 'TOOLS_EQUIPMENTS' ? 'mdi-tools' :
+                    cat === 'STORES' ? 'mdi-warehouse' :
+                    cat === 'ELECTRICALS' ? 'mdi-lightning-bolt' : 'mdi-domain'
+                  ]"></i>
+                  {{ cat.replace('_', ' ') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Secondary Metadata (Optional) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
+               <div>
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Weight Metadata</label>
+                 <div class="relative">
+                   <input 
+                      v-model="customItemForm.weight"
+                      type="text"
+                      placeholder="e.g. 50kg, 2 Tons"
+                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
+                   />
+                   <i class="mdi mdi-weight absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                 </div>
+               </div>
+               <div>
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Handling Protocol</label>
+                 <div class="relative">
+                   <select 
+                      v-model="customItemForm.special_handling"
+                      class="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 appearance-none transition-all focus:border-blue-500"
+                   >
+                      <option value="">Normal Handling</option>
+                      <option value="FRAGILE">Fragile / High Risk</option>
+                      <option value="HEAVY">Oversized / Heavy Load</option>
+                      <option value="FLAMMABLE">Flammable Material</option>
+                   </select>
+                   <i class="mdi mdi-hand-pointing-up absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                   <i class="mdi mdi-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                 </div>
+               </div>
+               <div class="md:col-span-2 lg:col-span-1">
+                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Internal Notes</label>
+                 <div class="relative">
+                   <input 
+                      v-model="customItemForm.description"
+                      type="text"
+                      placeholder="Special instructions or details..."
+                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
+                   />
+                   <i class="mdi mdi-note-text-outline absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                 </div>
+               </div>
+            </div>
           </div>
         </div>
 
@@ -485,7 +781,6 @@
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
-                <span class="text-xl">📋</span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Loading Sheet Items</h4>
                 <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ filteredTransportItems.length }}</span>
               </div>
@@ -515,26 +810,40 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:border-gray-700">
-                  <!-- Flat list of items -->
-                  <tr v-for="item in filteredTransportItems" :key="item.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    
-                    <!-- Read Mode -->
-                    <template v-if="!isEditing(item.id)">
-                      <td class="px-6 py-4">
-                        <div class="flex items-start gap-3">
-                          <div class="flex-shrink-0 mt-1">
-                            <span 
-                              class="inline-block w-2.5 h-2.5 rounded-full" 
-                              :class="item.category === 'production' ? 'bg-purple-500' : 'bg-blue-500'"
-                              :title="item.category === 'production' ? 'Production Item' : 'Custom Item'"
-                            ></span>
-                          </div>
-                          <div>
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
-                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-1 whitespace-pre-wrap">{{ item.description }}</div>
-                          </div>
-                        </div>
+                  <template v-for="group in groupedTransportItems" :key="group.mainCategory">
+                    <!-- Group Header Row -->
+                    <tr class="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm sticky top-0 z-10">
+                      <td colspan="5" class="px-6 py-2 border-y border-slate-100 dark:border-slate-800">
+                         <div class="flex items-center gap-3">
+                            <i :class="['mdi', getCategoryIcon(group.mainCategory), 'text-slate-400']"></i>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                              {{ group.category }} 
+                              <span class="ml-2 text-slate-300 dark:text-slate-600">|</span>
+                              <span class="ml-2 text-blue-600 dark:text-blue-400">{{ group.items.length }} Items</span>
+                            </span>
+                         </div>
                       </td>
+                    </tr>
+
+                    <!-- Flat list of items in this group -->
+                    <tr v-for="item in group.items" :key="item.id" class="group/row hover:bg-blue-50/30 dark:hover:bg-blue-900/5 transition-colors">
+                      
+                      <!-- Read Mode -->
+                      <template v-if="!isEditing(item.id)">
+                        <td class="px-6 py-4">
+                          <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 mt-1">
+                              <span 
+                                class="inline-block w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)] transition-transform group-hover/row:scale-125" 
+                                :class="getCategoryColor(item.main_category || '')"
+                              ></span>
+                            </div>
+                            <div>
+                               <div class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{{ item.name }}</div>
+                               <div v-if="item.description" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1 whitespace-pre-wrap">{{ item.description }}</div>
+                            </div>
+                          </div>
+                        </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
                       </td>
@@ -551,21 +860,17 @@
                         <div class="flex justify-end gap-2">
                           <button 
                             @click="startEditingItem(item)" 
-                            class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:text-blue-600"
                             title="Edit"
                           >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
+                            Edit
                           </button>
                           <button 
                             @click="removeTransportItem(item.id.toString())" 
-                            class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                            class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:text-red-600"
                             title="Delete"
                           >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
+                            Delete
                           </button>
                         </div>
                       </td>
@@ -653,27 +958,21 @@
                           </button>
                         </div>
                       </td>
-                    </template>
-                  </tr>
+                      </template>
+                    </tr>
+                  </template>
                   
                   <!-- Empty State -->
                   <tr v-if="filteredTransportItems.length === 0">
                     <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                      <div class="flex flex-col items-center justify-center">
-                        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        <p class="text-base font-medium">No items in loading sheet</p>
-                        <p class="text-sm mt-1">Import from production or add custom items above</p>
-                      </div>
+                      <p class="text-base font-medium">No items in loading sheet</p>
+                      <p class="text-sm mt-1">Import from production or add custom items above</p>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
-
-
         </div>
       </div>
 
@@ -705,8 +1004,8 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Checklist</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Verify items, team presence, and safety requirements</p>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Final Check</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Check items, teams, and safety before moving</p>
           </div>
           <div class="flex flex-wrap gap-2 items-center">
             <span class="text-sm text-gray-700 dark:text-gray-300">Progress: {{ checklistProgress }}%</span>
@@ -716,7 +1015,7 @@
             <button
               @click="generateChecklistFromItems"
               class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg"
-            >Generate from Transport Items</button>
+            >Add items from Delivery List</button>
           </div>
         </div>
 
@@ -725,7 +1024,6 @@
           <!-- Items Checklist -->
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 lg:col-span-2">
             <div class="flex items-center gap-2 mb-3">
-              <span class="text-xl"></span>
               <h4 class="text-md font-medium text-gray-900 dark:text-white">Items</h4>
               <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ checklist.items.length }}</span>
             </div>
@@ -765,21 +1063,20 @@
             <!-- Teams -->
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Teams</h4>
               </div>
               <div class="space-y-2">
                 <label class="flex items-center gap-2 text-sm">
                   <input type="checkbox" v-model="checklist.teams.workshop" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Workshop present</span>
+                  <span>Workshop team is here</span>
                 </label>
                 <label class="flex items-center gap-2 text-sm">
                   <input type="checkbox" v-model="checklist.teams.setup" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Setup present</span>
+                  <span>Setup team is here</span>
                 </label>
                 <label class="flex items-center gap-2 text-sm">
                   <input type="checkbox" v-model="checklist.teams.setdown" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Setdown present</span>
+                  <span>Collection team is here</span>
                 </label>
               </div>
             </div>
@@ -787,7 +1084,6 @@
             <!-- Safety -->
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl"></span>
                 <h4 class="text-md font-medium text-gray-900 dark:text-white">Safety</h4>
               </div>
               <div class="space-y-2">
@@ -834,9 +1130,6 @@
             @click="$emit('update-status', 'pending')"
             class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-            </svg>
             <span>{{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}</span>
           </button>
           
@@ -845,9 +1138,6 @@
             @click="$emit('update-status', 'completed')"
             class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
             <span>Mark Complete</span>
           </button>
 
@@ -855,171 +1145,11 @@
         </div>
 
         <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
           <span class="text-sm font-medium">Task Completed</span>
         </div>
       </div>
     </div>
-    <!-- Add Custom Item Modal using Teleport -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 z-[99999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <!-- Background overlay with transition -->
-          <Transition name="modal-bg">
-            <div v-if="isAddCustomItemModalOpen" class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="closeAddCustomItemModal"></div>
-          </Transition>
-
-          <!-- Modal container -->
-          <div class="flex min-h-screen items-center justify-center p-4">
-            <!-- Modal panel -->
-            <Transition name="modal-content">
-              <div v-if="isAddCustomItemModalOpen" class="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full">
-                <!-- Close button -->
-                <button 
-                  @click="closeAddCustomItemModal"
-                  class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-
-                <!-- Modal header -->
-                <div class="px-6 pt-6 pb-4">
-                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="modal-title">
-                    Add Custom Loading Item
-                  </h3>
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Add a custom item to the loading sheet
-                  </p>
-                </div>
-
-                <!-- Modal body -->
-                <div class="px-6 pb-6">
-                  <div class="space-y-4">
-                    <!-- Item Name -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Item Name <span class="text-red-500">*</span>
-                      </label>
-                      <input 
-                        v-model="customItemForm.name" 
-                        type="text" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Stage Deck"
-                      />
-                    </div>
-
-                    <!-- Category Selector -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Category <span class="text-red-500">*</span>
-                      </label>
-                      <select 
-                        v-model="customItemForm.main_category"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select a category...</option>
-                        <option value="PRODUCTION">PRODUCTION - Boards & Produced Items</option>
-                        <option value="TOOLS_EQUIPMENTS">TOOLS & EQUIPMENTS - Setup Tools</option>
-                        <option value="STORES">STORES - Consumables & Items For Hire</option>
-                        <option value="ELECTRICALS">ELECTRICALS - Extensions, Power Supply</option>
-                        <option value="CLIENT ASSETS">CLIENT ASSETS</option>
-                      </select>
-                    </div>
-
-                    <!-- Quantity & Unit -->
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Quantity <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                          v-model.number="customItemForm.quantity" 
-                          type="number" 
-                          min="1"
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Unit <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                          v-model="customItemForm.unit" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="pcs, kg, box"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Weight & Handling -->
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Weight (optional)
-                        </label>
-                        <input 
-                          v-model="customItemForm.weight" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="e.g., 50kg"
-                        />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Special Handling
-                        </label>
-                        <input 
-                          v-model="customItemForm.special_handling" 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="e.g., Fragile"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Description -->
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Description (optional)
-                      </label>
-                      <textarea 
-                        v-model="customItemForm.description" 
-                        rows="3" 
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Additional details..."
-                      ></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Modal footer -->
-                <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
-                  <button 
-                    type="button" 
-                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    @click="closeAddCustomItemModal"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="button" 
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    @click="addCustomTransportItem"
-                  >
-                    Add Item
-                  </button>
-                </div>
-              </div>
-            </Transition>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+    <!-- Removed Custom Item Modal -->
 
     <!-- Print Report Modal -->
     <Teleport to="body">
@@ -1042,11 +1172,8 @@
                 <div class="flex space-x-3">
                   <button
                     @click="printReport"
-                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center space-x-2 font-medium shadow-sm"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center justify-center font-medium shadow-sm"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
                     <span>Print</span>
                   </button>
                   <button
@@ -1078,6 +1205,10 @@
                     <div>
                       <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Event Venue</div>
                       <div class="text-sm text-gray-900 mt-1">{{ projectInfo.eventVenue || 'TBC' }}</div>
+                    </div>
+                    <div>
+                      <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project Officer</div>
+                      <div class="text-sm text-gray-900 mt-1">{{ projectInfo.projectOfficer || 'Unassigned' }}</div>
                     </div>
                     <div>
                       <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Setup Date</div>
@@ -1143,7 +1274,7 @@
                   <div class="flex items-center space-x-4 mb-2">
                     <div class="text-sm font-semibold text-gray-700">Setup Teams Status:</div>
                     <div class="px-3 py-1 rounded-full text-xs font-medium" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                      {{ logisticsData.team_confirmation.setup_teams_confirmed ? '✓ CONFIRMED' : '⏳ PENDING' }}
+                      {{ logisticsData.team_confirmation.setup_teams_confirmed ? 'CONFIRMED' : 'PENDING' }}
                     </div>
                   </div>
                   <div v-if="logisticsData.team_confirmation.notes" class="mt-3">
@@ -1164,7 +1295,7 @@
                                     group.mainCategory === 'TOOLS_EQUIPMENTS' ? 'bg-blue-500' :
                                     group.mainCategory === 'STORES' ? 'bg-green-500' :
                                     group.mainCategory === 'ELECTRICALS' ? 'bg-yellow-500' :
-                                    group.mainCategory === 'CLIENT ASSETS' ? 'bg-gray-500' : ''">
+                                    group.mainCategory === 'CLIENT_ASSETS' ? 'bg-gray-500' : ''">
                           </span>
                           {{ group.category }}
                           <span class="ml-2 text-sm text-gray-500">({{ group.items.length }} items)</span>
@@ -1312,7 +1443,7 @@ import LogisticsDataDisplay from './data-displays/LogisticsDataDisplay.vue'
 import api from '@/plugins/axios'
 
 import { useTeams } from '../../composables/useTeams'
-import { useLogistics } from '../../composables/useLogistics'
+import { useLogistics, type Driver } from '../../composables/useLogistics'
 import type { EnquiryTask } from '../../types'
 
 /**
@@ -1360,6 +1491,8 @@ interface ProjectInfo {
   contactPerson: string
   /** Contact phone number */
   contactPhone?: string
+  /** Project officer assigned */
+  projectOfficer?: string
 }
 
 /**
@@ -1473,6 +1606,9 @@ interface LogisticsTaskData {
   status: string
 }
 
+const DEPLOYMENT_CATEGORIES = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT_ASSETS'] as const
+type DeploymentCategory = typeof DEPLOYMENT_CATEGORIES[number]
+
 /**
  * Transport item structure
  */
@@ -1483,7 +1619,7 @@ interface TransportItem {
   quantity: number
   unit: string
   category: 'production' | 'custom'
-  main_category?: 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS'  // Main loading sheet category
+  main_category?: DeploymentCategory  // Main loading sheet category
   element_category?: string  // Sub-category for production items (e.g., "Banners", "Signage", "Furniture")
   weight?: string
   special_handling?: string
@@ -1529,6 +1665,7 @@ const feedbackMessages = ref<FeedbackMessage[]>([])
  * Modal state for print report
  */
 const showPrintModal = ref(false)
+const isDownloading = ref(false)
 
 /**
  * Project information loading/error state
@@ -1578,6 +1715,91 @@ const addFeedbackMessage = (type: FeedbackMessage['type'], message: string, time
 }
 
 /**
+ * Dispatch planning state
+ */
+const isSavingPlanning = ref(false)
+const drivers = ref<Driver[]>([])
+
+const fetchDrivers = async () => {
+  try {
+    drivers.value = await logistics.getDrivers()
+  } catch (err) {
+    console.error('Failed to fetch drivers:', err)
+  }
+}
+
+const saveDispatchPlanning = async () => {
+  try {
+    isSavingPlanning.value = true
+    await logistics.saveLogisticsPlanning(props.task.id, logisticsData.logistics_planning)
+    addFeedbackMessage('success', 'Dispatch planning saved successfully')
+  } catch (error) {
+    console.error('Failed to save planning:', error)
+    addFeedbackMessage('error', 'Failed to save dispatch planning')
+  } finally {
+    isSavingPlanning.value = false
+  }
+}
+
+const onSelectDriver = (driverName: string) => {
+  const driver = drivers.value.find(d => d.name === driverName)
+  if (driver) {
+    logisticsData.logistics_planning.driver_contact = driver.phone
+  }
+}
+
+/**
+ * Import latest data from logistics log
+ */
+const importLatestLog = async () => {
+  try {
+    isSavingPlanning.value = true
+    const response = await api.get('/api/projects/logistics-log', {
+      params: {
+        project_id: props.task.project_enquiry_id,
+        per_page: 1
+      }
+    })
+
+    const logs = response.data?.data?.data || []
+    if (logs.length === 0) {
+      addFeedbackMessage('info', 'No transport logs found for this project')
+      return
+    }
+
+    const latestLog = logs[0]
+    
+    // Map log fields to planning structure
+    logisticsData.logistics_planning.vehicle_identification = latestLog.vehicle_allocated || logisticsData.logistics_planning.vehicle_identification
+    logisticsData.logistics_planning.driver_name = latestLog.driver || logisticsData.logistics_planning.driver_name
+    logisticsData.logistics_planning.route.destination = latestLog.site || logisticsData.logistics_planning.route.destination
+    
+    // Format dates for datetime-local
+    const pivotDateForInput = (dateString: string) => {
+      if (!dateString) return undefined
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return undefined
+      return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
+    }
+
+    logisticsData.logistics_planning.timeline.departure_time = pivotDateForInput(latestLog.departure) || logisticsData.logistics_planning.timeline.departure_time
+    logisticsData.logistics_planning.timeline.arrival_time = pivotDateForInput(latestLog.setdown_time) || logisticsData.logistics_planning.timeline.arrival_time
+
+    // Try to auto-populate driver contact if we have drivers list
+    if (latestLog.driver) {
+      onSelectDriver(latestLog.driver)
+    }
+
+    addFeedbackMessage('success', 'Imported data from transport log. Please review and save.')
+  } catch (error) {
+    console.error('Failed to import log:', error)
+    addFeedbackMessage('error', 'Failed to import transport log data')
+  } finally {
+    isSavingPlanning.value = false
+  }
+}
+
+/**
  * Remove feedback message
  */
 const removeFeedbackMessage = (messageId: string) => {
@@ -1611,8 +1833,8 @@ const extractProjectInfo = (): ProjectInfo => {
       eventVenue: enquiry?.venue || 'TBC',
       setupDate: enquiry?.expected_delivery_date || 'TBC',
       setDownDate: 'TBC', // This would come from project data when available
-      estimatedBudget: enquiry?.estimated_budget,
-      contactPerson: enquiry?.contact_person || 'N/A'
+      contactPerson: enquiry?.contact_person || 'N/A',
+      projectOfficer: enquiry?.project_officer?.name || 'Unassigned'
     }
 
     // Check for critical missing information
@@ -1722,6 +1944,7 @@ onMounted(async () => {
 
     // Fetch team data for confirmation
     await fetchTeamData()
+    await fetchDrivers()
 
 
 
@@ -2005,12 +2228,13 @@ const itemsState = reactive({
 })
 
 // Standalone ref for modal visibility (better reactivity)
-const isAddCustomItemModalOpen = ref(false)
+// Removed: isAddCustomItemModalOpen
+
 
 // Custom Item Form State
 const customItemForm = reactive({
   name: '',
-  main_category: '' as 'PRODUCTION' | 'TOOLS_EQUIPMENTS' | 'STORES' | 'ELECTRICALS' | 'CLIENT ASSETS' | '',
+  main_category: '' as DeploymentCategory | '',
   quantity: 1,
   unit: 'pcs',
   weight: '',
@@ -2157,11 +2381,11 @@ const filteredTransportItems = computed<TransportItem[]>(() => {
  * Grouped transport items for loading sheet
  */
 const groupedTransportItems = computed(() => {
-  const items = logisticsData.transport_items || []
+  const items = filteredTransportItems.value || []
   const groups: Record<string, { category: string, mainCategory: string, items: TransportItem[] }> = {}
   
   // Standard categories to ensure order
-  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT ASSETS']
+  const standardCats = ['PRODUCTION', 'TOOLS_EQUIPMENTS', 'STORES', 'ELECTRICALS', 'CLIENT_ASSETS']
   
   items.forEach(item => {
     const mainCat = item.main_category || 'OTHER'
@@ -2187,6 +2411,34 @@ const groupedTransportItems = computed(() => {
 })
 
 
+
+/**
+ * Get category color for UI elements
+ */
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'PRODUCTION': return 'bg-purple-500'
+    case 'TOOLS_EQUIPMENTS': return 'bg-blue-500'
+    case 'STORES': return 'bg-green-500'
+    case 'ELECTRICALS': return 'bg-amber-500'
+    case 'CLIENT_ASSETS': return 'bg-rose-500'
+    default: return 'bg-slate-500'
+  }
+}
+
+/**
+ * Get category icon for UI elements
+ */
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case 'PRODUCTION': return 'mdi-factory'
+    case 'TOOLS_EQUIPMENTS': return 'mdi-tools'
+    case 'STORES': return 'mdi-warehouse'
+    case 'ELECTRICALS': return 'mdi-lightning-bolt'
+    case 'CLIENT_ASSETS': return 'mdi-domain'
+    default: return 'mdi-cube-outline'
+  }
+}
 
 const importProductionElements = async () => {
   try {
@@ -2270,8 +2522,16 @@ const addCustomTransportItem = async () => {
       description: ''
     })
 
-    // Close modal on success
-    closeAddCustomItemModal()
+    // Clear form on success
+    Object.assign(customItemForm, {
+      name: '',
+      // We keep the main_category selected for convenience
+      quantity: 1,
+      unit: 'pcs',
+      weight: '',
+      special_handling: '',
+      description: ''
+    })
 
     addFeedbackMessage('success', 'Item added successfully')
   } catch (error: any) {
@@ -2288,18 +2548,14 @@ const addCustomTransportItem = async () => {
 
 // Modal Control Methods
 const openAddCustomItemModal = () => {
-  console.log('🔵 Opening Add Custom Item Modal')
-  isAddCustomItemModalOpen.value = true
-  console.log('🔵 Modal state:', isAddCustomItemModalOpen.value)
+  // Modal is removed, this method is no longer used for opening modals
 }
 
 const closeAddCustomItemModal = () => {
-  console.log('🔴 Closing Add Custom Item Modal')
-  isAddCustomItemModalOpen.value = false
-  // Reset form when closing
+  // Modal is removed, reset form manually if needed
   Object.assign(customItemForm, {
     name: '',
-    main_category: '',
+    main_category: '' as any,
     quantity: 1,
     unit: 'pcs',
     weight: '',
@@ -2348,13 +2604,14 @@ const isAllTeamsConfirmed = computed((): boolean => {
 
 // Tab navigation with enhanced functionality
 // Tab navigation with enhanced functionality
-const activeTab = ref('team-confirmation')
+const activeTab = ref('dispatch-planning')
 
 const tabs = [
-  { id: 'team-confirmation', label: 'Team Confirmation', description: 'Confirm team assignments from Teams Task' },
-  { id: 'loading-sheet', label: 'Loading Sheet', description: 'Manage loading sheet items and production elements' },
-  { id: 'logistics-log', label: 'Logistics Log', description: 'Track vehicle movements and logistics activities' },
-  { id: 'checklist', label: 'Checklist', description: 'Verify items, teams, and safety requirements' }
+  { id: 'dispatch-planning', label: 'Dispatch Planning', description: 'Plan vehicle, driver, and transport route' },
+  { id: 'team-confirmation', label: 'Team Assignment', description: 'Check team members assigned to this project' },
+  { id: 'loading-sheet', label: 'Delivery List', description: 'List of items to be transported and delivered' },
+  { id: 'logistics-log', label: 'Transport Log', description: 'Track vehicle movements and transport times' },
+  { id: 'checklist', label: 'Final Check', description: 'Final check of items, teams, and safety' }
 ]
 
 // Tab navigation functions
@@ -2584,16 +2841,16 @@ const printReport = () => {
  */
 const downloadPdfReport = async () => {
   try {
+    isDownloading.value = true
     addFeedbackMessage('info', 'Generating PDF report...')
     await logistics.downloadPdf(props.task.id)
     addFeedbackMessage('success', 'PDF Report downloaded successfully')
   } catch (error: any) {
     console.error('Failed to download PDF:', error)
-    console.error('Error response:', error.response?.data)
-    console.error('Error status:', error.response?.status)
-    
     const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to download PDF report'
     addFeedbackMessage('error', errorMessage)
+  } finally {
+    isDownloading.value = false
   }
 }
 

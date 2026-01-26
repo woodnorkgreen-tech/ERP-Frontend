@@ -78,13 +78,33 @@ export function useBudgetState() {
     if (!state.formData.materials || !Array.isArray(state.formData.materials)) {
       return 0
     }
+
+    const obsoleteIds = state.materialsUpdateCheck?.analysis?.obsolete_persistent_ids || []
+
     return state.formData.materials.reduce((total, element) => {
       if (!element.materials || !Array.isArray(element.materials)) {
         return total
       }
-      return total + element.materials.reduce((sum, material) => {
+
+      const elementTotal = element.materials.reduce((sum, material) => {
+        // Identification Logic (Must match Tab and Backend)
+        let idKey = material.persistent_id
+        if (!idKey) {
+          const eName = element.name.toLowerCase().replace(/\s+/g, '')
+          const mDesc = material.description.toLowerCase().replace(/\s+/g, '')
+          idKey = `legacy_${eName}_${mDesc}`
+        }
+
+        // 1. Exclude obsolete materials from the budget total
+        if (obsoleteIds.includes(idKey)) return sum
+
+        // 2. Exclude items that are not marked as 'Included'
+        if (material.isIncluded === false) return sum
+
         return sum + (material.totalPrice || 0)
       }, 0)
+
+      return total + elementTotal
     }, 0)
   })
 
@@ -92,21 +112,31 @@ export function useBudgetState() {
     if (!state.formData.labour || !Array.isArray(state.formData.labour)) {
       return 0
     }
-    return state.formData.labour.reduce((total, item) => total + (item.amount || 0), 0)
+    return state.formData.labour.reduce((total, item) => {
+      const isIncluded = (item as any).isIncluded !== false
+      return total + (isIncluded ? (item.amount || 0) : 0)
+    }, 0)
   })
 
   const expensesTotal = computed(() => {
     if (!state.formData.expenses || !Array.isArray(state.formData.expenses)) {
       return 0
     }
-    return state.formData.expenses.reduce((total, item) => total + (item.amount || 0), 0)
+    return state.formData.expenses.reduce((total, item) => {
+      // Note: Expenses uses 'isOfScope' in some parts of the system
+      const isIncluded = (item as any).isIncluded !== false && (item as any).isOfScope !== false
+      return total + (isIncluded ? (item.amount || 0) : 0)
+    }, 0)
   })
 
   const logisticsTotal = computed(() => {
     if (!state.formData.logistics || !Array.isArray(state.formData.logistics)) {
       return 0
     }
-    return state.formData.logistics.reduce((total, item) => total + (item.amount || 0), 0)
+    return state.formData.logistics.reduce((total, item) => {
+      const isIncluded = (item as any).isIncluded !== false
+      return total + (isIncluded ? (item.amount || 0) : 0)
+    }, 0)
   })
 
   const grandTotal = computed(() => {

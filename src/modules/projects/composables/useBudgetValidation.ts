@@ -199,10 +199,10 @@ export function useBudgetValidation() {
         })
       }
 
-      if (expense.amount <= 0) {
+      if (expense.amount < 0) {
         expenseErrors.push({
           field: `expenses[${index}].amount`,
-          message: 'Expense amount must be greater than 0',
+          message: 'Expense amount cannot be negative',
           tab: 'expenses',
           severity: 'error'
         })

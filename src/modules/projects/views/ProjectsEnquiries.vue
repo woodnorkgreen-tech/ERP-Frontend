@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6 pb-12 font-poppins">
-    <!-- Minimalist Header & Control Center -->
+    <!-- Requests Dashboard -->
     <div class="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all">
       <div class="p-6 md:p-8">
         <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
@@ -8,18 +8,17 @@
             <nav class="flex mb-4" aria-label="Breadcrumb">
               <ol class="inline-flex items-center space-x-2 text-sm font-black text-slate-500 uppercase tracking-widest">
                 <li>
-                  <router-link to="/projects" class="text-blue-600 hover:underline">Project Hub</router-link>
+                  <router-link to="/projects" class="text-blue-600 hover:underline">Projects</router-link>
                 </li>
                 <li>
                   <div class="flex items-center gap-1">
-                    <i class="mdi mdi-chevron-right text-xs"></i>
-                    <span>Enquiries</span>
+                    <span>Requests</span>
                   </div>
                 </li>
               </ol>
             </nav>
-            <h1 class="text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Enquiries</h1>
-            <p class="text-slate-500 font-medium text-base">Track and manage client requests.</p>
+            <h1 class="text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Requests</h1>
+            <p class="text-slate-500 font-medium text-base">View and manage all project requests.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-4">
@@ -31,15 +30,13 @@
                 ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm' 
                 : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
             >
-              <i class="mdi" :class="filters.assigned_to_me ? 'mdi-account-check' : 'mdi-account-group'"></i>
-              {{ filters.assigned_to_me ? 'My Enquiries' : 'All Enquiries' }}
+              {{ filters.assigned_to_me ? 'My Requests' : 'All Requests' }}
             </button>
 
             <button
               @click="openLogisticsLogModal()"
               class="h-10 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-200 transition-all active:scale-95 flex items-center gap-2"
             >
-              <i class="mdi mdi-truck-delivery"></i>
               Logistics
             </button>
 
@@ -48,8 +45,7 @@
               @click="showCreateModal = true"
               class="h-10 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
             >
-              <i class="mdi mdi-plus text-lg"></i>
-              New Enquiry
+              New Request
             </button>
           </div>
         </div>
@@ -71,7 +67,6 @@
           ]"
         >
           <div class="flex items-center gap-2">
-            <i class="mdi text-lg" :class="[tab.icon, currentView === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600']"></i>
             <span class="text-xs md:text-sm font-black uppercase tracking-widest">{{ tab.label }}</span>
           </div>
           <span class="text-[10px] font-bold uppercase tracking-widest" :class="currentView === tab.id ? 'text-blue-400' : 'text-slate-400'">{{ tab.desc }}</span>
@@ -85,12 +80,11 @@
       <div class="flex items-center gap-2 pb-2 overflow-x-auto">
          <!-- Search -->
          <div class="relative w-full md:w-64 shrink-0">
-            <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
             <input
               v-model="filters.search"
               type="text"
               placeholder="Search..."
-              class="w-full h-10 pl-10 pr-4 bg-white dark:bg-slate-800 border-0 rounded-lg text-xs font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 uppercase tracking-wide"
+              class="w-full h-10 px-4 bg-white dark:bg-slate-800 border-0 rounded-lg text-xs font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400 uppercase tracking-wide"
             />
          </div>
 
@@ -118,7 +112,6 @@
                 <option value="completed">Done</option>
               </optgroup>
             </select>
-            <i class="mdi mdi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
           </div>
 
           <!-- Sort -->
@@ -131,7 +124,6 @@
               <option value="priority">Priority</option>
               <option value="title">Title</option>
             </select>
-            <i class="mdi mdi-sort-variant absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
           </div>
       </div>
     </div>
@@ -146,7 +138,6 @@
             class="h-9 px-4 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
             :class="viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
           >
-            <i class="mdi mdi-table"></i>
             List
           </button>
           <button 
@@ -154,19 +145,16 @@
             class="h-9 px-4 rounded-lg text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
             :class="viewMode === 'cards' ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
           >
-            <i class="mdi mdi-view-grid"></i>
             Cards
           </button>
         </div>
       </div>
 
       <div v-if="loading" class="flex flex-col items-center justify-center py-32">
-        <div class="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6"></div>
-        <p class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Loading Enquiries...</p>
+        <p class="text-sm font-bold text-slate-400 uppercase tracking-[0.3em]">Loading Requests...</p>
       </div>
 
       <div v-else-if="error" class="p-12 text-center text-red-500">
-        <i class="mdi mdi-alert-octagon text-5xl mb-4"></i>
         <p class="text-sm font-bold uppercase tracking-widest">Connection Error</p>
         <p class="text-xs opacity-50 mt-1 uppercase">{{ error }}</p>
       </div>
@@ -182,6 +170,7 @@
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Created</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Target Delivery</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Priority</th>
+              <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Category</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Status</th>
               <th class="px-6 py-5 text-right text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Actions</th>
             </tr>
@@ -219,7 +208,6 @@
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="flex items-center gap-1.5" :class="enquiry.expected_delivery_date ? 'text-blue-600 dark:text-blue-400' : 'text-slate-300'">
-                    <i class="mdi mdi-calendar-check text-base" v-if="enquiry.expected_delivery_date"></i>
                     <span class="text-sm font-black tabular-nums">{{ enquiry.expected_delivery_date ? formatDate(enquiry.expected_delivery_date) : 'TBD' }}</span>
                   </div>
                 </td>
@@ -228,9 +216,13 @@
                     class="px-3 py-2 text-xs font-black rounded-lg uppercase tracking-widest border shadow-sm flex items-center gap-1.5 transition-all duration-300"
                     :class="getPriorityDisplayClasses(enquiry.priority)"
                   >
-                    <i class="mdi text-sm" :class="getPriorityIcon(enquiry.priority)"></i>
                     {{ enquiry.priority || 'Normal' }}
                   </div>
+                </td>
+                <td class="px-6 py-5 whitespace-nowrap">
+                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600">
+                      {{ getPresetLabel(enquiry.workflow_preset_type) }}
+                   </span>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="flex flex-col gap-2">
@@ -241,8 +233,7 @@
                       {{ getStatusLabel(enquiry.status) }}
                     </span>
                     <div v-if="getUserTaskCount(enquiry) > 0" class="flex items-center gap-1.5 text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-md border border-amber-100 dark:border-amber-800/50 w-fit">
-                      <i class="mdi mdi-alert-circle text-xs animate-pulse"></i>
-                      <span class="text-xs font-black uppercase tracking-tight">{{ getUserTaskCount(enquiry) }} Active Tasks</span>
+                      <span class="text-xs font-black uppercase tracking-tight">{{ getUserTaskCount(enquiry) }} Tasks</span>
                     </div>
                   </div>
                 </td>
@@ -250,36 +241,34 @@
                   <div class="flex items-center justify-end gap-2">
                     <button 
                       @click="selectedEnquiry = enquiry; showDetailSlideOver = true"
-                      class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all flex items-center justify-center group/btn"
+                      class="h-10 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all flex items-center justify-center group/btn"
                       title="View Details"
                     >
-                      <i class="mdi mdi-eye-outline text-lg transition-transform group-hover/btn:scale-110"></i>
+                      <span class="text-xs font-black uppercase tracking-widest">View</span>
                     </button>
 
                     <router-link 
                       :to="{ path: '/projects/tasks', query: { enquiry_id: enquiry.id } }"
                       class="h-10 px-5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-white hover:bg-slate-900 dark:hover:bg-white dark:hover:text-slate-900 transition-all flex items-center gap-2 group/tasks"
-                      title="Access Enquiry Tasks"
+                      title="Access Request Tasks"
                     >
-                      <i class="mdi mdi-clipboard-list-outline text-base"></i>
                       <span class="text-xs font-black uppercase tracking-widest">Tasks</span>
                     </router-link>
 
-                    <button 
+                    <!-- <button 
                       @click="openTaskAssignment(enquiry)"
                       class="h-10 px-5 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 hover:shadow-blue-500/40 transition-all flex items-center gap-2 group/assign"
-                      title="Assign Task to Personnel"
+                      title="Assign Task"
                     >
-                      <i class="mdi mdi-account-plus text-base group-hover/assign:animate-pulse"></i>
                       <span class="text-xs font-black uppercase tracking-widest">Assign</span>
-                    </button>
+                    </button> -->
 
                     <button 
                       @click="(event) => toggleMenu(event, enquiry)"
-                      class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center transform active:scale-95"
+                      class="h-10 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center transform active:scale-95 font-black text-xs uppercase"
                       :class="{ 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white': activeMenuEnquiry?.id === enquiry.id }"
                     >
-                      <i class="mdi mdi-dots-horizontal text-xl"></i>
+                      More
                     </button>
                   </div>
                 </td>
@@ -350,7 +339,7 @@
                 <div class="grid grid-cols-2 gap-4">
                    <div class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 transition-colors">
                      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                       <i class="mdi mdi-calendar-clock text-blue-500"></i> Target
+                       Target
                      </p>
                      <p 
                        class="text-sm font-black"
@@ -361,7 +350,7 @@
                    </div>
                    <div class="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
                      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                        <i class="mdi mdi-account-star text-indigo-500"></i> Officer
+                        Officer
                      </p>
                      <p class="text-sm font-black text-slate-800 dark:text-white truncate">
                        {{ enquiry.project_officer?.name?.split(' ')[0] || 'Unassigned' }}
@@ -390,15 +379,14 @@
                   class="flex-1 h-11 rounded-xl bg-slate-900 dark:bg-white hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white dark:text-slate-900 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/10 hover:shadow-indigo-500/30 hover:-translate-y-0.5"
                 >
                   <span>Open Tasks</span>
-                  <i class="mdi mdi-arrow-right"></i>
                 </router-link>
                 
                 <button 
                   @click="(event) => toggleMenu(event, enquiry)"
-                  class="w-11 h-11 rounded-xl border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-100 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-600 transition-all flex items-center justify-center"
+                  class="w-11 h-11 rounded-xl border-2 border-slate-100 dark:border-slate-800 hover:border-indigo-100 hover:bg-indigo-50 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-600 transition-all flex items-center justify-center font-black text-xs uppercase"
                   :class="{ 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white': activeMenuEnquiry?.id === enquiry.id }"
                 >
-                  <i class="mdi mdi-dots-horizontal text-lg"></i>
+                  More
                 </button>
               </div>
             </div>
@@ -424,9 +412,9 @@
           <div class="relative z-10 flex items-center justify-between">
             <div>
               <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-                {{ editingEnquiry ? 'Edit Strategic Enquiry' : 'Log New Project Enquiry' }}
+                {{ editingEnquiry ? 'Edit Strategic Request' : 'Log New Project Request' }}
               </h2>
-              <p class="text-slate-500 text-base font-semibold mt-1">Configure project parameters and mission objectives below.</p>
+              <p class="text-slate-500 text-base font-semibold mt-1">Configure project parameters and objectives below.</p>
             </div>
             <button @click="showCreateModal = false" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center text-slate-500">
               <i class="mdi mdi-close text-xl"></i>
@@ -461,9 +449,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Date Received*</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-blue-500">
-                    <i class="mdi mdi-calendar-import text-xl"></i>
-                  </div>
                   <input
                     v-model="enquiryFormData.date_received"
                     type="date"
@@ -475,9 +460,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Expected Delivery</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-amber-500">
-                    <i class="mdi mdi-calendar-check text-xl"></i>
-                  </div>
                   <input
                     v-model="enquiryFormData.expected_delivery_date"
                     type="date"
@@ -488,9 +470,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Strategic Client*</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-emerald-500">
-                    <i class="mdi mdi-account-tie text-xl"></i>
-                  </div>
                   <select
                     v-model="enquiryFormData.client_id"
                     required
@@ -505,12 +484,12 @@
             </div>
 
             <div class="space-y-3">
-              <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Project Enquiry Title*</label>
+              <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Project Request Title*</label>
               <input
                 v-model="enquiryFormData.title"
                 type="text"
                 required
-                placeholder="Enter enquiry title..."
+                placeholder="Enter request title..."
                 class="w-full h-14 px-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:opacity-50"
               />
             </div>
@@ -543,7 +522,7 @@
                     type="button"
                     class="w-6 h-6 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-all flex items-center justify-center"
                   >
-                    <i class="mdi mdi-close text-sm"></i>
+                    X
                   </button>
                 </div>
               </div>
@@ -573,9 +552,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Contact Person*</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-blue-500">
-                    <i class="mdi mdi-account-circle text-xl"></i>
-                  </div>
                   <input
                     v-model="enquiryFormData.contact_person"
                     type="text"
@@ -588,9 +564,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Strategic Priority</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-amber-500">
-                    <i class="mdi mdi-flag-variant text-xl"></i>
-                  </div>
                   <select
                     v-model="enquiryFormData.priority"
                     class="w-full h-14 pl-16 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white uppercase tracking-widest appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
@@ -609,9 +582,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Digital Email Address</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-indigo-500">
-                    <i class="mdi mdi-email-outline text-xl"></i>
-                  </div>
                   <input
                     v-model="enquiryFormData.contact_email"
                     type="email"
@@ -623,9 +593,6 @@
               <div class="space-y-3">
                 <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Phonetic Number</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-emerald-500">
-                    <i class="mdi mdi-phone-outline text-xl"></i>
-                  </div>
                   <input
                     v-model="enquiryFormData.contact_phone"
                     type="tel"
@@ -645,7 +612,7 @@
                   class="w-full h-14 pl-6 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white uppercase tracking-widest appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                 >
                   <!-- We only return 'Enquiry Logged' as the default choice to simplify logging -->
-                  <option value="enquiry_logged">Enquiry Logged</option>
+                  <option value="enquiry_logged">Request Logged</option>
                   
                   <!-- Show other statuses only if we're editing an existing record that might have moved further -->
                   <template v-if="editingEnquiry">
@@ -659,7 +626,7 @@
                     </option>
                   </template>
                 </select>
-                <i class="mdi mdi-circular-state absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                <i class="mdi mdi-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
             </div>
           </div>
@@ -670,9 +637,6 @@
                <div class="space-y-3">
                  <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Assigned Project Officer</label>
                  <div class="relative">
-                   <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-blue-500">
-                     <i class="mdi mdi-account-star text-xl"></i>
-                   </div>
                    <select
                      v-model="enquiryFormData.project_officer_id"
                      class="w-full h-14 pl-16 pr-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white uppercase tracking-widest appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
@@ -693,9 +657,6 @@
                <div class="space-y-3">
                  <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Deployment Venue</label>
                  <div class="relative">
-                   <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-red-500">
-                     <i class="mdi mdi-map-marker-radius text-xl"></i>
-                   </div>
                    <input
                      v-model="enquiryFormData.venue"
                      type="text"
@@ -707,11 +668,8 @@
              </div>
 
              <div class="space-y-3">
-               <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Enquiry Notes</label>
+               <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Operational Request Notes</label>
                <div class="relative">
-                  <div class="absolute top-4 left-6 pointer-events-none text-slate-400">
-                    <i class="mdi mdi-notebook-edit-outline text-xl"></i>
-                  </div>
                   <textarea
                     v-model="enquiryFormData.follow_up_notes"
                     rows="4"
@@ -742,11 +700,9 @@
                     <p class="text-sm font-bold text-blue-500 uppercase tracking-[0.3em] mb-4">Site Survey Skip Warning</p>
                      <ul class="space-y-3">
                        <li class="flex items-center gap-3 text-sm font-medium text-slate-500">
-                         <i class="mdi mdi-information-outline text-blue-400"></i>
                          Confirm dimensions are verified via secondary measures/blueprints.
                        </li>
                        <li class="flex items-center gap-3 text-sm font-medium text-slate-500">
-                         <i class="mdi mdi-information-outline text-blue-400"></i>
                           Bypassing will advance the project directly to Design.
                        </li>
                      </ul>
@@ -778,6 +734,100 @@
               </div>
             </div>
           </div>
+
+          <!-- Workflow Tasks Tab -->
+          <div v-if="activeModalTab === 'workflow'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-8 rounded-3xl border border-blue-100 dark:border-blue-800">
+              <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shrink-0">
+                  <i class="mdi mdi-workflow text-2xl text-white"></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2">Select Workflow Tasks</h3>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Choose which tasks should be created for this project. You can use a preset or customize manually.</p>
+                </div>
+              </div>
+
+              <!-- Preset Selector -->
+              <div class="mb-6">
+                <label class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.2em] ml-1 mb-3 block">Quick Presets</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <button
+                    v-for="(preset, key) in taskPresets"
+                    :key="key"
+                    type="button"
+                    @click="applyPreset(key as string)"
+                    class="p-4 rounded-2xl border-2 transition-all text-left group hover:scale-[1.02]"
+                    :class="enquiryFormData.workflow_preset_type === key 
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500'"
+                  >
+                    <div class="flex items-start justify-between mb-2">
+                      <span class="text-sm font-black uppercase tracking-wider" 
+                        :class="enquiryFormData.workflow_preset_type === key ? 'text-white' : 'text-slate-800 dark:text-white'">
+                        {{ preset.label }}
+                      </span>
+                      <i v-if="enquiryFormData.workflow_preset_type === key" class="mdi mdi-check-circle text-xl"></i>
+                    </div>
+                    <p class="text-xs font-medium opacity-80 leading-relaxed">{{ preset.description }}</p>
+                    <div class="mt-3 pt-3 border-t" 
+                      :class="enquiryFormData.workflow_preset_type === key ? 'border-blue-400' : 'border-slate-200 dark:border-slate-700'">
+                      <span class="text-xs font-bold opacity-70">{{ preset.tasks.length }} tasks</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Manual Task Selection -->
+              <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center justify-between mb-4">
+                  <label class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.2em]">Fine-tune Tasks</label>
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-blue-600 dark:text-blue-400">
+                      {{ selectedTasksCount }} / {{ availableTasks.length }} selected
+                    </span>
+                    <button
+                      type="button"
+                      @click="toggleAllTasks"
+                      class="text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors uppercase tracking-wider"
+                    >
+                      {{ selectedTasksCount === availableTasks.length ? 'Deselect All' : 'Select All' }}
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label 
+                    v-for="task in availableTasks" 
+                    :key="task.type"
+                    class="flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    :class="enquiryFormData.selected_workflow_tasks?.includes(task.type)
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' 
+                      : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700'"
+                  >
+                    <input 
+                      v-model="enquiryFormData.selected_workflow_tasks" 
+                      :value="task.type" 
+                      type="checkbox" 
+                      class="mt-0.5 w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500 focus:ring-2 border-slate-300"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div class="font-black text-sm text-slate-800 dark:text-white mb-1">{{ task.title }}</div>
+                      <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ task.description }}</div>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Validation Warning -->
+                <div v-if="selectedTasksCount === 0" class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center gap-3">
+                  <i class="mdi mdi-alert text-amber-600 text-xl"></i>
+                  <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                    Please select at least one task to create the workflow
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
 
         <!-- Action Buttons -->
@@ -800,7 +850,7 @@
               </button>
               
               <button
-                v-if="activeModalTab !== 'survey'"
+                v-if="activeModalTab !== 'workflow'"
                 @click="nextTab"
                 class="h-12 px-8 bg-white dark:bg-slate-800 text-blue-600 border border-blue-100 rounded-xl text-sm font-bold hover:bg-blue-50 transition-all shadow-sm"
               >
@@ -808,14 +858,14 @@
               </button>
               
               <button
-                v-if="activeModalTab === 'survey'"
+                v-if="activeModalTab === 'workflow'"
                 @click="handleFormSubmit"
-                :disabled="saving"
+                :disabled="saving || selectedTasksCount === 0"
                 class="h-12 px-10 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
               >
                 <i v-if="saving" class="mdi mdi-loading mdi-spin"></i>
                 <i v-else class="mdi mdi-check-circle"></i>
-                {{ saving ? 'Saving...' : (editingEnquiry ? 'Save Changes' : 'Create Enquiry') }}
+                {{ saving ? 'Saving...' : (editingEnquiry ? 'Save Changes' : 'Create Request') }}
               </button>
             </div>
           </div>
@@ -853,7 +903,7 @@
                 </h2>
                 <div class="flex items-center gap-3 mt-1">
                   <span class="px-2 py-0.5 bg-blue-600 text-[10px] font-black rounded uppercase tracking-tighter">Live Monitor</span>
-                  <p class="text-slate-400 text-sm font-bold uppercase tracking-[0.2em] opacity-80">Fleet Deployment & Mission Logistics Log</p>
+                  <p class="text-slate-400 text-sm font-bold uppercase tracking-[0.2em] opacity-80">Fleet Deployment & Logistics Log</p>
                 </div>
               </div>
             </div>
@@ -863,7 +913,7 @@
                   <div class="text-xl font-mono font-bold text-blue-400">{{ new Date().toLocaleTimeString() }}</div>
                </div>
                <button @click="closeLogisticsLogModal" class="w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 transition-all flex items-center justify-center text-white border border-white/10">
-                 <i class="mdi mdi-close text-2xl"></i>
+                Close
                </button>
             </div>
           </div>
@@ -877,7 +927,7 @@
                 <i class="mdi mdi-pylon text-3xl"></i>
               </div>
               <div>
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Missions</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Deployments</div>
                 <div class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ logisticsEntries.length }}</div>
               </div>
             </div>
@@ -908,10 +958,10 @@
                     @change="applyLogisticsFilter"
                     class="w-full h-12 pl-4 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 transition-all"
                   >
-                    <option value="">All Mission Status</option>
-                    <option value="open">Active Missions</option>
-                    <option value="completed">Success Dispatched</option>
-                    <option value="closed">Archived Logs</option>
+                    <option value="">All Status</option>
+                    <option value="open">Active</option>
+                    <option value="completed">Success</option>
+                    <option value="closed">Archived</option>
                   </select>
                   <i class="mdi mdi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                 </div>
@@ -935,7 +985,7 @@
               
               <h3 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-8 flex items-center gap-3">
                 <i class="mdi mdi-form-select text-blue-600 text-2xl"></i>
-                Mission Deployment Parameters
+                Deployment Parameters
               </h3>
 
               <form @submit.prevent="saveLogisticsEntry" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -949,7 +999,8 @@
                       class="w-full h-14 pl-5 pr-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
                     >
                       <option :value="null">Inquiry Selection...</option>
-                      <option v-for="enquiry in enquiries" :key="enquiry.id" :value="enquiry.id">
+                      <!-- Combine allApprovedProjects and current enquiries to ensure selection works -->
+                      <option v-for="enquiry in [...allApprovedProjects, ...enquiries.filter(e => !allApprovedProjects.some(ae => ae.id === e.id))]" :key="enquiry.id" :value="enquiry.id">
                         {{ enquiry.job_number || '---' }} | {{ enquiry.title }}
                       </option>
                     </select>
@@ -958,7 +1009,7 @@
                 </div>
 
                 <div class="space-y-2">
-                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Mission Destination*</label>
+                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Destination*</label>
                   <input
                     v-model="logisticsEntryForm.site"
                     type="text"
@@ -969,7 +1020,7 @@
                 </div>
 
                 <div class="space-y-2">
-                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Tactical Vehicle</label>
+                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Vehicle</label>
                   <select
                     v-model="logisticsEntryForm.vehicle_allocated"
                     class="w-full h-14 pl-5 pr-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
@@ -980,7 +1031,7 @@
                 </div>
 
                 <div class="space-y-2">
-                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Field Driver</label>
+                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Driver</label>
                   <select
                     v-model="logisticsEntryForm.driver"
                     class="w-full h-14 pl-5 pr-12 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
@@ -991,7 +1042,7 @@
                 </div>
 
                 <div class="space-y-2">
-                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Officer In-Charge</label>
+                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Supervisor</label>
                   <input
                     v-model="logisticsEntryForm.project_officer_incharge"
                     type="text"
@@ -1002,21 +1053,21 @@
 
                 <div class="grid grid-cols-2 gap-4">
                   <div class="space-y-2">
-                    <label class="text-sm font-black text-slate-500 uppercase tracking-widest">Loading ETA</label>
+                    <label class="text-sm font-black text-slate-500 uppercase tracking-widest">Load Time</label>
                     <input v-model="logisticsEntryForm.loading_time" type="datetime-local" class="w-full h-14 px-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-[11px] font-mono font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all" />
                   </div>
                   <div class="space-y-2">
-                    <label class="text-sm font-black text-amber-600 uppercase tracking-widest">Departure</label>
+                    <label class="text-sm font-black text-amber-600 uppercase tracking-widest">Departure Time</label>
                     <input v-model="logisticsEntryForm.departure" type="datetime-local" class="w-full h-14 px-4 bg-white dark:bg-slate-900 border-2 border-amber-100 dark:border-amber-900/30 rounded-2xl text-[11px] font-mono font-black text-amber-600 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all" />
                   </div>
                 </div>
 
                 <div class="md:col-span-2 space-y-2">
-                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Mission Intelligence / Remarks</label>
+                  <label class="text-sm font-black text-slate-500 uppercase tracking-widest ml-1">Notes / Remarks</label>
                   <textarea
                     v-model="logisticsEntryForm.remarks"
                     rows="1"
-                    placeholder="Brief deployment intel..."
+                    placeholder="Add some notes..."
                     class="w-full h-14 px-6 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all resize-none"
                   ></textarea>
                 </div>
@@ -1029,14 +1080,14 @@
                   >
                     <i v-if="savingLogisticsEntry" class="mdi mdi-loading mdi-spin text-xl"></i>
                     <i v-else class="mdi mdi-shield-check text-xl"></i>
-                    {{ savingLogisticsEntry ? 'Deploying...' : (logisticsEntryForm.id ? 'Authorize Update' : 'Authorize Mission') }}
+                    {{ savingLogisticsEntry ? 'Saving...' : (logisticsEntryForm.id ? 'Save Update' : 'Save Record') }}
                   </button>
                 </div>
               </form>
             </div>
           </div>
 
-          <!-- Logistics Deployment Chronicle -->
+          <!-- Transport History -->
           <div class="space-y-6">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1">Recent Entries</h3>
@@ -1044,8 +1095,7 @@
             </div>
  
             <div v-if="logisticsEntries.length === 0" class="p-20 text-center bg-slate-50/50 dark:bg-slate-800/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-              <i class="mdi mdi-truck-off text-5xl text-slate-200 dark:text-slate-800 mb-4 block"></i>
-              <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">No logistics records found</p>
+              <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">No records found</p>
             </div>
 
             <div v-else class="bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden mb-12">
@@ -1053,13 +1103,13 @@
                 <thead>
                   <tr class="bg-slate-900 text-white">
                     <th @click="sortLogisticsEntries('created_at')" class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em] cursor-pointer hover:bg-slate-800">
-                      MISSION ID <i class="mdi mdi-sort-variant ml-2 opacity-50"></i>
+                      ID <i class="mdi mdi-sort-variant ml-2 opacity-50"></i>
                     </th>
-                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">DEPLOYMENT TOPIC & DESTINATION</th>
-                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">PERSONNEL / ASSET CHAIN</th>
-                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">FLEET SCHEDULE</th>
-                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">OPERATIONAL STATUS</th>
-                    <th class="px-8 py-7 text-right text-xs font-black uppercase tracking-[0.4em]">COMMAND</th>
+                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">SITE & DESTINATION</th>
+                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">PERSONNEL / VEHICLE</th>
+                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">TIME SCHEDULE</th>
+                    <th class="px-8 py-7 text-left text-xs font-black uppercase tracking-[0.4em]">STATUS</th>
+                    <th class="px-8 py-7 text-right text-xs font-black uppercase tracking-[0.4em]">ACTION</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y-4 divide-slate-50 dark:divide-slate-950">
@@ -1082,27 +1132,18 @@
                     <td class="px-8 py-10">
                       <div class="flex items-center gap-10">
                         <div class="flex items-center gap-4">
-                           <div class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 border-2 border-amber-500/20 shadow-sm">
-                             <i class="mdi mdi-account-star text-3xl"></i>
-                           </div>
                            <div class="flex flex-col">
-                              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Project Officer</span>
+                              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Supervisor</span>
                               <span class="text-lg font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ entry.project_officer_incharge || 'N/A' }}</span>
                            </div>
                         </div>
                         <div class="flex items-center gap-4 border-l-2 border-slate-200 dark:border-slate-800 pl-10">
-                           <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 border-2 border-slate-200 dark:border-slate-700 shadow-sm">
-                             <i class="mdi mdi-steering text-3xl"></i>
-                           </div>
                            <div class="flex flex-col">
-                              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Driver</span>
-                              <span class="text-lg font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ entry.driver || '---' }}</span>
+                               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Driver</span>
+                               <span class="text-lg font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ entry.driver || '---' }}</span>
                            </div>
                         </div>
                         <div class="flex items-center gap-4 border-l-2 border-slate-200 dark:border-slate-800 pl-10">
-                           <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600 border-2 border-blue-500/20 shadow-sm">
-                             <i class="mdi mdi-truck-fast text-3xl"></i>
-                           </div>
                            <div class="flex flex-col">
                               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Vehicle</span>
                               <span class="text-xl font-black text-blue-600 italic tracking-tighter leading-none">{{ entry.vehicle_allocated || 'TBD' }}</span>
@@ -1117,7 +1158,7 @@
                            <span class="text-2xl font-mono font-black text-slate-600 dark:text-slate-400 leading-none">{{ entry.loading_time ? new Date(entry.loading_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--' }}</span>
                         </div>
                         <div class="flex flex-col border-l-2 border-amber-500/20 pl-10">
-                           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2 text-amber-600/70">Dispatched</span>
+                           <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2 text-amber-600/70">Departure</span>
                            <span class="text-3xl font-mono font-black text-amber-600 leading-none tracking-tighter">{{ entry.departure ? new Date(entry.departure).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'READY' }}</span>
                         </div>
                       </div>
@@ -1175,7 +1216,7 @@
               @click="closeLogisticsLogModal"
               class="h-12 px-8 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-md"
             >
-              Close Log
+              Close History
             </button>
           </div>
         </div>
@@ -1208,7 +1249,7 @@
           class="fixed z-[10000] w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 backdrop-blur-xl origin-top-right"
         >
           <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Management Options</p>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Options</p>
           </div>
           
           <button 
@@ -1218,7 +1259,7 @@
             <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover/item:scale-110 transition-transform">
               <i class="mdi mdi-pencil-outline text-lg"></i>
             </div>
-            <span>Edit Strategic Data</span>
+            <span>Edit Information</span>
           </button>
 
           <button 
@@ -1239,7 +1280,7 @@
             <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 group-hover/item:scale-110 transition-transform">
               <i class="mdi mdi-trash-can-outline text-lg"></i>
             </div>
-            <span>Purge Record</span>
+            <span>Delete Record</span>
           </button>
         </div>
       </Transition>
@@ -1248,7 +1289,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ProjectEnquiry, CreateProjectEnquiryData, UpdateProjectEnquiryData, EnquiryTask } from '../types/enquiry'
 import { useClients } from '../../clientService/composables/useClients'
@@ -1396,6 +1437,10 @@ const logisticsEntryForm = ref({
   remarks: ''
 })
 
+// All Approved Projects for Logistics Selection
+const allApprovedProjects = ref<ProjectEnquiry[]>([])
+const loadingApprovedProjects = ref(false)
+
 // Vehicle options
 const vehicleOptions = ['KDR 843B', 'KCT 082T', 'KBU 006M', 'KDS 198E']
 
@@ -1405,12 +1450,13 @@ const loadingDrivers = ref(false)
 
 
 // Modal Tabs
-const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'survey'>('basic')
-const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'survey', label: string }> = [
+const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'survey' | 'workflow'>('basic')
+const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'survey' | 'workflow', label: string }> = [
   { key: 'basic', label: 'Basic Information' },
   { key: 'contact', label: 'Contact & Priority' },
   { key: 'assignment', label: 'Assignment & Venue' },
-  { key: 'survey', label: 'Site Survey' }
+  { key: 'survey', label: 'Site Survey' },
+  { key: 'workflow', label: 'Workflow Tasks' }
 ]
 
 const previousTab = () => {
@@ -1445,7 +1491,9 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   follow_up_notes: '',
   venue: '',
   site_survey_skipped: false,
-  site_survey_skip_reason: ''
+  site_survey_skip_reason: '',
+  selected_workflow_tasks: [] as string[],
+  workflow_preset_type: '' as string
 })
 
 // Deliverables management
@@ -1466,13 +1514,92 @@ const removeDeliverable = (index: number) => {
   enquiryFormData.value.project_scope = [...projectDeliverables.value]
 }
 
+// Workflow Task Selection
+const taskPresets = {
+  full_event: {
+    label: 'Full Event (All Tasks)',
+    description: 'Complete event lifecycle from survey to reporting',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'production', 'logistics', 'setup', 'handover', 'setdown', 'report']
+  },
+  delivery_only: {
+    label: 'Delivery Only',
+    description: 'Simple delivery projects without design/production',
+    tasks: ['materials', 'procurement', 'logistics', 'handover']
+  },
+  branding: {
+    label: 'Branding/Merchandising',
+    description: 'Branding projects with design and production',
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'production', 'handover']
+  },
+  design_only: {
+    label: 'Design Only',
+    description: 'Concept and design delivery without execution',
+    tasks: ['site-survey', 'design', 'handover', 'report']
+  },
+  consultation: {
+    label: 'Consultation/Advisory',
+    description: 'Advisory services without physical delivery',
+    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'report']
+  },
+  internal_job: {
+    label: 'Internal Job',
+    description: 'Jobs executed within the company facility (Production only)',
+    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'report']
+  }
+}
+
+const availableTasks = [
+  { type: 'site-survey', title: 'Site Survey', description: 'Conduct site survey and assessment' },
+  { type: 'design', title: 'Design & Concept', description: 'Create design concepts and mockups' },
+  { type: 'materials', title: 'Materials Specification', description: 'Specify and source materials' },
+  { type: 'budget', title: 'Budget Creation', description: 'Create project budget' },
+  { type: 'quote', title: 'Quote Preparation', description: 'Prepare final quote' },
+  { type: 'quote_approval', title: 'Quote Approval', description: 'Approve the prepared quote' },
+  { type: 'procurement', title: 'Procurement', description: 'Manage procurement and inventory' },
+  { type: 'teams', title: 'Teams Management', description: 'Manage project teams' },
+  { type: 'production', title: 'Production', description: 'Handle production activities' },
+  { type: 'logistics', title: 'Logistics', description: 'Manage logistics and transportation' },
+  { type: 'setup', title: 'Event Setup', description: 'Set up event and execute' },
+  { type: 'handover', title: 'Client Handover', description: 'Hand over to client' },
+  { type: 'setdown', title: 'Set Down & Return', description: 'Set down and return equipment' },
+  { type: 'report', title: 'Archival & Reporting', description: 'Archive and generate reports' }
+]
+
+const selectedTasksCount = computed(() => {
+  return enquiryFormData.value.selected_workflow_tasks?.length || 0
+})
+
+const applyPreset = (presetKey: string) => {
+  const preset = taskPresets[presetKey as keyof typeof taskPresets]
+  if (preset) {
+    enquiryFormData.value.selected_workflow_tasks = [...preset.tasks]
+    enquiryFormData.value.workflow_preset_type = presetKey
+  }
+}
+
+const toggleAllTasks = () => {
+  if (selectedTasksCount.value === availableTasks.length) {
+    enquiryFormData.value.selected_workflow_tasks = []
+    enquiryFormData.value.workflow_preset_type = ''
+  } else {
+    enquiryFormData.value.selected_workflow_tasks = availableTasks.map(t => t.type)
+    enquiryFormData.value.workflow_preset_type = 'full_event'
+  }
+}
+
+// Initialize with default preset (full event) for new enquiries
+if (!enquiryFormData.value.selected_workflow_tasks || enquiryFormData.value.selected_workflow_tasks.length === 0) {
+  applyPreset('full_event')
+}
+
+
 
 const currentView = ref<'enquiries' | 'projects' | 'completed'>('enquiries')
 
 const dashboardTabs = [
-  { id: 'enquiries', label: 'Enquiries Pipeline', icon: 'mdi-magnify-scan', desc: 'Pipeline' },
-  { id: 'projects', label: 'Active Projects', icon: 'mdi-rocket-launch', desc: 'In Progress' },
-  { id: 'completed', label: 'Completed Projects', icon: 'mdi-check-circle', desc: 'Finished' }
+  { id: 'enquiries', label: 'New Requests', desc: 'New pipeline' },
+  { id: 'projects', label: 'In Progress', desc: 'Active projects' },
+  { id: 'completed', label: 'Completed', desc: 'Finished projects' }
 ]
 
 const statusTabs = computed(() => {
@@ -1568,7 +1695,9 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     follow_up_notes: enquiry.follow_up_notes || '',
     venue: enquiry.venue || '',
     site_survey_skipped: enquiry.site_survey_skipped ?? false,
-    site_survey_skip_reason: enquiry.site_survey_skip_reason || ''
+    site_survey_skip_reason: enquiry.site_survey_skip_reason || '',
+    selected_workflow_tasks: enquiry.selected_workflow_tasks || [],
+    workflow_preset_type: enquiry.workflow_preset_type || ''
   }
   // Sync deliverables
   projectDeliverables.value = Array.isArray(enquiry.project_scope) ? [...enquiry.project_scope] : []
@@ -1641,6 +1770,21 @@ const openLogisticsLogModal = async () => {
 
   // Fetch all logistics entries
   await fetchLogisticsEntries()
+  
+  // Fetch all approved projects for selection and lookup
+  await fetchApprovedProjects()
+}
+
+const fetchApprovedProjects = async () => {
+  loadingApprovedProjects.value = true
+  try {
+    const response = await api.get('/api/projects/approved-wng')
+    allApprovedProjects.value = response.data.data || []
+  } catch (err) {
+    console.error('Failed to fetch approved projects:', err)
+  } finally {
+    loadingApprovedProjects.value = false
+  }
 }
 
 const closeLogisticsLogModal = () => {
@@ -1666,7 +1810,8 @@ const fetchLogisticsEntries = async () => {
 const handleProjectSelection = () => {
   if (!logisticsEntryForm.value.project_id) return
 
-  const project = enquiries.value.find(e => e.id === logisticsEntryForm.value.project_id)
+  const project = allApprovedProjects.value.find(e => e.id === logisticsEntryForm.value.project_id) || 
+                  enquiries.value.find(e => e.id === logisticsEntryForm.value.project_id)
   if (project) {
     logisticsEntryForm.value.site = project.venue || ''
     logisticsEntryForm.value.project_officer_incharge = project.project_officer?.name || ''
@@ -1812,6 +1957,11 @@ const sortedLogisticsEntries = computed(() => {
 })
 
 // Date formatting functions
+const getPresetLabel = (key: string | undefined) => {
+  if (!key) return 'Custom / Legacy'
+  return taskPresets[key as keyof typeof taskPresets]?.label || 'Custom'
+}
+
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return 'N/A'
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -1833,7 +1983,8 @@ const formatDateTime = (dateString: string) => {
 }
 
 const getProjectName = (projectId: number) => {
-  const project = enquiries.value.find(e => e.id === projectId)
+  const project = allApprovedProjects.value.find(e => e.id === projectId) || 
+                  enquiries.value.find(e => e.id === projectId)
   return project?.title || 'Unknown Project'
 }
 
@@ -1880,8 +2031,14 @@ const closeModal = () => {
     follow_up_notes: '',
     venue: '',
     site_survey_skipped: false,
-    site_survey_skip_reason: ''
+    site_survey_skip_reason: '',
+    selected_workflow_tasks: [],
+    workflow_preset_type: ''
   }
+  
+  // Re-apply default preset for next new enquiry
+  applyPreset('full_event')
+
   // Reset deliverables
   projectDeliverables.value = []
   newDeliverable.value = ''
@@ -1899,8 +2056,7 @@ const handleFormSubmit = async () => {
       await createEnquiry(enquiryFormData.value as CreateProjectEnquiryData)
     }
 
-    showCreateModal.value = false
-    editingEnquiry.value = null
+    closeModal()
 
     // Refresh enquiries after save
     await fetchEnquiries()
@@ -2071,7 +2227,8 @@ const closeLogisticsEntry = async (entryId: number) => {
 
 const getProjectJobNumber = (projectId: number | null) => {
   if (!projectId) return 'N/A'
-  const enquiry = enquiries.value.find(e => e.id === projectId)
+  const enquiry = allApprovedProjects.value.find(e => e.id === projectId) || 
+                  enquiries.value.find(e => e.id === projectId)
   return enquiry?.job_number || 'PENDING'
 }
 
@@ -2120,6 +2277,11 @@ const fetchLogisticsDrivers = async () => {
   }
 }
 
+const handleProjectActivatedSignal = async () => {
+  console.log('Project Activated signal received. Refreshing data...')
+  await fetchEnquiries(filters.value)
+}
+
 onMounted(async () => {
   if (isProjectOfficer.value) {
       filters.value.assigned_to_me = true
@@ -2138,5 +2300,12 @@ onMounted(async () => {
       viewEnquiryDetails(target)
     }
   }
+
+  // Listen for global project activation signal (Auto-Refresh)
+  window.addEventListener('project-activated', handleProjectActivatedSignal)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('project-activated', handleProjectActivatedSignal)
 })
 </script>

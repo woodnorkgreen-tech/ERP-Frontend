@@ -59,6 +59,10 @@
                   class="w-full px-3 py-1.5 text-sm font-medium border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:bg-gray-700 dark:text-white cursor-pointer"
                 >
                   <option value="" disabled>Select logistics item...</option>
+                  <option value="Labour & transport (setup & setdown)">Labour & transport (setup & setdown)</option>
+                  <option value="Items delivery & Setdwon collection">Items delivery & Setdwon collection</option>
+                  <option value="Items delivery & setdown collection (client arranged)">Items delivery & setdown collection (client arranged)</option>
+                  <option value="Branding team transport cost">Branding team transport cost</option>
                   <option value="Items delivery set up">Items delivery set up</option>
                   <option value="Items collection set down">Items collection set down</option>
                   <option value="Team transport set up">Team transport set up</option>

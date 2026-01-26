@@ -23,6 +23,8 @@ export interface ProjectEnquiry {
   venue?: string;
   site_survey_skipped: boolean;
   site_survey_skip_reason?: string;
+  selected_workflow_tasks?: string[];
+  workflow_preset_type?: string;
   quote_approved?: boolean;
   quote_approved_at?: string;
   quote_approved_by?: number;
@@ -164,6 +166,8 @@ export interface CreateProjectEnquiryData {
   venue?: string;
   site_survey_skipped?: boolean;
   site_survey_skip_reason?: string;
+  selected_workflow_tasks?: string[];
+  workflow_preset_type?: string;
   estimated_budget?: number;
 }
 

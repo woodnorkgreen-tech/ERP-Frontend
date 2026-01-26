@@ -1,7 +1,7 @@
 <template>
   <div class="survey-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
     <!-- Header and tabs - only visible when NOT readonly -->
-    <div v-if="!readonly">
+    <div v-if="!isReadOnly">
       <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
       <!-- Premium Project Information Section -->
@@ -94,8 +94,9 @@
 
     <!-- Use TaskDataViewer for completed tasks (readonly mode) -->
     <TaskDataViewer
-      v-if="readonly"
+      v-if="isReadOnly && !isEditMode"
       :task="task"
+      @edit="isEditMode = true"
     />
 
     <!-- Form content (when not readonly) -->
@@ -744,7 +745,7 @@
           </div>
           
           <!-- Edit Toggle Buttons (only shown when readonly) -->
-          <div v-if="readonly" class="flex space-x-2">
+          <div v-if="isReadOnly" class="flex space-x-2">
             <button
               v-if="!isEditingPhotos"
               @click="isEditingPhotos = true"
@@ -766,8 +767,8 @@
           {{ (readonly && !isEditingPhotos) ? 'Site survey photos' : 'Upload photos from the site survey (max 20 photos, 10MB each)' }}
         </p>
 
-        <!-- Upload Area (shown when not readonly OR when editing) -->
-        <div v-if="!readonly || isEditingPhotos" class="mb-6">
+        <!-- Upload Area (shown when not isReadOnly OR when editing) -->
+        <div v-if="!isReadOnly || isEditingPhotos" class="mb-6">
           <label
             class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600 transition-colors"
             @dragover.prevent
@@ -793,8 +794,8 @@
           </label>
         </div>
 
-        <!-- Photo Previews (before upload) - hidden in readonly mode -->
-        <div v-if="(!readonly || isEditingPhotos) && photoPreviews.length > 0" class="mb-6">
+        <!-- Photo Previews (before upload) - hidden in isReadOnly mode -->
+        <div v-if="(!isReadOnly || isEditingPhotos) && photoPreviews.length > 0" class="mb-6">
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Selected Photos ({{ photoPreviews.length }})
@@ -840,8 +841,8 @@
           </div>
         </div>
 
-        <!-- Upload Progress - hidden in readonly mode -->
-        <div v-if="(!readonly || isEditingPhotos) && uploadingPhotos.length > 0" class="mb-4 space-y-2">
+        <!-- Upload Progress - hidden in isReadOnly mode -->
+        <div v-if="(!isReadOnly || isEditingPhotos) && uploadingPhotos.length > 0" class="mb-4 space-y-2">
           <div v-for="upload in uploadingPhotos" :key="upload.name" class="flex items-center space-x-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
             <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -905,9 +906,9 @@
                   </svg>
                 </button>
 
-                <!-- Delete Button (shown when not readonly OR when editing) -->
+                <!-- Delete Button (shown when not isReadOnly OR when editing) -->
                 <button
-                  v-if="!readonly || isEditingPhotos"
+                  v-if="!isReadOnly || isEditingPhotos"
                   type="button"
                   @click.stop="deletePhotoConfirm(photo.id)"
                   class="p-2 bg-white/90 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75"
@@ -929,7 +930,7 @@
                 v-model="photo.caption"
                 type="text"
                 placeholder="Add caption..."
-                :readonly="readonly && !isEditingPhotos"
+                :readonly="isReadOnly && !isEditingPhotos"
                 class="mt-2 w-full text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800"
                 @click.stop
                 @blur="updatePhotoCaption(photo)"
@@ -1068,6 +1069,7 @@
       </div>
 
       <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+        <!-- Left side: Status buttons (if pending/in_progress) -->
         <div class="flex space-x-2">
           <button
             v-if="task.status === 'pending'"
@@ -1084,7 +1086,33 @@
             Complete Survey
           </button>
         </div>
-        <div class="flex flex-grow justify-end items-center space-x-2">
+
+        <div class="flex flex-grow justify-end items-center space-x-3">
+          <!-- Auto-save status indicator -->
+          <div class="flex items-center mr-2">
+            <transition name="fade" mode="out-in">
+              <span v-if="autoSaveStatus === 'saving'" class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                <svg class="animate-spin h-3 w-3 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+              <span v-else-if="autoSaveStatus === 'saved'" class="text-sm text-green-600 dark:text-green-400 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Saved
+              </span>
+              <span v-else-if="autoSaveStatus === 'error'" class="text-sm text-red-600 dark:text-red-400 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Save failed
+              </span>
+            </transition>
+          </div>
+
           <button
             type="button"
             v-if="task.status !== 'skipped' && task.status !== 'completed'"
@@ -1173,14 +1201,20 @@ import api from '@/plugins/axios'
 import type { EnquiryTask } from '../../types/enquiry'
 import TaskDataViewer from './TaskDataViewer.vue'
 import imageCompression from 'browser-image-compression'
+import { useAutoSave } from '@/composables/useAutoSave'
 
 interface Props {
   task: EnquiryTask
   readonly?: boolean
   initialTab?: string | null
+  initialEditMode?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+  initialTab: null,
+  initialEditMode: false
+})
 
 
 const emit = defineEmits<{
@@ -1231,6 +1265,7 @@ const formData = ref({
 const attendeesText = ref('')
 const actionItemsText = ref('')
 const error = ref('')
+const isEditMode = ref(props.initialEditMode)
 const successMessage = ref('')
 const activeTab = ref(props.initialTab || 'basic')
 
@@ -1314,11 +1349,12 @@ const fetchExistingSurveyData = async () => {
       return null
     }
 
-    const apiUrl = `/api/projects/site-surveys?project_enquiry_id=${enquiryId}`
+    const apiUrl = `/api/projects/site-surveys?project_enquiry_id=${enquiryId}&enquiry_task_id=${props.task.id}&_t=${Date.now()}`
 
     const response = await api.get(apiUrl)
+    const responseData = response.data.data || response.data
 
-    const result = response.data.length > 0 ? response.data[0] : null
+    const result = Array.isArray(responseData) && responseData.length > 0 ? responseData[0] : null
     return result
   } catch (apiError: unknown) {
     console.error('[DEBUG] Error fetching existing survey data:', apiError)
@@ -1440,7 +1476,47 @@ const handleSaveDraft = async () => {
   }
 }
 
-const isReadOnly = computed(() => props.readonly || props.task.status === 'completed')
+const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
+const performAutoSave = async () => {
+  // Don't auto-save if readonly or if manual save is in progress
+  if (isReadOnly.value || isLoading.value || isSavingDraft.value) return
+  
+  autoSaveStatus.value = 'saving'
+  
+  try {
+    // Save as draft (true)
+    await saveSurveyData(formData.value, true)
+    autoSaveStatus.value = 'saved'
+    
+    // Reset status after delay
+    setTimeout(() => {
+      if (autoSaveStatus.value === 'saved') {
+        autoSaveStatus.value = 'idle'
+      }
+    }, 2000)
+  } catch (err) {
+    console.error('Auto-save failed:', err)
+    autoSaveStatus.value = 'error'
+    // Reset error after delay
+    setTimeout(() => {
+        if (autoSaveStatus.value === 'error') {
+            autoSaveStatus.value = 'idle'
+        }
+    }, 4000)
+  }
+}
+
+useAutoSave(
+  () => formData.value,
+  performAutoSave,
+  { debounce: 3000 }
+)
+
+const isReadOnly = computed(() => {
+  if (props.readonly) return true
+  return props.task.status === 'completed' && !isEditMode.value
+})
 
 const projectInfo = computed(() => {
   const enquiry = props.task.enquiry
@@ -1480,43 +1556,43 @@ const loadSurveyData = async () => {
     if (existingData) {
       // Populate form with existing data
       formData.value = {
-        site_visit_date: formatToDate(existingData.site_visit_date),
+        site_visit_date: formatToDate(existingData.site_visit_date || existingData.siteVisitDate),
         location: existingData.location || '',
-        client_name: existingData.client_name || '',
+        client_name: existingData.client_name || existingData.clientName || '',
         attendees: Array.isArray(existingData.attendees) ? existingData.attendees : [],
-        client_contact_person: existingData.client_contact_person || '',
-        client_phone: existingData.client_phone || '',
-        client_email: existingData.client_email || '',
-        project_description: existingData.project_description || '',
+        client_contact_person: existingData.client_contact_person || existingData.clientContactPerson || '',
+        client_phone: existingData.client_phone || existingData.clientPhone || '',
+        client_email: existingData.client_email || existingData.clientEmail || '',
+        project_description: existingData.project_description || existingData.projectDescription || '',
         objectives: existingData.objectives || '',
-        current_condition: existingData.current_condition || '',
-        existing_branding: existingData.existing_branding || '',
-        access_logistics: existingData.access_logistics || '',
-        parking_availability: existingData.parking_availability || '',
-        size_accessibility: existingData.size_accessibility || '',
+        current_condition: existingData.current_condition || existingData.currentCondition || '',
+        existing_branding: existingData.existing_branding || existingData.existingBranding || '',
+        access_logistics: existingData.access_logistics || existingData.accessLogistics || '',
+        parking_availability: existingData.parking_availability || existingData.parkingAvailability || '',
+        size_accessibility: existingData.size_accessibility || existingData.sizeAccessibility || '',
         lifts: existingData.lifts || '',
-        door_sizes: existingData.door_sizes || '',
-        loading_areas: existingData.loading_areas || '',
-        site_measurements: existingData.site_measurements || '',
-        room_size: existingData.room_size || '',
+        door_sizes: existingData.door_sizes || existingData.doorSizes || '',
+        loading_areas: existingData.loading_areas || existingData.loadingAreas || '',
+        site_measurements: existingData.site_measurements || existingData.siteMeasurements || '',
+        room_size: existingData.room_size || existingData.roomSize || '',
         constraints: existingData.constraints || '',
-        electrical_outlets: existingData.electrical_outlets || '',
-        food_refreshment: existingData.food_refreshment || '',
-        branding_preferences: existingData.branding_preferences || '',
-        material_preferences: existingData.material_preferences || '',
-        color_scheme: existingData.color_scheme || '',
-        brand_guidelines: existingData.brand_guidelines || '',
-        special_instructions: existingData.special_instructions || '',
-        safety_conditions: existingData.safety_conditions || '',
-        potential_hazards: existingData.potential_hazards || '',
-        safety_requirements: existingData.safety_requirements || '',
-        set_up_date: formatToDateTimeLocal(existingData.set_up_date),
-        set_down_date: formatToDateTimeLocal(existingData.set_down_date),
-        additional_notes: existingData.additional_notes || '',
-        special_requests: existingData.special_requests || '',
-        action_items: Array.isArray(existingData.action_items) ? existingData.action_items : [],
+        electrical_outlets: existingData.electrical_outlets || existingData.electricalOutlets || '',
+        food_refreshment: existingData.food_refreshment || existingData.foodRefreshment || '',
+        branding_preferences: existingData.branding_preferences || existingData.brandingPreferences || '',
+        material_preferences: existingData.material_preferences || existingData.materialPreferences || '',
+        color_scheme: existingData.color_scheme || existingData.colorScheme || '',
+        brand_guidelines: existingData.brand_guidelines || existingData.brandGuidelines || '',
+        special_instructions: existingData.special_instructions || existingData.specialInstructions || '',
+        safety_conditions: existingData.safety_conditions || existingData.safetyConditions || '',
+        potential_hazards: existingData.potential_hazards || existingData.potentialHazards || '',
+        safety_requirements: existingData.safety_requirements || existingData.safetyRequirements || '',
+        set_up_date: formatToDateTimeLocal(existingData.set_up_date || existingData.setUpDate),
+        set_down_date: formatToDateTimeLocal(existingData.set_down_date || existingData.setDownDate),
+        additional_notes: existingData.additional_notes || existingData.additionalNotes || '',
+        special_requests: existingData.special_requests || existingData.specialRequests || '',
+        action_items: Array.isArray(existingData.action_items || existingData.actionItems) ? (existingData.action_items || existingData.actionItems) : [],
         milestones: existingData.milestones || '',
-        prepared_by: existingData.prepared_by || ''
+        prepared_by: existingData.prepared_by || existingData.preparedBy || ''
       }
 
       // Populate text areas for attendees and action items

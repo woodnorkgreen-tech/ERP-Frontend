@@ -30,7 +30,7 @@
         </div>
 
         <div class="flex flex-col items-end">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 mb-1">Total Valuation</p>
+          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 mb-1">Total Price</p>
           <div class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-baseline gap-1">
              <span class="text-xl font-bold text-blue-500">KES</span>
              {{ formatCurrencyValue(quoteData.totals?.grandTotal || 0) }}
@@ -69,7 +69,7 @@
               <span class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border border-indigo-500/20">
                 <i class="mdi mdi-gavel"></i>
               </span>
-              Final Decision
+              Final Choice
             </h3>
             <button 
               @click="showQuoteViewer = true"
@@ -128,12 +128,12 @@
             </div>
 
             <div class="space-y-2">
-              <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Comments & Conditions</label>
+              <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Notes & Rules</label>
               <textarea
                 v-model="formData.comments"
                 rows="3"
                 class="w-full px-6 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-2xl font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
-                placeholder="Add any internal notes or client stipulations..."
+                placeholder="Add any internal notes or project rules..."
               ></textarea>
             </div>
 
@@ -181,7 +181,7 @@
                 >
                   <i v-if="isLoading" class="mdi mdi-loading mdi-spin text-lg"></i>
                   <i v-else class="mdi mdi-content-save-check text-lg"></i>
-                  <span>{{ isLoading ? 'Processing...' : 'Save Decision' }}</span>
+                  <span>{{ isLoading ? 'Saving...' : 'Save Choice' }}</span>
                 </button>
               </div>
             </div>
@@ -199,9 +199,9 @@
                 <i class="mdi mdi-lightning-bolt text-4xl"></i>
               </div>
               <div class="flex-grow text-center md:text-left">
-                <h4 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Activate This Project</h4>
+                <h4 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Start This Project</h4>
                 <p class="text-slate-500 dark:text-gray-400 font-medium mt-1">
-                  Ready to move production? Activating creates the formal Job Number and alerts relevant departments.
+                  Ready to start the project? Activating creates the Job ID and tells the team.
                 </p>
               </div>
               <div class="shrink-0 w-full md:w-auto">
@@ -217,7 +217,7 @@
                 >
                    <i v-if="isConverting" class="mdi mdi-loading mdi-spin"></i>
                    <i v-else class="mdi mdi-rocket-launch"></i>
-                   <span>{{ isConverting ? 'Activating...' : 'Activate & Assign WNG Job #' }}</span>
+                   <span>{{ isConverting ? 'Starting...' : 'Activate & Get Job ID' }}</span>
                 </button>
               </div>
             </div>
@@ -229,7 +229,7 @@
       <div class="space-y-8">
         <!-- Status Box -->
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Live Status Tracking</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Status Tracking</p>
           <div class="flex flex-col gap-4">
              <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-gray-700/50">
                <span class="text-xs font-bold text-slate-500">Processing</span>
@@ -251,14 +251,14 @@
           <div class="absolute top-0 right-0 p-4 -mr-8 -mt-8 opacity-5 group-hover:scale-110 transition-transform">
              <i class="mdi mdi-map-marker-radius text-8xl text-indigo-500"></i>
           </div>
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Logistics Context</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Project Info</p>
           <div class="space-y-4 relative z-10">
              <div>
                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Event Venue</p>
                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ quoteData.projectInfo?.eventVenue || 'TBC' }}</p>
              </div>
              <div>
-               <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Setup Commencement</p>
+               <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Project Start Date</p>
                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ formatDate(quoteData.projectInfo?.setupDate) }}</p>
              </div>
           </div>
@@ -303,7 +303,7 @@
     <div v-if="showSkipModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
       <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/5">
         <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Bypass Approval</h3>
-        <p class="text-slate-500 dark:text-gray-400 font-medium mb-6">Why is this financial validation being skipped? This will be logged in project history.</p>
+        <p class="text-slate-500 dark:text-gray-400 font-medium mb-6">Why is this money check being skipped? This will be saved in project history.</p>
         <textarea
             v-model="skipReason"
             rows="3"
@@ -326,6 +326,7 @@ import { ref, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import { useAuth } from '@/composables/useAuth'
+import { useNotifications } from '../../composables/useNotifications'
 import QuoteViewer from './QuoteViewer.vue'
 
 interface Props {
@@ -538,6 +539,15 @@ const handleConvertToProject = async () => {
 
   try {
     await axios.post(`/api/projects/enquiries/${props.task.project_enquiry_id}/approve-quote`)
+    
+    // Force instant notification sync to trigger the kinetic achievement popup
+    try {
+      const { fetchNotifications } = useNotifications()
+      await fetchNotifications()
+    } catch (nErr) {
+      console.warn('Silent notification sync failure', nErr)
+    }
+
     await loadQuoteData()
     successMessage.value = 'Project activated successfully!'
     updateStatus('completed')

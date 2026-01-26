@@ -75,10 +75,10 @@
               class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               title="Universal Task System"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-              <span class="hidden lg:inline">Tasks</span>
+              </svg> -->
+              <!-- <span class="hidden lg:inline">Tasks</span> -->
             </router-link>
 
             <!-- Notification Center -->
@@ -155,6 +155,9 @@
       <!-- Notification Popup -->
       <NotificationPopup ref="notificationPopup" />
 
+      <!-- Project Activation Kinetic Modal -->
+      <ProjectActivationPopup ref="activationPopup" />
+
       <!-- Toast Notifications -->
       <ToastContainer />
 
@@ -178,22 +181,50 @@ import { useRouter, useRoute } from 'vue-router'
 import DynamicSidebar from '../components/DynamicSidebar.vue'
 import NotificationCenter from '../modules/shared/components/NotificationCenter.vue'
 import NotificationPopup from '../modules/shared/components/NotificationPopup.vue'
+import ProjectActivationPopup from '../modules/shared/components/ProjectActivationPopup.vue'
 import ToastContainer from '../modules/universal-task/components/ToastContainer.vue'
 import { useAuth } from '../composables/useAuth'
 import { useRouteGuard } from '../composables/useRouteGuard'
 import { useTheme } from '../composables/useTheme'
+import { useNotifications } from '../modules/projects/composables/useNotifications'
+import { watch } from 'vue'
 
 const { user, logout } = useAuth()
 const { getAllowedRoutes } = useRouteGuard()
 const { theme, toggleTheme } = useTheme()
+const { unreadNotifications, markAsRead } = useNotifications()
 const router = useRouter()
 const route = useRoute()
 
 const sidebarCollapsed = ref(true)
 const notificationCenter = ref()
 const notificationPopup = ref()
+const activationPopup = ref()
 const profileMenuOpen = ref(false)
 const profileMenuRef = ref<HTMLElement | null>(null)
+
+// Kinetic Popup Logic for Global Events
+watch(unreadNotifications, (newNotifs) => {
+   if (!newNotifs || newNotifs.length === 0) return
+   
+   // Find all activation events
+   const activationEvents = newNotifs.filter(n => n.type === 'project_activated')
+   
+   if (activationEvents.length > 0 && activationPopup.value) {
+      console.log('Project Activation Sequence:', activationEvents.length, 'events')
+      
+      console.log('Project Activation Sequence:', activationEvents.length, 'events')
+      
+      // Audio playback is handled entirely by ProjectActivationPopup now to prevent loops
+      // and ensure the "Double Beep" requirement is met.
+
+      // Pass the entire batch to the popup for carousel handling
+      activationPopup.value.show(activationEvents)
+      
+      // TRIGGER REFRESH: Send global signal for components to refresh data automatically
+      window.dispatchEvent(new CustomEvent('project-activated'))
+   }
+}, { deep: true, immediate: true })
 
 // Check if device supports hover (desktop) vs touch
 const canHover = () => {
@@ -269,6 +300,14 @@ const sidebarTitle = computed(() => {
     return 'Creatives Panel'
   }
 
+  if (userRoles.includes('Stores')) {
+    return 'Stores & Inventory'
+  }
+
+  if (userRoles.includes('Procurement')) {
+    return 'Procurement Panel'
+  }
+
   return 'ERP System'
 })
 
@@ -291,6 +330,14 @@ const sidebarSubtitle = computed(() => {
 
   if (userRoles.includes('Designer')) {
     return 'Design & Production'
+  }
+
+  if (userRoles.includes('Stores')) {
+    return 'Equipment & Materials'
+  }
+
+  if (userRoles.includes('Procurement')) {
+    return 'Supply Chain Management'
   }
 
   return 'Management Dashboard'

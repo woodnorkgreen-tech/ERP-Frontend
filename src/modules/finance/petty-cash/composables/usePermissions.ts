@@ -116,7 +116,7 @@ export function usePermissions() {
     return userPermissions.value.includes(permission)
   }
 
-  const hasAnyPermission = (permissions: PettyCashPermission[]): boolean => {
+  const hasAnyPermission = (permissions: ReadonlyArray<PettyCashPermission>): boolean => {
     if (!isAuthenticated.value || !isActive.value) {
       return false
     }
@@ -124,7 +124,7 @@ export function usePermissions() {
     return permissions.some(permission => userPermissions.value.includes(permission))
   }
 
-  const hasAllPermissions = (permissions: PettyCashPermission[]): boolean => {
+  const hasAllPermissions = (permissions: ReadonlyArray<PettyCashPermission>): boolean => {
     if (!isAuthenticated.value || !isActive.value) {
       return false
     }
@@ -201,7 +201,7 @@ export function usePermissions() {
     }
   }
 
-  const requireAnyPermission = (permissions: PettyCashPermission[]): void => {
+  const requireAnyPermission = (permissions: ReadonlyArray<PettyCashPermission>): void => {
     if (!isAuthenticated.value) {
       const error: PermissionError = {
         code: 'PERMISSION_DENIED',
@@ -363,6 +363,7 @@ export function usePermissions() {
     canViewBalance,
     canRecalculateBalance,
     canExportData,
+    canUploadExcel,
     canManageSettings,
 
     // Methods

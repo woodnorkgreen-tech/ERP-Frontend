@@ -5,10 +5,10 @@
     <!-- Project Header Section -->
     <div class="mb-6">
       <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Production Task - {{ task.title }}
+        Production Plan - {{ task.title }}
       </h4>
 
-      <!-- Premium Project Information Section -->
+      <!-- Project Details -->
       <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
         <!-- Decorative background elements -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
@@ -20,7 +20,7 @@
                 <i class="mdi mdi-office-building text-2xl"></i>
               </div>
               <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
+                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
                 <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
               </div>
             </div>
@@ -31,7 +31,7 @@
                   <i class="mdi mdi-identifier"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
                    <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
                 </div>
               </div>
@@ -41,7 +41,7 @@
                   <i class="mdi mdi-account-tie"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
                 </div>
               </div>
@@ -51,7 +51,7 @@
                   <i class="mdi mdi-map-marker"></i>
                 </div>
                 <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
                 </div>
               </div>
@@ -61,7 +61,7 @@
           <!-- Right Side: Status/Highlights -->
           <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
              <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Schedule</p>
                 <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
                   <i class="mdi mdi-calendar-check text-blue-400"></i>
                   {{ formatDate(projectInfo.setupDate) }}
@@ -70,7 +70,7 @@
              
              <div class="flex items-center gap-2">
                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
+               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Live Status</span>
              </div>
           </div>
         </div>
@@ -90,7 +90,7 @@
           ]"
         >
           <i class="mdi mdi-factory mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'production-management' ? 'text-white' : 'text-blue-500'"></i>
-          <span>Fabrication</span>
+          <span>Build Items</span>
           <div v-if="activeTab === 'production-management'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
         </button>
 
@@ -161,13 +161,10 @@
                  @click="toggleCategoryCollapse(category.id)"
               >
                   <div class="flex items-center gap-5">
-                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg text-xl" :class="getCategoryBgClass(category.id)">
-                        <i class="mdi mdi-layers-triple"></i>
-                     </div>
                      <div>
                         <h3 class="text-lg font-black text-slate-900 dark:text-white leading-none">{{ category.displayName }}</h3>
                         <div class="flex items-center gap-3 mt-2">
-                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getElementsByCategory(category.id).length }} Fabrication Units</span>
+                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getElementsByCategory(category.id).length }} Items to build</span>
                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getCategoryTotalQuantity(category.id) }} Total Quantity</span>
                         </div>
@@ -201,9 +198,6 @@
                           <!-- Item Identity -->
                           <td class="px-6 py-5">
                              <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 shrink-0 border border-slate-200/50 dark:border-slate-600/50">
-                                   <i class="mdi mdi-cube-send text-xl"></i>
-                                </div>
                                 <div class="flex flex-col min-w-0">
                                    <span class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ element.name || element.description }}</span>
                                    <div class="flex items-center gap-2 mt-1">
@@ -231,9 +225,9 @@
            </div>
            
            <div class="text-center max-w-lg px-8">
-              <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Initialize Fabrication Line</h3>
+              <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Start Building Items</h3>
               <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg">
-                 Load your validated material bill from the <strong>Materials Task</strong> to begin tracking production progress, quality checkpoints, and assembly readiness.
+                 Load your list of materials from the <strong>Materials Task</strong> to start tracking what needs to be built and checked.
               </p>
               
               <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -255,7 +249,7 @@
               <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-8 text-left">
                  <div class="flex gap-3">
                     <i class="mdi mdi-shield-check text-blue-500"></i>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automated QC Point generation</p>
+                     <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automatic check points</p>
                  </div>
                  <div class="flex gap-3">
                     <i class="mdi mdi-truck-fast text-emerald-500"></i>
@@ -282,10 +276,10 @@
                 <i class="mdi mdi-check-decagram text-3xl"></i>
              </div>
              <div>
-                <h4 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Quality Assurance</h4>
+                 <h4 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Quality Check</h4>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
                   <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Project integrity & fabrication standards monitoring
+                  Check items match quality standards
                 </p>
              </div>
           </div>
@@ -329,8 +323,8 @@
              <div class="relative z-10">
                 <div class="flex justify-between items-center mb-4">
                   <div>
-                    <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Audit Progress</span>
-                    <span class="text-xs text-slate-500">System validates fabrication against project design specifications</span>
+                     <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Check Progress</span>
+                     <span class="text-xs text-slate-500">System checks items against project designs</span>
                   </div>
                   <div class="text-right">
                     <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ qualityProgressPercentage }}%</span>
@@ -449,7 +443,7 @@
                    <div class="flex items-center justify-between mb-4">
                       <h5 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
                          <i class="mdi mdi-format-list-checks text-blue-500"></i>
-                         Verification Checklist
+                         Checklist
                       </h5>
                       <span class="text-[10px] font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">MUST COMPLETE ALL</span>
                    </div>
@@ -479,7 +473,7 @@
                 <div class="space-y-6">
                    <!-- Final Verdict -->
                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Audit Outcome</label>
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Check Result</label>
                       <div class="flex gap-2">
                         <button 
                           v-for="status in (['pending', 'in_progress', 'passed', 'failed'] as const)"
@@ -504,12 +498,12 @@
                    <!-- Notes & Scoring -->
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div class="md:col-span-2">
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Internal Audit Notes</label>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Notes</label>
                          <textarea 
                            v-model="checkpoint.notes"
                            @change="updateCheckpointNotes(checkpoint.id, checkpoint.notes)"
                            class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px]"
-                           placeholder="Describe any defects, materials variance or exceptional fabrication standards observed..."
+                           placeholder="Describe any problems or notes about the quality..."
                          ></textarea>
                       </div>
                       
@@ -529,7 +523,7 @@
                       </div>
 
                       <div>
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Assigned Inspector</label>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Inspector</label>
                          <input 
                            type="text" 
                            v-model="checkpoint.checkedBy"
@@ -566,9 +560,9 @@
           </div>
           
           <div class="text-center max-w-md px-6">
-            <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">Initialize Quality Audit</h3>
+             <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">Start Quality Check</h3>
             <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-              Quality control checkpoints are automatically mapped to your production elements to ensure fabrication standards are met.
+               Quality check points are created to make sure items are built correctly.
             </p>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 text-left">
@@ -618,8 +612,8 @@
                 <i class="mdi mdi-alert-octagram-outline text-3xl"></i>
              </div>
              <div>
-                <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Operational Bottlenecks</h3>
-                <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Track, Resolve & Escalate Production Issues</p>
+                 <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Project Problems</h3>
+                 <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Track and fix project issues</p>
              </div>
           </div>
           
@@ -652,7 +646,7 @@
             <!-- Total Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
                <div class="relative z-10 flex flex-col h-full">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Lifetime Logs</span>
+                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Total Records</span>
                   <div class="flex items-end justify-between mt-auto">
                     <p class="text-4xl font-black text-slate-800 dark:text-white leading-none">{{ productionData.issues.length }}</p>
                     <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-colors">
@@ -666,7 +660,7 @@
             <!-- Open Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
                <div class="relative z-10 flex flex-col h-full">
-                  <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-4 block">Active Danger</span>
+                   <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-4 block">Unfixed Issues</span>
                   <div class="flex items-end justify-between mt-auto">
                     <p class="text-4xl font-black text-rose-600 dark:text-rose-400 leading-none">{{ getIssueStatusCount('open') }}</p>
                     <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 flex items-center justify-center text-rose-500 group-hover:bg-rose-600 group-hover:text-white transition-colors">
@@ -680,7 +674,7 @@
             <!-- In Progress Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
                <div class="relative z-10 flex flex-col h-full">
-                  <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 block">In Remediation</span>
+                   <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 block">Being Fixed</span>
                   <div class="flex items-end justify-between mt-auto">
                     <p class="text-4xl font-black text-amber-600 dark:text-amber-400 leading-none">{{ getIssueStatusCount('in_progress') }}</p>
                     <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
@@ -694,7 +688,7 @@
             <!-- Resolved Card -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
                <div class="relative z-10 flex flex-col h-full">
-                  <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 block">Resolved & Cleared</span>
+                   <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 block">Resolved & Done</span>
                   <div class="flex items-end justify-between mt-auto">
                     <p class="text-4xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{{ getIssueStatusCount('resolved') }}</p>
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
@@ -788,7 +782,7 @@
             <!-- Optional Expansion (if has nested comments/logs) -->
             <div v-if="isIssueDetailsExpanded(issue.id)" class="px-8 pb-8 animate-slide-down">
                <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-                  <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Remediation Logs</h5>
+                   <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Fix History</h5>
                   <div class="space-y-4">
                      <p class="text-sm font-medium italic text-slate-500">No logs reported yet...</p>
                   </div>

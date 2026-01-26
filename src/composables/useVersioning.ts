@@ -10,6 +10,7 @@ export interface Version {
     source_updated_at?: string;
     materials_version_id?: number;
     materials_version_number?: number;
+    data?: any;
 }
 
 export interface VersionResponse<T = any> {
@@ -50,6 +51,25 @@ export function useVersioning(taskId: Ref<number> | number, type: VersionType) {
         } catch (err: any) {
             error.value = err.response?.data?.message || 'Failed to load versions';
             console.error('Error fetching versions:', err);
+            throw err;
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
+    /**
+     * Fetch a single version for this task with snapshot data
+     */
+    const fetchVersion = async (versionId: number): Promise<Version> => {
+        isLoading.value = true;
+        error.value = null;
+
+        try {
+            const response = await api.get(`${getBasePath()}/versions/${versionId}`);
+            return response.data.data;
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Failed to load version details';
+            console.error('Error fetching version:', err);
             throw err;
         } finally {
             isLoading.value = false;
@@ -105,6 +125,7 @@ export function useVersioning(taskId: Ref<number> | number, type: VersionType) {
         isLoading,
         error,
         fetchVersions,
+        fetchVersion,
         createVersion,
         restoreVersion,
     };

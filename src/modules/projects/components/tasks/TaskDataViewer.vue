@@ -83,6 +83,7 @@
           :is="editableComponent"
           :task="task"
           :readonly="false"
+          :initial-edit-mode="true"
           @update-status="$emit('update-status', $event)"
           @complete="$emit('complete')"
         />
@@ -106,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, markRaw } from 'vue'
+import { ref, watch, markRaw, shallowRef } from 'vue'
 import api from '@/plugins/axios'
 import type { EnquiryTask } from '../../types/enquiry'
 
@@ -136,24 +137,24 @@ const taskData = ref<Record<string, unknown> | Record<string, unknown>[] | null>
 const isLoading = ref(false)
 const error = ref('')
 const isEditMode = ref(false)
-const editableComponent = ref<any>(null)
+const editableComponent = shallowRef<any>(null)
 const isLoadingEditableComponent = ref(false)
 
 // Map task types to their data display components
 const dataDisplayComponents = {
-  'site-survey': SurveyDataDisplay,
-  'materials': MaterialsDataDisplay,
-  'budget': BudgetDataDisplay,
-  'design': DesignDataDisplay,
-  'handover': HandoverDataDisplay,
-  'logistics': LogisticsDataDisplay,
+  'site-survey': markRaw(SurveyDataDisplay),
+  'materials': markRaw(MaterialsDataDisplay),
+  'budget': markRaw(BudgetDataDisplay),
+  'design': markRaw(DesignDataDisplay),
+  'handover': markRaw(HandoverDataDisplay),
+  'logistics': markRaw(LogisticsDataDisplay),
 
-  'procurement': ProcurementDataDisplay,
+  'procurement': markRaw(ProcurementDataDisplay),
 
-  'report': ReportDataDisplay,
-  'setdown': SetdownDataDisplay,
-  'setup': SetupDataDisplay,
-  'teams': TeamsDataDisplay,
+  'report': markRaw(ReportDataDisplay),
+  'setdown': markRaw(SetdownDataDisplay),
+  'setup': markRaw(SetupDataDisplay),
+  'teams': markRaw(TeamsDataDisplay),
   // Add more task types here as needed
 }
 
@@ -368,7 +369,7 @@ const toggleEditMode = async () => {
       const componentImport = editableComponents[props.task.type as keyof typeof editableComponents]
       if (componentImport) {
         const module = await componentImport()
-        editableComponent.value = module.default
+        editableComponent.value = markRaw(module.default)
       } else {
         editableComponent.value = null
       }
