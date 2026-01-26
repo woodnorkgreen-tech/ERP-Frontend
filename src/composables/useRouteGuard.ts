@@ -354,14 +354,12 @@ export function useRouteGuard() {
         { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: 'mdi-office-building' }
       )
     }
-    // HR gets HR routes + Projects access + Production Reports access
+    // HR gets HR routes + Production Reports access
     else if (userRoles.includes('HR')) {
       routes.push(
         { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
         { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
-        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
         { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
-        // { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
       )
     }
 
@@ -388,8 +386,7 @@ export function useRouteGuard() {
       routes.push(
         { name: 'production-dashboard', path: '/production/dashboard', label: 'Production Dashboard', icon: 'mdi-view-dashboard' },
         { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' },
-        { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' },
-        { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
+        { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' }
       )
     }
 

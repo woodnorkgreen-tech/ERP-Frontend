@@ -42,18 +42,39 @@
                   v-for="employee in employeeResults"
                   :key="employee.id"
                   @click="selectEmployee(employee)"
-                  class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                  class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0"
                 >
-                  <div class="font-medium text-gray-900 dark:text-white">
-                    {{ employee.first_name }} {{ employee.last_name }}
-                  </div>
-                  <div class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ employee.employee_number }} - {{ employee.department }}
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="font-medium text-gray-900 dark:text-white">
+                        {{ employee.full_name || `${employee.first_name} ${employee.last_name}` }}
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {{ employee.employee_number }}
+                      </p>
+                      <p class="text-xs text-gray-500 dark:text-gray-500">
+                        {{ employee.department }}
+                      </p>
+                      <p v-if="employee.specialization" class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        {{ employee.specialization }}
+                      </p>
+                    </div>
+                    <div class="flex flex-col items-end ml-2">
+                      <span
+                        class="text-xs px-2 py-1 rounded-full mb-1"
+                        :class="getSourceClass(employee.source)"
+                      >
+                        {{ getSourceLabel(employee.source) }}
+                      </span>
+                      <span v-if="employee.day_rate" class="text-xs text-green-600 dark:text-green-400">
+                        ${{ employee.day_rate }}/day
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
               <div v-if="selectedEmployee" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                Selected: {{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }} ({{ selectedEmployee.employee_number }})
+                Selected: {{ selectedEmployee.full_name || `${selectedEmployee.first_name} ${selectedEmployee.last_name}` }} ({{ selectedEmployee.employee_number }})
               </div>
             </div>
           </div>
@@ -517,8 +538,8 @@ const emit = defineEmits<{
 
 const loading = ref(false)
 const employeeSearch = ref('')
-const employeeResults = ref<{ id: number; first_name: string; last_name: string; employee_number: string; department: string }[]>([])
-const selectedEmployee = ref<{ id: number; first_name: string; last_name: string; employee_number: string; department: string } | null>(null)
+const employeeResults = ref<{ id: number; first_name: string; last_name: string; full_name?: string; employee_number: string; department: string; source?: string; specialization?: string; day_rate?: number }[]>([])
+const selectedEmployee = ref<{ id: number; first_name: string; last_name: string; full_name?: string; employee_number: string; department: string } | null>(null)
 const showTaskForm = ref(false)
 const showIssueForm = ref(false)
 const editingTaskIndex = ref<number | null>(null)
@@ -809,16 +830,11 @@ const handleSubmit = async () => {
       console.log('Form tasks:', JSON.stringify(form.value.tasks, null, 2))
       console.log('Form issues:', JSON.stringify(form.value.issues, null, 2))
       
-      // Helper function to format time with date context for overnight shifts
-      const formatTimeWithDate = (timeStr: string, isNextDay: boolean = false): string | undefined => {
-        if (!timeStr) return undefined
-        const date = new Date(form.value.date)
-        if (isNextDay) {
-          date.setDate(date.getDate() + 1)
-        }
-        const [hours, minutes] = timeStr.split(':')
-        date.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-        return date.toISOString()
+      // Helper function to format time for backend (H:i format)
+      const formatTimeForBackend = (timeStr: string): string => {
+        if (!timeStr) return ''
+        // Return time in H:i format (24-hour without seconds)
+        return timeStr
       }
       
       // Determine if clock out is on the next day
@@ -830,9 +846,10 @@ const handleSubmit = async () => {
       }
       
       const updateData = {
-        worker_id: form.value.worker_id ? Number(form.value.worker_id) : undefined,
-        clock_in_time: formatTimeWithDate(form.value.clock_in_time, false),
-        clock_out_time: formatTimeWithDate(form.value.clock_out_time, isClockOutNextDay),
+        worker_id: Number(form.value.worker_id) || 0, // Ensure it's always a number
+        date: form.value.date,
+        clock_in_time: formatTimeForBackend(form.value.clock_in_time),
+        clock_out_time: formatTimeForBackend(form.value.clock_out_time),
         notes: form.value.notes,
         tasks: form.value.tasks.map(task => {
           // Determine if task end time is on the next day
@@ -847,8 +864,8 @@ const handleSubmit = async () => {
             id: task.id,
             description: task.description,
             work_order_id: task.selected_work_order?.id || undefined,
-            start_time: formatTimeWithDate(task.start_time, false),
-            end_time: formatTimeWithDate(task.end_time, isTaskEndNextDay),
+            start_time: formatTimeForBackend(task.start_time),
+            end_time: formatTimeForBackend(task.end_time),
             notes: task.notes,
             hours_worked: calculateHoursWorked(task.start_time, task.end_time)
           }
@@ -862,16 +879,11 @@ const handleSubmit = async () => {
       console.log('Update data:', JSON.stringify(updateData, null, 2))
       response = await jobCardsService.updateJobCard(props.jobCard.id, updateData)
     } else {
-      // Helper function to format time with date context for overnight shifts
-      const formatTimeWithDate = (timeStr: string, isNextDay: boolean = false): string | undefined => {
-        if (!timeStr) return undefined
-        const date = new Date(form.value.date)
-        if (isNextDay) {
-          date.setDate(date.getDate() + 1)
-        }
-        const [hours, minutes] = timeStr.split(':')
-        date.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-        return date.toISOString()
+      // Helper function to format time for backend (H:i format)
+      const formatTimeForBackend = (timeStr: string): string => {
+        if (!timeStr) return ''
+        // Return time in H:i format (24-hour without seconds)
+        return timeStr
       }
       
       // Determine if clock out is on the next day
@@ -885,8 +897,8 @@ const handleSubmit = async () => {
       response = await jobCardsService.createJobCard({
         worker_id: Number(form.value.worker_id),
         date: form.value.date,
-        clock_in_time: formatTimeWithDate(form.value.clock_in_time, false),
-        clock_out_time: formatTimeWithDate(form.value.clock_out_time, isClockOutNextDay),
+        clock_in_time: formatTimeForBackend(form.value.clock_in_time),
+        clock_out_time: formatTimeForBackend(form.value.clock_out_time),
         notes: form.value.notes,
         tasks: form.value.tasks.map(task => {
           // Determine if task end time is on the next day
@@ -900,8 +912,8 @@ const handleSubmit = async () => {
           return {
             description: task.description,
             work_order_id: task.selected_work_order?.id || undefined,
-            start_time: formatTimeWithDate(task.start_time, false),
-            end_time: formatTimeWithDate(task.end_time, isTaskEndNextDay),
+            start_time: formatTimeForBackend(task.start_time),
+            end_time: formatTimeForBackend(task.end_time),
             notes: task.notes,
             hours_worked: calculateHoursWorked(task.start_time, task.end_time)
           }
@@ -1018,17 +1030,22 @@ const searchEmployees = async (query: string) => {
     if (response.success) {
       // Filter technicians based on search query
       const filteredData = response.data.filter((emp: any) =>
-        emp.first_name.toLowerCase().includes(query.toLowerCase()) ||
-        emp.last_name.toLowerCase().includes(query.toLowerCase()) ||
+        (emp.first_name && emp.first_name.toLowerCase().includes(query.toLowerCase())) ||
+        (emp.last_name && emp.last_name.toLowerCase().includes(query.toLowerCase())) ||
+        (emp.full_name && emp.full_name.toLowerCase().includes(query.toLowerCase())) ||
         emp.employee_number?.toLowerCase().includes(query.toLowerCase())
       )
       // Transform to match expected employee structure
       employeeResults.value = filteredData.map((emp: any) => ({
         id: emp.id,
-        first_name: emp.first_name,
-        last_name: emp.last_name,
+        first_name: emp.first_name || '',
+        last_name: emp.last_name || '',
+        full_name: emp.full_name || `${emp.first_name} ${emp.last_name}`,
         employee_number: emp.employee_number,
-        department: emp.department?.name || 'Production'
+        department: emp.department,
+        source: emp.source,
+        specialization: emp.specialization,
+        day_rate: emp.day_rate
       }))
       console.log('Employee results:', employeeResults.value)
     } else {
@@ -1041,9 +1058,37 @@ const searchEmployees = async (query: string) => {
 
 const selectEmployee = (employee: any) => {
   selectedEmployee.value = employee
-  form.value.worker_id = employee.id
-  employeeSearch.value = `${employee.first_name} ${employee.last_name}`
+  form.value.worker_id = Number(employee.id) // Ensure it's always a number
+  // Handle both full_name (technical labour) and first_name/last_name (legacy employee)
+  if (employee.full_name) {
+    employeeSearch.value = employee.full_name
+  } else {
+    employeeSearch.value = `${employee.first_name} ${employee.last_name}`
+  }
   employeeResults.value = []
+}
+
+// Helper methods for source display
+const getSourceClass = (source?: string) => {
+  switch (source) {
+    case 'employee':
+      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+    case 'technical_labour':
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+  }
+}
+
+const getSourceLabel = (source?: string) => {
+  switch (source) {
+    case 'employee':
+      return 'Employee'
+    case 'technical_labour':
+      return 'Technical Labour'
+    default:
+      return 'Unknown'
+  }
 }
 
 const calculateHoursWorked = (startTime: string, endTime: string): number => {
@@ -1091,16 +1136,19 @@ onMounted(() => {
       })) || []
     }
     
-    console.log('Form data after loading:', form.value)
+    // Handle both technical labour (full_name) and legacy employees (first_name/last_name)
+    const workerName = props.jobCard.worker?.full_name || 
+                      `${props.jobCard.worker?.first_name || ''} ${props.jobCard.worker?.last_name || ''}`.trim()
     
     selectedEmployee.value = {
       id: props.jobCard.worker?.id,
-      first_name: props.jobCard.worker?.first_name,
-      last_name: props.jobCard.worker?.last_name,
+      first_name: props.jobCard.worker?.first_name || '',
+      last_name: props.jobCard.worker?.last_name || '',
+      full_name: props.jobCard.worker?.full_name || workerName,
       employee_number: props.jobCard.worker?.employee_number,
       department: props.jobCard.worker?.department?.name || 'Production'
     }
-    employeeSearch.value = `${props.jobCard.worker?.first_name} ${props.jobCard.worker?.last_name}`
+    employeeSearch.value = workerName
   }
   // Remove automatic addTask() call - let user add tasks manually
 })

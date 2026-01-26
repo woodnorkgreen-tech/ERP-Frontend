@@ -192,7 +192,7 @@
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="jobCard in jobCards" :key="jobCard.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                {{ jobCard.worker?.name }}
+                {{ jobCard.worker?.full_name || `${jobCard.worker?.first_name || ''} ${jobCard.worker?.last_name || ''}`.trim() || 'Unknown Worker' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ formatDate(jobCard.date) }}

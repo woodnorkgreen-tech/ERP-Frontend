@@ -73,7 +73,7 @@
         
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm font-medium text-gray-600">Assigned Technician</p>
-          <p class="text-lg font-semibold text-gray-900">{{ jobCard.assignedTechnician?.name || 'Unassigned' }}</p>
+          <p class="text-lg font-semibold text-gray-900">{{ jobCard.assignedTechnician?.full_name || `${jobCard.assignedTechnician?.first_name || ''} ${jobCard.assignedTechnician?.last_name || ''}`.trim() || jobCard.assignedTechnician?.name || 'Unassigned' }}</p>
           <p class="text-sm text-gray-600">{{ jobCard.assignedTechnician?.employee_number }}</p>
         </div>
       </div>

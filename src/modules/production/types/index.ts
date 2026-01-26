@@ -125,13 +125,20 @@ export interface WorkOrderResponse {
 export type JobCardStatus = 'draft' | 'pending_approval' | 'approved' | 'rejected'
 
 export interface Technician {
-  id: number
+  id: number | string
   name: string
   email: string
   employee_number: string
   hourly_rate: number
   skills: string[]
   is_active: boolean
+  first_name: string
+  last_name: string
+  department: string
+  full_name?: string
+  source?: 'employee' | 'technical_labour'
+  specialization?: string
+  day_rate?: number
 }
 
 export interface WorkCenter {
@@ -245,43 +252,32 @@ export interface JobCardResponse {
 
 // Reports Types
 export interface TechnicianTimeReport {
-  technician: {
-    id: number
-    name: string
-    employee_number: string
-  }
-  summary: {
-    total_days_worked: number
-    total_hours: number
-    total_overtime_hours: number
-    average_hours_per_day: number
-    total_tasks: number
-    total_issues: number
-  }
-  work_order_breakdown: Array<{
-    work_order_number: string
-    title: string
-    client_name: string
-    total_hours: number
-    task_count: number
-  }>
-  daily_breakdown: Array<{
-    date: string
-    total_hours: number
-    overtime_hours: number
-    task_count: number
-    issue_count: number
-  }>
+  technician_id: number
+  technician_name: string
+  employee_id: string
+  total_hours: number
+  regular_hours: number
+  overtime_hours: number
+  job_cards_completed: number
+  efficiency_rating: number
+  total_cost: number
 }
 
 export interface ProductionAnalytics {
   total_job_cards: number
+  completed_job_cards: number
   total_labor_hours: number
   total_overtime_hours: number
-  average_daily_hours: number
-  active_technicians: number
-  technicians_with_work: number
-  utilization_rate: number
+  total_labor_cost: number
+  average_completion_time: number
+  technician_utilization: number
+  top_performers: Array<{
+    technician_id: number
+    technician_name: string
+    job_cards_completed: number
+    total_hours: number
+    efficiency_rating: number
+  }>
   period: {
     start_date: string
     end_date: string
