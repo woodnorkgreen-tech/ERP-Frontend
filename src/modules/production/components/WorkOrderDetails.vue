@@ -37,52 +37,52 @@
       </div>
 
       <!-- Project Info Cards -->
-      <div class="p-6 bg-gray-50 border-b">
+      <div class="p-6 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-4 rounded-lg border shadow-sm">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-100 rounded-lg">
-                <i class="mdi mdi-briefcase-outline text-blue-600"></i>
+              <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <i class="mdi mdi-briefcase-outline text-blue-600 dark:text-blue-400"></i>
               </div>
               <div class="flex-1">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Project</p>
-                <p class="font-semibold text-gray-900 truncate">{{ selectedWorkOrder?.projectEnquiry?.title || '' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project</p>
+                <p class="font-semibold text-gray-900 dark:text-white truncate">{{ selectedWorkOrder?.projectEnquiry?.title || '' }}</p>
               </div>
             </div>
           </div>
           
-          <div class="bg-white p-4 rounded-lg border shadow-sm">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-green-100 rounded-lg">
-                <i class="mdi mdi-account-outline text-green-600"></i>
+              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <i class="mdi mdi-account-outline text-green-600 dark:text-green-400"></i>
               </div>
               <div class="flex-1">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Client</p>
-                <p class="font-semibold text-gray-900 truncate">{{ selectedWorkOrder?.projectEnquiry?.client?.name || '' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Client</p>
+                <p class="font-semibold text-gray-900 dark:text-white truncate">{{ selectedWorkOrder?.projectEnquiry?.client?.company_name || selectedWorkOrder?.projectEnquiry?.client?.full_name || '' }}</p>
               </div>
             </div>
           </div>
           
-          <div class="bg-white p-4 rounded-lg border shadow-sm">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-purple-100 rounded-lg">
-                <i class="mdi mdi-tag-outline text-purple-600"></i>
+              <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <i class="mdi mdi-tag-outline text-purple-600 dark:text-purple-400"></i>
               </div>
               <div class="flex-1">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Job Number</p>
-                <p class="font-semibold text-gray-900">{{ selectedWorkOrder?.projectEnquiry?.job_number || '-' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Job Number</p>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ selectedWorkOrder?.projectEnquiry?.job_number || '-' }}</p>
               </div>
             </div>
           </div>
           
-          <div class="bg-white p-4 rounded-lg border shadow-sm">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-orange-100 rounded-lg">
-                <i class="mdi mdi-account-hard-hat text-orange-600"></i>
+              <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <i class="mdi mdi-account-hard-hat text-orange-600 dark:text-orange-400"></i>
               </div>
               <div class="flex-1">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Project Officer</p>
-                <p class="font-semibold text-gray-900 truncate">{{ selectedWorkOrder?.projectEnquiry?.project_officer?.name || '-' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Project Officer</p>
+                <p class="font-semibold text-gray-900 dark:text-white truncate">{{ selectedWorkOrder?.project_officer_name || '-' }}</p>
               </div>
             </div>
           </div>
@@ -91,11 +91,11 @@
         <!-- Status and Priority Row -->
         <div class="flex gap-4 mt-4">
           <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-600">Status:</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Status:</span>
             <Tag :value="formatStatusCategory(selectedWorkOrder?.status_category || '')" :severity="getStatusSeverity(selectedWorkOrder?.status_category || '')" />
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-600">Priority:</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Priority:</span>
             <Tag :value="formatPriority(selectedWorkOrder?.priority || '')" :severity="getPrioritySeverity(selectedWorkOrder?.priority || '')" />
           </div>
         </div>
@@ -104,18 +104,18 @@
       <div v-if="loading" class="p-12">
         <div class="flex flex-col items-center justify-center">
           <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4"></ProgressSpinner>
-          <p class="mt-4 text-gray-600">Loading work order details...</p>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Loading work order details...</p>
         </div>
       </div>
 
       <div v-else-if="selectedWorkOrder" class="flex-1 flex flex-col overflow-hidden">
         <!-- Tab Navigation -->
-        <TabView v-model:activeIndex="activeTab" class="flex-1 flex flex-col custom-tabview">
+        <TabView v-model:activeIndex="activeTab" class="flex-1 flex flex-col custom-tabview dark-tabview">
           <!-- Scope Tab -->
           <TabPanel header="Project Scope" value="0">
-            <div class="p-6">
+            <div class="p-6 bg-white dark:bg-gray-800">
               <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-semibold text-gray-900">Scope Elements</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Scope Elements</h3>
                 <div class="flex gap-3">
                   <span class="p-input-icon-left">
                     <i class="mdi mdi-magnify"></i>
@@ -147,16 +147,16 @@
                 <Column field="name" header="Element Name" sortable>
                   <template #body="{ data }">
                     <div class="flex items-center gap-2">
-                      <div class="p-1.5 bg-orange-100 rounded-full">
-                        <i class="mdi mdi-cube-outline text-orange-600 text-xs"></i>
+                      <div class="p-1.5 bg-orange-100 dark:bg-orange-900 rounded-full">
+                        <i class="mdi mdi-cube-outline text-orange-600 dark:text-orange-400 text-xs"></i>
                       </div>
-                      <span class="font-medium">{{ data.name }}</span>
+                      <span class="font-medium text-gray-900 dark:text-white">{{ data.name }}</span>
                     </div>
                   </template>
                 </Column>
                 <Column field="quantity" header="Quantity" sortable class="text-center">
                   <template #body="{ data }">
-                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
                       {{ data.quantity }}
                     </span>
                   </template>
@@ -168,7 +168,7 @@
                 </Column>
                 <Column field="notes" header="Notes">
                   <template #body="{ data }">
-                    <span class="text-gray-600 text-sm">{{ data.notes || '-' }}</span>
+                    <span class="text-gray-600 dark:text-gray-400 text-sm">{{ data.notes || '-' }}</span>
                   </template>
                 </Column>
               </DataTable>
@@ -177,16 +177,16 @@
 
           <!-- Design Assets Tab -->
           <TabPanel header="Design Assets" value="1">
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6">Design Files & Assets</h3>
+            <div class="p-6 bg-white dark:bg-gray-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Design Files & Assets</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <div 
                   v-for="asset in designAssets" 
                   :key="asset.id" 
-                  class="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                   @click="previewAsset(asset)"
                 >
-                  <div class="aspect-video bg-gray-100 flex items-center justify-center">
+                  <div class="aspect-video bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                     <img 
                       v-if="asset.isImage" 
                       :src="asset.file_url" 
@@ -194,13 +194,13 @@
                       class="w-full h-full object-cover"
                     />
                     <div v-else class="text-center">
-                      <i class="mdi mdi-file-outline text-4xl text-gray-400"></i>
-                      <p class="text-xs text-gray-500 mt-1">{{ getFileExtension(asset.original_name) }}</p>
+                      <i class="mdi mdi-file-outline text-4xl text-gray-400 dark:text-gray-500"></i>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getFileExtension(asset.original_name) }}</p>
                     </div>
                   </div>
                   <div class="p-4">
-                    <h4 class="font-medium text-gray-900 truncate">{{ asset.name }}</h4>
-                    <p class="text-sm text-gray-500">{{ asset.formattedSize }}</p>
+                    <h4 class="font-medium text-gray-900 dark:text-white truncate">{{ asset.name }}</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ asset.formattedSize }}</p>
                   </div>
                 </div>
               </div>
@@ -209,8 +209,8 @@
 
           <!-- Materials Tab -->
           <TabPanel header="Materials" value="2">
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6">Materials List</h3>
+            <div class="p-6 bg-white dark:bg-gray-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Materials List</h3>
               <DataTable 
                 :value="materialsList" 
                 :rows="1000"
@@ -223,30 +223,30 @@
                 <Column field="name" header="Material Name" sortable>
                   <template #body="{ data }">
                     <div class="flex items-center gap-2">
-                      <div class="p-1.5 bg-blue-100 rounded-full">
-                        <i class="mdi mdi-package-variant text-blue-600 text-xs"></i>
+                      <div class="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-full">
+                        <i class="mdi mdi-package-variant text-blue-600 dark:text-blue-400 text-xs"></i>
                       </div>
-                      <span class="font-medium">{{ data.name }}</span>
+                      <span class="font-medium text-gray-900 dark:text-white">{{ data.name }}</span>
                     </div>
                   </template>
                 </Column>
                 <Column field="quantity" header="Quantity" sortable class="text-center">
                   <template #body="{ data }">
-                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
                       {{ data.quantity }}
                     </span>
                   </template>
                 </Column>
                 <Column field="unit" header="Unit" sortable class="text-center">
                   <template #body="{ data }">
-                    <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-sm font-medium">
+                    <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded text-sm font-medium">
                       {{ data.unit }}
                     </span>
                   </template>
                 </Column>
                 <Column field="specifications" header="Specifications">
                   <template #body="{ data }">
-                    <span class="text-gray-600 text-sm">{{ data.specifications || '-' }}</span>
+                    <span class="text-gray-600 dark:text-gray-400 text-sm">{{ data.specifications || '-' }}</span>
                   </template>
                 </Column>
                 <Column field="source" header="Source" sortable class="text-center">
@@ -265,78 +265,78 @@
 
           <!-- Equipment Tab -->
           <TabPanel header="Equipment" value="3">
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-6">Equipment Requirements</h3>
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+            <div class="p-6 bg-white dark:bg-gray-800">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Equipment Requirements</h3>
+              <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8 text-center">
                 <i class="mdi mdi-tools text-4xl text-blue-500 mb-3"></i>
-                <h4 class="text-lg font-medium text-blue-900 mb-2">Equipment Database Coming Soon</h4>
-                <p class="text-blue-700">Equipment requirements will be tracked here once the equipment database is implemented.</p>
+                <h4 class="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">Equipment Database Coming Soon</h4>
+                <p class="text-blue-700 dark:text-blue-300">Equipment requirements will be tracked here once the equipment database is implemented.</p>
               </div>
             </div>
           </TabPanel>
         </TabView>
 
         <!-- Timeline Footer -->
-        <div class="bg-gray-50 border-t p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Timeline & Assignment</h3>
+        <div class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Timeline & Assignment</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-100 rounded-lg">
-                <i class="mdi mdi-calendar-plus text-blue-600"></i>
+              <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <i class="mdi mdi-calendar-plus text-blue-600 dark:text-blue-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Created</p>
-                <p class="font-medium text-gray-900">{{ formatDateTime(selectedWorkOrder?.created_at) }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Created</p>
+                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.created_at) }}</p>
               </div>
             </div>
             
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-green-100 rounded-lg">
-                <i class="mdi mdi-account-check text-green-600"></i>
+              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <i class="mdi mdi-account-check text-green-600 dark:text-green-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Assigned To</p>
-                <p class="font-medium text-gray-900">{{ selectedWorkOrder?.assignedTo?.name || '-' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Assigned To</p>
+                <p class="font-medium text-gray-900 dark:text-white">{{ selectedWorkOrder?.assignedTo?.name || '-' }}</p>
               </div>
             </div>
             
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-purple-100 rounded-lg">
-                <i class="mdi mdi-domain text-purple-600"></i>
+              <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <i class="mdi mdi-domain text-purple-600 dark:text-purple-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Department</p>
-                <p class="font-medium text-gray-900">Production</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Department</p>
+                <p class="font-medium text-gray-900 dark:text-white">Production</p>
               </div>
             </div>
             
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-orange-100 rounded-lg">
-                <i class="mdi mdi-play-circle text-orange-600"></i>
+              <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <i class="mdi mdi-play-circle text-orange-600 dark:text-orange-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Started</p>
-                <p class="font-medium text-gray-900">{{ formatDateTime(selectedWorkOrder?.started_at) }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Started</p>
+                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.started_at) }}</p>
               </div>
             </div>
             
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-red-100 rounded-lg">
-                <i class="mdi mdi-calendar-clock text-red-600"></i>
+              <div class="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <i class="mdi mdi-calendar-clock text-red-600 dark:text-red-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Due Date</p>
-                <p class="font-medium text-gray-900">{{ formatDate(selectedWorkOrder?.due_date) }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Due Date</p>
+                <p class="font-medium text-gray-900 dark:text-white">{{ formatDate(selectedWorkOrder?.due_date) }}</p>
               </div>
             </div>
             
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-green-100 rounded-lg">
-                <i class="mdi mdi-check-circle text-green-600"></i>
+              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <i class="mdi mdi-check-circle text-green-600 dark:text-green-400"></i>
               </div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Completed</p>
-                <p class="font-medium text-gray-900">{{ formatDateTime(selectedWorkOrder?.completed_at) }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
+                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.completed_at) }}</p>
               </div>
             </div>
           </div>
@@ -361,9 +361,9 @@
           class="max-w-full max-h-96 object-contain mx-auto rounded-lg"
         />
         <div v-else class="py-8">
-          <i class="mdi mdi-file-outline text-6xl text-gray-400 mb-4"></i>
-          <p class="text-gray-600">{{ previewingAsset.description || 'No preview available for this file type' }}</p>
-          <p class="text-sm text-gray-500 mt-2">Size: {{ previewingAsset.formattedSize }}</p>
+          <i class="mdi mdi-file-outline text-6xl text-gray-400 dark:text-gray-500 mb-4"></i>
+          <p class="text-gray-600 dark:text-gray-400">{{ previewingAsset.description || 'No preview available for this file type' }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Size: {{ previewingAsset.formattedSize }}</p>
         </div>
       </div>
     </div>
@@ -431,8 +431,14 @@ interface ProjectEnquiry {
   id: number
   job_number: string
   title: string
-  client_name: string
-  projectOfficer?: {
+  client_name?: string
+  client?: {
+    id: number
+    full_name?: string
+    company_name?: string
+    contact_person?: string
+  }
+  project_officer?: {
     id: number
     name: string
     email: string
@@ -538,10 +544,10 @@ const fetchProjectEnquiry = async () => {
         // Add project enquiry data to the work order
         selectedWorkOrder.value.projectEnquiry = enquiryResponse.data
         console.log('Project enquiry data added:', selectedWorkOrder.value.projectEnquiry)
-        console.log('Project title:', selectedWorkOrder.value.projectEnquiry.title)
-        console.log('Client name:', selectedWorkOrder.value.projectEnquiry.client)
-        console.log('Job number:', selectedWorkOrder.value.projectEnquiry.job_number)
-        console.log('Project officer:', selectedWorkOrder.value.projectEnquiry.project_officer?.name)
+        console.log('Project title:', selectedWorkOrder.value.projectEnquiry?.title)
+        console.log('Client name:', selectedWorkOrder.value.projectEnquiry?.client?.company_name || selectedWorkOrder.value.projectEnquiry?.client?.full_name)
+        console.log('Job number:', selectedWorkOrder.value.projectEnquiry?.job_number)
+        console.log('Project officer:', selectedWorkOrder.value.projectEnquiry?.project_officer?.name)
       } else {
         console.log('No data in enquiry response, available keys:', Object.keys(enquiryResponse || {}))
       }
@@ -858,16 +864,10 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
   background-color: white;
 }
 
-/* Custom TabView Styling - Enhanced Modern Design - Updated: 2025-01-20 */
+/* Simple TabView Styling */
 .custom-tabview .p-tabview-nav {
-  border-bottom: 3px solid #e5e7eb !important;
-  background: linear-gradient(to bottom, #ffffff, #f8fafc) !important;
+  background: #f8fafc !important;
   padding: 1rem 1rem 0 1rem !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-}
-
-.custom-tabview .p-tabview-nav li {
-  margin-right: 0.5rem !important;
 }
 
 .custom-tabview .p-tabview-nav li .p-tabview-nav-link {
@@ -878,47 +878,23 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
   font-size: 0.95rem !important;
   color: #64748b !important;
   background: #f1f5f9 !important;
-  border: 2px solid transparent !important;
-  border-bottom: none !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  top: 2px !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
 }
 
 .custom-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+  color: #374151 !important;
   background: #e2e8f0 !important;
-  color: #475569 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 .custom-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  color: white !important;
-  border: 2px solid #3b82f6 !important;
-  border-bottom: 2px solid #2563eb !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
-  transform: translateY(0) !important;
-  top: 0 !important;
-  z-index: 10 !important;
-}
-
-.custom-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 3px !important;
-  background: linear-gradient(90deg, #60a5fa, #3b82f6, #2563eb) !important;
-  border-radius: 0.75rem 0.75rem 0 0 !important;
+  background: rgba(37, 99, 235, 0.1) !important;
+  color: #3b82f6 !important;
 }
 
 .custom-tabview .p-tabview-panels {
   background: white !important;
   border: none !important;
-  margin-top: -1px !important;
 }
 
 .p-tabview-panel {
@@ -953,5 +929,69 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Simplified tab styling - use background instead of underline */
+.dark-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
+  color: #3b82f6 !important;
+  background: rgba(37, 99, 235, 0.1) !important;
+}
+
+.dark .dark-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
+  color: #f3f4f6 !important;
+  background: rgba(37, 99, 235, 0.2) !important;
+}
+
+/* Dark mode tab styles */
+.dark .dark-tabview .p-tabview-nav {
+  background: #1f2937 !important;
+  border: none !important;
+}
+
+.dark .dark-tabview .p-tabview-nav li .p-tabview-nav-link {
+  color: #d1d5db !important;
+}
+
+.dark .dark-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+  color: #f3f4f6 !important;
+}
+
+.dark .dark-tabview .p-tabview-panels {
+  background: #1f2937 !important;
+  border: none !important;
+}
+
+.dark .dark-tabview {
+  background: #1f2937 !important;
+}
+
+/* DataTable dark mode styling */
+.dark .p-datatable .p-datatable-thead > tr > th {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .p-datatable .p-datatable-tbody > tr > td {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-color: #374151 !important;
+}
+
+.dark .p-datatable .p-datatable-tbody > tr:nth-child(odd) > td {
+  background-color: #111827 !important;
+}
+
+/* Input components dark mode */
+.dark .p-inputtext {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .p-dropdown {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+  border-color: #4b5563 !important;
 }
 </style>

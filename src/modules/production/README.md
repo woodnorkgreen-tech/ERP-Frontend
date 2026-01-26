@@ -1,6 +1,6 @@
 # Production Module
 
-A comprehensive production management module for work order management, production scheduling, and resource allocation.
+A comprehensive production management module for work order management, job cards, production scheduling, and resource allocation tailored for events fabrication companies.
 
 ## Current Features
 
@@ -13,62 +13,94 @@ A comprehensive production management module for work order management, producti
 - View detailed work order information
 - Search and filter work orders
 
+### Job Cards (NEW)
+- **Technician Time Tracking**: Clock in/out functionality with real-time tracking
+- **Fabrication-Specific Types**: Stage, Booth, Signage, Custom Items
+- **Work Center Management**: Fabrication, Assembly, Finishing, Painting, Electrical
+- **Material Requirements**: Track materials and costs per job card
+- **Quality Checkpoints**: Ensure fabrication standards are met
+- **Mobile-Responsive**: Touch-friendly interfaces for shop floor use
+- **Status Management**: Planned → Released → In Progress → Completed workflow
+- **Efficiency Tracking**: Compare planned vs actual hours
+
+### HR & Analytics
+- **Technician Performance Reports**: Daily, weekly, monthly analytics
+- **Time Tracking Reports**: Regular hours, overtime, break time
+- **Production Analytics**: Completion rates, utilization metrics
+- **Cost Analysis**: Labor cost breakdown and efficiency ratings
+- **Export Functionality**: CSV reports for HR and strategic planning
+
 ## Module Structure
 
 ```
 production/
 ├── types/               # TypeScript interfaces and types
+│   ├── index.ts         # Work Order, Job Card, Technician types
 ├── services/            # API service layer
+│   ├── jobCards.ts      # Job cards and time tracking API
 ├── composables/         # Vue composables for state management
+│   ├── useJobCards.ts   # Job card management
+│   └── useProductionReports.ts # HR analytics
 ├── components/          # Reusable Vue components
 │   ├── WorkOrderForm.vue      # Create/Edit work order modal
-│   └── WorkOrderDetails.vue   # View work order details
+│   ├── WorkOrderDetails.vue   # View work order details
+│   ├── JobCardForm.vue        # Create/Edit job card modal
+│   └── JobCardDetails.vue     # View job card details with time tracking
 └── views/              # Page components
-    └── WorkOrdersView.vue     # Work orders list and management
+    ├── WorkOrdersView.vue     # Work orders list and management
+    ├── JobCardsView.vue       # Job cards list and management
+    ├── JobCardDetailsView.vue # Dedicated job card details page
+    ├── HRReportsView.vue      # HR analytics and reports
+    └── ProductionDashboard.vue # Production overview dashboard
 ```
 
 ## Available Routes
 
 - `/production/work-orders` - Work Orders management interface
+- `/production/job-cards` - Job Cards management interface
+- `/production/job-cards/:id` - Individual Job Card details
+- `/production/reports` - HR Reports and analytics
+- `/production/dashboard` - Production dashboard
+
+## User Roles & Access
+
+### Production Users
+- Create and manage job cards
+- Clock in/out time tracking
+- Start/complete job cards
+- View assigned work
+
+### HR Users
+- View technician performance reports
+- Access time tracking analytics
+- Export production reports
+- Monitor labor costs
+
+### Admins
+- Full access to all features
+- System configuration
+- User management
 
 ## Getting Started
 
-### View Work Orders
-1. Navigate to `/production/work-orders`
-2. See all work orders in a paginated table
-3. Use filters to find specific work orders by:
-   - Status (pending, in_progress, completed, on_hold, cancelled)
-   - Priority (low, medium, high, urgent)
-   - Search by work order number or title
+### Job Card Management
+1. Navigate to `/production/job-cards`
+2. Click "+ Create Job Card" to create new job cards
+3. Assign to technicians and work centers
+4. Track progress through the production workflow
 
-### Create a Work Order
-1. Click "+ New Work Order" button
-2. Fill in the form:
-   - Work Order Number (unique)
-   - Title
-   - Quantity to produce
-   - Status
-   - Priority
-   - Specifications (optional)
-   - Due date (optional)
-3. Submit to create
+### Time Tracking for Technicians
+1. View assigned job cards
+2. Click "Clock In" to start tracking time
+3. Add work descriptions
+4. Click "Clock Out" when finished
+5. Automatic efficiency calculations
 
-### Edit a Work Order
-1. Click "Edit" on any work order row
-2. Update the details
-3. Save changes
-
-### View Details
-1. Click "View" on any work order
-2. See full information including:
-   - Work order details
-   - Project information
-   - Timeline
-   - Assignment details
-
-### Delete a Work Order
-1. Click "Delete" on a work order row
-2. Confirm deletion
+### HR Reporting
+1. Navigate to `/production/reports`
+2. Select period (week/month/quarter/year)
+3. View technician performance metrics
+4. Export reports for payroll and strategic planning
 
 ## Integration
 
@@ -78,12 +110,13 @@ The module is automatically integrated into the routing system and sidebar navig
 Production routes appear under the "Production" department in the sidebar.
 
 ### For Production Users
-The Production module dashboard is automatically set as their default landing page upon login.
+The Production dashboard is automatically set as their default landing page upon login.
 
-## Future Features
+## Future Enhancements
 
-- Job Cards (resource allocation per work order)
-- Production Schedules
-- Quality Control tracking
-- Inventory management for production
-- Production analytics and reporting
+- [ ] Material inventory integration
+- [ ] Quality control mobile app
+- [ ] Production scheduling calendar
+- [ ] Cost estimation tools
+- [ ] Photo documentation for quality checks
+- [ ] Mobile app for shop floor technicians

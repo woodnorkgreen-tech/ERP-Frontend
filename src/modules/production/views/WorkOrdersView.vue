@@ -1,151 +1,204 @@
 <template>
-  <div class="work-orders-container">
-    <div class="header">
-      <h1>Work Orders</h1>
-      <button 
-        @click="syncWorkOrdersForProjects" 
-        :disabled="syncing"
-        class="sync-btn"
-      >
-        {{ syncing ? 'Syncing...' : 'Sync Projects' }}
-      </button>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Work Orders</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400">Manage production work orders and assignments</p>
+      </div>
+      <div class="mt-4 sm:mt-0">
+        <button 
+          @click="syncWorkOrdersForProjects" 
+          :disabled="syncing"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ syncing ? 'Syncing...' : 'Sync Projects' }}
+        </button>
+      </div>
     </div>
 
     <!-- Filters -->
-    <div class="filters">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search work order number or title..."
-        class="filter-input"
-        @input="handleSearch"
-      />
-      <select v-model="selectedStatus" @change="handleStatusFilter" class="filter-select">
-        <option value="">All Status</option>
-        <option value="in_progress">In Progress</option>
-        <option value="approved">Approved</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
-
-    <!-- Status Tabs -->
-    <div class="status-tabs">
-      <button 
-        v-for="tab in statusTabs" 
-        :key="tab.key"
-        @click="activeTab = tab.key"
-        :class="['tab-button', { active: activeTab === tab.key }]"
-      >
-        {{ tab.label }}
-        <span v-if="tab.count > 0" class="tab-count">({{ tab.count }})</span>
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="loading">Loading work orders...</div>
-
-    <!-- Error State -->
-    <div v-if="error" class="error-message">{{ error }}</div>
-
-    <!-- Work Orders Table -->
-    <div v-if="!loading && filteredWorkOrders.length > 0" class="table-container">
-      <table class="work-orders-table">
-        <thead>
-          <tr>
-            <th>WO Number</th>
-            <th>Title</th>
-            <th>Quantity</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Due Date</th>
-            <th>Assigned To</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="wo in filteredWorkOrders" :key="wo.id" class="wo-row">
-            <td class="wo-number">{{ wo.work_order_number }}</td>
-            <td class="wo-title">{{ wo.title }}</td>
-            <td class="wo-quantity">{{ wo.quantity }}</td>
-            <td>
-              <span :class="['status-badge', `status-${wo.status_category}`]">
-                {{ formatStatusCategory(wo.status_category) }}
-              </span>
-            </td>
-            <td>
-              <span :class="['priority-badge', `priority-${wo.priority}`]">
-                {{ formatPriority(wo.priority) }}
-              </span>
-            </td>
-            <td class="wo-date">{{ formatDate(wo.due_date) }}</td>
-            <td class="wo-assigned">{{ wo.projectEnquiry?.project_officer?.name || wo.assignedTo?.name || 'Unassigned' }}</td>
-            <td class="wo-actions">
-              <button @click="viewWorkOrder(wo.id)" class="action-btn view-btn">
-                View
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div v-if="!loading && workOrders.length > 0" class="pagination-container">
-      <div class="pagination-info">
-        <span>Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, total) }} of {{ total }} work orders</span>
-      </div>
-      
-      <div class="pagination-controls">
-        <div class="pagination-buttons">
-          <button 
-            @click="prevPage" 
-            :disabled="!hasPrevPage"
-            class="pagination-btn"
-          >
-            Previous
-          </button>
-          
-          <div class="page-numbers">
-            <button 
-              v-for="page in displayedPages" 
-              :key="page"
-              @click="typeof page === 'number' ? goToPage(page) : null"
-              :class="['page-btn', { active: page === currentPage, ellipsis: page === '...' }]"
-              :disabled="page === '...'"
-            >
-              {{ page }}
-            </button>
-          </div>
-          
-          <button 
-            @click="nextPage" 
-            :disabled="!hasNextPage"
-            class="pagination-btn"
-          >
-            Next
-          </button>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search work order number or title..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            @input="handleSearch"
+          />
         </div>
-        
-        <div class="per-page-selector">
-          <label for="per-page">Items per page:</label>
-          <select 
-            id="per-page" 
-            v-model="perPage" 
-            @change="changePerPage(parseInt(($event.target as HTMLSelectElement).value))"
-            class="per-page-select"
-          >
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
+        <div>
+          <select v-model="selectedStatus" @change="handleStatusFilter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Status</option>
+            <option value="in_progress">In Progress</option>
+            <option value="approved">Approved</option>
+            <option value="completed">Completed</option>
           </select>
         </div>
       </div>
     </div>
 
+    <!-- Status Tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div class="flex border-b border-gray-200 dark:border-gray-700">
+        <button 
+          v-for="tab in statusTabs" 
+          :key="tab.key"
+          @click="activeTab = tab.key"
+          :class="[
+            'px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+            activeTab === tab.key 
+              ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+          ]"
+        >
+          {{ tab.label }}
+          <span v-if="tab.count > 0" class="ml-2 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
+            {{ tab.count }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Loading work orders...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg shadow p-4">
+      <p class="text-red-600 dark:text-red-400">{{ error }}</p>
+    </div>
+
+    <!-- Work Orders Table -->
+    <div v-if="!loading && filteredWorkOrders.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">WO Number</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Priority</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Due Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assigned To</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr v-for="wo in filteredWorkOrders" :key="wo.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">{{ wo.work_order_number }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ wo.title }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ wo.quantity }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span :class="getStatusClass(wo.status_category)">
+                  {{ formatStatusCategory(wo.status_category) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span :class="getPriorityClass(wo.priority)">
+                  {{ formatPriority(wo.priority) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDate(wo.due_date) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <span v-if="wo.project_officer_name" class="font-medium">
+                  {{ wo.project_officer_name }}
+                  <span class="text-xs text-gray-500 dark:text-gray-400 block">(Project Officer)</span>
+                </span>
+                <span v-else-if="wo.assignedTo?.name" class="font-medium">
+                  {{ wo.assignedTo.name }}
+                  <span class="text-xs text-gray-500 dark:text-gray-400 block">(Direct Assignment)</span>
+                </span>
+                <span v-else class="text-gray-500 dark:text-gray-400 italic">
+                  Unassigned
+                  <span class="text-xs block text-gray-400 dark:text-gray-500">
+                    No project officer or direct assignment
+                  </span>
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button @click="viewWorkOrder(wo.id)" class="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                  View
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div v-if="!loading && workOrders.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, total) }} of {{ total }} work orders
+        </div>
+        
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <button 
+              @click="prevPage" 
+              :disabled="!hasPrevPage"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            
+            <div class="flex items-center gap-1">
+              <button 
+                v-for="page in displayedPages" 
+                :key="page"
+                @click="typeof page === 'number' ? goToPage(page) : null"
+                :class="[
+                  'px-3 py-1 border border-gray-300 dark:border-gray-600 text-sm rounded-md transition-colors',
+                  page === currentPage 
+                    ? 'bg-blue-600 border-blue-600 text-white' 
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600',
+                  page === '...' ? 'cursor-default text-gray-500' : 'cursor-pointer',
+                  page === '...' ? 'border-transparent' : ''
+                ]"
+                :disabled="page === '...'"
+
+              >
+                {{ page }}
+              </button>
+            </div>
+            
+            <button 
+              @click="nextPage" 
+              :disabled="!hasNextPage"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <label for="per-page">Items per page:</label>
+            <select 
+              id="per-page" 
+              v-model="perPage" 
+              @change="changePerPage(parseInt(($event.target as HTMLSelectElement).value))"
+              class="px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md"
+            >
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- No Work Orders Message -->
-    <div v-if="!loading && filteredWorkOrders.length === 0" class="no-work-orders">
-      <p>No work orders found for the selected status.</p>
+    <div v-if="!loading && filteredWorkOrders.length === 0" class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
+      <p class="text-gray-500 dark:text-gray-400">No work orders found for the selected status.</p>
     </div>
 
     <!-- Edit Form Modal (no manual create) -->
@@ -171,7 +224,6 @@ import { ref, onMounted, computed } from 'vue'
 import { useWorkOrders } from '../composables'
 import { useAuth } from '../../../composables/useAuth'
 import api from '../../../plugins/axios'
-import Network from '@/network-class'
 import WorkOrderForm from '../components/WorkOrderForm.vue'
 import WorkOrderDetails from '../components/WorkOrderDetails.vue'
 
@@ -201,6 +253,7 @@ const editingId = ref<number | null>(null)
 const viewingId = ref<number | null>(null)
 const syncing = ref(false)
 const activeTab = ref('approved')
+const searchTimeout = ref<number | null>(null)
 
 // Status tabs configuration
 const statusTabs = computed(() => {
@@ -285,7 +338,7 @@ const fetchProjectEnquiriesForWorkOrders = async () => {
     
     for (const wo of workOrdersWithEnquiryId) {
       if (!wo.projectEnquiry) {
-        const enquiryResponse = await Network.get(`/api/projects/enquiries/${wo.project_enquiry_id}`)
+        const enquiryResponse = await api.get(`/api/projects/enquiries/${wo.project_enquiry_id}`)
         if (enquiryResponse.data) {
           wo.projectEnquiry = enquiryResponse.data
         }
@@ -296,11 +349,23 @@ const fetchProjectEnquiriesForWorkOrders = async () => {
   }
 }
 
-const handleSearch = async () => {
-  if (!searchQuery.value.trim()) {
-    await fetchWorkOrders()
-    await fetchProjectEnquiriesForWorkOrders()
+const handleSearch = () => {
+  // Clear existing timeout
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
   }
+  
+  // Set new timeout for debounced search
+  searchTimeout.value = setTimeout(async () => {
+    if (searchQuery.value.trim()) {
+      // Pass search filter to fetchWorkOrders
+      await fetchWorkOrders({ search: searchQuery.value.trim() })
+    } else {
+      // Clear search and fetch all
+      await fetchWorkOrders()
+    }
+    await fetchProjectEnquiriesForWorkOrders()
+  }, 300) // 300ms debounce
 }
 
 const handleStatusFilter = async () => {
@@ -392,6 +457,25 @@ const formatDate = (date: string | null) => {
     month: 'short',
     day: 'numeric'
   })
+}
+
+const getStatusClass = (status?: string) => {
+  const classes = {
+    in_progress: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
+    approved: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+    completed: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+  }
+  return classes[status as keyof typeof classes] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+}
+
+const getPriorityClass = (priority?: string) => {
+  const classes = {
+    low: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+    medium: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
+    high: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+    urgent: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+  }
+  return classes[priority as keyof typeof classes] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
 }
 </script>
 
