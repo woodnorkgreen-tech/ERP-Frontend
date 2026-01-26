@@ -17,6 +17,7 @@ export interface ErrorState {
   code?: string | number
   timestamp: Date
   context?: Record<string, any>
+  response?: any
 }
 
 // Default error state
@@ -133,7 +134,8 @@ export function useErrorHandler() {
       details: error.response?.data?.message || error.message,
       code: error.response?.status || error.code,
       timestamp: new Date(),
-      context
+      context,
+      response: error.response?.data
     }
 
     console.error('Error handled:', error)
@@ -162,10 +164,10 @@ export function useErrorHandler() {
     try {
       setLoading(true)
       clearError()
-      
+
       const result = await operation()
       resetRetryCount()
-      
+
       return result
     } catch (error) {
       handleError(error, context)
@@ -187,22 +189,22 @@ export function useErrorHandler() {
         if (attempt > 0) {
           console.log(`Retry attempt ${attempt}/${maxRetries.value}`)
         }
-        
+
         setLoading(true)
-        
+
         const result = await operation()
-        
+
         clearError()
         return result
       } catch (error) {
         lastError = error
         retryCount.value = attempt + 1
-        
+
         if (attempt === maxRetries.value) {
           handleError(error, context)
           break
         }
-        
+
         // Wait before next retry
         const delay = 1000 * Math.pow(2, attempt) // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay))
@@ -210,7 +212,7 @@ export function useErrorHandler() {
         setLoading(false)
       }
     }
-    
+
     return null
   }
 

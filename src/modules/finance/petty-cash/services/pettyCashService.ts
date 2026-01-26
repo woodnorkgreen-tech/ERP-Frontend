@@ -455,7 +455,7 @@ class PettyCashService {
 
   // Disbursement operations with permission validation
   async getDisbursements(filters?: DisbursementFilters & { page?: number }): Promise<DisbursementListResponse> {
-    this.validatePermission('petty_cash.view', 'get disbursements')
+    this.validatePermission('finance.petty_cash.view', 'get disbursements')
 
     return this.makeRequest<DisbursementListResponse>('GET', '/disbursements', null, {
       params: filters as Record<string, unknown>,
@@ -464,13 +464,13 @@ class PettyCashService {
   }
 
   async getDisbursement(id: number): Promise<DisbursementResponse> {
-    this.validatePermission('petty_cash.view', 'get disbursement details')
+    this.validatePermission('finance.petty_cash.view', 'get disbursement details')
 
     return this.makeRequest<DisbursementResponse>('GET', `/disbursements/${id}`)
   }
 
   async createDisbursement(data: CreateDisbursementFormData): Promise<DisbursementResponse> {
-    this.validatePermission('petty_cash.create_disbursement', 'create disbursement')
+    this.validatePermission('finance.petty_cash.create_disbursement', 'create disbursement')
 
     return this.makeRequest<DisbursementResponse>('POST', '/disbursements', data, {
       timeout: 20000, // Longer timeout for create operations
@@ -479,38 +479,51 @@ class PettyCashService {
   }
 
   async updateDisbursement(id: number, data: UpdateDisbursementFormData): Promise<DisbursementResponse> {
-    this.validatePermission('petty_cash.edit_disbursement', 'update disbursement')
+    this.validatePermission('finance.petty_cash.edit_disbursement', 'update disbursement')
 
     return this.makeRequest<DisbursementResponse>('PUT', `/disbursements/${id}`, data)
   }
 
   async voidDisbursement(id: number, data: VoidDisbursementFormData): Promise<DisbursementResponse> {
-    this.validatePermission('petty_cash.void_disbursement', 'void disbursement')
+    this.validatePermission('finance.petty_cash.void_disbursement', 'void disbursement')
 
     return this.makeRequest<DisbursementResponse>('POST', `/disbursements/${id}/void`, data)
   }
 
   async deleteDisbursement(id: number): Promise<ApiResponse<null>> {
-    this.validatePermission('petty_cash.delete_disbursement', 'delete disbursement')
+    this.validatePermission('finance.petty_cash.delete_disbursement', 'delete disbursement')
 
     return this.makeRequest<ApiResponse<null>>('DELETE', `/disbursements/${id}`)
   }
 
+  async bulkDeleteDisbursements(ids: number[]): Promise<ApiResponse<{ count: number }>> {
+    this.validatePermission('finance.petty_cash.delete_disbursement', 'bulk delete disbursements')
+
+    return this.makeRequest<ApiResponse<{ count: number }>>('POST', '/disbursements/bulk-delete', { ids })
+  }
+
+  async clearAllData(): Promise<ApiResponse<any>> {
+    // Only admins should be able to clear all data
+    this.validatePermission('finance.petty_cash.manage_settings', 'clear all petty cash data')
+
+    return this.makeRequest<ApiResponse<any>>('DELETE', '/clear-all')
+  }
+
   // Top-up operations with permission validation
   async getTopUps(filters?: TopUpFilters & { page?: number }): Promise<TopUpListResponse> {
-    this.validatePermission('petty_cash.view', 'get top-ups')
+    this.validatePermission('finance.petty_cash.view', 'get top-ups')
 
     return this.makeRequest<TopUpListResponse>('GET', '/top-ups', null, { params: filters as Record<string, unknown> })
   }
 
   async getTopUp(id: number): Promise<TopUpResponse> {
-    this.validatePermission('petty_cash.view', 'get top-up details')
+    this.validatePermission('finance.petty_cash.view', 'get top-up details')
 
     return this.makeRequest<TopUpResponse>('GET', `/top-ups/${id}`)
   }
 
   async createTopUp(data: CreateTopUpFormData): Promise<TopUpResponse> {
-    this.validatePermission('petty_cash.create_top_up', 'create top-up')
+    this.validatePermission('finance.petty_cash.create_top_up', 'create top-up')
 
     return this.makeRequest<TopUpResponse>('POST', '/top-ups', data, {
       timeout: 20000, // Longer timeout for create operations
@@ -519,7 +532,7 @@ class PettyCashService {
   }
 
   async getAvailableTopUps(): Promise<AvailableTopUpsResponse> {
-    this.validatePermission('petty_cash.view', 'get available top-ups')
+    this.validatePermission('finance.petty_cash.view', 'get available top-ups')
 
     try {
       return await this.makeRequest<AvailableTopUpsResponse>('GET', '/top-ups/available')
@@ -540,32 +553,32 @@ class PettyCashService {
   }
 
   async getAvailableBalance(topUpId: number): Promise<AvailableBalanceResponse> {
-    this.validatePermission('petty_cash.view_balance', 'get available balance')
+    this.validatePermission('finance.petty_cash.view_balance', 'get available balance')
 
     return this.makeRequest<AvailableBalanceResponse>('GET', `/top-ups/${topUpId}/available-balance`)
   }
 
   // Balance operations with permission validation
   async getCurrentBalance(): Promise<BalanceResponse> {
-    this.validatePermission('petty_cash.view_balance', 'get current balance')
+    this.validatePermission('finance.petty_cash.view_balance', 'get current balance')
 
     return this.makeRequest<BalanceResponse>('GET', '/balance')
   }
 
   async checkBalance(amount: number): Promise<BalanceCheckResponse> {
-    this.validatePermission('petty_cash.view_balance', 'check balance')
+    this.validatePermission('finance.petty_cash.view_balance', 'check balance')
 
     return this.makeRequest<BalanceCheckResponse>('POST', '/balance/check', { amount })
   }
 
   async getBalanceTrends(days: number = 30): Promise<TrendsResponse> {
-    this.validateAnyPermission(['petty_cash.view_balance', 'petty_cash.view_reports'], 'get balance trends')
+    this.validateAnyPermission(['finance.petty_cash.view_balance', 'finance.petty_cash.view_reports'], 'get balance trends')
 
     return this.makeRequest<TrendsResponse>('GET', '/balance/trends', null, { params: { days } as Record<string, unknown> })
   }
 
   async recalculateBalance(): Promise<RecalculateBalanceResponse> {
-    this.validatePermission('petty_cash.recalculate_balance', 'recalculate balance')
+    this.validatePermission('finance.petty_cash.recalculate_balance', 'recalculate balance')
 
     return this.makeRequest<RecalculateBalanceResponse>('POST', '/balance/recalculate')
   }
@@ -585,27 +598,43 @@ class PettyCashService {
     return this.makeRequest<RecentTransactionsResponse>('GET', '/recent', null, { params: { limit } as Record<string, unknown> })
   }
 
+  async archiveTransaction(id: number, type: 'disbursement' | 'top_up'): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>('POST', `/transactions/${id}/archive`, { type })
+  }
+
+  async bulkArchiveTransactions(ids: number[]): Promise<ApiResponse<{ count: number }>> {
+    return this.makeRequest<ApiResponse<{ count: number }>>('POST', '/transactions/bulk-archive', { ids })
+  }
+
+  async archiveTransactionGroup(topUpId: number): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>('POST', `/transactions/${topUpId}/archive-group`)
+  }
+
+  async bulkArchiveTransactionGroups(topUpIds: number[]): Promise<ApiResponse<{ count: number }>> {
+    return this.makeRequest<ApiResponse<{ count: number }>>('POST', '/transactions/bulk-archive-groups', { ids: topUpIds })
+  }
+
   // Analytics and reporting with permission validation
   async getSummary(filters?: DisbursementFilters): Promise<SummaryResponse> {
-    this.validateAnyPermission(['petty_cash.view', 'petty_cash.view_reports'], 'get summary')
+    this.validateAnyPermission(['finance.petty_cash.view', 'finance.petty_cash.view_reports'], 'get summary')
 
     return this.makeRequest<SummaryResponse>('GET', '/summary', null, { params: filters as Record<string, unknown> })
   }
 
   async getAnalytics(filters?: DisbursementFilters): Promise<AnalyticsResponse> {
-    this.validatePermission('petty_cash.view_reports', 'get analytics')
+    this.validatePermission('finance.petty_cash.view_reports', 'get analytics')
 
     return this.makeRequest<AnalyticsResponse>('GET', '/analytics', null, { params: filters as Record<string, unknown> })
   }
 
   async getStatistics(filters?: TopUpFilters): Promise<StatisticsResponse> {
-    this.validatePermission('petty_cash.view_reports', 'get statistics')
+    this.validatePermission('finance.petty_cash.view_reports', 'get statistics')
 
     return this.makeRequest<StatisticsResponse>('GET', '/statistics', null, { params: filters as Record<string, unknown> })
   }
 
   async getPaymentMethodBreakdown(filters?: TopUpFilters): Promise<PaymentMethodsResponse> {
-    this.validatePermission('petty_cash.view_reports', 'get payment method breakdown')
+    this.validatePermission('finance.petty_cash.view_reports', 'get payment method breakdown')
 
     return this.makeRequest<PaymentMethodsResponse>('GET', '/payment-methods', null, { params: filters as Record<string, unknown> })
   }
@@ -633,7 +662,7 @@ class PettyCashService {
 
   // Excel upload functionality
   async uploadExcel(formData: FormData): Promise<ApiResponse<any>> {
-    this.validatePermission('petty_cash.upload_excel', 'upload Excel file')
+    this.validatePermission('finance.petty_cash.upload_excel', 'upload Excel file')
 
     try {
       const response = await api.post(`${this.baseUrl}/upload-excel`, formData, {
@@ -655,13 +684,24 @@ class PettyCashService {
     }
   }
 
+  async downloadTemplate(): Promise<void> {
+    try {
+      const response = await api.get(`${this.baseUrl}/download-template`, {
+        responseType: 'blob'
+      })
+      this.downloadFile(response.data, 'petty_cash_disbursements_template.csv', 'text/csv')
+    } catch (error: any) {
+      throw this.transformError(error, { operation: 'download Excel template' })
+    }
+  }
+
   // Export and reporting with permission validation
   async exportData(
     type: 'disbursements' | 'top_ups' | 'summary',
     filters?: DisbursementFilters,
     format: 'excel' | 'csv' = 'excel'
   ): Promise<Blob> {
-    this.validatePermission('petty_cash.export_data', 'export data')
+    this.validatePermission('finance.petty_cash.export_data', 'export data')
 
     try {
       const response = await api.get(`${this.baseUrl}/export`, {
@@ -675,7 +715,7 @@ class PettyCashService {
   }
 
   async generatePDFReport(filters?: DisbursementFilters): Promise<Blob> {
-    this.validatePermission('petty_cash.export_data', 'generate PDF report')
+    this.validatePermission('finance.petty_cash.export_data', 'generate PDF report')
 
     try {
       const response = await api.get(`${this.baseUrl}/report`, {
@@ -690,7 +730,7 @@ class PettyCashService {
 
   // Generate summary report with charts (for PDF)
   async generateSummaryReport(filters?: DisbursementFilters): Promise<Blob> {
-    this.validatePermission('petty_cash.export_data', 'generate summary report')
+    this.validatePermission('finance.petty_cash.export_data', 'generate summary report')
 
     try {
       const response = await api.get(`${this.baseUrl}/reports/summary`, {
@@ -779,6 +819,9 @@ class PettyCashService {
       agencies: 'Agencies',
       admin: 'Administration',
       operations: 'Operations',
+      event_planners: 'Event Planners',
+      corporates: 'Corporates',
+      crs: 'CRS',
       other: 'Other'
     }
     return labels[classification] || classification

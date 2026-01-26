@@ -18,6 +18,8 @@ export interface Employee extends BaseEntity {
   manager?: Employee
   status: 'active' | 'inactive' | 'terminated' | 'on-leave'
   address: string | null
+  date_of_birth: string | null
+  salary: number | null
 
   emergency_contact: EmergencyContact | null
   performance_rating?: number
@@ -39,6 +41,8 @@ export interface CreateEmployeeData {
   position: string
   department_id: number
   hire_date: string
+  salary?: number
+  date_of_birth?: string
 
   employment_type: 'full-time' | 'part-time' | 'contract' | 'intern'
   manager_id?: number
@@ -56,6 +60,8 @@ export interface UpdateEmployeeData {
   position?: string
   department_id?: number
   hire_date?: string
+  salary?: number
+  date_of_birth?: string
 
   employment_type?: 'full-time' | 'part-time' | 'contract' | 'intern'
   manager_id?: number

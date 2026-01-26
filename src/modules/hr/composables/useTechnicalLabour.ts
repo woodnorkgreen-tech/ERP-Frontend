@@ -77,6 +77,23 @@ export function useTechnicalLabour() {
         }
     }
 
+    const importLabour = async (file: File) => {
+        loading.value = true
+        error.value = null
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            await api.post('/api/hr/technical-labour/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            })
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Failed to import technical labour'
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         labours,
         loading,
@@ -84,6 +101,7 @@ export function useTechnicalLabour() {
         fetchLabours,
         createLabour,
         updateLabour,
-        deleteLabour
+        deleteLabour,
+        importLabour
     }
 }

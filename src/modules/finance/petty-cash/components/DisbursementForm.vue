@@ -240,10 +240,13 @@
                   ]"
                   required
                 >
-                  <option value="">Select classification</option>
+                   <option value="">Select classification</option>
                   <option value="admin">Admin</option>
                   <option value="agencies">Agencies</option>
                   <option value="operations">Operations</option>
+                  <option value="event_planners">Event Planners</option>
+                  <option value="corporates">Corporates</option>
+                  <option value="crs">CRS</option>
                   <option value="other">Other</option>
                 </select>
                 <p v-if="errors.classification" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -272,7 +275,7 @@
                   {{ errors.project_name[0] }}
                 </p>
                 <p v-else-if="requiresProject" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Project name is required for {{ form.classification === 'agencies' ? 'Agencies' : 'Operations' }} classification
+                  Project name is required for selected classification
                 </p>
               </div>
             </div>
@@ -331,16 +334,16 @@
                   Job Number (WNG-prefix projects only)
                 </label>
                 <div class="relative">
-                  <input
-                    id="job_number"
-                    list="job_number_list"
-                    v-model="projectSearch"
-                    @input="onProjectSelect"
-                    type="text"
-                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    placeholder="Type or select job number (e.g. WNG-01-2026-009)"
-                    autocomplete="off"
-                  />
+                    <input
+                      id="job_number"
+                      list="job_number_list"
+                      v-model="form.job_number"
+                      @input="onProjectSelect"
+                      type="text"
+                      class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Type or select job number (e.g. WNG-01-2026-009)"
+                      autocomplete="off"
+                    />
                   
                   <datalist id="job_number_list">
                     <option 
@@ -423,7 +426,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const store = usePettyCashStore()
-const { handleError, clearError, withErrorHandling } = useErrorHandler()
+const { errorState, handleError, clearError, withErrorHandling } = useErrorHandler()
 
 // Modal state management
 const isSubmitting = ref(false)
@@ -458,7 +461,14 @@ const selectedProject = ref<any>(null)
 // Computed properties for current balance
 const currentBalance = computed(() => {
   // Use the actual available balance (top-ups minus disbursements)
-  return store.actualAvailableBalance || 0
+  const baseBalance = store.actualAvailableBalance || 0
+  
+  // If editing, add back the original amount to show true available funds for re-allocation
+  if (props.editMode && props.disbursement) {
+    return baseBalance + (props.disbursement.amount.raw || 0)
+  }
+  
+  return baseBalance
 })
 
 const maxAmount = computed(() => {
@@ -497,19 +507,19 @@ const submitButtonText = computed(() => {
 })
 
 const requiresProject = computed(() => {
-  return ['agencies', 'operations'].includes(form.classification)
+  return ['agencies', 'operations', 'event_planners', 'corporates'].includes(form.classification)
 })
 
 const isFormValid = computed(() => {
   return form.receiver &&
          form.account &&
-         form.account_id && // Ensure account ID is selected
+         (form.account_id || props.editMode) && // Ensure account ID is selected, but relax for edit mode if name matches
          form.amount &&
          form.description &&
          form.classification &&
          form.tax &&
          form.date_disbursed &&
-         currentBalance.value > 0 && // Ensure there's balance available
+         currentBalance.value >= Number(form.amount) && // Ensure there's balance available
          (!requiresProject.value || form.project_name)
 })
 
@@ -566,12 +576,16 @@ const onProjectSelect = (event: Event) => {
   if (project) {
     selectedProject.value = project
     form.job_number = project.job_number || project.project_id
-    // Auto-fill project name if empty
-    if (!form.project_name) {
-      form.project_name = project.title || project.enquiry?.title || ''
+    // Auto-fill project name - ALWAYS update when a strict match is found
+    form.project_name = project.title || project.enquiry?.title || ''
+    
+    // UX Improvement: Automatically switch classification to 'operations' 
+    // if it's currently default/empty, as project codes are usually ops-related
+    if (!form.classification || form.classification === 'admin') {
+      form.classification = 'operations'
     }
   } else {
-    // Just update the search text if no strict match yet
+    // Just update the manual entry
     form.job_number = value
   }
 }
@@ -634,7 +648,7 @@ const validateForm = (): boolean => {
     // Validate classification
     if (!form.classification) {
       errors.value.classification = ['Please select a classification']
-    } else if (!['admin', 'agencies', 'operations', 'other'].includes(form.classification)) {
+    } else if (!['admin', 'agencies', 'operations', 'event_planners', 'corporates', 'crs', 'other'].includes(form.classification)) {
       errors.value.classification = ['Invalid classification selected']
     }
 
@@ -696,22 +710,69 @@ const resetForm = () => {
 
 const loadDisbursementData = () => {
   if (props.editMode && props.disbursement) {
-    const d = props.disbursement
-    Object.assign(form, {
-      receiver: d.receiver,
-      account: d.account,
-      account_id: null, // For editing, we don't have account ID from API, so set to null
-      amount: d.amount.raw.toString(),
-      description: d.description,
-      project_name: d.project_name || '',
-      classification: d.classification.value,
-      job_number: d.job_number || '',
-      date_disbursed: d.date_disbursed ? (typeof d.date_disbursed === 'string' ? d.date_disbursed : d.date_disbursed.raw.split(' ')[0]) : new Date().toISOString().split('T')[0],
-      tax: 'etr' // Default to ETR for existing disbursements
-    })
-    // Set autocomplete search values
-    accountSearch.value = d.account
-    projectSearch.value = d.job_number || ''
+    try {
+      const d = props.disbursement
+      console.log('📦 Loading disbursement for edit:', d)
+      
+      // Defensively find matching account ID
+      let accountId = null
+      if (d.account && Array.isArray(accounts.value)) {
+        const matched = accounts.value.find(a => a.name === d.account)
+        if (matched) accountId = matched.id
+      }
+      
+      // Defensively extract amount
+      let amt = '0'
+      if (d.amount) {
+        if (typeof d.amount === 'object' && d.amount !== null) {
+          amt = String(d.amount.raw ?? '0')
+        } else {
+          amt = String(d.amount)
+        }
+      }
+      
+      // Defensively extract classification
+      let cls = ''
+      if (d.classification) {
+        if (typeof d.classification === 'object' && d.classification !== null) {
+          cls = String(d.classification.value ?? '')
+        } else {
+          cls = String(d.classification)
+        }
+      }
+      
+      // Defensively handle date
+      let dateValue = new Date().toISOString().split('T')[0]
+      if (d.date_disbursed) {
+        const dd = d.date_disbursed as any
+        if (typeof dd === 'string') {
+          dateValue = dd.includes(' ') ? dd.split(' ')[0] : dd
+        } else if (typeof dd === 'object' && dd !== null) {
+          dateValue = String(dd.raw || dateValue).split(' ')[0]
+        }
+      }
+
+      Object.assign(form, {
+        receiver: d.receiver || '',
+        account: d.account || '',
+        account_id: accountId,
+        amount: amt,
+        description: d.description || '',
+        project_name: d.project_name || '',
+        classification: cls,
+        job_number: d.job_number || '',
+        date_disbursed: dateValue,
+        tax: d.tax || 'etr',
+        top_up_id: d.top_up_id
+      })
+
+      // Set autocomplete search values
+      accountSearch.value = d.account || ''
+      projectSearch.value = d.job_number || ''
+    } catch (err) {
+      console.error('❌ Error in loadDisbursementData:', err)
+      modalError.value = 'Failed to load transaction data for editing. Please try again.'
+    }
   }
 }
 
@@ -787,22 +848,23 @@ const handleSubmit = async () => {
       account: form.account, // Send account name to backend (not account_id)
       amount: Number(form.amount),
       description: form.description,
-      project_name: form.project_name || undefined,
+      project_name: form.project_name || '',
       classification: form.classification, // This needs to match backend validation
-      job_number: form.job_number || undefined,
+      job_number: form.job_number || '',
       date_disbursed: form.date_disbursed,
       payment_method: 'cash', // Default payment method since we removed the field
       transaction_code: undefined, // No transaction code needed for cash
-      // Add a default top_up_id for backend compatibility
-      // In a real system, this would be handled differently
-      top_up_id: 1, // Default value for backend compatibility
-      // Note: tax field is not sent to backend, only used for UI validation
+      tax: form.tax, // Include tax in the payload
+      // Let backend auto-allocate from available top-ups if not specified
+      // Or we can try to find one here if availableTopUps is loaded
+      top_up_id: form.top_up_id || (store.availableTopUps.length > 0 ? store.availableTopUps[0].id : undefined)
     }
 
     let result: PettyCashDisbursement
 
     if (props.editMode && props.disbursement) {
-      result = await store.updateDisbursement(props.disbursement.id, formData as any) as unknown as PettyCashDisbursement
+      const disbursementId = (props.disbursement as any).original_id || props.disbursement.id
+      result = await store.updateDisbursement(disbursementId, formData as any) as unknown as PettyCashDisbursement
     } else {
       result = await store.createDisbursement(formData as any) as unknown as PettyCashDisbursement
     }
@@ -818,11 +880,15 @@ const handleSubmit = async () => {
   })
 
   if (!result) {
-    // Handle API validation errors
+    // Handle API validation errors by checking the error state
     try {
-      const storeErrors = store.errors
-      if (storeErrors && typeof storeErrors === 'object' && 'creating' in storeErrors && storeErrors.creating) {
-        errors.value = { general: [storeErrors.creating] }
+      if (errorState.value.response && errorState.value.response.errors) {
+        errors.value = errorState.value.response.errors
+      } else {
+        const storeErrors = store.errors
+        if (storeErrors && typeof storeErrors === 'object' && 'creating' in storeErrors && storeErrors.creating) {
+          errors.value = { general: [storeErrors.creating] }
+        }
       }
     } catch (error) {
       console.error('Error handling store errors:', error)

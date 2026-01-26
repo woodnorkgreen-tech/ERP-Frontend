@@ -2,26 +2,26 @@ import { ref, computed } from 'vue'
 
 // Permission types for petty cash module
 export type PettyCashPermission =
-  | 'petty_cash.view'
-  | 'petty_cash.create_top_up'
-  | 'petty_cash.create_disbursement'
-  | 'petty_cash.edit_disbursement'
-  | 'petty_cash.void_disbursement'
-  | 'petty_cash.delete_disbursement'
-  | 'petty_cash.view_balance'
-  | 'petty_cash.recalculate_balance'
-  | 'petty_cash.view_reports'
-  | 'petty_cash.export_data'
-  | 'petty_cash.upload_excel'
-  | 'petty_cash.manage_settings'
+  | 'finance.petty_cash.view'
+  | 'finance.petty_cash.create_top_up'
+  | 'finance.petty_cash.create_disbursement'
+  | 'finance.petty_cash.edit_disbursement'
+  | 'finance.petty_cash.void_disbursement'
+  | 'finance.petty_cash.delete_disbursement'
+  | 'finance.petty_cash.view_balance'
+  | 'finance.petty_cash.recalculate_balance'
+  | 'finance.petty_cash.view_reports'
+  | 'finance.petty_cash.export_data'
+  | 'finance.petty_cash.upload_excel'
+  | 'finance.petty_cash.manage_settings'
 
 // Permission groups for easier management
 export const PERMISSION_GROUPS = {
-  VIEW: ['petty_cash.view', 'petty_cash.view_balance'],
-  CREATE: ['petty_cash.create_top_up', 'petty_cash.create_disbursement'],
-  EDIT: ['petty_cash.edit_disbursement', 'petty_cash.void_disbursement', 'petty_cash.delete_disbursement'],
-  ADMIN: ['petty_cash.recalculate_balance', 'petty_cash.manage_settings'],
-  REPORTS: ['petty_cash.view_reports', 'petty_cash.export_data']
+  VIEW: ['finance.petty_cash.view', 'finance.petty_cash.view_balance'],
+  CREATE: ['finance.petty_cash.create_top_up', 'finance.petty_cash.create_disbursement'],
+  EDIT: ['finance.petty_cash.edit_disbursement', 'finance.petty_cash.void_disbursement', 'finance.petty_cash.delete_disbursement'],
+  ADMIN: ['finance.petty_cash.recalculate_balance', 'finance.petty_cash.manage_settings'],
+  REPORTS: ['finance.petty_cash.view_reports', 'finance.petty_cash.export_data']
 } as const
 
 // User role types
@@ -49,41 +49,41 @@ interface User {
 // Default permissions by role
 const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
   admin: [
-    'petty_cash.view',
-    'petty_cash.create_top_up',
-    'petty_cash.create_disbursement',
-    'petty_cash.edit_disbursement',
-    'petty_cash.void_disbursement',
-    'petty_cash.delete_disbursement',
-    'petty_cash.view_balance',
-    'petty_cash.recalculate_balance',
-    'petty_cash.view_reports',
-    'petty_cash.export_data',
-    'petty_cash.upload_excel',
-    'petty_cash.manage_settings'
+    'finance.petty_cash.view',
+    'finance.petty_cash.create_top_up',
+    'finance.petty_cash.create_disbursement',
+    'finance.petty_cash.edit_disbursement',
+    'finance.petty_cash.void_disbursement',
+    'finance.petty_cash.delete_disbursement',
+    'finance.petty_cash.view_balance',
+    'finance.petty_cash.recalculate_balance',
+    'finance.petty_cash.view_reports',
+    'finance.petty_cash.export_data',
+    'finance.petty_cash.upload_excel',
+    'finance.petty_cash.manage_settings'
   ],
   manager: [
-    'petty_cash.view',
-    'petty_cash.create_top_up',
-    'petty_cash.create_disbursement',
-    'petty_cash.edit_disbursement',
-    'petty_cash.void_disbursement',
-    'petty_cash.delete_disbursement',
-    'petty_cash.view_balance',
-    'petty_cash.view_reports',
-    'petty_cash.export_data',
-    'petty_cash.upload_excel'
+    'finance.petty_cash.view',
+    'finance.petty_cash.create_top_up',
+    'finance.petty_cash.create_disbursement',
+    'finance.petty_cash.edit_disbursement',
+    'finance.petty_cash.void_disbursement',
+    'finance.petty_cash.delete_disbursement',
+    'finance.petty_cash.view_balance',
+    'finance.petty_cash.view_reports',
+    'finance.petty_cash.export_data',
+    'finance.petty_cash.upload_excel'
   ],
   user: [
-    'petty_cash.view',
-    'petty_cash.create_disbursement',
-    'petty_cash.view_balance',
-    'petty_cash.view_reports'
+    'finance.petty_cash.view',
+    'finance.petty_cash.create_disbursement',
+    'finance.petty_cash.view_balance',
+    'finance.petty_cash.view_reports'
   ],
   viewer: [
-    'petty_cash.view',
-    'petty_cash.view_balance',
-    'petty_cash.view_reports'
+    'finance.petty_cash.view',
+    'finance.petty_cash.view_balance',
+    'finance.petty_cash.view_reports'
   ]
 }
 
@@ -93,8 +93,8 @@ export function usePermissions() {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'manager',
-    permissions: DEFAULT_ROLE_PERMISSIONS.manager,
+    role: 'admin',
+    permissions: DEFAULT_ROLE_PERMISSIONS.admin,
     isActive: true
   })
 
@@ -158,16 +158,16 @@ export function usePermissions() {
   const canViewReports = computed(() => hasAnyPermission(PERMISSION_GROUPS.REPORTS))
 
   // Specific permission checks
-  const canCreateTopUp = computed(() => hasPermission('petty_cash.create_top_up'))
-  const canCreateDisbursement = computed(() => hasPermission('petty_cash.create_disbursement'))
-  const canEditDisbursement = computed(() => hasPermission('petty_cash.edit_disbursement'))
-  const canVoidDisbursement = computed(() => hasPermission('petty_cash.void_disbursement'))
-  const canDeleteDisbursement = computed(() => hasPermission('petty_cash.delete_disbursement'))
-  const canViewBalance = computed(() => hasPermission('petty_cash.view_balance'))
-  const canRecalculateBalance = computed(() => hasPermission('petty_cash.recalculate_balance'))
-  const canExportData = computed(() => hasPermission('petty_cash.export_data'))
-  const canUploadExcel = computed(() => hasPermission('petty_cash.upload_excel'))
-  const canManageSettings = computed(() => hasPermission('petty_cash.manage_settings'))
+  const canCreateTopUp = computed(() => hasPermission('finance.petty_cash.create_top_up'))
+  const canCreateDisbursement = computed(() => hasPermission('finance.petty_cash.create_disbursement'))
+  const canEditDisbursement = computed(() => hasPermission('finance.petty_cash.edit_disbursement'))
+  const canVoidDisbursement = computed(() => hasPermission('finance.petty_cash.void_disbursement'))
+  const canDeleteDisbursement = computed(() => hasPermission('finance.petty_cash.delete_disbursement'))
+  const canViewBalance = computed(() => hasPermission('finance.petty_cash.view_balance'))
+  const canRecalculateBalance = computed(() => hasPermission('finance.petty_cash.recalculate_balance'))
+  const canExportData = computed(() => hasPermission('finance.petty_cash.export_data'))
+  const canUploadExcel = computed(() => hasPermission('finance.petty_cash.upload_excel'))
+  const canManageSettings = computed(() => hasPermission('finance.petty_cash.manage_settings'))
 
   // Permission validation with error handling
   const requirePermission = (permission: PettyCashPermission): void => {
@@ -276,18 +276,18 @@ export function usePermissions() {
 
   const getUserFriendlyPermissionName = (permission: PettyCashPermission): string => {
     const permissionNames: Record<PettyCashPermission, string> = {
-      'petty_cash.view': 'View Petty Cash',
-      'petty_cash.create_top_up': 'Create Top-ups',
-      'petty_cash.create_disbursement': 'Create Disbursements',
-      'petty_cash.edit_disbursement': 'Edit Disbursements',
-      'petty_cash.void_disbursement': 'Void Disbursements',
-      'petty_cash.delete_disbursement': 'Delete Disbursements',
-      'petty_cash.view_balance': 'View Balance',
-      'petty_cash.recalculate_balance': 'Recalculate Balance',
-      'petty_cash.view_reports': 'View Reports',
-      'petty_cash.export_data': 'Export Data',
-      'petty_cash.upload_excel': 'Upload Excel',
-      'petty_cash.manage_settings': 'Manage Settings'
+      'finance.petty_cash.view': 'View Petty Cash',
+      'finance.petty_cash.create_top_up': 'Create Top-ups',
+      'finance.petty_cash.create_disbursement': 'Create Disbursements',
+      'finance.petty_cash.edit_disbursement': 'Edit Disbursements',
+      'finance.petty_cash.void_disbursement': 'Void Disbursements',
+      'finance.petty_cash.delete_disbursement': 'Delete Disbursements',
+      'finance.petty_cash.view_balance': 'View Balance',
+      'finance.petty_cash.recalculate_balance': 'Recalculate Balance',
+      'finance.petty_cash.view_reports': 'View Reports',
+      'finance.petty_cash.export_data': 'Export Data',
+      'finance.petty_cash.upload_excel': 'Upload Excel',
+      'finance.petty_cash.manage_settings': 'Manage Settings'
     }
 
     return permissionNames[permission] || permission

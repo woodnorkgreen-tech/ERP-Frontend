@@ -173,6 +173,26 @@
               class="w-full h-11 pl-11 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500 transition-all uppercase tracking-widest"
             />
           </div>
+          <!-- Import/Export Actions -->
+          <div class="flex items-center gap-2">
+             <button 
+                @click="downloadTemplate"
+                class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
+                title="Download CSV Template"
+             >
+                <i class="mdi mdi-file-download-outline text-xl"></i>
+             </button>
+
+             <input type="file" ref="fileInput" class="hidden" @change="handleFileUpload" accept=".csv" />
+             <button 
+                @click="triggerUpload"
+                class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
+                title="Import From CSV"
+             >
+                <i class="mdi mdi-file-upload-outline text-xl"></i>
+             </button>
+          </div>
+
           <button 
             @click="openLabourModal()"
             class="h-11 px-6 bg-slate-900 dark:bg-white hover:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-slate-900 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition-all flex items-center gap-2 active:scale-95"
@@ -325,7 +345,7 @@ import { useEmployees } from '../../shared/composables/useEmployees'
 import { useTechnicalLabour, type TechnicalLabour } from '../composables/useTechnicalLabour'
 
 const { employees, fetchEmployees } = useEmployees()
-const { labours, loading: labourLoading, fetchLabours, createLabour, updateLabour, deleteLabour } = useTechnicalLabour()
+const { labours, loading: labourLoading, fetchLabours, createLabour, updateLabour, deleteLabour, importLabour } = useTechnicalLabour()
 
 // State for technical labour UI
 const showLabourModal = ref(false)
@@ -341,6 +361,31 @@ const labourForm = ref({
   notes: '',
   rating: 5
 })
+
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const downloadTemplate = () => {
+    window.open('/api/hr/technical-labour/template', '_blank')
+}
+
+const triggerUpload = () => {
+    fileInput.value?.click()
+}
+
+const handleFileUpload = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files[0]) {
+        try {
+            await importLabour(target.files[0])
+            await fetchLabours()
+            alert('Import Successful! Records have been added.')
+        } catch (e) {
+            console.error(e)
+            alert('Import Failed. Please check the CSV format.')
+        }
+        target.value = ''
+    }
+}
 
 const filteredLabours = computed(() => {
   if (!labourSearch.value) return labours.value

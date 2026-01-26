@@ -8,8 +8,13 @@ import type {
     SpendingAnalytics,
     RecentTransaction,
     DisbursementFilters,
-    TopUpFilters
+    TopUpFilters,
+    PaymentMethod,
+    Classification,
+    DisbursementStatus,
+    DateData
 } from '../types/pettyCash'
+import type { DeepReadonly } from '../types/utils'
 import type {
     CreateTopUpFormData,
     CreateDisbursementFormData,
@@ -45,7 +50,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
     // State with safe defaults
     const disbursements = ref<PettyCashDisbursement[]>([])
     const topUps = ref<PettyCashTopUp[]>([])
-    const transactions = ref<PettyCashTopUp[]>([]) // Hierarchical transactions (top-ups with disbursements)
+    const transactions = ref<any[]>([]) // Unified flat transactions (top-ups and disbursements)
     const availableTopUps = ref<PettyCashTopUp[]>([])
     const currentBalance = ref<PettyCashBalance>(defaultBalance)
     const summary = ref<TransactionSummary>(defaultSummary)
@@ -245,7 +250,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
 
     const balanceStatus = computed(() => {
         try {
-            return safeCurrentBalance.value.status?.value || 'normal'
+            return (safeCurrentBalance.value.status as any)?.value || 'normal'
         } catch (error) {
             console.warn('Error getting balance status:', error)
             return 'normal'
@@ -254,7 +259,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
 
     const isBalanceLow = computed(() => {
         try {
-            return safeCurrentBalance.value.status?.is_low === true
+            return (safeCurrentBalance.value.status as any)?.is_low === true
         } catch (error) {
             console.warn('Error checking if balance is low:', error)
             return false
@@ -263,7 +268,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
 
     const isBalanceCritical = computed(() => {
         try {
-            return safeCurrentBalance.value.status?.is_critical === true
+            return (safeCurrentBalance.value.status as any)?.is_critical === true
         } catch (error) {
             console.warn('Error checking if balance is critical:', error)
             return false
@@ -399,14 +404,13 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             const result = validateBalanceData(data)
             if (!result.isValid) {
                 console.warn('Invalid balance data:', result.errors)
-                dataIntegrity.value.validationErrors.push('Balance data validation failed')
-                return mergeWithDefaults(defaultBalance, data)
+                return mergeWithDefaults(defaultBalance, data) as unknown as PettyCashBalance
             }
-            return result.data || defaultBalance
+            return (result.data || defaultBalance) as PettyCashBalance
         } catch (error) {
             console.error('Error validating balance:', error)
             dataIntegrity.value.validationErrors.push('Balance validation failed')
-            return mergeWithDefaults(defaultBalance, data)
+            return mergeWithDefaults(defaultBalance, data) as unknown as PettyCashBalance
         }
     }
 
@@ -423,42 +427,54 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             if ('success' in response && response.success) {
                 console.log('🔍 fetchDisbursements success, data:', response.data)
 
-                // Transform API data to expected format (similar to top-ups)
-                const transformedData = response.data.map((item: any) => ({
-                    ...item,
-                    amount: {
-                        raw: parseFloat(item.amount || 0),
-                        formatted: `KES ${parseFloat(item.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                    },
-                    payment_method: {
-                        value: item.payment_method,
-                        label: item.payment_method === 'cash' ? 'Cash' :
-                            item.payment_method === 'mpesa' ? 'M-Pesa' :
-                                item.payment_method === 'bank_transfer' ? 'Bank Transfer' :
-                                    item.payment_method || 'Other'
-                    },
-                    classification: {
-                        value: item.classification,
-                        label: item.classification === 'admin' ? 'Admin' :
-                            item.classification === 'agencies' ? 'Agencies' :
-                                item.classification === 'operations' ? 'Operations' :
-                                    item.classification || 'Other'
-                    },
-                    status: {
-                        value: item.status || 'active',
-                        label: item.status === 'active' ? 'Active' : 'Voided',
-                        is_active: (item.status || 'active') === 'active',
-                        is_voided: (item.status || 'active') === 'voided'
-                    },
-                    created_at: {
-                        raw: item.created_at,
-                        formatted: new Date(item.created_at).toLocaleDateString('en-KE'),
-                        human: 'Recently'
-                    },
-                    // Include permission fields from API response
-                    can_edit: item.can_edit !== undefined ? item.can_edit : false,
-                    can_void: item.can_void !== undefined ? item.can_void : false
-                }))
+                // Transform API data to expected format
+                const transformedData = response.data.map((item: any) => {
+                    const amountRaw = typeof item.amount === 'number' ? item.amount :
+                        typeof item.amount === 'string' ? parseFloat(item.amount) :
+                            (item.amount?.raw || 0);
+
+                    return {
+                        ...item,
+                        amount: {
+                            raw: amountRaw,
+                            formatted: `KES ${amountRaw.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        },
+                        payment_method: {
+                            value: (item.payment_method as unknown as PaymentMethod),
+                            label: item.payment_method === 'cash' ? 'Cash' :
+                                item.payment_method === 'mpesa' ? 'M-Pesa' :
+                                    item.payment_method === 'bank_transfer' ? 'Bank Transfer' :
+                                        (item.payment_method || 'Other')
+                        },
+                        classification: {
+                            value: (item.classification as unknown as Classification),
+                            label: item.classification === 'admin' ? 'Admin' :
+                                item.classification === 'agencies' ? 'Agencies' :
+                                    item.classification === 'operations' ? 'Operations' :
+                                        (item.classification || 'Other')
+                        },
+                        status: {
+                            value: (item.status as unknown as DisbursementStatus) || 'active',
+                            label: item.status === 'active' ? 'Active' : 'Voided',
+                            is_active: (item.status || 'active') === 'active',
+                            is_voided: (item.status || 'active') === 'voided'
+                        },
+                        created_at: {
+                            raw: String(item.created_at),
+                            formatted: new Date(item.created_at).toLocaleDateString('en-KE'),
+                            human: 'Recently'
+                        },
+                        updated_at: {
+                            raw: String(item.updated_at || item.created_at),
+                            formatted: new Date(item.updated_at || item.created_at).toLocaleDateString('en-KE'),
+                            human: 'Recently'
+                        },
+                        // Include permission fields from API response
+                        can_edit: item.can_edit !== undefined ? item.can_edit : false,
+                        can_void: item.can_void !== undefined ? item.can_void : false,
+                        can_view_details: item.can_view_details !== undefined ? item.can_view_details : true
+                    }
+                })
 
                 console.log('🔍 fetchDisbursements transformed data:', transformedData[0])
                 const validatedData = validateAndSetDisbursements(transformedData)
@@ -506,68 +522,66 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             console.log('🔍 Create disbursement response:', response)
 
             if ('success' in response && response.success) {
-                // Transform disbursement data to expected format (similar to top-ups)
+                // Transform disbursement data to expected format
+                const rawData = response.data as any
+                const amountRaw = typeof rawData.amount === 'number' ? rawData.amount :
+                    typeof rawData.amount === 'string' ? parseFloat(rawData.amount) :
+                        (rawData.amount?.raw || 0);
+
                 const transformedDisbursement = {
-                    ...response.data,
+                    ...rawData,
                     amount: {
-                        raw: parseFloat(response.data.amount || 0),
-                        formatted: `KES ${parseFloat(response.data.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        raw: amountRaw,
+                        formatted: `KES ${amountRaw.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     },
                     payment_method: {
-                        value: response.data.payment_method,
-                        label: response.data.payment_method === 'cash' ? 'Cash Account' :
-                            response.data.payment_method === 'mpesa' ? 'M-Pesa' :
-                                response.data.payment_method === 'equity' ? 'Equity Bank' :
-                                    response.data.payment_method === 'stanbic' ? 'Stanbic Bank' :
-                                        response.data.payment_method === 'ncba' ? 'NCBA Bank' :
-                                            response.data.payment_method === 'kcb' ? 'KCB Bank' :
-                                                response.data.payment_method === 'family' ? 'Family Bank' :
-                                                    response.data.payment_method === 'bank_transfer' ? 'Bank Transfer' :
-                                                        response.data.payment_method || 'Other'
+                        value: (rawData.payment_method as unknown as PaymentMethod),
+                        label: rawData.payment_method === 'cash' ? 'Cash Account' :
+                            rawData.payment_method === 'mpesa' ? 'M-Pesa' :
+                                rawData.payment_method === 'bank_transfer' ? 'Bank Transfer' :
+                                    'Other'
                     },
                     classification: {
-                        value: response.data.classification,
-                        label: response.data.classification === 'admin' ? 'Admin' :
-                            response.data.classification === 'agencies' ? 'Agencies' :
-                                response.data.classification === 'operations' ? 'Operations' :
-                                    response.data.classification || 'Other'
+                        value: (rawData.classification as unknown as Classification),
+                        label: rawData.classification === 'admin' ? 'Admin' :
+                            rawData.classification === 'agencies' ? 'Agencies' :
+                                rawData.classification === 'operations' ? 'Operations' :
+                                    'Other'
                     },
                     status: {
-                        value: response.data.status || 'active',
-                        label: response.data.status === 'active' ? 'Active' : 'Voided',
-                        is_active: (response.data.status || 'active') === 'active',
-                        is_voided: (response.data.status || 'active') === 'voided'
+                        value: (rawData.status as unknown as DisbursementStatus) || 'active',
+                        label: rawData.status === 'active' ? 'Active' : 'Voided',
+                        is_active: (rawData.status || 'active') === 'active',
+                        is_voided: (rawData.status || 'active') === 'voided'
                     },
                     created_at: {
-                        raw: response.data.created_at,
-                        formatted: new Date(response.data.created_at).toLocaleDateString('en-KE'),
+                        raw: String(rawData.created_at),
+                        formatted: new Date(rawData.created_at).toLocaleDateString('en-KE'),
                         human: 'Just now'
-                    }
-                }
+                    },
+                    updated_at: {
+                        raw: String(rawData.updated_at || rawData.created_at),
+                        formatted: new Date(rawData.updated_at || rawData.created_at).toLocaleDateString('en-KE'),
+                        human: 'Just now'
+                    },
+                    can_edit: true,
+                    can_void: true,
+                    can_view_details: true
+                } as unknown as PettyCashDisbursement
 
                 console.log('🔍 Transformed disbursement:', transformedDisbursement)
-                const validationResult = validateDisbursementData(transformedDisbursement)
-                if (validationResult.isValid && validationResult.data) {
-                    console.log('🔍 Adding valid disbursement to store:', validationResult.data)
-                    disbursements.value.unshift(validationResult.data)
-                    console.log('🔍 Disbursements array after adding:', disbursements.value.length)
 
-                    // Refresh balance and summary after creating disbursement
-                    await Promise.all([
-                        fetchCurrentBalance(),
-                        fetchSummary()
-                    ])
+                // Add to store
+                disbursements.value.unshift(transformedDisbursement)
 
-                    dataIntegrity.value.lastValidated = new Date()
-                    return validationResult.data
-                } else {
-                    console.warn('Created disbursement failed validation:', validationResult.errors)
-                    console.log('🔍 Adding invalid disbursement to store anyway:', transformedDisbursement)
-                    // Still add it but log the issue
-                    disbursements.value.unshift(transformedDisbursement)
-                    console.log('🔍 Disbursements array after adding invalid:', disbursements.value.length)
-                    return transformedDisbursement
-                }
+                // Refresh balance and summary
+                await Promise.all([
+                    fetchCurrentBalance(),
+                    fetchSummary()
+                ])
+
+                dataIntegrity.value.lastValidated = new Date()
+                return transformedDisbursement
             } else {
                 throw new Error(pettyCashService.getErrorMessage(response))
             }
@@ -726,6 +740,75 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+    const bulkDeleteDisbursements = async (ids: number[]) => {
+        const operation = async () => {
+            loading.value.updating = true
+
+            console.log('🔍 Bulk deleting disbursements:', ids)
+            const response = await pettyCashService.bulkDeleteDisbursements(ids)
+
+            if (response && response.success) {
+                // Remove deleted items from local state
+                disbursements.value = disbursements.value.filter(d => !ids.includes(d.id))
+
+                // Refresh balance and summary
+                await Promise.all([
+                    fetchCurrentBalance(),
+                    fetchSummary()
+                ])
+
+                dataIntegrity.value.lastValidated = new Date()
+                return response.data
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        const result = await withErrorHandling(operation, {
+            context: 'bulkDeleteDisbursements',
+            ids
+        })
+
+        loading.value.updating = false
+        return result
+    }
+
+    const clearAllPettyCashData = async () => {
+        const operation = async () => {
+            loading.value.updating = true
+
+            console.log('🔍 Clearing all petty cash data')
+            const response = await pettyCashService.clearAllData()
+
+            if (response && response.success) {
+                // Reset all local data
+                disbursements.value = []
+                topUps.value = []
+                transactions.value = []
+                availableTopUps.value = []
+                currentBalance.value = defaultBalance
+                summary.value = defaultSummary
+                analytics.value = defaultAnalytics
+                recentTransactions.value = []
+
+                // Full refresh to ensure everything is synced
+                await refreshAll()
+
+                dataIntegrity.value.lastValidated = new Date()
+                return response.data
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        const result = await withErrorHandling(operation, {
+            context: 'clearAllPettyCashData'
+        })
+
+        loading.value.updating = false
+        return result
+    }
+
     // Actions - Top-ups with enhanced error handling
     const fetchTopUps = async (filters?: TopUpFilters & { page?: number }) => {
         const operation = async () => {
@@ -816,11 +899,11 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
 
             if ('success' in response && response.success) {
                 const { validItems } = validateArrayData(response.data || [], validateTopUpData)
-                availableTopUps.value = validItems as PettyCashTopUp[]
+                availableTopUps.value = (validItems as any)
 
                 dataIntegrity.value.lastValidated = new Date()
                 return validItems
-            } else if (response.success === false && response.message?.includes('Server temporarily unavailable')) {
+            } else if ((response as any).success === false && response.message?.includes('Server temporarily unavailable')) {
                 // Handle known backend server errors gracefully without logging as error
                 // The service already handles this case and returns a structured response
                 availableTopUps.value = []
@@ -935,74 +1018,53 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             if ('success' in response && response.success) {
                 console.log('🔍 fetchTransactions success, data:', response.data)
 
-                // Transform hierarchical transaction data (top-ups with disbursements)
-                const transformedData = response.data.map((topUp: any) => ({
-                    ...topUp,
+                // Transform unified flat transaction data
+                const transformedData = response.data.map((item: any) => ({
+                    ...item,
+                    id: `${item.type}-${item.id}`, // Ensure globally unique IDs
+                    original_id: item.id,
                     amount: {
-                        raw: parseFloat(topUp.amount || 0),
-                        formatted: `KES ${parseFloat(topUp.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        raw: parseFloat(item.amount || 0),
+                        formatted: `KES ${parseFloat(item.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                     },
                     payment_method: {
-                        value: topUp.payment_method,
-                        label: topUp.payment_method === 'cash' ? 'Cash' :
-                            topUp.payment_method === 'mpesa' ? 'M-Pesa' :
-                                topUp.payment_method === 'bank_transfer' ? 'Bank Transfer' :
-                                    topUp.payment_method || 'Other'
+                        value: item.payment_method,
+                        label: item.payment_method === 'cash' ? 'Cash' :
+                            item.payment_method === 'mpesa' ? 'M-Pesa' :
+                                item.payment_method === 'bank_transfer' ? 'Bank Transfer' :
+                                    item.payment_method || 'Other'
                     },
-                    remaining_balance: {
-                        raw: parseFloat(topUp.remaining_balance || topUp.amount || 0),
-                        formatted: `KES ${parseFloat(topUp.remaining_balance || topUp.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    classification: item.classification ? {
+                        value: item.classification,
+                        label: item.classification === 'admin' ? 'Admin' :
+                            item.classification === 'agencies' ? 'Agencies' :
+                                item.classification === 'operations' ? 'Operations' :
+                                    item.classification === 'event_planners' ? 'Event Planners' :
+                                        item.classification === 'corporates' ? 'Corporates' :
+                                            item.classification === 'crs' ? 'CRS' :
+                                                item.classification || 'Other'
+                    } : null,
+                    status: {
+                        value: item.status || 'active',
+                        label: item.status === 'active' ? 'Active' : 'Voided',
+                        is_active: (item.status || 'active') === 'active',
+                        is_voided: (item.status || 'active') === 'voided'
                     },
                     created_at: {
-                        raw: topUp.created_at,
-                        formatted: new Date(topUp.created_at).toLocaleDateString('en-KE'),
+                        raw: item.created_at,
+                        formatted: new Date(item.created_at).toLocaleDateString('en-KE'),
                         human: 'Recently'
                     },
-                    // Transform nested disbursements
-                    disbursements: (topUp.disbursements || []).map((disbursement: any) => ({
-                        ...disbursement,
-                        amount: {
-                            raw: parseFloat(disbursement.amount || 0),
-                            formatted: `KES ${parseFloat(disbursement.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                        },
-                        payment_method: {
-                            value: disbursement.payment_method,
-                            label: disbursement.payment_method === 'cash' ? 'Cash' :
-                                disbursement.payment_method === 'mpesa' ? 'M-Pesa' :
-                                    disbursement.payment_method === 'bank_transfer' ? 'Bank Transfer' :
-                                        disbursement.payment_method || 'Other'
-                        },
-                        classification: {
-                            value: disbursement.classification,
-                            label: disbursement.classification === 'admin' ? 'Admin' :
-                                disbursement.classification === 'agencies' ? 'Agencies' :
-                                    disbursement.classification === 'operations' ? 'Operations' :
-                                        disbursement.classification || 'Other'
-                        },
-                        status: {
-                            value: disbursement.status || 'active',
-                            label: disbursement.status === 'active' ? 'Active' : 'Voided',
-                            is_active: (disbursement.status || 'active') === 'active',
-                            is_voided: (disbursement.status || 'active') === 'voided'
-                        },
-                        created_at: {
-                            raw: disbursement.created_at,
-                            formatted: new Date(disbursement.created_at).toLocaleDateString('en-KE'),
-                            human: 'Recently'
-                        }
-                    })),
-                    // Add disbursements summary for display
-                    disbursements_summary: {
-                        active_count: (topUp.disbursements || []).filter((d: any) => (d.status || 'active') === 'active').length,
-                        voided_count: (topUp.disbursements || []).filter((d: any) => d.status === 'voided').length,
-                        total_count: (topUp.disbursements || []).length
-                    }
+                    // Include permission fields
+                    can_edit: item.can_edit !== undefined ? item.can_edit : (item.type === 'disbursement'),
+                    can_void: item.can_void !== undefined ? item.can_void : (item.type === 'disbursement' && item.status === 'active'),
+                    can_delete: true,
+                    original_data: item
                 }))
 
-                console.log('🔍 fetchTransactions transformed data:', transformedData[0])
+                console.log('🔍 fetchTransactions transformed first item:', transformedData[0])
 
-                // For transactions, we don't need to validate as strictly since it's hierarchical data
-                transactions.value = transformedData as PettyCashTopUp[]
+                transactions.value = transformedData
 
                 pagination.value.transactions = {
                     ...defaultPagination,
@@ -1046,10 +1108,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             if ('success' in response && response.success) {
                 const validationResult = validateSummaryData(response.data)
                 if (validationResult.isValid && validationResult.data) {
-                    summary.value = validationResult.data
+                    summary.value = (validationResult.data as any)
                 } else {
                     console.warn('Summary data failed validation:', validationResult.errors)
-                    summary.value = mergeWithDefaults(defaultSummary, response.data)
+                    summary.value = mergeWithDefaults(defaultSummary as any, response.data as any) as any
                 }
 
                 dataIntegrity.value.lastValidated = new Date()
@@ -1083,10 +1145,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             if ('success' in response && response.success) {
                 const validationResult = validateAnalyticsData(response.data)
                 if (validationResult.isValid && validationResult.data) {
-                    analytics.value = validationResult.data
+                    analytics.value = (validationResult.data as any)
                 } else {
                     console.warn('Analytics data failed validation:', validationResult.errors)
-                    analytics.value = mergeWithDefaults(defaultAnalytics, response.data)
+                    analytics.value = mergeWithDefaults(defaultAnalytics as any, response.data as any) as any
                 }
 
                 dataIntegrity.value.lastValidated = new Date()
@@ -1110,6 +1172,77 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+    const archiveTransaction = async (id: number, type: 'disbursement' | 'top_up') => {
+        const operation = async () => {
+            const response = await pettyCashService.archiveTransaction(id, type)
+            if ('success' in response && response.success) {
+                // Refresh transactions after archiving
+                await fetchTransactions()
+                return response
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        return await withErrorHandling(operation, {
+            context: 'archiveTransaction',
+            id,
+            type
+        })
+    }
+
+    const bulkArchiveTransactions = async (ids: number[]) => {
+        const operation = async () => {
+            const response = await pettyCashService.bulkArchiveTransactions(ids)
+            if ('success' in response && response.success) {
+                // Refresh transactions after bulk archiving
+                await fetchTransactions()
+                return response
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        return await withErrorHandling(operation, {
+            context: 'bulkArchiveTransactions',
+            ids
+        })
+    }
+
+    const archiveTransactionGroup = async (topUpId: number) => {
+        const operation = async () => {
+            const response = await pettyCashService.archiveTransactionGroup(topUpId)
+            if ('success' in response && response.success) {
+                await fetchTransactions()
+                return response
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        return await withErrorHandling(operation, {
+            context: 'archiveTransactionGroup',
+            topUpId
+        })
+    }
+
+    const bulkArchiveTransactionGroups = async (topUpIds: number[]) => {
+        const operation = async () => {
+            const response = await pettyCashService.bulkArchiveTransactionGroups(topUpIds)
+            if ('success' in response && response.success) {
+                await fetchTransactions()
+                return response
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        return await withErrorHandling(operation, {
+            context: 'bulkArchiveTransactionGroups',
+            topUpIds
+        })
+    }
+
     const fetchRecentTransactions = async (limit: number = 10) => {
         const operation = async () => {
             loading.value.recent = true
@@ -1118,14 +1251,16 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             const response = await pettyCashService.getRecentTransactions(limit)
 
             if ('success' in response && response.success) {
-                recentTransactions.value = createSafeArray(response.data, {
+                const defaultRecent: DeepReadonly<RecentTransaction> = {
                     id: 0,
                     type: 'top_up',
                     amount: 0,
                     description: '',
                     created_at: new Date().toISOString(),
                     creator: 'Unknown'
-                })
+                }
+                const validatedData = createSafeArray<RecentTransaction>(response.data, defaultRecent)
+                recentTransactions.value = (validatedData as unknown as RecentTransaction[])
 
                 dataIntegrity.value.lastValidated = new Date()
                 return recentTransactions.value
@@ -1422,6 +1557,8 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         updateDisbursement,
         voidDisbursement,
         deleteDisbursement,
+        bulkDeleteDisbursements,
+        clearAllPettyCashData,
         fetchTopUps,
         fetchTransactions,
         goToTransactionPage,
@@ -1432,6 +1569,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         fetchSummary,
         fetchAnalytics,
         fetchRecentTransactions,
+        archiveTransaction,
+        bulkArchiveTransactions,
+        archiveTransactionGroup,
+        bulkArchiveTransactionGroups,
 
         // Enhanced Utility Actions
         clearError,
@@ -1452,17 +1593,14 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                 disbursements: {
                     count: disbursements.value.length,
                     active: activeDisbursements.value.length,
-                    totalAmount: totalDisbursementAmount.value,
-                    sample: disbursements.value[0]
+                    totalAmount: totalDisbursementAmount.value
                 },
                 topUps: {
                     count: topUps.value.length,
-                    totalAmount: totalTopUpAmount.value,
-                    sample: topUps.value[0]
+                    totalAmount: totalTopUpAmount.value
                 },
                 transactions: {
-                    count: transactions.value.length,
-                    sample: transactions.value[0]
+                    count: transactions.value.length
                 },
                 balance: {
                     current: currentBalance.value,
