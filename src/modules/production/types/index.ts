@@ -261,6 +261,7 @@ export interface TechnicianTimeReport {
   job_cards_completed: number
   efficiency_rating: number
   total_cost: number
+  day_rate: number
 }
 
 export interface ProductionAnalytics {

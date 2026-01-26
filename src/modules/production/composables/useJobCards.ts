@@ -21,12 +21,12 @@ export function useJobCards() {
   
   const filters = reactive<JobCardFilters>({
     page: 1,
-    per_page: 20
+    per_page: 15
   })
   
   const pagination = ref({
     current_page: 1,
-    per_page: 20,
+    per_page: 15,
     total: 0,
     last_page: 0
   })

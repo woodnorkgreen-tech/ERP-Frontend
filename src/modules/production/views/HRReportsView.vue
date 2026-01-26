@@ -84,7 +84,7 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Labor Cost</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ totalLaborCost }}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">KSH {{ totalLaborCost }}</p>
             </div>
           </div>
         </div>
@@ -174,6 +174,9 @@
                   Jobs Completed
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Day Rate
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Efficiency
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -183,14 +186,14 @@
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-if="reportsLoading">
-                <td colspan="8" class="px-6 py-12 text-center">
+                <td colspan="9" class="px-6 py-12 text-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                   <p class="mt-2 text-gray-600 dark:text-gray-400">Loading technician reports...</p>
                 </td>
               </tr>
               
               <tr v-else-if="technicianReports.length === 0">
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                <td colspan="9" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No technician data available for selected period
                 </td>
               </tr>
@@ -219,6 +222,9 @@
                   <p class="text-sm text-gray-900 dark:text-white">{{ report.job_cards_completed }}</p>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">KSH {{ report.day_rate.toFixed(2) }}</p>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                   <span
                     :class="getEfficiencyClass(report.efficiency_rating)"
                     class="px-2 py-1 text-xs font-medium rounded-full"
@@ -227,7 +233,7 @@
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">${{ report.total_cost.toFixed(2) }}</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">KSH {{ report.total_cost.toFixed(2) }}</p>
                 </td>
               </tr>
             </tbody>
@@ -244,15 +250,15 @@
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600 dark:text-gray-400">Regular Labor Cost</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">${{ regularLaborCost }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">KSH {{ regularLaborCost }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600 dark:text-gray-400">Overtime Labor Cost</span>
-              <span class="text-sm font-medium text-orange-600 dark:text-orange-400">${{ overtimeLaborCost }}</span>
+              <span class="text-sm font-medium text-orange-600 dark:text-orange-400">KSH {{ overtimeLaborCost }}</span>
             </div>
             <div class="border-t border-gray-200 dark:border-gray-600 pt-3 flex justify-between items-center">
               <span class="text-base font-medium text-gray-900 dark:text-white">Total Labor Cost</span>
-              <span class="text-base font-bold text-gray-900 dark:text-white">${{ totalLaborCost }}</span>
+              <span class="text-base font-bold text-gray-900 dark:text-white">KSH {{ totalLaborCost }}</span>
             </div>
           </div>
         </div>
@@ -319,13 +325,18 @@ const totalLaborCost = computed(() => {
 })
 
 const regularLaborCost = computed(() => {
-  const regular = technicianReports.value.reduce((sum, report) => sum + (report.regular_hours * 25), 0) // $25/hr average
+  const regular = technicianReports.value.reduce((sum, report) => {
+    // For daily rate system, the total cost is already calculated correctly
+    // Just sum up all the total costs
+    return sum + report.total_cost
+  }, 0)
   return regular.toFixed(2)
 })
 
 const overtimeLaborCost = computed(() => {
-  const overtime = technicianReports.value.reduce((sum, report) => sum + (report.overtime_hours * 37.5), 0) // 1.5x rate
-  return overtime.toFixed(2)
+  // With daily rate system, overtime is not calculated separately
+  // All cost is included in the daily rate
+  return (0).toFixed(2)
 })
 
 const averageCompletionTime = computed(() => {
@@ -375,6 +386,7 @@ const exportReports = () => {
     'Regular Hours',
     'Overtime Hours',
     'Jobs Completed',
+    'Day Rate',
     'Efficiency %',
     'Total Cost'
   ]
@@ -386,8 +398,9 @@ const exportReports = () => {
     report.regular_hours.toFixed(1),
     report.overtime_hours.toFixed(1),
     report.job_cards_completed.toString(),
+    `KSH ${report.day_rate.toFixed(2)}`,
     report.efficiency_rating.toString(),
-    report.total_cost.toFixed(2)
+    `KSH ${report.total_cost.toFixed(2)}`
   ])
   
   const csvContent = [headers, ...rows]
