@@ -1211,6 +1211,16 @@
 
         <!-- Action Buttons -->
         <div class="px-10 py-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 shrink-0">
+          <!-- Logistics Pagination -->
+          <div class="mb-4" v-if="logisticsPagination.total > logisticsPagination.per_page">
+            <Pagination
+              :current-page="logisticsPagination.current_page"
+              :total-items="logisticsPagination.total"
+              :items-per-page="logisticsPagination.per_page"
+              @page-change="handleLogisticsPageChange"
+            />
+          </div>
+
           <div class="flex justify-end">
             <button
               @click="closeLogisticsLogModal"
@@ -1317,7 +1327,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
-const filters = ref({ search: '', status: '', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
+const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -1342,8 +1352,10 @@ watch(isProjectOfficer, (newValue) => {
   }
 }, { immediate: true })
 
-// Status Tabs
-const activeTab = ref('all')
+const activeTab = computed({
+  get: () => filters.value.sub_status,
+  set: (val) => { filters.value.sub_status = val }
+})
 const showCreateModal = ref(false)
 const titleInputRef = ref<HTMLInputElement | null>(null)
 const editingEnquiry = ref<ProjectEnquiry | null>(null)
@@ -1422,6 +1434,11 @@ const logisticsEntries = ref<LogisticsEntry[]>([])
 const sortField = ref('created_at')
 const sortDirection = ref<'asc' | 'desc'>('desc')
 const logisticsStatusFilter = ref('')
+const logisticsPagination = ref({
+  current_page: 1,
+  total: 0,
+  per_page: 15
+})
 
 // Logistics Entry Form
 const logisticsEntryForm = ref({
@@ -1620,39 +1637,9 @@ const statusTabs = computed(() => {
 })
 
 const filteredEnquiries = computed(() => {
-  let filtered = enquiries.value.filter(e => e !== undefined && e !== null)
-
-  // 1. Separate Enquiries, Projects, and Completed based on status
-  const completedStatuses = ['completed', 'cancelled']
-  const activeProjectStatuses = ['quote_approved', 'planning', 'in_progress']
-  
-  if (currentView.value === 'completed') {
-      // Completed View: Only completed or cancelled projects
-      filtered = filtered.filter(e => completedStatuses.includes(e.status))
-  } else if (currentView.value === 'projects') {
-      // Projects View: Active projects only (quote_approved to in_progress, excluding completed/cancelled)
-      filtered = filtered.filter(e => activeProjectStatuses.includes(e.status))
-  } else {
-      // Enquiries View: Status must be BEFORE quote_approved
-      filtered = filtered.filter(e => !activeProjectStatuses.includes(e.status) && !completedStatuses.includes(e.status))
-  }
-
-  // 2. Filter by status tab (activeTab)
-  if (activeTab.value !== 'all') {
-    if (activeTab.value === 'new') {
-       filtered = filtered.filter(e => e.status === 'enquiry_logged' || e.status === 'client_registered')
-    } else if (activeTab.value === 'in_progress' && currentView.value === 'enquiries') {
-       // "In Pipeline" for enquiries (excluding quote_approved/planning now)
-       filtered = filtered.filter(enquiry => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(enquiry.status))
-    } else if (activeTab.value === 'pre_prod' && currentView.value === 'projects') {
-       filtered = filtered.filter(e => ['quote_approved', 'planning'].includes(e.status))
-    } else {
-       // Direct status match
-       filtered = filtered.filter(e => e.status === activeTab.value)
-    }
-  }
-
-  return filtered
+  // Now that filtering is done in the backend, we essentially just return the items for the current page.
+  // We keep the null check for safety.
+  return enquiries.value.filter(e => e !== undefined && e !== null)
 })
 
 const applyFilters = () => {
@@ -1661,6 +1648,7 @@ const applyFilters = () => {
 
 watch(currentView, (newValue) => {
   filters.value.view = newValue
+  filters.value.sub_status = 'all' // Reset sub-tab when main view changes
   applyFilters()
 })
 
@@ -1797,14 +1785,30 @@ const closeLogisticsLogModal = () => {
   logisticsStatusFilter.value = ''
 }
 
-const fetchLogisticsEntries = async () => {
+const fetchLogisticsEntries = async (page = 1) => {
   try {
-    const response = await api.get('/api/projects/logistics-log')
-    logisticsEntries.value = response.data.data.data || []
+    const response = await api.get('/api/projects/logistics-log', {
+      params: {
+        page,
+        per_page: 15,
+        status: logisticsStatusFilter.value
+      }
+    })
+    const data = response.data.data
+    logisticsEntries.value = data.data || []
+    logisticsPagination.value = {
+      current_page: data.current_page || 1,
+      total: data.total || 0,
+      per_page: data.per_page || 15
+    }
   } catch (error) {
     console.error('Failed to fetch logistics entries:', error)
     logisticsEntries.value = []
   }
+}
+
+const handleLogisticsPageChange = async (page: number) => {
+  await fetchLogisticsEntries(page)
 }
 
 const handleProjectSelection = () => {

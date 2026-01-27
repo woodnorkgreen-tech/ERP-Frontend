@@ -146,6 +146,26 @@
               </p>
             </div>
 
+            <!-- Top-up Date Field -->
+            <div>
+              <label for="date_topped_up" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Top-up Date <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="date_topped_up"
+                v-model="form.date_topped_up"
+                type="date"
+                :class="[
+                  'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                  errors.date_topped_up ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                ]"
+                required
+              />
+              <p v-if="errors.date_topped_up" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.date_topped_up[0] }}
+              </p>
+            </div>
+
             <!-- Description Field -->
             <div>
               <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -237,6 +257,7 @@ const requiresTransactionCode = computed(() => {
 const isFormValid = computed(() => {
   return form.amount &&
          form.payment_method &&
+         form.date_topped_up &&
          (!requiresTransactionCode.value || form.transaction_code)
 })
 

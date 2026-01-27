@@ -1051,8 +1051,8 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                         is_voided: (item.status || 'active') === 'voided'
                     },
                     created_at: {
-                        raw: item.created_at,
-                        formatted: new Date(item.created_at).toLocaleDateString('en-KE'),
+                        raw: item.date_topped_up || item.date_disbursed || item.created_at,
+                        formatted: new Date(item.date_topped_up || item.date_disbursed || item.created_at).toLocaleDateString('en-KE'),
                         human: 'Recently'
                     },
                     // Include permission fields

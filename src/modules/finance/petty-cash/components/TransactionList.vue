@@ -310,6 +310,15 @@
                 >
                   {{ transaction.type === 'top_up' ? '+' : '-' }}{{ transaction.amount.formatted.replace('KES ', '') }}
                 </span>
+                
+                <!-- Previous Balance for Top-ups -->
+                <span 
+                  v-if="transaction.type === 'top_up' && transaction.previous_balance !== undefined"
+                  class="text-[10px] text-gray-500 dark:text-gray-400 mt-1"
+                >
+                  Balance before: KES {{ Number(transaction.previous_balance || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+                </span>
+                
                 <span v-if="transaction.status?.is_voided" class="text-[9px] font-bold text-red-500 uppercase tracking-widest leading-none mt-1">
                   VOIDED
                 </span>
@@ -658,8 +667,14 @@ const getClassificationBadgeClass = (classification: string): string => {
 
 
 
-const editDisbursement = (disbursement: PettyCashDisbursement) => {
-  emit('edit-disbursement', disbursement)
+const editDisbursement = (transaction: any) => {
+  // Pass the transaction with original_id properly set
+  const disbursementToEdit = {
+    ...transaction,
+    id: transaction.original_id || transaction.id,
+    ...transaction.original_data
+  }
+  emit('edit-disbursement', disbursementToEdit)
 }
 
 const voidDisbursement = (disbursement: PettyCashDisbursement) => {

@@ -129,32 +129,73 @@
         </div>
       </div>
 
+      <!-- Project Spending Breakdown -->
+      <div v-if="projectReport && projectReport.projects.length > 0" class="mb-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Spending by Project</h4>
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-900">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Transactions</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% Of Spend</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="project in projectReport.projects" :key="project.project_name" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ project.project_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900 dark:text-white">{{ formatAmount(project.total_amount) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500 dark:text-gray-400">{{ project.transaction_count }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                    {{ project.percentage.toFixed(1) }}%
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-gray-50 dark:bg-gray-900 font-bold">
+              <tr>
+                <td class="px-6 py-3 text-left text-xs text-gray-700 dark:text-gray-300">TOTAL</td>
+                <td class="px-6 py-3 text-right text-sm text-gray-900 dark:text-white">{{ formatAmount(projectReport.summary.total_amount) }}</td>
+                <td class="px-6 py-3 text-right text-sm text-gray-900 dark:text-white">{{ projectReport.summary.total_transactions }}</td>
+                <td class="px-6 py-3 text-right text-sm text-gray-900 dark:text-white">100%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
       <!-- Charts Section -->
       <div v-if="analytics" class="mb-6">
         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Spending Analysis</h4>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Classification Chart -->
           <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Spending by Classification</h5>
-            <div v-if="analytics.by_classification.length > 0" class="space-y-3">
+            <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Spending by Classification</h5>
+            <div v-if="analytics.by_classification.length > 0" class="space-y-4">
               <div
                 v-for="item in analytics.by_classification"
                 :key="item.classification"
-                class="flex items-center justify-between"
               >
-                <div class="flex items-center space-x-3">
-                  <div class="w-4 h-4 rounded-full" :class="getClassificationColor(item.classification)"></div>
+                <div class="flex items-center justify-between mb-1">
                   <span class="text-sm font-medium text-gray-900 dark:text-white capitalize">
                     {{ item.classification }}
                   </span>
+                  <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    {{ item.percentage.toFixed(1) }}%
+                  </span>
                 </div>
-                <div class="text-right">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ formatAmount(item.total_amount) }}
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ item.percentage.toFixed(1) }}% ({{ item.transaction_count }} txns)
-                  </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                  <div 
+                    class="h-2 rounded-full transition-all duration-500" 
+                    :class="getClassificationBg(item.classification)"
+                    :style="{ width: `${item.percentage}%` }"
+                  ></div>
+                </div>
+                <div class="flex justify-between mt-1">
+                  <span class="text-[10px] text-gray-500 dark:text-gray-400">{{ item.transaction_count }} txns</span>
+                  <span class="text-xs font-medium text-gray-900 dark:text-white">{{ formatAmount(item.total_amount) }}</span>
                 </div>
               </div>
             </div>
@@ -165,26 +206,30 @@
 
           <!-- Payment Method Chart -->
           <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-            <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Spending by Payment Method</h5>
-            <div v-if="analytics.by_payment_method.length > 0" class="space-y-3">
+            <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Spending by Payment Method</h5>
+            <div v-if="analytics.by_payment_method.length > 0" class="space-y-4">
               <div
                 v-for="item in analytics.by_payment_method"
                 :key="item.payment_method"
-                class="flex items-center justify-between"
               >
-                <div class="flex items-center space-x-3">
-                  <div class="w-4 h-4 rounded-full" :class="getPaymentMethodColor(item.payment_method)"></div>
+                <div class="flex items-center justify-between mb-1">
                   <span class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ getPaymentMethodLabel(item.payment_method) }}
                   </span>
+                  <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    {{ item.percentage.toFixed(1) }}%
+                  </span>
                 </div>
-                <div class="text-right">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
-                    {{ formatAmount(item.total_amount) }}
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ item.percentage.toFixed(1) }}% ({{ item.transaction_count }} txns)
-                  </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                  <div 
+                    class="h-2 rounded-full transition-all duration-500" 
+                    :class="getPaymentMethodBg(item.payment_method)"
+                    :style="{ width: `${item.percentage}%` }"
+                  ></div>
+                </div>
+                <div class="flex justify-between mt-1">
+                  <span class="text-[10px] text-gray-500 dark:text-gray-400">{{ item.transaction_count }} txns</span>
+                  <span class="text-xs font-medium text-gray-900 dark:text-white">{{ formatAmount(item.total_amount) }}</span>
                 </div>
               </div>
             </div>
@@ -246,17 +291,18 @@ import type { DisbursementFilters } from '../types/pettyCash'
 const reportsComposable = useReports()
 const isExporting = ref(false)
 
-// Reactive filters
-const filters = reactive<DisbursementFilters>({
+// Reactive filters using a mutable version of DisbursementFilters
+const filters = reactive({
   start_date: '',
   end_date: '',
-  classification: '',
+  classification: '' as any,
   project_name: ''
 })
 
 // Computed properties
 const summary = computed(() => reportsComposable.summary.value)
 const analytics = computed(() => reportsComposable.analytics.value)
+const projectReport = computed(() => reportsComposable.projectReport.value)
 const loading = computed(() => reportsComposable.loading.value)
 
 // Methods
@@ -264,21 +310,29 @@ const formatAmount = (amount: number): string => {
   return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-const getClassificationColor = (classification: string): string => {
+const getClassificationBg = (classification: string): string => {
   const colors = {
     agencies: 'bg-purple-500',
     admin: 'bg-blue-500',
     operations: 'bg-green-500',
+    event_planners: 'bg-indigo-500',
+    corporates: 'bg-cyan-500',
+    crs: 'bg-yellow-500',
     other: 'bg-gray-500'
   }
   return colors[classification as keyof typeof colors] || colors.other
 }
 
-const getPaymentMethodColor = (method: string): string => {
+const getPaymentMethodBg = (method: string): string => {
   const colors = {
     cash: 'bg-green-500',
     mpesa: 'bg-yellow-500',
     bank_transfer: 'bg-blue-500',
+    equity: 'bg-red-500',
+    stanbic: 'bg-blue-700',
+    ncba: 'bg-red-700',
+    kcb: 'bg-green-700',
+    family: 'bg-orange-500',
     other: 'bg-gray-500'
   }
   return colors[method as keyof typeof colors] || colors.other
@@ -295,19 +349,21 @@ const getPaymentMethodLabel = (method: string): string => {
 }
 
 const clearFilters = () => {
-  Object.keys(filters).forEach(key => {
-    filters[key as keyof DisbursementFilters] = ''
-  })
+  filters.start_date = ''
+  filters.end_date = ''
+  filters.classification = ''
+  filters.project_name = ''
 }
 
 const generateReport = async () => {
   const activeFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => value !== '')
-  )
+  ) as any
   
   await Promise.all([
     reportsComposable.fetchSummary(activeFilters),
-    reportsComposable.fetchAnalytics(activeFilters)
+    reportsComposable.fetchAnalytics(activeFilters),
+    reportsComposable.fetchProjectReport(activeFilters)
   ])
 }
 

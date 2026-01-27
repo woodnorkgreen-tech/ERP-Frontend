@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { 
+import type {
   TransactionSummary,
   SpendingAnalytics,
   RecentTransaction,
@@ -10,6 +10,7 @@ import api from '@/plugins/axios'
 
 const summary = ref<TransactionSummary | null>(null)
 const analytics = ref<SpendingAnalytics | null>(null)
+const projectReport = ref<any | null>(null)
 const recentTransactions = ref<RecentTransaction[]>([])
 const chartData = ref<ChartData | null>(null)
 const loading = ref(false)
@@ -23,7 +24,7 @@ export function useReports() {
     try {
       const params = { ...filters }
       const response = await api.get('/api/finance/petty-cash/summary', { params })
-      
+
       if (response.data.success) {
         summary.value = response.data.data
       } else {
@@ -44,7 +45,7 @@ export function useReports() {
     try {
       const params = { ...filters }
       const response = await api.get('/api/finance/petty-cash/analytics', { params })
-      
+
       if (response.data.success) {
         analytics.value = response.data.data
       } else {
@@ -65,7 +66,7 @@ export function useReports() {
     try {
       const params = { limit }
       const response = await api.get('/api/finance/petty-cash/recent', { params })
-      
+
       if (response.data.success) {
         recentTransactions.value = response.data.data || []
       } else {
@@ -79,6 +80,27 @@ export function useReports() {
     }
   }
 
+  const fetchProjectReport = async (filters?: DisbursementFilters) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const params = { ...filters }
+      const response = await api.get('/api/finance/petty-cash/reports/projects', { params })
+
+      if (response.data.success) {
+        projectReport.value = response.data.data
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch project report')
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || err.message || 'Failed to fetch project report'
+      projectReport.value = null
+    } finally {
+      loading.value = false
+    }
+  }
+
   const generateChartData = async (filters?: DisbursementFilters) => {
     loading.value = true
     error.value = null
@@ -87,7 +109,7 @@ export function useReports() {
       // For now, we'll generate chart data from analytics
       // In a real implementation, this might be a separate endpoint
       await fetchAnalytics(filters)
-      
+
       if (analytics.value) {
         chartData.value = {
           classification_pie: {
@@ -116,25 +138,25 @@ export function useReports() {
 
     try {
       const params = { type, ...filters }
-      const response = await api.get('/api/finance/petty-cash/export', { 
+      const response = await api.get('/api/finance/petty-cash/export', {
         params,
         responseType: 'blob' // For file downloads
       })
-      
+
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
-      
+
       // Set filename based on type and current date
       const date = new Date().toISOString().split('T')[0]
       link.setAttribute('download', `petty-cash-${type}-${date}.xlsx`)
-      
+
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      
+
     } catch (err: any) {
       error.value = err.response?.data?.message || err.message || 'Failed to export data'
       throw err
@@ -149,24 +171,24 @@ export function useReports() {
 
     try {
       const params = { format: 'pdf', ...filters }
-      const response = await api.get('/api/finance/petty-cash/report', { 
+      const response = await api.get('/api/finance/petty-cash/report', {
         params,
         responseType: 'blob'
       })
-      
+
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
       const link = document.createElement('a')
       link.href = url
-      
+
       const date = new Date().toISOString().split('T')[0]
       link.setAttribute('download', `petty-cash-report-${date}.pdf`)
-      
+
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      
+
     } catch (err: any) {
       error.value = err.response?.data?.message || err.message || 'Failed to generate PDF report'
       throw err
@@ -177,12 +199,12 @@ export function useReports() {
 
   // Computed properties
   const totalSpending = computed(() => summary.value?.total_disbursements || 0)
-  
+
   const totalTopUps = computed(() => summary.value?.total_top_ups || 0)
-  
+
   const netBalance = computed(() => summary.value?.net_balance || 0)
-  
-  const transactionCount = computed(() => 
+
+  const transactionCount = computed(() =>
     (summary.value?.top_up_count || 0) + (summary.value?.disbursement_count || 0)
   )
 
@@ -191,33 +213,33 @@ export function useReports() {
     return count > 0 ? (totalSpending.value + totalTopUps.value) / count : 0
   })
 
-  const spendingByClassification = computed(() => 
+  const spendingByClassification = computed(() =>
     analytics.value?.by_classification || []
   )
 
-  const spendingByPaymentMethod = computed(() => 
+  const spendingByPaymentMethod = computed(() =>
     analytics.value?.by_payment_method || []
   )
 
   const topSpendingClassification = computed(() => {
     const classifications = spendingByClassification.value
-    return classifications.length > 0 
-      ? classifications.reduce((prev, current) => 
-          prev.total_amount > current.total_amount ? prev : current
-        )
+    return classifications.length > 0
+      ? classifications.reduce((prev, current) =>
+        prev.total_amount > current.total_amount ? prev : current
+      )
       : null
   })
 
   const topPaymentMethod = computed(() => {
     const methods = spendingByPaymentMethod.value
-    return methods.length > 0 
-      ? methods.reduce((prev, current) => 
-          prev.total_amount > current.total_amount ? prev : current
-        )
+    return methods.length > 0
+      ? methods.reduce((prev, current) =>
+        prev.total_amount > current.total_amount ? prev : current
+      )
       : null
   })
 
-  const hasData = computed(() => 
+  const hasData = computed(() =>
     summary.value !== null || analytics.value !== null || recentTransactions.value.length > 0
   )
 
@@ -246,6 +268,7 @@ export function useReports() {
     // State
     summary,
     analytics,
+    projectReport,
     recentTransactions,
     chartData,
     loading,
@@ -254,6 +277,7 @@ export function useReports() {
     // Actions
     fetchSummary,
     fetchAnalytics,
+    fetchProjectReport,
     fetchRecentTransactions,
     generateChartData,
     exportData,
