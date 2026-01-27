@@ -178,15 +178,20 @@ export interface MaterialRequirement {
   id: number
   job_card_id: number
   material_name: string
-  quantity_used: number
+  quantity_used?: number
+  quantity_required?: number
+  quantity_issued?: number
   unit: string
+  unit_cost?: number
   notes?: string
   created_at: string
   updated_at: string
 }
 
+// Daily Job Card (for time tracking)
 export interface JobCard {
   id: number
+  job_card_number?: string
   worker_id: number
   date: string
   clock_in_time?: string
@@ -203,6 +208,27 @@ export interface JobCard {
   approver?: User
   tasks?: DailyTask[]
   issues?: DailyIssue[]
+  material_requirements?: MaterialRequirement[]
+}
+
+// Production Job Card (for manufacturing operations)
+export interface ProductionJobCard {
+  id: number
+  job_card_number: string
+  operation_description?: string
+  priority?: 'low' | 'medium' | 'high' | 'urgent'
+  status?: 'planned' | 'released' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled'
+  workOrder?: WorkOrder
+  fabrication_type?: string
+  workCenter?: WorkCenter
+  assignedTechnician?: Technician
+  planned_hours?: number
+  setup_time?: number
+  actual_hours?: number
+  scheduled_start_date?: string
+  scheduled_end_date?: string
+  time_entries?: any[]
+  quality_checks?: any[]
   material_requirements?: MaterialRequirement[]
 }
 

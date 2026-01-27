@@ -19,7 +19,7 @@
               :class="getPriorityClass(jobCard?.priority)"
               class="px-2 py-1 text-xs font-medium rounded-full"
             >
-              {{ jobCard?.priority?.toUpperCase() }}
+              {{ jobCard?.priority?.toUpperCase() || 'N/A' }}
             </span>
           </div>
         </div>
@@ -62,13 +62,13 @@
         
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm font-medium text-gray-600">Fabrication Type</p>
-          <p class="text-lg font-semibold text-gray-900 capitalize">{{ jobCard.fabrication_type?.replace('_', ' ') }}</p>
+          <p class="text-lg font-semibold text-gray-900 capitalize">{{ jobCard?.fabrication_type?.replace('_', ' ') || 'N/A' }}</p>
         </div>
         
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm font-medium text-gray-600">Work Center</p>
           <p class="text-lg font-semibold text-gray-900">{{ jobCard.workCenter?.name }}</p>
-          <p class="text-sm text-gray-600 capitalize">{{ jobCard.workCenter?.type }}</p>
+          <p class="text-sm text-gray-600 capitalize">{{ jobCard?.workCenter?.type || 'N/A' }}</p>
         </div>
         
         <div class="bg-gray-50 rounded-lg p-4">
@@ -106,7 +106,7 @@
       <!-- Action Buttons for Production Users -->
       <div v-if="canManageJobCard" class="flex flex-wrap gap-2">
         <button
-          v-if="jobCard.status === 'planned'"
+          v-if="jobCard?.status === 'planned'"
           @click="releaseJobCard"
           :disabled="actionLoading"
           class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50"
@@ -115,7 +115,7 @@
         </button>
         
         <button
-          v-if="jobCard.status === 'released'"
+          v-if="jobCard?.status === 'released'"
           @click="startJobCard"
           :disabled="actionLoading"
           class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
@@ -124,7 +124,7 @@
         </button>
         
         <button
-          v-if="jobCard.status === 'in_progress'"
+          v-if="jobCard?.status === 'in_progress'"
           @click="completeJobCard"
           :disabled="actionLoading"
           class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -133,7 +133,7 @@
         </button>
         
         <button
-          v-if="['released', 'in_progress'].includes(jobCard.status)"
+          v-if="['released', 'in_progress'].includes(jobCard?.status || '')"
           @click="putOnHoldJobCard"
           :disabled="actionLoading"
           class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50"
@@ -234,7 +234,7 @@
                   ${{ material.unit_cost }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${{ (material.quantity_required * material.unit_cost).toFixed(2) }}
+                  ${{ ((material.quantity_required || 0) * (material.unit_cost || 0)).toFixed(2) }}
                 </td>
               </tr>
             </tbody>
@@ -291,7 +291,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useJobCards, useTimeTracking } from '../composables/useJobCards'
-import type { JobCard } from '../types'
+import type { ProductionJobCard } from '../types'
 
 interface Props {
   jobCardId: number
@@ -306,7 +306,7 @@ const emit = defineEmits<{
 const { fetchJobCard, releaseJobCard: release, startJobCard: start, completeJobCard: complete, putOnHold: putOnHoldJobCard } = useJobCards()
 const { clockIn: timeClockIn, clockOut: timeClockOut, addBreakTime, currentTimeEntry, fetchTimeEntries } = useTimeTracking()
 
-const jobCard = ref<JobCard | null>(null)
+const jobCard = ref<ProductionJobCard | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const actionLoading = ref(false)
@@ -324,8 +324,8 @@ const canClockIn = computed(() => {
 })
 
 const calculateEfficiency = () => {
-  if (!jobCard.value || jobCard.value.planned_hours === 0) return 0
-  return Math.round((jobCard.value.planned_hours / jobCard.value.actual_hours) * 100)
+  if (!jobCard.value || (jobCard.value.planned_hours || 0) === 0 || !jobCard.value.actual_hours) return 0
+  return Math.round(((jobCard.value.planned_hours || 0) / jobCard.value.actual_hours) * 100)
 }
 
 const getStatusClass = (status?: string) => {
@@ -471,7 +471,7 @@ const loadJobCard = async () => {
   
   try {
     const response = await fetchJobCard(props.jobCardId)
-    jobCard.value = (response as any).data || response as JobCard
+    jobCard.value = (response as any).data || response as unknown as ProductionJobCard
     
     // Load time entries for this job card
     if (jobCard.value) {

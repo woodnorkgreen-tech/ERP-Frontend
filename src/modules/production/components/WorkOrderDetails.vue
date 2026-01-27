@@ -109,234 +109,390 @@
       </div>
 
       <div v-else-if="selectedWorkOrder" class="flex-1 flex flex-col overflow-hidden">
-        <!-- Tab Navigation -->
-        <TabView v-model:activeIndex="activeTab" class="flex-1 flex flex-col custom-tabview dark-tabview">
-          <!-- Scope Tab -->
-          <TabPanel header="Project Scope" value="0">
-            <div class="p-6 bg-white dark:bg-gray-800">
-              <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Scope Elements</h3>
-                <div class="flex gap-3">
-                  <span class="p-input-icon-left">
-                    <i class="mdi mdi-magnify"></i>
-                    <InputText 
-                      v-model="scopeSearch" 
-                      placeholder="Search elements..." 
-                      class="w-64"
-                    ></InputText>
-                  </span>
-                  <Dropdown 
-                    v-model="scopeFilter" 
-                    :options="statusOptions" 
-                    placeholder="Filter by Status" 
-                    class="w-48"
-                    showClear
-                  ></Dropdown>
+        <!-- Modern Tab Navigation -->
+        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div class="px-6 pt-6">
+            <!-- Tab Headers with Icons -->
+            <div class="flex space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-xl w-fit">
+              <button
+                v-for="(tab, index) in tabs"
+                :key="tab.value"
+                @click="activeTab = index"
+                :class="[
+                  'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 relative overflow-hidden group',
+                  activeTab === index
+                    ? 'bg-blue-600 dark:bg-blue-900 text-white dark:text-blue-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+                ]"
+              >
+                <!-- Icon with animation -->
+                <i 
+                  :class="[
+                    'mdi text-lg transition-transform duration-200 relative z-10',
+                    tab.icon,
+                    activeTab === index ? 'scale-110' : 'group-hover:scale-105'
+                  ]"
+                ></i>
+                
+                <!-- Tab label -->
+                <span class="relative z-10">{{ tab.label }}</span>
+                
+                <!-- Badge for content count (optional) -->
+                <span 
+                  v-if="tab.count !== undefined"
+                  :class="[
+                    'ml-1 px-2 py-0.5 text-xs rounded-full relative z-10',
+                    activeTab === index
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  ]"
+                >
+                  {{ tab.count }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content with Smooth Transitions -->
+        <div class="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900">
+          <div class="h-full overflow-y-auto">
+            <!-- Project Scope Tab -->
+            <div v-show="activeTab === 0" class="animate-fadeIn">
+              <div class="p-6 bg-white dark:bg-gray-800 m-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <!-- Tab Header -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-orange-100 dark:bg-orange-900 rounded-xl">
+                      <i class="mdi mdi-cube-outline text-orange-600 dark:text-orange-400 text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-xl font-bold text-gray-900 dark:text-white">Project Scope</h3>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">Manage project elements and specifications</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Search and Filters -->
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative">
+                      <i class="mdi mdi-magnify absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                      <InputText 
+                        v-model="scopeSearch" 
+                        placeholder="Search elements..." 
+                        class="pl-10 w-full sm:w-64 h-10 rounded-lg border-gray-300 dark:border-gray-600"
+                      />
+                    </div>
+                    <Dropdown 
+                      v-model="scopeFilter" 
+                      :options="statusOptions" 
+                      placeholder="Filter Status" 
+                      class="w-full sm:w-40 rounded-lg"
+                      showClear
+                    />
+                  </div>
+                </div>
+                
+                <!-- Enhanced DataTable -->
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4">
+                  <DataTable 
+                    :value="filteredScopeElements" 
+                    :rows="1000"
+                    dataKey="id"
+                    :loading="loading"
+                    responsiveLayout="scroll"
+                    stripedRows
+                    class="modern-datatable"
+                    :paginator="filteredScopeElements.length > 10"
+                    :rowsPerPageOptions="[10, 25, 50]"
+                  >
+                    <Column field="name" header="Element Name" sortable>
+                      <template #body="{ data }">
+                        <div class="flex items-center gap-3">
+                          <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                            <i class="mdi mdi-cube-outline text-orange-600 dark:text-orange-400"></i>
+                          </div>
+                          <div>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ data.name }}</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ data.notes || 'No notes' }}</p>
+                          </div>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="quantity" header="Quantity" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-semibold">
+                            <i class="mdi mdi-counter text-xs"></i>
+                            {{ data.quantity }}
+                          </span>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="status" header="Status" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <Tag :value="data.status" :severity="getElementStatusSeverity(data.status)" />
+                        </div>
+                      </template>
+                    </Column>
+                  </DataTable>
+                </div>
+              </div>
+            </div>
+
+            <!-- Design Assets Tab -->
+            <div v-show="activeTab === 1" class="animate-fadeIn">
+              <div class="p-6 bg-white dark:bg-gray-800 m-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <!-- Tab Header -->
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2.5 bg-purple-100 dark:bg-purple-900 rounded-xl">
+                    <i class="mdi mdi-image-multiple-outline text-purple-600 dark:text-purple-400 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Design Assets</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Design files, mockups, and visual resources</p>
+                  </div>
+                </div>
+                
+                <!-- Assets Grid -->
+                <div v-if="designAssets.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div 
+                    v-for="asset in designAssets" 
+                    :key="asset.id" 
+                    class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer transform hover:-translate-y-1"
+                  >
+                    <!-- Asset Preview -->
+                    <div class="aspect-video bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden" @click="previewAsset(asset)">
+                      <img 
+                        v-if="asset.isImage" 
+                        :src="asset.file_url" 
+                        :alt="asset.name" 
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div v-else class="text-center">
+                        <i class="mdi mdi-file-outline text-4xl text-gray-400 dark:text-gray-500"></i>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getFileExtension(asset.original_name) }}</p>
+                      </div>
+                      
+                      <!-- Overlay on hover -->
+                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <!-- Preview button -->
+                          <button 
+                            @click.stop="previewAsset(asset)"
+                            class="p-2 bg-white/90 dark:bg-gray-800/90 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                            title="Preview"
+                          >
+                            <i class="mdi mdi-eye-outline text-lg"></i>
+                          </button>
+                          <!-- Download button -->
+                          <button 
+                            @click.stop="downloadAsset(asset)"
+                            class="p-2 bg-white/90 dark:bg-gray-800/90 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                            title="Download"
+                          >
+                            <i class="mdi mdi-download text-lg"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Asset Info -->
+                    <div class="p-4">
+                      <div class="flex items-start justify-between mb-2">
+                        <h4 class="font-semibold text-gray-900 dark:text-white truncate flex-1 mr-2">{{ asset.name }}</h4>
+                        <!-- Quick download button -->
+                        <button 
+                          @click="downloadAsset(asset)"
+                          class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shrink-0"
+                          title="Download"
+                        >
+                          <i class="mdi mdi-download text-sm"></i>
+                        </button>
+                      </div>
+                      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{{ asset.formattedSize }}</span>
+                        <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full">{{ getFileExtension(asset.original_name) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div v-else class="text-center py-12">
+                  <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+                    <i class="mdi mdi-image-off-outline text-3xl text-gray-400 dark:text-gray-500"></i>
+                  </div>
+                  <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Design Assets</h4>
+                  <p class="text-gray-500 dark:text-gray-400">Design assets will appear here once they are uploaded to the project.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Materials Tab -->
+            <div v-show="activeTab === 2" class="animate-fadeIn">
+              <div class="p-6 bg-white dark:bg-gray-800 m-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <!-- Tab Header -->
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2.5 bg-green-100 dark:bg-green-900 rounded-xl">
+                    <i class="mdi mdi-package-variant-closed text-green-600 dark:text-green-400 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Materials</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Required materials and inventory management</p>
+                  </div>
+                </div>
+                
+                <!-- Materials Table -->
+                <div v-if="materialsList.length > 0" class="bg-gray-50 dark:bg-gray-900 rounded-xl p-4">
+                  <DataTable 
+                    :value="materialsList" 
+                    :rows="1000"
+                    dataKey="id"
+                    :loading="loading"
+                    responsiveLayout="scroll"
+                    stripedRows
+                    class="modern-datatable"
+                    :paginator="materialsList.length > 10"
+                    :rowsPerPageOptions="[10, 25, 50]"
+                  >
+                    <Column field="name" header="Material Name" sortable>
+                      <template #body="{ data }">
+                        <div class="flex items-center gap-3">
+                          <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                            <i class="mdi mdi-package-variant text-green-600 dark:text-green-400"></i>
+                          </div>
+                          <div>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ data.name }}</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ data.specifications || 'No specifications' }}</p>
+                          </div>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="quantity" header="Quantity" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-semibold">
+                            <i class="mdi mdi-counter text-xs"></i>
+                            {{ data.quantity }}
+                          </span>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="unit" header="Unit" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <span class="px-3 py-1.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-lg text-sm font-medium">
+                            {{ data.unit }}
+                          </span>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="source" header="Source" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <Tag :value="data.source" :severity="data.source === 'Library' ? 'info' : 'secondary'" />
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="status" header="Status" sortable class="text-center">
+                      <template #body="{ data }">
+                        <div class="flex justify-center">
+                          <Tag :value="data.status" :severity="getMaterialStatusSeverity(data.status)" />
+                        </div>
+                      </template>
+                    </Column>
+                  </DataTable>
+                </div>
+                
+                <!-- Empty State -->
+                <div v-else class="text-center py-12">
+                  <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+                    <i class="mdi mdi-package-variant-off text-3xl text-gray-400 dark:text-gray-500"></i>
+                  </div>
+                  <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Materials</h4>
+                  <p class="text-gray-500 dark:text-gray-400">Materials will appear here once they are added to the project scope.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Equipment Tab -->
+            <div v-show="activeTab === 3" class="animate-fadeIn">
+              <div class="p-6 bg-white dark:bg-gray-800 m-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <!-- Tab Header -->
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="p-2.5 bg-blue-100 dark:bg-blue-900 rounded-xl">
+                    <i class="mdi mdi-tools text-blue-600 dark:text-blue-400 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Equipment</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Equipment requirements and scheduling</p>
+                  </div>
+                </div>
+                
+                <!-- Coming Soon State -->
+                <div class="bg-linear-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-12 text-center">
+                  <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full mb-6">
+                    <i class="mdi mdi-tools text-3xl text-blue-600 dark:text-blue-400"></i>
+                  </div>
+                  <h4 class="text-xl font-bold text-blue-900 dark:text-blue-100 mb-3">Equipment Database Coming Soon</h4>
+                  <p class="text-blue-700 dark:text-blue-300 max-w-md mx-auto">
+                    Equipment requirements, scheduling, and resource management will be available here once the equipment database module is implemented.
+                  </p>
+                  <div class="mt-6 flex justify-center gap-3">
+                    <div class="px-3 py-1.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm">
+                      <i class="mdi mdi-clock-outline mr-1"></i>
+                      In Development
+                    </div>
+                    <div class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full text-sm">
+                      <i class="mdi mdi-alert-circle-outline mr-1"></i>
+                      Planned Feature
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact Timeline Footer -->
+        <div class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div class="flex items-center justify-between">
+            <!-- Left side - Key dates -->
+            <div class="flex items-center gap-6">
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-calendar-plus text-blue-600 dark:text-blue-400 text-sm"></i>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.created_at) }}</p>
                 </div>
               </div>
               
-              <DataTable 
-                :value="filteredScopeElements" 
-                :rows="1000"
-                dataKey="id"
-                :loading="loading"
-                responsiveLayout="scroll"
-                stripedRows
-                class="p-datatable-sm"
-              >
-                <Column field="name" header="Element Name" sortable>
-                  <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                      <div class="p-1.5 bg-orange-100 dark:bg-orange-900 rounded-full">
-                        <i class="mdi mdi-cube-outline text-orange-600 dark:text-orange-400 text-xs"></i>
-                      </div>
-                      <span class="font-medium text-gray-900 dark:text-white">{{ data.name }}</span>
-                    </div>
-                  </template>
-                </Column>
-                <Column field="quantity" header="Quantity" sortable class="text-center">
-                  <template #body="{ data }">
-                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
-                      {{ data.quantity }}
-                    </span>
-                  </template>
-                </Column>
-                <Column field="status" header="Status" sortable class="text-center">
-                  <template #body="{ data }">
-                    <Tag :value="data.status" :severity="getElementStatusSeverity(data.status)" />
-                  </template>
-                </Column>
-                <Column field="notes" header="Notes">
-                  <template #body="{ data }">
-                    <span class="text-gray-600 dark:text-gray-400 text-sm">{{ data.notes || '-' }}</span>
-                  </template>
-                </Column>
-              </DataTable>
-            </div>
-          </TabPanel>
-
-          <!-- Design Assets Tab -->
-          <TabPanel header="Design Assets" value="1">
-            <div class="p-6 bg-white dark:bg-gray-800">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Design Files & Assets</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <div 
-                  v-for="asset in designAssets" 
-                  :key="asset.id" 
-                  class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  @click="previewAsset(asset)"
-                >
-                  <div class="aspect-video bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                    <img 
-                      v-if="asset.isImage" 
-                      :src="asset.file_url" 
-                      :alt="asset.name" 
-                      class="w-full h-full object-cover"
-                    />
-                    <div v-else class="text-center">
-                      <i class="mdi mdi-file-outline text-4xl text-gray-400 dark:text-gray-500"></i>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ getFileExtension(asset.original_name) }}</p>
-                    </div>
-                  </div>
-                  <div class="p-4">
-                    <h4 class="font-medium text-gray-900 dark:text-white truncate">{{ asset.name }}</h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ asset.formattedSize }}</p>
-                  </div>
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-calendar-clock text-red-600 dark:text-red-400 text-sm"></i>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Due</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDate(selectedWorkOrder?.due_date) }}</p>
                 </div>
               </div>
             </div>
-          </TabPanel>
 
-          <!-- Materials Tab -->
-          <TabPanel header="Materials" value="2">
-            <div class="p-6 bg-white dark:bg-gray-800">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Materials List</h3>
-              <DataTable 
-                :value="materialsList" 
-                :rows="1000"
-                dataKey="id"
-                :loading="loading"
-                responsiveLayout="scroll"
-                stripedRows
-                class="p-datatable-sm"
-              >
-                <Column field="name" header="Material Name" sortable>
-                  <template #body="{ data }">
-                    <div class="flex items-center gap-2">
-                      <div class="p-1.5 bg-blue-100 dark:bg-blue-900 rounded-full">
-                        <i class="mdi mdi-package-variant text-blue-600 dark:text-blue-400 text-xs"></i>
-                      </div>
-                      <span class="font-medium text-gray-900 dark:text-white">{{ data.name }}</span>
-                    </div>
-                  </template>
-                </Column>
-                <Column field="quantity" header="Quantity" sortable class="text-center">
-                  <template #body="{ data }">
-                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
-                      {{ data.quantity }}
-                    </span>
-                  </template>
-                </Column>
-                <Column field="unit" header="Unit" sortable class="text-center">
-                  <template #body="{ data }">
-                    <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded text-sm font-medium">
-                      {{ data.unit }}
-                    </span>
-                  </template>
-                </Column>
-                <Column field="specifications" header="Specifications">
-                  <template #body="{ data }">
-                    <span class="text-gray-600 dark:text-gray-400 text-sm">{{ data.specifications || '-' }}</span>
-                  </template>
-                </Column>
-                <Column field="source" header="Source" sortable class="text-center">
-                  <template #body="{ data }">
-                    <Tag :value="data.source" :severity="data.source === 'Library' ? 'info' : 'secondary'" />
-                  </template>
-                </Column>
-                <Column field="status" header="Status" sortable class="text-center">
-                  <template #body="{ data }">
-                    <Tag :value="data.status" :severity="getMaterialStatusSeverity(data.status)" />
-                  </template>
-                </Column>
-              </DataTable>
-            </div>
-          </TabPanel>
-
-          <!-- Equipment Tab -->
-          <TabPanel header="Equipment" value="3">
-            <div class="p-6 bg-white dark:bg-gray-800">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Equipment Requirements</h3>
-              <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8 text-center">
-                <i class="mdi mdi-tools text-4xl text-blue-500 mb-3"></i>
-                <h4 class="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">Equipment Database Coming Soon</h4>
-                <p class="text-blue-700 dark:text-blue-300">Equipment requirements will be tracked here once the equipment database is implemented.</p>
+            <!-- Right side - Status info -->
+            <div class="flex items-center gap-6">
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-domain text-purple-600 dark:text-purple-400 text-sm"></i>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Department</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">Production</p>
+                </div>
               </div>
-            </div>
-          </TabPanel>
-        </TabView>
-
-        <!-- Timeline Footer -->
-        <div class="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Timeline & Assignment</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <i class="mdi mdi-calendar-plus text-blue-600 dark:text-blue-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Created</p>
-                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.created_at) }}</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <i class="mdi mdi-account-check text-green-600 dark:text-green-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Assigned To</p>
-                <p class="font-medium text-gray-900 dark:text-white">{{ selectedWorkOrder?.assignedTo?.name || '-' }}</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <i class="mdi mdi-domain text-purple-600 dark:text-purple-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Department</p>
-                <p class="font-medium text-gray-900 dark:text-white">Production</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                <i class="mdi mdi-play-circle text-orange-600 dark:text-orange-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Started</p>
-                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.started_at) }}</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                <i class="mdi mdi-calendar-clock text-red-600 dark:text-red-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Due Date</p>
-                <p class="font-medium text-gray-900 dark:text-white">{{ formatDate(selectedWorkOrder?.due_date) }}</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <i class="mdi mdi-check-circle text-green-600 dark:text-green-400"></i>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
-                <p class="font-medium text-gray-900 dark:text-white">{{ formatDateTime(selectedWorkOrder?.completed_at) }}</p>
+              
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-flag text-blue-600 dark:text-blue-400 text-sm"></i>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ formatStatusCategory(selectedWorkOrder?.status_category) || 'Unknown' }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -346,24 +502,86 @@
     </div>
   </div>
 
-  <!-- Asset Preview Modal -->
-  <div v-if="assetPreviewVisible" class="fixed inset-0 flex items-center justify-center z-100 p-4 sm:p-6">
+  <!-- Asset Preview Modal - Fullscreen -->
+  <div v-if="assetPreviewVisible" class="fixed inset-0 flex items-center justify-center z-150">
     <!-- Glass Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeAssetPreview"></div>
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" @click="closeAssetPreview"></div>
 
-    <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-[800px] max-h-[95vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
-      <div v-if="previewingAsset" class="text-center p-6">
-        <img 
-          v-if="previewingAsset.isImage" 
-          :src="previewingAsset.file_url" 
-          :alt="previewingAsset.name" 
-          class="max-w-full max-h-96 object-contain mx-auto rounded-lg"
-        />
-        <div v-else class="py-8">
-          <i class="mdi mdi-file-outline text-6xl text-gray-400 dark:text-gray-500 mb-4"></i>
-          <p class="text-gray-600 dark:text-gray-400">{{ previewingAsset.description || 'No preview available for this file type' }}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Size: {{ previewingAsset.formattedSize }}</p>
+    <!-- Fullscreen Modal Container -->
+    <div class="relative w-full h-full max-w-[100vw] max-h-screen flex flex-col z-160 overflow-hidden animate-in fade-in zoom-in duration-200">
+      <!-- Modal Header -->
+      <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+            <i class="mdi mdi-image-outline text-purple-600 dark:text-purple-400 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ previewingAsset?.name || 'Asset Preview' }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ previewingAsset?.formattedSize }} • {{ getFileExtension(previewingAsset?.original_name || '') }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Download button -->
+          <Button 
+            icon="mdi mdi-download" 
+            @click="downloadAsset(previewingAsset!)"
+            class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+            text
+            rounded
+            title="Download Asset"
+          ></Button>
+          <!-- Close button -->
+          <Button 
+            icon="mdi mdi-close" 
+            @click="closeAssetPreview" 
+            text 
+            rounded 
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          ></Button>
+        </div>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="flex-1 bg-white dark:bg-gray-900 overflow-auto p-6">
+        <div v-if="previewingAsset" class="w-full h-full flex items-center justify-center">
+          <!-- Image Preview -->
+          <div v-if="previewingAsset.isImage" class="relative max-w-full max-h-full">
+            <img 
+              :src="previewingAsset.file_url" 
+              :alt="previewingAsset.name" 
+              class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+            />
+            <!-- Image info overlay -->
+            <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-lg">
+              <p class="text-sm font-medium">{{ previewingAsset.name }}</p>
+              <p class="text-xs opacity-75">{{ previewingAsset.formattedSize }}</p>
+            </div>
+          </div>
+          
+          <!-- File Preview -->
+          <div v-else class="text-center max-w-2xl">
+            <div class="mb-8">
+              <i class="mdi mdi-file-outline text-8xl text-gray-400 dark:text-gray-500"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{{ previewingAsset.name }}</h4>
+            <div class="space-y-3">
+              <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+                <i class="mdi mdi-file-document-outline"></i>
+                <span>{{ getFileExtension(previewingAsset.original_name) }} File</span>
+              </div>
+              <div class="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+                <i class="mdi mdi-database-outline"></i>
+                <span>{{ previewingAsset.formattedSize }}</span>
+              </div>
+              <div v-if="previewingAsset.description" class="mt-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p class="text-gray-700 dark:text-gray-300">{{ previewingAsset.description }}</p>
+              </div>
+              <div v-else class="mt-6 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <i class="mdi mdi-information-outline text-blue-600 dark:text-blue-400 text-2xl mb-2"></i>
+                <p class="text-blue-700 dark:text-blue-300">No preview available for this file type</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -376,8 +594,6 @@ import { useWorkOrders } from '../composables'
 import { DesignService } from '@/modules/projects/components/tasks/design/services/designService'
 import { MaterialsService } from '@/modules/projects/services/materialsService'
 import Network from '@/network-class'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
@@ -476,6 +692,34 @@ const materialsList = ref<Material[]>([])
 const previewingAsset = ref<DesignAsset | null>(null)
 const assetPreviewVisible = ref(false)
 
+// Tabs configuration
+const tabs = computed(() => [
+  {
+    label: 'Project Scope',
+    value: '0',
+    icon: 'mdi mdi-cube-outline',
+    count: scopeElements.value.length
+  },
+  {
+    label: 'Design Assets',
+    value: '1', 
+    icon: 'mdi mdi-image-multiple-outline',
+    count: designAssets.value.length
+  },
+  {
+    label: 'Materials',
+    value: '2',
+    icon: 'mdi mdi-package-variant-closed',
+    count: materialsList.value.length
+  },
+  {
+    label: 'Equipment',
+    value: '3',
+    icon: 'mdi mdi-tools',
+    count: undefined
+  }
+])
+
 // Options for dropdowns
 const statusOptions = ref([
   { label: 'Pending', value: 'pending' },
@@ -502,30 +746,31 @@ const filteredScopeElements = computed(() => {
 
 onMounted(async () => {
   console.log('WorkOrderDetails mounted with workOrderId:', props.workOrderId)
-  await fetchWorkOrder(props.workOrderId)
+  
+  // Start fetching work order immediately
+  const workOrderPromise = fetchWorkOrder(props.workOrderId)
+  
+  // Start fetching project enquiry in parallel if we have the ID
+  const projectEnquiryPromise = workOrderPromise.then(async () => {
+    if (selectedWorkOrder.value?.project_enquiry_id && !selectedWorkOrder.value?.projectEnquiry) {
+      return fetchProjectEnquiry()
+    }
+  })
+  
+  // Wait for work order to be loaded
+  await workOrderPromise
   console.log('After fetchWorkOrder, selectedWorkOrder:', selectedWorkOrder.value)
-  console.log('selectedWorkOrder keys:', Object.keys(selectedWorkOrder.value || {}))
   
   if (selectedWorkOrder.value) {
-    await fetchRelatedData()
+    // Fetch all related data in parallel for better performance
+    await Promise.allSettled([
+      projectEnquiryPromise,
+      fetchDesignAssets(),
+      fetchScopeElements(),
+      fetchMaterials()
+    ])
   }
 })
-
-const fetchRelatedData = async () => {
-  try {
-    console.log('Fetching related data for work order ID:', props.workOrderId)
-    console.log('Current selectedWorkOrder:', selectedWorkOrder.value)
-    
-    // Fetch project enquiry data if not already loaded
-    await fetchProjectEnquiry()
-    
-    await fetchDesignAssets()
-    await fetchScopeElements()
-    await fetchMaterials()
-  } catch (error) {
-    console.error('Error fetching related data:', error)
-  }
-}
 
 const fetchProjectEnquiry = async () => {
   try {
@@ -575,36 +820,24 @@ const fetchDesignAssets = async () => {
         // Get enquiry details to find design task (same logic as ProductionTask.vue)
         const enquiryResponse = await Network.get(`/api/projects/enquiries/${selectedWorkOrder.value.project_enquiry_id}`)
         console.log('Enquiry response:', enquiryResponse)
-        console.log('Enquiry response data:', enquiryResponse.data)
         
         let enquiryTasks = []
         
-        // Try different possible response structures
-        if (enquiryResponse.data?.data?.enquiry_tasks) {
-          enquiryTasks = enquiryResponse.data.data.enquiry_tasks
-          console.log('Found enquiry_tasks in data.data.enquiry_tasks')
-        } else if (enquiryResponse.data?.data?.enquiryTasks) {
-          enquiryTasks = enquiryResponse.data.data.enquiryTasks
-          console.log('Found enquiryTasks in data.data.enquiryTasks')
-        } else if (enquiryResponse.data?.enquiry_tasks) {
-          enquiryTasks = enquiryResponse.data.enquiry_tasks
-          console.log('Found enquiry_tasks in data.enquiry_tasks')
-        } else if (enquiryResponse.data?.enquiryTasks) {
-          enquiryTasks = enquiryResponse.data.enquiryTasks
-          console.log('Found enquiryTasks in data.enquiryTasks')
-        } else {
-          console.log('No enquiry tasks found in response. Available keys:', Object.keys(enquiryResponse.data || {}))
+        // Try different possible response structures - optimized checking
+        const data = enquiryResponse.data
+        if (data?.data?.enquiry_tasks) {
+          enquiryTasks = data.data.enquiry_tasks
+        } else if (data?.data?.enquiryTasks) {
+          enquiryTasks = data.data.enquiryTasks
+        } else if (data?.enquiry_tasks) {
+          enquiryTasks = data.enquiry_tasks
+        } else if (data?.enquiryTasks) {
+          enquiryTasks = data.enquiryTasks
         }
         
         console.log('Enquiry tasks:', enquiryTasks)
-        console.log('Enquiry tasks count:', enquiryTasks.length)
         
-        // Log all task types to help debug
-        if (enquiryTasks.length > 0) {
-          console.log('Available task types:', enquiryTasks.map((t: any) => ({ id: t.id, type: t.task_type || t.type, name: t.name || t.title })))
-        }
-        
-        // Find the design task
+        // Find the design task - optimized search
         const designTask = enquiryTasks.find((t: any) => 
           t.task_type === 'Design' || 
           t.task_type === 'Designer' || 
@@ -618,7 +851,6 @@ const fetchDesignAssets = async () => {
           console.log('Using design task ID:', taskId)
         } else {
           console.log('No design task found for this project enquiry')
-          console.log('Available tasks:', enquiryTasks.map((t: any) => ({ id: t.id, task_type: t.task_type, type: t.type, name: t.name })))
           designAssets.value = []
           return
         }
@@ -633,14 +865,11 @@ const fetchDesignAssets = async () => {
       const designService = new DesignService()
       const response = await designService.getAssets(taskId.toString())
       
-      console.log('Design assets response:', response)
-      console.log('Response data:', response.data)
-      
       if (response.data && Array.isArray(response.data)) {
         designAssets.value = response.data.map(asset => ({
           id: parseInt(asset.id) || 0,
           name: asset.name || asset.original_name || 'Unknown',
-          original_name: asset.original_name || 'file',
+          original_name: asset.original_name || asset.name || 'unknown_file',
           file_url: asset.file_url || asset.url || '',
           file_size: asset.file_size || asset.sizeBytes || 0,
           mime_type: asset.mime_type || '',
@@ -740,6 +969,80 @@ const previewAsset = (asset: DesignAsset) => {
 const closeAssetPreview = () => {
   previewingAsset.value = null
   assetPreviewVisible.value = false
+}
+
+const downloadAsset = async (asset: DesignAsset) => {
+  try {
+    // Determine the best filename to use
+    let filename = asset.original_name || asset.name || 'download'
+    
+    // Ensure filename has proper extension
+    const extension = getFileExtension(asset.original_name || asset.name || '')
+    if (extension && !filename.toLowerCase().endsWith(`.${extension.toLowerCase()}`)) {
+      filename += `.${extension}`
+    }
+    
+    // Create a temporary link element to trigger download
+    const link = document.createElement('a')
+    link.href = asset.file_url
+    link.download = filename
+    link.target = '_blank'
+    
+    // Force download for specific file types that tend to open in browser
+    const forceDownloadTypes = ['PDF', 'PPT', 'PPTX', 'DOC', 'DOCX', 'XLS', 'XLSX', 'TXT']
+    if (forceDownloadTypes.includes(extension.toUpperCase())) {
+      // For these types, we'll always fetch and create a blob to force download
+      try {
+        const response = await fetch(asset.file_url)
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        link.href = url
+        
+        // Trigger download
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        // Clean up
+        window.URL.revokeObjectURL(url)
+        return
+      } catch (fetchError) {
+        console.warn('Fetch failed for document, trying direct download:', fetchError)
+      }
+    }
+    
+    // For cross-origin downloads, we might need to fetch first
+    if (asset.file_url.startsWith('http')) {
+      try {
+        const response = await fetch(asset.file_url)
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        link.href = url
+        
+        // Trigger download
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        // Clean up
+        window.URL.revokeObjectURL(url)
+      } catch (fetchError) {
+        console.warn('Fetch failed, trying direct download:', fetchError)
+        // Fallback to direct link if fetch fails
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    } else {
+      // For relative URLs, trigger direct download
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  } catch (error) {
+    console.error('Error downloading asset:', error)
+    // You could show a toast notification here
+  }
 }
 
 const getFileExtension = (filename: string): string => {
@@ -846,73 +1149,81 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
   overflow: hidden;
 }
 
-/* Make tab content scrollable */
-.p-tabview {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+/* Fade-in animation for tab content */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modern DataTable styling */
+.modern-datatable {
+  border-radius: 0.75rem;
   overflow: hidden;
 }
 
-.p-tabview-nav {
-  flex-shrink: 0;
+.modern-datatable .p-datatable-header {
+  background: #f8fafc;
+  border: none;
+  border-radius: 0.75rem 0.75rem 0 0;
 }
 
-.p-tabview-panels {
-  flex: 1;
-  overflow-y: auto;
-  background-color: white;
+.modern-datatable .p-datatable-thead > tr > th {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem;
 }
 
-/* Simple TabView Styling */
-.custom-tabview .p-tabview-nav {
-  background: #f8fafc !important;
-  padding: 1rem 1rem 0 1rem !important;
+.modern-datatable .p-datatable-tbody > tr > td {
+  border: none;
+  padding: 1rem;
+  vertical-align: middle;
 }
 
-.custom-tabview .p-tabview-nav li .p-tabview-nav-link {
-  padding: 1rem 1.5rem !important;
-  margin: 0 !important;
-  border-radius: 0.75rem 0.75rem 0 0 !important;
-  font-weight: 600 !important;
-  font-size: 0.95rem !important;
-  color: #64748b !important;
-  background: #f1f5f9 !important;
-  border: none !important;
-  transition: all 0.3s ease !important;
+.modern-datatable .p-datatable-tbody > tr:nth-child(odd) > td {
+  background: #f8fafc;
 }
 
-.custom-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
-  color: #374151 !important;
-  background: #e2e8f0 !important;
+.modern-datatable .p-datatable-tbody > tr:hover > td {
+  background: #f1f5f9;
 }
 
-.custom-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
-  background: rgba(37, 99, 235, 0.1) !important;
-  color: #3b82f6 !important;
+/* Dark mode for modern datatable */
+.dark .modern-datatable .p-datatable-header {
+  background: #1f2937;
 }
 
-.custom-tabview .p-tabview-panels {
-  background: white !important;
-  border: none !important;
+.dark .modern-datatable .p-datatable-thead > tr > th {
+  background: #374151;
+  color: #d1d5db;
 }
 
-.p-tabview-panel {
-  height: 100%;
+.dark .modern-datatable .p-datatable-tbody > tr > td {
+  background: #1f2937;
+  color: #f3f4f6;
+  border-color: #374151;
 }
 
-/* Fix gradient class */
-.bg-linear-to-r {
-  background: linear-gradient(to right, rgb(37 99 235), rgb(29 78 216));
+.dark .modern-datatable .p-datatable-tbody > tr:nth-child(odd) > td {
+  background: #111827;
 }
 
-/* Ensure proper backgrounds for all sections */
-.p-datatable .p-datatable-tbody > tr > td {
-  background-color: white;
-}
-
-.p-datatable .p-datatable-tbody > tr:nth-child(odd) > td {
-  background-color: #f9fafb;
+.dark .modern-datatable .p-datatable-tbody > tr:hover > td {
+  background: #374151;
 }
 
 /* Custom modal styles - matching other ERP modals */
@@ -931,38 +1242,18 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
   }
 }
 
-/* Simplified tab styling - use background instead of underline */
-.dark-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
-  color: #3b82f6 !important;
-  background: rgba(37, 99, 235, 0.1) !important;
+/* Fix gradient class */
+.bg-linear-to-r {
+  background: linear-gradient(to right, rgb(37 99 235), rgb(29 78 216));
 }
 
-.dark .dark-tabview .p-tabview-nav li.p-tabview-selected .p-tabview-nav-link {
-  color: #f3f4f6 !important;
-  background: rgba(37, 99, 235, 0.2) !important;
+/* Ensure proper backgrounds for all sections */
+.p-datatable .p-datatable-tbody > tr > td {
+  background-color: white;
 }
 
-/* Dark mode tab styles */
-.dark .dark-tabview .p-tabview-nav {
-  background: #1f2937 !important;
-  border: none !important;
-}
-
-.dark .dark-tabview .p-tabview-nav li .p-tabview-nav-link {
-  color: #d1d5db !important;
-}
-
-.dark .dark-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
-  color: #f3f4f6 !important;
-}
-
-.dark .dark-tabview .p-tabview-panels {
-  background: #1f2937 !important;
-  border: none !important;
-}
-
-.dark .dark-tabview {
-  background: #1f2937 !important;
+.p-datatable .p-datatable-tbody > tr:nth-child(odd) > td {
+  background-color: #f9fafb;
 }
 
 /* DataTable dark mode styling */
@@ -993,5 +1284,25 @@ const formatDateTime = (dateTime: string | Date | null | undefined): string => {
   background-color: #374151 !important;
   color: #f3f4f6 !important;
   border-color: #4b5563 !important;
+}
+
+/* Tab button hover effects */
+button:hover {
+  transition: all 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .work-order-details {
+    height: 100vh;
+  }
+  
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

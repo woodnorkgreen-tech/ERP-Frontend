@@ -225,6 +225,12 @@
                   >
                     Edit
                   </button>
+                  <button
+                    @click="deleteJobCard(jobCard)"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                  >
+                    Delete
+                  </button>
                   <div class="relative" @click.stop>
                     <button
                       @click="toggleStatusDropdown(jobCard.id)"
@@ -413,6 +419,30 @@ const viewJobCard = async (jobCard: JobCard) => {
 const editJobCard = (jobCard: JobCard) => {
   editingJobCard.value = jobCard
   viewingJobCard.value = null
+}
+
+const deleteJobCard = async (jobCard: JobCard) => {
+  if (!confirm(`Are you sure you want to delete job card ${jobCard.job_card_number || jobCard.id}? This action cannot be undone.`)) {
+    return
+  }
+
+  try {
+    const response = await jobCardsService.deleteJobCard(jobCard.id)
+    
+    if (response.success) {
+      // Refresh the job cards list
+      await fetchJobCards()
+      // Show success message (you could add a toast notification here)
+      console.log('Job card deleted successfully:', response.message)
+    } else {
+      console.error('Failed to delete job card:', response.message)
+      alert('Failed to delete job card: ' + response.message)
+    }
+  } catch (error: any) {
+    console.error('Error deleting job card:', error)
+    console.error('Error response:', error.response?.data)
+    alert('Error deleting job card: ' + (error.response?.data?.message || error.message))
+  }
 }
 
 const closeForm = () => {
