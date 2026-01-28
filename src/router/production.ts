@@ -14,6 +14,30 @@ export const productionRoutes: RouteRecordRaw[] = [
         name: 'production-work-orders',
         component: () => import('../modules/production/views/WorkOrdersView.vue'),
         meta: { title: 'Work Orders' }
+      },
+      {
+        path: 'job-cards',
+        name: 'production-job-cards',
+        component: () => import('../modules/production/views/JobCardsView.vue'),
+        meta: { title: 'Job Cards' }
+      },
+      {
+        path: 'job-cards/:id',
+        name: 'production-job-card-details',
+        component: () => import('../modules/production/views/JobCardDetailsView.vue'),
+        meta: { title: 'Job Card Details' }
+      },
+      {
+        path: 'reports',
+        name: 'production-reports',
+        component: () => import('../modules/production/views/HRReportsView.vue'),
+        meta: { title: 'Production Reports' }
+      },
+      {
+        path: 'dashboard',
+        name: 'production-dashboard',
+        component: () => import('../modules/production/views/ProductionDashboard.vue'),
+        meta: { title: 'Production Dashboard' }
       }
     ]
   }

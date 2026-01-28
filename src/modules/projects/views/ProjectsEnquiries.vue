@@ -170,6 +170,7 @@
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Created</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Target Delivery</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Priority</th>
+              <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Category</th>
               <th class="px-6 py-5 text-left text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Status</th>
               <th class="px-6 py-5 text-right text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Actions</th>
             </tr>
@@ -217,6 +218,11 @@
                   >
                     {{ enquiry.priority || 'Normal' }}
                   </div>
+                </td>
+                <td class="px-6 py-5 whitespace-nowrap">
+                   <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600">
+                      {{ getPresetLabel(enquiry.workflow_preset_type) }}
+                   </span>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="flex flex-col gap-2">
@@ -728,6 +734,100 @@
               </div>
             </div>
           </div>
+
+          <!-- Workflow Tasks Tab -->
+          <div v-if="activeModalTab === 'workflow'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-8 rounded-3xl border border-blue-100 dark:border-blue-800">
+              <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shrink-0">
+                  <i class="mdi mdi-workflow text-2xl text-white"></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2">Select Workflow Tasks</h3>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Choose which tasks should be created for this project. You can use a preset or customize manually.</p>
+                </div>
+              </div>
+
+              <!-- Preset Selector -->
+              <div class="mb-6">
+                <label class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.2em] ml-1 mb-3 block">Quick Presets</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <button
+                    v-for="(preset, key) in taskPresets"
+                    :key="key"
+                    type="button"
+                    @click="applyPreset(key as string)"
+                    class="p-4 rounded-2xl border-2 transition-all text-left group hover:scale-[1.02]"
+                    :class="enquiryFormData.workflow_preset_type === key 
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500'"
+                  >
+                    <div class="flex items-start justify-between mb-2">
+                      <span class="text-sm font-black uppercase tracking-wider" 
+                        :class="enquiryFormData.workflow_preset_type === key ? 'text-white' : 'text-slate-800 dark:text-white'">
+                        {{ preset.label }}
+                      </span>
+                      <i v-if="enquiryFormData.workflow_preset_type === key" class="mdi mdi-check-circle text-xl"></i>
+                    </div>
+                    <p class="text-xs font-medium opacity-80 leading-relaxed">{{ preset.description }}</p>
+                    <div class="mt-3 pt-3 border-t" 
+                      :class="enquiryFormData.workflow_preset_type === key ? 'border-blue-400' : 'border-slate-200 dark:border-slate-700'">
+                      <span class="text-xs font-bold opacity-70">{{ preset.tasks.length }} tasks</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Manual Task Selection -->
+              <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center justify-between mb-4">
+                  <label class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.2em]">Fine-tune Tasks</label>
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-blue-600 dark:text-blue-400">
+                      {{ selectedTasksCount }} / {{ availableTasks.length }} selected
+                    </span>
+                    <button
+                      type="button"
+                      @click="toggleAllTasks"
+                      class="text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors uppercase tracking-wider"
+                    >
+                      {{ selectedTasksCount === availableTasks.length ? 'Deselect All' : 'Select All' }}
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label 
+                    v-for="task in availableTasks" 
+                    :key="task.type"
+                    class="flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    :class="enquiryFormData.selected_workflow_tasks?.includes(task.type)
+                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' 
+                      : 'bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700'"
+                  >
+                    <input 
+                      v-model="enquiryFormData.selected_workflow_tasks" 
+                      :value="task.type" 
+                      type="checkbox" 
+                      class="mt-0.5 w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500 focus:ring-2 border-slate-300"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div class="font-black text-sm text-slate-800 dark:text-white mb-1">{{ task.title }}</div>
+                      <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ task.description }}</div>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Validation Warning -->
+                <div v-if="selectedTasksCount === 0" class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center gap-3">
+                  <i class="mdi mdi-alert text-amber-600 text-xl"></i>
+                  <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                    Please select at least one task to create the workflow
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
 
         <!-- Action Buttons -->
@@ -750,7 +850,7 @@
               </button>
               
               <button
-                v-if="activeModalTab !== 'survey'"
+                v-if="activeModalTab !== 'workflow'"
                 @click="nextTab"
                 class="h-12 px-8 bg-white dark:bg-slate-800 text-blue-600 border border-blue-100 rounded-xl text-sm font-bold hover:bg-blue-50 transition-all shadow-sm"
               >
@@ -758,9 +858,9 @@
               </button>
               
               <button
-                v-if="activeModalTab === 'survey'"
+                v-if="activeModalTab === 'workflow'"
                 @click="handleFormSubmit"
-                :disabled="saving"
+                :disabled="saving || selectedTasksCount === 0"
                 class="h-12 px-10 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
               >
                 <i v-if="saving" class="mdi mdi-loading mdi-spin"></i>
@@ -1111,6 +1211,16 @@
 
         <!-- Action Buttons -->
         <div class="px-10 py-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-800 shrink-0">
+          <!-- Logistics Pagination -->
+          <div class="mb-4" v-if="logisticsPagination.total > logisticsPagination.per_page">
+            <Pagination
+              :current-page="logisticsPagination.current_page"
+              :total-items="logisticsPagination.total"
+              :items-per-page="logisticsPagination.per_page"
+              @page-change="handleLogisticsPageChange"
+            />
+          </div>
+
           <div class="flex justify-end">
             <button
               @click="closeLogisticsLogModal"
@@ -1189,7 +1299,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ProjectEnquiry, CreateProjectEnquiryData, UpdateProjectEnquiryData, EnquiryTask } from '../types/enquiry'
 import { useClients } from '../../clientService/composables/useClients'
@@ -1217,7 +1327,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
-const filters = ref({ search: '', status: '', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
+const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -1242,8 +1352,10 @@ watch(isProjectOfficer, (newValue) => {
   }
 }, { immediate: true })
 
-// Status Tabs
-const activeTab = ref('all')
+const activeTab = computed({
+  get: () => filters.value.sub_status,
+  set: (val) => { filters.value.sub_status = val }
+})
 const showCreateModal = ref(false)
 const titleInputRef = ref<HTMLInputElement | null>(null)
 const editingEnquiry = ref<ProjectEnquiry | null>(null)
@@ -1322,6 +1434,11 @@ const logisticsEntries = ref<LogisticsEntry[]>([])
 const sortField = ref('created_at')
 const sortDirection = ref<'asc' | 'desc'>('desc')
 const logisticsStatusFilter = ref('')
+const logisticsPagination = ref({
+  current_page: 1,
+  total: 0,
+  per_page: 15
+})
 
 // Logistics Entry Form
 const logisticsEntryForm = ref({
@@ -1350,12 +1467,13 @@ const loadingDrivers = ref(false)
 
 
 // Modal Tabs
-const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'survey'>('basic')
-const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'survey', label: string }> = [
+const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'survey' | 'workflow'>('basic')
+const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'survey' | 'workflow', label: string }> = [
   { key: 'basic', label: 'Basic Information' },
   { key: 'contact', label: 'Contact & Priority' },
   { key: 'assignment', label: 'Assignment & Venue' },
-  { key: 'survey', label: 'Site Survey' }
+  { key: 'survey', label: 'Site Survey' },
+  { key: 'workflow', label: 'Workflow Tasks' }
 ]
 
 const previousTab = () => {
@@ -1390,7 +1508,9 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   follow_up_notes: '',
   venue: '',
   site_survey_skipped: false,
-  site_survey_skip_reason: ''
+  site_survey_skip_reason: '',
+  selected_workflow_tasks: [] as string[],
+  workflow_preset_type: '' as string
 })
 
 // Deliverables management
@@ -1410,6 +1530,85 @@ const removeDeliverable = (index: number) => {
   projectDeliverables.value.splice(index, 1)
   enquiryFormData.value.project_scope = [...projectDeliverables.value]
 }
+
+// Workflow Task Selection
+const taskPresets = {
+  full_event: {
+    label: 'Full Event (All Tasks)',
+    description: 'Complete event lifecycle from survey to reporting',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'production', 'logistics', 'setup', 'handover', 'setdown', 'report']
+  },
+  delivery_only: {
+    label: 'Delivery Only',
+    description: 'Simple delivery projects without design/production',
+    tasks: ['materials', 'procurement', 'logistics', 'handover']
+  },
+  branding: {
+    label: 'Branding/Merchandising',
+    description: 'Branding projects with design and production',
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'production', 'handover']
+  },
+  design_only: {
+    label: 'Design Only',
+    description: 'Concept and design delivery without execution',
+    tasks: ['site-survey', 'design', 'handover', 'report']
+  },
+  consultation: {
+    label: 'Consultation/Advisory',
+    description: 'Advisory services without physical delivery',
+    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'report']
+  },
+  internal_job: {
+    label: 'Internal Job',
+    description: 'Jobs executed within the company facility (Production only)',
+    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'report']
+  }
+}
+
+const availableTasks = [
+  { type: 'site-survey', title: 'Site Survey', description: 'Conduct site survey and assessment' },
+  { type: 'design', title: 'Design & Concept', description: 'Create design concepts and mockups' },
+  { type: 'materials', title: 'Materials Specification', description: 'Specify and source materials' },
+  { type: 'budget', title: 'Budget Creation', description: 'Create project budget' },
+  { type: 'quote', title: 'Quote Preparation', description: 'Prepare final quote' },
+  { type: 'quote_approval', title: 'Quote Approval', description: 'Approve the prepared quote' },
+  { type: 'procurement', title: 'Procurement', description: 'Manage procurement and inventory' },
+  { type: 'teams', title: 'Teams Management', description: 'Manage project teams' },
+  { type: 'production', title: 'Production', description: 'Handle production activities' },
+  { type: 'logistics', title: 'Logistics', description: 'Manage logistics and transportation' },
+  { type: 'setup', title: 'Event Setup', description: 'Set up event and execute' },
+  { type: 'handover', title: 'Client Handover', description: 'Hand over to client' },
+  { type: 'setdown', title: 'Set Down & Return', description: 'Set down and return equipment' },
+  { type: 'report', title: 'Archival & Reporting', description: 'Archive and generate reports' }
+]
+
+const selectedTasksCount = computed(() => {
+  return enquiryFormData.value.selected_workflow_tasks?.length || 0
+})
+
+const applyPreset = (presetKey: string) => {
+  const preset = taskPresets[presetKey as keyof typeof taskPresets]
+  if (preset) {
+    enquiryFormData.value.selected_workflow_tasks = [...preset.tasks]
+    enquiryFormData.value.workflow_preset_type = presetKey
+  }
+}
+
+const toggleAllTasks = () => {
+  if (selectedTasksCount.value === availableTasks.length) {
+    enquiryFormData.value.selected_workflow_tasks = []
+    enquiryFormData.value.workflow_preset_type = ''
+  } else {
+    enquiryFormData.value.selected_workflow_tasks = availableTasks.map(t => t.type)
+    enquiryFormData.value.workflow_preset_type = 'full_event'
+  }
+}
+
+// Initialize with default preset (full event) for new enquiries
+if (!enquiryFormData.value.selected_workflow_tasks || enquiryFormData.value.selected_workflow_tasks.length === 0) {
+  applyPreset('full_event')
+}
+
 
 
 const currentView = ref<'enquiries' | 'projects' | 'completed'>('enquiries')
@@ -1438,39 +1637,9 @@ const statusTabs = computed(() => {
 })
 
 const filteredEnquiries = computed(() => {
-  let filtered = enquiries.value.filter(e => e !== undefined && e !== null)
-
-  // 1. Separate Enquiries, Projects, and Completed based on status
-  const completedStatuses = ['completed', 'cancelled']
-  const activeProjectStatuses = ['quote_approved', 'planning', 'in_progress']
-  
-  if (currentView.value === 'completed') {
-      // Completed View: Only completed or cancelled projects
-      filtered = filtered.filter(e => completedStatuses.includes(e.status))
-  } else if (currentView.value === 'projects') {
-      // Projects View: Active projects only (quote_approved to in_progress, excluding completed/cancelled)
-      filtered = filtered.filter(e => activeProjectStatuses.includes(e.status))
-  } else {
-      // Enquiries View: Status must be BEFORE quote_approved
-      filtered = filtered.filter(e => !activeProjectStatuses.includes(e.status) && !completedStatuses.includes(e.status))
-  }
-
-  // 2. Filter by status tab (activeTab)
-  if (activeTab.value !== 'all') {
-    if (activeTab.value === 'new') {
-       filtered = filtered.filter(e => e.status === 'enquiry_logged' || e.status === 'client_registered')
-    } else if (activeTab.value === 'in_progress' && currentView.value === 'enquiries') {
-       // "In Pipeline" for enquiries (excluding quote_approved/planning now)
-       filtered = filtered.filter(enquiry => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(enquiry.status))
-    } else if (activeTab.value === 'pre_prod' && currentView.value === 'projects') {
-       filtered = filtered.filter(e => ['quote_approved', 'planning'].includes(e.status))
-    } else {
-       // Direct status match
-       filtered = filtered.filter(e => e.status === activeTab.value)
-    }
-  }
-
-  return filtered
+  // Now that filtering is done in the backend, we essentially just return the items for the current page.
+  // We keep the null check for safety.
+  return enquiries.value.filter(e => e !== undefined && e !== null)
 })
 
 const applyFilters = () => {
@@ -1479,6 +1648,7 @@ const applyFilters = () => {
 
 watch(currentView, (newValue) => {
   filters.value.view = newValue
+  filters.value.sub_status = 'all' // Reset sub-tab when main view changes
   applyFilters()
 })
 
@@ -1513,7 +1683,9 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     follow_up_notes: enquiry.follow_up_notes || '',
     venue: enquiry.venue || '',
     site_survey_skipped: enquiry.site_survey_skipped ?? false,
-    site_survey_skip_reason: enquiry.site_survey_skip_reason || ''
+    site_survey_skip_reason: enquiry.site_survey_skip_reason || '',
+    selected_workflow_tasks: enquiry.selected_workflow_tasks || [],
+    workflow_preset_type: enquiry.workflow_preset_type || ''
   }
   // Sync deliverables
   projectDeliverables.value = Array.isArray(enquiry.project_scope) ? [...enquiry.project_scope] : []
@@ -1613,14 +1785,30 @@ const closeLogisticsLogModal = () => {
   logisticsStatusFilter.value = ''
 }
 
-const fetchLogisticsEntries = async () => {
+const fetchLogisticsEntries = async (page = 1) => {
   try {
-    const response = await api.get('/api/projects/logistics-log')
-    logisticsEntries.value = response.data.data.data || []
+    const response = await api.get('/api/projects/logistics-log', {
+      params: {
+        page,
+        per_page: 15,
+        status: logisticsStatusFilter.value
+      }
+    })
+    const data = response.data.data
+    logisticsEntries.value = data.data || []
+    logisticsPagination.value = {
+      current_page: data.current_page || 1,
+      total: data.total || 0,
+      per_page: data.per_page || 15
+    }
   } catch (error) {
     console.error('Failed to fetch logistics entries:', error)
     logisticsEntries.value = []
   }
+}
+
+const handleLogisticsPageChange = async (page: number) => {
+  await fetchLogisticsEntries(page)
 }
 
 const handleProjectSelection = () => {
@@ -1773,6 +1961,11 @@ const sortedLogisticsEntries = computed(() => {
 })
 
 // Date formatting functions
+const getPresetLabel = (key: string | undefined) => {
+  if (!key) return 'Custom / Legacy'
+  return taskPresets[key as keyof typeof taskPresets]?.label || 'Custom'
+}
+
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return 'N/A'
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -1842,8 +2035,14 @@ const closeModal = () => {
     follow_up_notes: '',
     venue: '',
     site_survey_skipped: false,
-    site_survey_skip_reason: ''
+    site_survey_skip_reason: '',
+    selected_workflow_tasks: [],
+    workflow_preset_type: ''
   }
+  
+  // Re-apply default preset for next new enquiry
+  applyPreset('full_event')
+
   // Reset deliverables
   projectDeliverables.value = []
   newDeliverable.value = ''
@@ -1861,8 +2060,7 @@ const handleFormSubmit = async () => {
       await createEnquiry(enquiryFormData.value as CreateProjectEnquiryData)
     }
 
-    showCreateModal.value = false
-    editingEnquiry.value = null
+    closeModal()
 
     // Refresh enquiries after save
     await fetchEnquiries()
@@ -2083,6 +2281,11 @@ const fetchLogisticsDrivers = async () => {
   }
 }
 
+const handleProjectActivatedSignal = async () => {
+  console.log('Project Activated signal received. Refreshing data...')
+  await fetchEnquiries(filters.value)
+}
+
 onMounted(async () => {
   if (isProjectOfficer.value) {
       filters.value.assigned_to_me = true
@@ -2101,5 +2304,12 @@ onMounted(async () => {
       viewEnquiryDetails(target)
     }
   }
+
+  // Listen for global project activation signal (Auto-Refresh)
+  window.addEventListener('project-activated', handleProjectActivatedSignal)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('project-activated', handleProjectActivatedSignal)
 })
 </script>

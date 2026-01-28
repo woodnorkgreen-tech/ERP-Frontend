@@ -750,6 +750,7 @@ const newEmployee = ref({
   phone: '',
   position: '',
   department_id: undefined as number | undefined,
+  salary: 0,
 
   employment_type: 'full-time' as const,
   status: 'active' as const,
@@ -816,7 +817,7 @@ const editEmployee = async (employee: Employee) => {
     phone: employee.phone || '',
     position: employee.position,
     department_id: employee.department_id || undefined,
-    salary: employee.salary,
+    salary: employee.salary ?? 0,
     employment_type: employee.employment_type,
     status: employee.status,
     hire_date: employee.hire_date.split('T')[0], // Format for date input
@@ -858,6 +859,7 @@ const closeCreateModal = () => {
     phone: '',
     position: '',
     department_id: undefined,
+    salary: 0,
 
     employment_type: 'full-time',
     status: 'active',
@@ -904,6 +906,7 @@ const handleCreateEmployee = async () => {
       phone: newEmployee.value.phone || undefined,
       position: newEmployee.value.position,
       department_id: newEmployee.value.department_id,
+      salary: newEmployee.value.salary,
       hire_date: newEmployee.value.hire_date,
 
       employment_type: newEmployee.value.employment_type,
@@ -1007,7 +1010,7 @@ const fetchDepartments = async () => {
 
     if (responseData && typeof responseData === 'object' && 'data' in responseData) {
       // Paginated response
-      const paginatedResponse = responseData as { data: Array<{id: number, name: string}>, meta: Record<string, unknown> }
+      const paginatedResponse = responseData as unknown as { data: Array<{id: number, name: string}>, meta: Record<string, unknown> }
       departmentsArray = paginatedResponse.data
     } else if (Array.isArray(responseData)) {
       // Direct array response

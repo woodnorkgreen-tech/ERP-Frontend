@@ -1,92 +1,233 @@
 <template>
   <!-- Use TaskDataViewer for readonly/completed tasks -->
-  <TaskDataViewer v-if="isReadonly" :task="task" @edit="isEditMode = true" />
+  <TaskDataViewer v-if="isReadonly && !isEditMode" :task="task" @edit="isEditMode = true" />
 
   <!-- Editable Teams Task View -->
   <div v-else class="teams-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ task.title }}</h3>
-      <div class="flex gap-2">
-        <button
+    
+    <!-- Premium Task Header -->
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8 group/header">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-xl shadow-purple-500/20 group-hover/header:scale-110 transition-transform">
+            <i class="mdi mdi-account-group text-3xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
+              Personnel & Teams
+            </h1>
+            <div class="flex items-center gap-2">
+               <span class="px-2.5 py-1 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+                 Project Orchestration
+               </span>
+               <span v-if="task.status === 'completed'" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                 <i class="mdi mdi-check-decagram text-xs"></i> Completed
+               </span>
+               <span v-if="isReadonly && task.status !== 'completed'" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                 <i class="mdi mdi-lock text-xs"></i> Read Only
+               </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
             v-if="isEditMode"
             @click="isEditMode = false"
-            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-2"
-        >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
+            class="h-11 px-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2"
+          >
+            <i class="mdi mdi-close-circle-outline text-lg"></i>
             <span>Exit Edit Mode</span>
-        </button>
+          </button>
+        </div>
+      </div>
+
+      <!-- Project Details Premium Card -->
+      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-800 group/card">
+        <!-- Abstract Glassmorphism decorative elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover/card:bg-purple-500/10 transition-colors"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/5 rounded-full -ml-24 -mb-24 blur-3xl group-hover/card:bg-indigo-500/10 transition-colors transition-delay-700"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-10">
+          <div class="space-y-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-400 dark:text-slate-500">
+                <i class="mdi mdi-folder-outline text-2xl"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Project Enquiry</p>
+                <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+                  {{ projectInfo.enquiryTitle }}
+                  <span class="text-slate-300 dark:text-slate-600 font-medium">/</span>
+                  <span class="text-purple-600 dark:text-purple-400">{{ projectInfo.projectId }}</span>
+                </h2>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-8 pl-1">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/10 flex items-center justify-center text-blue-500">
+                  <i class="mdi mdi-account-tie-outline text-xl"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Name</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/10 flex items-center justify-center text-amber-500">
+                  <i class="mdi mdi-map-marker-radius-outline text-xl"></i>
+                </div>
+                <div>
+                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Venue Location</p>
+                   <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlight Stats / Date -->
+          <div class="flex flex-col justify-between items-end gap-6 min-w-[240px]">
+             <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Project Commencement</p>
+                <div class="px-6 py-3 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-xl shadow-2xl flex items-center gap-3 ring-4 ring-slate-50 dark:ring-slate-800/50">
+                  <i class="mdi mdi-calendar-check text-purple-400"></i>
+                  {{ formatDate(projectInfo.setupDate) }}
+                </div>
+             </div>
+             
+             <div class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/10 px-4 py-2 rounded-full border border-emerald-100 dark:border-emerald-800/50">
+               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-glow shadow-emerald-500"></span>
+               <span class="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Resource Pool Live</span>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Team Management Section -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <h4 class="text-base font-medium text-gray-900 dark:text-gray-100">Project Teams</h4>
-      <button
-        v-if="canAssignTeams && !isReadonly"
-        @click="showAddTeamModal = true"
-        class="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors font-medium flex items-center space-x-2"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        <span>Add Team</span>
-      </button>
+    <!-- Rapid Team Assign Interface -->
+    <div v-if="canAssignTeams && !isReadonly" class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-8 mb-12 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all group hover:border-purple-500/50">
+      <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+           <div class="w-10 h-10 rounded-2xl bg-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+             <i class="mdi mdi-account-plus text-xl"></i>
+           </div>
+           <div>
+             <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Rapid Team Dispatch</h4>
+             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Assign specialized teams to project stages instantly</p>
+           </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Specialty Selection -->
+          <div class="lg:col-span-4">
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Team Specialty*</label>
+            <div class="relative">
+              <select 
+                v-model="newTeamModal.team_type_id"
+                class="w-full h-14 pl-12 pr-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all appearance-none"
+              >
+                <option :value="null">Choose specialty...</option>
+                <option v-for="teamType in COMMON_TEAM_TYPES" :key="teamType.id" :value="teamType.team_type_id" class="dark:bg-slate-900 text-slate-900 dark:text-white">
+                  {{ teamType.display_name }}
+                </option>
+              </select>
+              <i class="mdi mdi-account-star-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- Stage Selection -->
+          <div class="lg:col-span-4">
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Project Stage / Category*</label>
+            <div class="flex gap-2">
+              <button 
+                v-for="cat in TEAM_CATEGORIES" 
+                :key="cat.key"
+                @click="newTeamModal.category = cat.key"
+                type="button"
+                class="flex-1 px-2 py-3.5 rounded-xl border-2 text-[10px] font-black uppercase tracking-[0.1em] transition-all flex flex-col items-center justify-center gap-1.5"
+                :class="newTeamModal.category === cat.key 
+                  ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/20' 
+                  : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-purple-500 hover:text-purple-500'"
+              >
+                <i :class="['mdi', cat.icon, 'text-lg']"></i>
+                {{ cat.key }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Date Selection -->
+          <div class="lg:col-span-2">
+            <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Commencement*</label>
+            <div class="relative">
+              <input 
+                v-model="newTeamModal.start_date"
+                type="date"
+                class="w-full h-14 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-xs font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="lg:col-span-2 flex items-end">
+            <button 
+              @click="submitAddTeam"
+              :disabled="!newTeamModal.category || !newTeamModal.team_type_id"
+              class="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-purple-600 dark:hover:bg-purple-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-20 disabled:cursor-not-allowed"
+            >
+              <i class="mdi mdi-check-decagram"></i>
+              <span>Assign</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Clearer Teams List by Category -->
-    <div class="space-y-10">
-      <div v-for="category in TEAM_CATEGORIES" :key="category.key" class="category-card">
-        <!-- Distinct Category Section Header -->
-        <div class="flex items-center justify-between mb-4 px-1">
-          <div class="flex items-center gap-3">
+    <!-- Teams List by Category -->
+    <div class="space-y-12">
+      <div v-for="category in TEAM_CATEGORIES" :key="category.key" class="category-card relative">
+        <!-- Category Section Header -->
+        <div class="flex items-center justify-between mb-6 px-2">
+          <div class="flex items-center gap-4">
              <div :class="[
-                'w-10 h-10 rounded-xl flex items-center justify-center shadow-sm',
-                category.color === 'blue' ? 'bg-blue-600 text-white' :
-                category.color === 'amber' ? 'bg-amber-500 text-white' : 'bg-rose-500 text-white'
+                'w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white dark:ring-slate-900',
+                category.color === 'blue' ? 'bg-blue-600 text-white shadow-blue-500/20' :
+                category.color === 'amber' ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-rose-500 text-white shadow-rose-500/20'
              ]">
-                <i :class="['mdi', category.icon, 'text-xl']"></i>
+                <i :class="['mdi', category.icon, 'text-2xl']"></i>
              </div>
              <div>
-                <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest">{{ category.label }}</h4>
-                <div class="flex items-center gap-2 mt-0.5">
-                   <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500">{{ teamsByCategory[category.key]?.length || 0 }} teams assigned</span>
+                <h4 class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em] mb-1">Resource Pool</h4>
+                <div class="flex items-center gap-3">
+                   <h3 class="text-xl font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight">{{ category.label }}</h3>
+                   <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-400 tracking-widest">
+                     {{ teamsByCategory[category.key]?.length || 0 }} UNITS
+                   </span>
                 </div>
              </div>
           </div>
-          
-          <button
-            v-if="canAssignTeams && !isReadonly"
-            @click="openAddTeamModal(category.key)"
-            :class="[
-              'px-3 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all border flex items-center gap-2',
-              category.color === 'blue' ? 'text-blue-600 border-blue-100 bg-blue-50/50 hover:bg-blue-100' :
-              category.color === 'amber' ? 'text-amber-600 border-amber-100 bg-amber-50/50 hover:bg-amber-100' : 
-              'text-rose-600 border-rose-100 bg-rose-50/50 hover:bg-rose-100'
-            ]"
-          >
-            <i class="mdi mdi-plus-circle"></i>
-            Assign {{ category.key }}
-          </button>
         </div>
 
-        <!-- Team Items Card -->
-        <div class="bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800/50 overflow-hidden">
+        <!-- Team Items Container -->
+        <div class="bg-slate-50/50 dark:bg-slate-800/20 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800/50 overflow-hidden backdrop-blur-sm">
           <div v-if="teamsByCategory[category.key]?.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800/40">
-            <div v-for="team in teamsByCategory[category.key]" :key="team.id" class="p-5 hover:bg-white dark:hover:bg-slate-800/40 transition-all flex flex-col sm:flex-row sm:items-start gap-6">
-              <!-- Team Type Identity -->
-              <div class="w-full sm:w-1/4">
-                <div class="text-[14px] font-black text-slate-900 dark:text-white flex items-center gap-2">
-                   <i class="mdi mdi-account-group-outline text-slate-400"></i>
+            <div v-for="team in teamsByCategory[category.key]" :key="team.id" class="p-8 hover:bg-white dark:hover:bg-slate-800/40 transition-all flex flex-col lg:flex-row lg:items-center gap-8 group/team">
+              <!-- Team Identity -->
+              <div class="w-full lg:w-1/4">
+                <div class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-3 mb-2">
+                   <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 transition-colors group-hover/team:text-purple-500">
+                     <i class="mdi mdi-account-group-outline text-lg"></i>
+                   </div>
                    {{ getTeamTypeDisplayName(team) }}
                 </div>
-                <div class="flex flex-wrap items-center gap-2 mt-2">
-                  <span :class="getStatusColorClass(team.status)" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg leading-none shadow-sm">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span :class="getStatusColorClass(team.status)" class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg leading-none shadow-sm">
                     {{ getStatusLabel(team.status) }}
                   </span>
-                  <span v-if="team.start_date" class="text-[10px] text-slate-400 font-bold bg-white dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
-                     <i class="mdi mdi-calendar-blank text-xs mr-1"></i>
+                  <span v-if="team.start_date" class="text-[9px] text-slate-400 font-black uppercase tracking-widest bg-white dark:bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center gap-1.5">
+                     <i class="mdi mdi-calendar-blank text-xs opacity-50"></i>
                      {{ formatDate(team.start_date) }}
                   </span>
                 </div>
@@ -94,297 +235,233 @@
 
               <!-- Assigned Personnel Grid -->
               <div class="flex-1">
-                <div class="flex flex-wrap gap-2 mb-4">
+                <div class="flex flex-wrap gap-2 mb-6">
                    <div 
                       v-for="member in team.members || []" 
                       :key="member.id"
-                      class="inline-flex items-center pl-3 pr-2 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 shadow-sm group/member"
+                      class="inline-flex items-center pl-4 pr-2.5 py-2.5 rounded-xl text-[11px] font-black text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:border-purple-500/30 group/member"
                    >
-                      <i class="mdi mdi-account text-slate-400 mr-2 group-hover/member:text-blue-500 transition-colors"></i>
-                      {{ member.member_name }}
+                      <i class="mdi mdi-account-circle text-slate-300 mr-2.5 group-hover/member:text-purple-500 transition-colors text-lg"></i>
+                      <span class="uppercase tracking-wider">{{ member.member_name }}</span>
                       <button
                          v-if="canManageMembers && !isReadonly"
                          @click="removeMember(team.id, member.id)"
-                         class="ml-2 text-slate-300 hover:text-rose-500 transition-colors bg-slate-50 dark:bg-slate-800 p-0.5 rounded-full"
+                         class="ml-3 text-slate-300 hover:text-rose-500 transition-colors bg-slate-50 dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded-lg"
                       >
-                         <i class="mdi mdi-close text-[10px]"></i>
+                         <i class="mdi mdi-close text-xs"></i>
                       </button>
                    </div>
                 </div>
 
                 <!-- Personnel Addition Input -->
-                <div v-if="canManageMembers && !isReadonly" class="flex items-center gap-3 max-w-sm group">
+                <div v-if="canManageMembers && !isReadonly" class="flex flex-col sm:flex-row items-stretch gap-4 max-w-2xl group/add">
+                   <!-- Registry Selection -->
                    <div class="relative flex-1">
-                      <i class="mdi mdi-account-plus absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      <input
-                         v-model="newMemberInputs[team.id]"
-                         type="text"
-                         placeholder="Type name and press Enter..."
-                         class="block w-full pl-10 pr-4 py-2 text-xs font-bold bg-slate-100/50 dark:bg-slate-800/80 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-800 rounded-xl focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all italic"
-                         @keydown.enter="addMemberToTeam(team.id)"
-                      />
+                      <i class="mdi mdi-book-open-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors z-10"></i>
+                      <select
+                         v-model="selectedLabourId[team.id]"
+                         class="block w-full h-11 pl-11 pr-4 text-xs font-black bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 focus:border-purple-500 rounded-xl focus:ring-0 text-slate-900 dark:text-white appearance-none uppercase tracking-widest transition-all"
+                      >
+                         <option :value="null">Pick from Registry...</option>
+                         <option v-for="labour in labours" :key="labour.id" :value="labour.id">
+                           {{ labour.full_name }} ({{ labour.specialization }})
+                         </option>
+                      </select>
+                      <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                    </div>
+
+                   <div class="flex items-center gap-2">
+                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest shrink-0">OR</span>
+                     
+                     <div class="relative flex-1 min-w-[200px]">
+                        <i class="mdi mdi-account-plus-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors"></i>
+                        <input
+                           v-model="newMemberInputs[team.id]"
+                           type="text"
+                           placeholder="Manual Entry..."
+                           class="block w-full h-11 pl-11 pr-4 text-xs font-black bg-white dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-800 focus:border-purple-500 rounded-xl focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all uppercase tracking-widest"
+                           @keydown.enter="addMemberToTeam(team.id)"
+                        />
+                     </div>
+                   </div>
+
                    <button
                       @click="addMemberToTeam(team.id)"
-                      v-show="newMemberInputs[team.id]?.trim()"
-                      class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none active:scale-95 transition-all"
+                      :disabled="!selectedLabourId[team.id] && !newMemberInputs[team.id]?.trim()"
+                      class="px-6 h-11 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl active:scale-95 transition-all text-xs font-black uppercase tracking-widest disabled:opacity-30"
                    >
-                      <i class="mdi mdi-check text-base"></i>
+                      <i class="mdi mdi-plus-circle text-lg mr-2"></i>
+                      Assign
                    </button>
                 </div>
               </div>
 
               <!-- Item Actions -->
-              <div class="sm:w-12 flex justify-end">
+              <div class="lg:w-16 flex justify-end">
                  <button
                     v-if="canDeleteTeams && !isReadonly"
                     @click="deleteTeam(team.id)"
-                    class="text-slate-200 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all w-10 h-10 flex items-center justify-center rounded-xl"
+                    class="text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all w-12 h-12 flex items-center justify-center rounded-2xl"
                     title="Remove Team"
                  >
-                    <i class="mdi mdi-trash-can-outline text-xl"></i>
+                    <i class="mdi mdi-trash-can-outline text-2xl"></i>
                  </button>
               </div>
             </div>
           </div>
 
-          <!-- Enhanced Empty State -->
-          <div v-else class="py-12 flex flex-col items-center justify-center text-center">
-             <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center text-slate-300 dark:text-slate-700 mb-4 border-2 border-dashed border-slate-200 dark:border-slate-800">
-                <i :class="['mdi', category.icon, 'text-3xl']"></i>
+          <!-- Empty State -->
+          <div v-else class="py-20 flex flex-col items-center justify-center text-center">
+             <div class="w-24 h-24 rounded-3xl bg-slate-100 dark:bg-slate-800/30 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6 border-2 border-dashed border-slate-200 dark:border-slate-700/50 rotate-3">
+                <i :class="['mdi', category.icon, 'text-5xl']"></i>
              </div>
-             <h5 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Assignment Pending</h5>
-             <button 
-                v-if="canAssignTeams && !isReadonly"
-                @click="openAddTeamModal(category.key)"
-                class="text-xs text-blue-500 hover:text-blue-600 font-black flex items-center gap-2 group"
-             >
-                <i class="mdi mdi-plus transition-transform group-hover:rotate-90"></i>
-                Create first {{ category.key }} team
-             </button>
-             <span v-else class="text-xs text-slate-400 italic">No personnel mapped yet</span>
+             <h5 class="text-xs font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-4">Unit Assignment Pending</h5>
+             <span v-if="!canAssignTeams || isReadonly" class="text-xs text-slate-400 font-bold italic tracking-wider">No personnel mapped yet</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Simple Add Team Modal -->
-    <div v-if="showAddTeamModal" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-base font-black text-slate-800 dark:text-white uppercase tracking-wider">Quick Team Setup</h3>
-            <button @click="closeAddTeamModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-              <i class="mdi mdi-close text-xl"></i>
-            </button>
-          </div>
-
-          <form @submit.prevent="submitAddTeam" class="space-y-6">
-            <!-- Category Chips -->
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Stage</label>
-              <div class="flex gap-2">
-                <button
-                  v-for="cat in TEAM_CATEGORIES"
-                  :key="cat.key"
-                  type="button"
-                  @click="newTeamModal.category = cat.key"
-                  :class="[
-                    'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border',
-                    newTeamModal.category === cat.key
-                      ? 'bg-slate-800 text-white border-slate-800 dark:bg-blue-600 dark:border-blue-600'
-                      : 'bg-transparent text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-400'
-                  ]"
-                >
-                  {{ cat.key }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Team Specialty -->
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Specialty</label>
-              <select
-                v-model="newTeamModal.team_type_id"
-                class="w-full px-0 py-2 text-[13px] font-bold border-0 border-b-2 border-slate-100 dark:border-slate-800 focus:border-blue-500 focus:ring-0 bg-transparent text-slate-900 dark:text-white transition-all"
-              >
-                <option :value="null">Choose specialty...</option>
-                <option v-for="teamType in COMMON_TEAM_TYPES" :key="teamType.id" :value="teamType.team_type_id">
-                  {{ teamType.display_name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Date -->
-            <div>
-              <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Start Date</label>
-              <input
-                v-model="newTeamModal.start_date"
-                type="date"
-                class="w-full px-0 py-2 text-[13px] font-bold border-0 border-b-2 border-slate-100 dark:border-slate-800 focus:border-blue-500 focus:ring-0 bg-transparent text-slate-900 dark:text-white transition-all"
-              />
-            </div>
-
-            <!-- Modal Action -->
-            <button
-              type="submit"
-              :disabled="!newTeamModal.category || !newTeamModal.team_type_id"
-              class="w-full py-3 text-xs font-black uppercase tracking-[0.2em] text-white bg-slate-900 hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-20 rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200 dark:shadow-none"
-            >
-              Assign Team
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Task Status and Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div class="flex flex-col sm:flex-row gap-3">
+    <!-- Dynamic Action Bar -->
+    <div class="mt-16 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <div class="flex flex-wrap items-center gap-4">
         <button
           v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled' && !isReadonly"
           @click="showSkipModal = true"
-          class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          class="h-12 px-6 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2"
         >
-          Skip Task
+          <i class="mdi mdi-skip-next-circle-outline text-lg"></i>
+          Skip Project Task
         </button>
 
         <button
           v-if="['skipped', 'completed'].includes(task.status)"
           @click="$emit('update-status', 'pending')"
-          class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          class="h-12 px-6 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 transition-all active:scale-95 flex items-center gap-2"
         >
-          {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
+          <i class="mdi mdi-refresh text-lg"></i>
+          {{ task.status === 'skipped' ? 'Reactivate Task' : 'Reopen Resources' }}
         </button>
 
         <button
           v-if="task.status !== 'completed' && task.status !== 'cancelled' && !isReadonly"
           @click="$emit('update-status', 'completed')"
-          class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+          class="h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-2xl shadow-emerald-500/30 transition-all active:scale-95 flex items-center gap-3"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          <span>Mark Complete</span>
+          <i class="mdi mdi-check-decagram text-lg"></i>
+          <span>Finalize Assignment</span>
         </button>
 
-        <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span class="text-sm font-medium">Task Completed</span>
-        </div>
-
-        <!-- Readonly Indicator -->
-        <div v-if="isReadonly && task.status !== 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-blue-600 dark:text-blue-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-          <span class="text-sm font-medium">Readonly Mode</span>
+        <div v-if="task.status === 'completed'" class="flex items-center gap-3 px-5 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50">
+          <i class="mdi mdi-check-circle text-emerald-500 text-xl"></i>
+          <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Workflow synchronized</span>
         </div>
       </div>
     </div>
 
     <!-- Skip Task Modal -->
-    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Please provide a reason for skipping this task.</p>
-        <textarea
-            v-model="skipReason"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
-            placeholder="Reason for skipping..."
-        ></textarea>
-        <div class="flex justify-end space-x-3">
-            <button @click="showSkipModal = false" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
-            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}</button>
+    <Teleport to="body">
+      <div v-if="showSkipModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showSkipModal = false"></div>
+        <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl max-w-md w-full p-10 border border-slate-100 dark:border-slate-800 overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+          
+          <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Omit Phase</h3>
+          <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-8 uppercase tracking-widest">Provide justification for bypassing this task</p>
+          
+          <div class="relative mb-8">
+            <textarea
+                v-model="skipReason"
+                rows="4"
+                class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 dark:text-white transition-all resize-none placeholder:text-slate-400 text-sm font-medium"
+                placeholder="Reasoning for deviation..."
+            ></textarea>
+          </div>
+          
+          <div class="flex gap-4">
+              <button @click="showSkipModal = false" class="flex-1 h-12 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Abort</button>
+              <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="flex-1 h-12 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-rose-500/20 transition-all disabled:opacity-30">
+                {{ isSkipping ? 'Processing...' : 'Confirm Omission' }}
+              </button>
+          </div>
         </div>
       </div>
+    </Teleport>
+
+    <!-- Feedback Toasts -->
+    <div class="fixed bottom-8 right-8 z-[110] flex flex-col gap-3 pointer-events-none">
+      <TransitionGroup name="toast">
+        <div 
+          v-for="msg in feedbackMessages" 
+          :key="msg.id"
+          class="pointer-events-auto px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md border border-white/20"
+          :class="[
+            msg.type === 'success' ? 'bg-emerald-500 text-white' : 
+            msg.type === 'error' ? 'bg-rose-500 text-white' : 'bg-slate-800 text-white'
+          ]"
+        >
+          <i :class="['mdi', msg.type === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle', 'text-xl']"></i>
+          <span class="text-xs font-black uppercase tracking-wider">{{ msg.message }}</span>
+        </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import type { EnquiryTask } from '../../types/enquiry'
+import type { EnquiryTask } from '../../types'
 import { useTeams } from '../../composables/useTeams'
-import { usePermissions } from '@/modules/finance/petty-cash/composables/usePermissions'
+import { useTechnicalLabour } from '@/modules/hr/composables/useTechnicalLabour'
 import TaskDataViewer from './TaskDataViewer.vue'
 import api from '@/plugins/axios'
 
 /**
- * Props interface for the TeamsTask component
+ * Props & Emits
  */
 interface Props {
-  /** The enquiry task object containing task details and metadata */
   task: EnquiryTask
-  /** Optional readonly mode - if not provided, will be determined by task status */
   readonly?: boolean
+  initialEditMode?: boolean
 }
 
-/**
- * Events emitted by the TeamsTask component
- */
 interface Emits {
-  /** Emitted when task status needs to be updated */
   'update-status': [status: EnquiryTask['status']]
 }
 
-/**
- * Project information structure for the teams task
- */
-interface ProjectInfo {
-  /** Unique project identifier */
-  projectId: string
-  /** Title/name of the enquiry/project */
-  enquiryTitle: string
-  /** Name of the client for this project */
-  clientName: string
-  /** Venue where the event will take place */
-  eventVenue: string
-  /** Date when project setup begins (ISO date string) */
-  setupDate: string
-  /** Date when project set down occurs (ISO date string or "tbc") */
-  setDownDate: string
-  /** Estimated budget for the project */
-  estimatedBudget?: number
-  /** Contact person for the project */
-  contactPerson: string
-}
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+  initialEditMode: false
+})
+const emit = defineEmits<Emits>()
 
 /**
- * New team modal form interface
+ * Types
  */
-interface NewTeamModalForm {
+interface ProjectInfo {
+  projectId: string
+  enquiryTitle: string
+  clientName: string
+  eventVenue: string
+  setupDate: string
+  setDownDate: string
+}
+
+interface NewTeamForm {
   category: string
   team_type_id: number | null
   start_date: string
 }
 
-/**
- * User feedback message structure
- */
 interface FeedbackMessage {
-  /** Unique identifier */
   id: string
-  /** Message type */
   type: 'success' | 'error' | 'warning' | 'info'
-  /** Message text */
   message: string
-  /** Timestamp when created */
-  timestamp: Date
-  /** Auto-dismiss timeout */
-  timeout?: number
 }
 
-// Component setup
-const props = withDefaults(defineProps<Props>(), {
-  readonly: false
-})
-const emit = defineEmits<Emits>()
-
-// Teams API integration
+/**
+ * Composables & State
+ */
 const {
   teamsTasks,
   teamsByCategory,
@@ -396,107 +473,14 @@ const {
   deleteTeamTask
 } = useTeams()
 
+const { labours, fetchLabours } = useTechnicalLabour()
+
 const TEAM_CATEGORIES = [
-  { id: 1, key: 'workshop', label: 'Workshop Teams', icon: 'mdi-hammer-wrench', color: 'blue' },
-  { id: 2, key: 'setup', label: 'Setup Teams', icon: 'mdi-truck-delivery-outline', color: 'amber' },
-  { id: 3, key: 'setdown', label: 'Setdown Teams', icon: 'mdi-archive-arrow-down-outline', color: 'rose' }
+  { id: 1, key: 'workshop', label: 'Workshop Fabrication', icon: 'mdi-hammer-wrench', color: 'blue' },
+  { id: 2, key: 'setup', label: 'On-Site Installation', icon: 'mdi-truck-delivery-outline', color: 'amber' },
+  { id: 3, key: 'setdown', label: 'Dismantling & Recovery', icon: 'mdi-archive-arrow-down-outline', color: 'rose' }
 ]
 
-
-
-/**
- * Edit mode state - allows editing even when task is completed
- */
-const isEditMode = ref(false)
-
-/**
- * Modal state
- */
-const showAddTeamModal = ref(false)
-
-// Skip Task Logic
-const showSkipModal = ref(false)
-const skipReason = ref('')
-const isSkipping = ref(false)
-
-const handleSkipTask = async () => {
-    if (!skipReason.value.trim()) return
-    isSkipping.value = true
-    try {
-        await api.put(`/api/projects/tasks/${props.task.id}/status`, {
-            status: 'skipped',
-            notes: skipReason.value
-        })
-        emit('update-status', 'skipped')
-        showSkipModal.value = false
-        skipReason.value = ''
-        addFeedbackMessage('success', 'Task skipped successfully')
-    } catch (err: any) {
-        console.error('Skip task error:', err)
-        addFeedbackMessage('error', err.response?.data?.message || 'Failed to skip task')
-    } finally {
-        isSkipping.value = false
-    }
-}
-
-/**
- * Computed readonly state - readonly if prop is true OR (task is completed AND not in edit mode)
- */
-const isReadonly = computed(() => {
-  // If readonly prop is explicitly set (from TaskDataViewer or parent), use that
-  if (props.readonly !== undefined) {
-    return props.readonly
-  }
-  // Otherwise, check if task is completed and not in local edit mode
-  return props.task.status === 'completed' && !isEditMode.value
-})
-
-/**
- * New team modal form data
- */
-const newTeamModal = reactive<NewTeamModalForm>({
-  category: 'workshop', // Default category
-  team_type_id: null,
-  start_date: ''
-})
-
-/**
- * New member inputs for each team
- */
-const newMemberInputs = reactive<Record<number, string>>({})
-
-/**
- * User feedback messages
- */
-const feedbackMessages = ref<FeedbackMessage[]>([])
-
-/**
- * Initialize data on component mount
- */
-onMounted(async () => {
-  try {
-    // Load team categories
-    await fetchTeamCategories()
-    // Teams data is loaded by the immediate watcher on props.task
-  } catch (error) {
-    console.error('Error loading teams categories:', error)
-    addFeedbackMessage('error', 'Failed to load team categories. Please refresh the page.')
-  }
-})
-
-/**
- * Get all teams flat list
- */
-const allTeams = computed(() => {
-  return teamsTasks.value || []
-})
-
-/**
- * Hardcoded team types for each category
- */
-/**
- * Common team types definition
- */
 const COMMON_TEAM_TYPES = [
   { id: 1, team_type_id: 1, display_name: 'Pasting Team' },
   { id: 2, team_type_id: 2, display_name: 'Technicians' },
@@ -509,302 +493,211 @@ const COMMON_TEAM_TYPES = [
   { id: 9, team_type_id: 9, display_name: 'Carpenters' }
 ]
 
-/**
- * Team types for each category
- */
-const hardcodedTeamTypes = {
-  workshop: COMMON_TEAM_TYPES,
-  setup: COMMON_TEAM_TYPES,
-  setdown: COMMON_TEAM_TYPES
-}
+const isEditMode = ref(props.initialEditMode)
+const showSkipModal = ref(false)
+const skipReason = ref('')
+const isSkipping = ref(false)
+const feedbackMessages = ref<FeedbackMessage[]>([])
+const newMemberInputs = reactive<Record<number, string>>({})
+const selectedLabourId = reactive<Record<number, number | null>>({})
 
 /**
- * Get available team types for a category (using hardcoded data)
+ * Computed Properties
  */
-const getAvailableTeamTypes = (categoryId: string) => {
-  return hardcodedTeamTypes[categoryId as keyof typeof hardcodedTeamTypes] || []
-}
-
-/**
- * Close add team modal
- */
-const closeAddTeamModal = () => {
-  showAddTeamModal.value = false
-  // Reset form
-  newTeamModal.category = 'workshop'
-  newTeamModal.team_type_id = null
-  newTeamModal.start_date = ''
-}
-
-/**
- * Open add team modal with optional category
- */
-const openAddTeamModal = (categoryKey?: string) => {
-  if (categoryKey) {
-    newTeamModal.category = categoryKey
+const projectInfo = computed((): ProjectInfo => {
+  const enquiry = props.task?.enquiry
+  return {
+    projectId: enquiry?.job_number || enquiry?.enquiry_number || 'N/A',
+    enquiryTitle: enquiry?.title || 'Untitled Project',
+    clientName: enquiry?.client?.full_name || enquiry?.contact_person || 'N/A',
+    eventVenue: enquiry?.venue || 'TBC',
+    setupDate: enquiry?.expected_delivery_date || 'TBC',
+    setDownDate: 'TBC'
   }
-  showAddTeamModal.value = true
-}
+})
+
+const isReadonly = computed(() => {
+  if (props.readonly === true) return true
+  return props.task.status === 'completed' && !isEditMode.value
+})
+
+const newTeamModal = reactive<NewTeamForm>({
+  category: 'workshop',
+  team_type_id: null,
+  start_date: projectInfo.value.setupDate !== 'TBC' ? projectInfo.value.setupDate : ''
+})
+
+const canAssignTeams = computed(() => true)
+const canManageMembers = computed(() => true)
+const canDeleteTeams = computed(() => true)
 
 /**
- * Submit add team form
+ * Lifecycle
+ */
+onMounted(async () => {
+  try {
+    await fetchTeamCategories()
+    await fetchLabours()
+    if (props.task?.id) {
+        await fetchTeamsForTask(props.task.id)
+    }
+  } catch (error) {
+    console.error('Resource loading failure:', error)
+  }
+})
+
+/**
+ * Methods
  */
 const submitAddTeam = async () => {
   if (!newTeamModal.category || !newTeamModal.team_type_id) {
-    addFeedbackMessage('error', 'Please select a category and team type')
+    addFeedbackMessage('error', 'Select both category and specialty')
     return
   }
 
   try {
-    // Map category to proper category_id
-    const categoryMap: Record<string, number> = {
-      workshop: 1,
-      setup: 2,
-      setdown: 3
-    }
-
-    const newTeam = await createTeamTask(props.task.id, {
+    const categoryMap: Record<string, number> = { workshop: 1, setup: 2, setdown: 3 }
+    await createTeamTask(props.task.id, {
       category_id: categoryMap[newTeamModal.category],
       team_type_id: newTeamModal.team_type_id,
-      required_members: 1, // Default to 1, members added individually
+      required_members: 1,
       start_date: newTeamModal.start_date || undefined,
       priority: 'medium'
     })
-
-    // Refresh teams data
     await fetchTeamsForTask(props.task.id)
-    addFeedbackMessage('success', 'Team added successfully')
-    closeAddTeamModal()
+    addFeedbackMessage('success', 'Resource unit assigned')
   } catch (error) {
-    console.error('Error adding team:', error)
-    addFeedbackMessage('error', 'Failed to add team. Please try again.')
+    addFeedbackMessage('error', 'Failed to dispatch team')
   }
 }
 
-/**
- * Add member to a specific team
- */
 const addMemberToTeam = async (teamTaskId: number) => {
-  const memberName = newMemberInputs[teamTaskId]?.trim()
-
-  if (!memberName) {
-    addFeedbackMessage('error', 'Please enter a member name')
-    return
-  }
+  const labourId = selectedLabourId[teamTaskId]
+  const manualName = newMemberInputs[teamTaskId]?.trim()
+  
+  if (!labourId && !manualName) return
 
   try {
-    await addTeamMember(props.task.id, teamTaskId, {
-      member_name: memberName
-    })
+    let payload: any = {}
+    
+    if (labourId) {
+      const labour = labours.value.find(l => l.id === labourId)
+      if (labour) {
+        payload = {
+          technical_labour_id: labour.id,
+          member_name: labour.full_name,
+          member_email: labour.email,
+          member_phone: labour.phone,
+          member_role: labour.specialization,
+          hourly_rate: Number(labour.day_rate) / 8 // Assuming 8hr day
+        }
+      }
+    } else {
+      payload = { member_name: manualName }
+    }
 
-    // Clear input immediately
+    await addTeamMember(props.task.id, teamTaskId, payload)
+    
     newMemberInputs[teamTaskId] = ''
-
-    // Refresh teams data
+    selectedLabourId[teamTaskId] = null
+    
     await fetchTeamsForTask(props.task.id)
-    addFeedbackMessage('success', 'Member added successfully')
+    addFeedbackMessage('success', 'Personnel added')
   } catch (error) {
-    console.error('Error adding member:', error)
-    addFeedbackMessage('error', 'Failed to add member. Please try again.')
+    addFeedbackMessage('error', 'Failed to add personnel')
   }
 }
 
-/**
- * Remove member from a specific team
- */
 const removeMember = async (teamTaskId: number, memberId: number) => {
   try {
     await removeTeamMember(props.task.id, teamTaskId, memberId)
     await fetchTeamsForTask(props.task.id)
-    addFeedbackMessage('success', 'Member removed successfully')
+    addFeedbackMessage('success', 'Personnel removed')
   } catch (error) {
-    console.error('Error removing member:', error)
-    addFeedbackMessage('error', 'Failed to remove member. Please try again.')
+    addFeedbackMessage('error', 'Removal failed')
   }
 }
 
-/**
- * Delete a team
- */
 const deleteTeam = async (teamTaskId: number) => {
-  if (!confirm('Are you sure you want to delete this team?')) {
-    return
-  }
-
+  if (!confirm('Permanently remove this team unit?')) return
   try {
     await deleteTeamTask(props.task.id, teamTaskId)
     await fetchTeamsForTask(props.task.id)
-    addFeedbackMessage('success', 'Team deleted successfully')
+    addFeedbackMessage('success', 'Team unit decommissioned')
   } catch (error) {
-    console.error('Error deleting team:', error)
-    addFeedbackMessage('error', 'Failed to delete team. Please try again.')
+    addFeedbackMessage('error', 'Decommissioning failed')
   }
 }
 
-/**
- * Add feedback message
- */
-const addFeedbackMessage = (type: FeedbackMessage['type'], message: string, timeout = 5000) => {
-  const feedbackMessage: FeedbackMessage = {
-    id: `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    type,
-    message,
-    timestamp: new Date(),
-    timeout
-  }
-
-  feedbackMessages.value.push(feedbackMessage)
-
-  // Auto-remove message after timeout
-  if (timeout > 0) {
-    setTimeout(() => {
-      removeFeedbackMessage(feedbackMessage.id)
-    }, timeout)
-  }
-}
-
-/**
- * Remove feedback message
- */
-const removeFeedbackMessage = (messageId: string) => {
-  const index = feedbackMessages.value.findIndex(msg => msg.id === messageId)
-  if (index !== -1) {
-    feedbackMessages.value.splice(index, 1)
-  }
-}
-
-/**
- * Format date for display with enhanced error handling
- */
-const formatDate = (dateString: string): string => {
-  if (!dateString || dateString === 'TBC' || dateString === 'N/A') {
-    return 'TBC'
-  }
-
-  try {
-    const date = new Date(dateString)
-
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      console.warn('Invalid date string:', dateString)
-      return 'TBC'
-    }
-
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  } catch (error) {
-    console.warn('Error formatting date:', dateString, error)
-    return 'TBC'
-  }
-}
-
-/**
- * Format currency for display with error handling
- */
-const formatCurrency = (amount: number): string => {
-  try {
-    if (typeof amount !== 'number' || isNaN(amount)) {
-      return '0'
-    }
-
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount)
-  } catch (error) {
-    console.warn('Error formatting currency:', amount, error)
-    return '0'
-  }
-}
-
-/**
- * Get status color classes
- */
-const getStatusColor = (status: string): string => {
-  switch (status) {
-    case 'completed':
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    case 'in_progress':
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-    case 'cancelled':
-      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-  }
-}
-
-/**
- * Get status color classes for teams
- */
-const getStatusColorClass = (status: string): string => {
-  return getStatusColor(status)
-}
-
-/**
- * Get status label
- */
-const getStatusLabel = (status: string): string => {
-  switch (status) {
-    case 'completed':
-      return 'Completed'
-    case 'in_progress':
-      return 'In Progress'
-    case 'pending':
-      return 'Pending'
-    case 'cancelled':
-      return 'Cancelled'
-    case 'assigned':
-      return 'Assigned'
-    default:
-      return 'Unknown'
-  }
-}
-
-/**
- * Permission computed properties
- */
-const canAssignTeams = computed(() => true)
-
-const canManageMembers = computed(() => true)
-
-const canDeleteTeams = computed(() => true)
-
-/**
- * Get team type display name with fallback to hardcoded names
- */
-const getTeamTypeDisplayName = (team: any): string => {
-  // First try to get from team.team_type.display_name (API returns team_type, not teamType)
-  if (team.team_type?.display_name) {
-    return team.team_type.display_name
-  }
-
-  // Fallback to common team types
-  const type = COMMON_TEAM_TYPES.find(t => t.team_type_id === team.team_type_id)
-  return type?.display_name || 'Unknown Team'
-}
-
-/**
- * Watch for task prop changes and reinitialize if needed
- */
-watch(
-  () => props.task,
-  async (newTask, oldTask) => {
-    // updateProjectInfo() removed as part of simplification
+const handleSkipTask = async () => {
+    if (!skipReason.value.trim()) return
+    isSkipping.value = true
     try {
-      // Fetch teams if task ID changed or on initial load (immediate)
-      if (newTask && (!oldTask || newTask.id !== oldTask.id)) {
-        await fetchTeamsForTask(newTask.id)
-      }
-    } catch (err: any) { // Added type for error
-      console.error('Error updating teams data for new task:', err)
-      addFeedbackMessage('error', 'Failed to load teams data')
+        await api.put(`/api/projects/tasks/${props.task.id}/status`, {
+            status: 'skipped',
+            notes: skipReason.value
+        })
+        emit('update-status', 'skipped')
+        showSkipModal.value = false
+        addFeedbackMessage('success', 'Task phase omitted')
+    } catch (err: any) {
+        addFeedbackMessage('error', 'Omission failed')
+    } finally {
+        isSkipping.value = false
     }
-  },
-  { deep: true, immediate: true }
-)
+}
+
+const addFeedbackMessage = (type: FeedbackMessage['type'], message: string) => {
+  const id = Math.random().toString(36).substr(2, 9)
+  feedbackMessages.value.push({ id, type, message })
+  setTimeout(() => {
+    feedbackMessages.value = feedbackMessages.value.filter(m => m.id !== id)
+  }, 3000)
+}
+
+const formatDate = (dateString: string): string => {
+  if (!dateString || dateString === 'TBC') return 'TBC'
+  const date = new Date(dateString)
+  return isNaN(date.getTime()) ? 'TBC' : date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+const getStatusColorClass = (status: string): string => {
+  switch (status) {
+    case 'completed': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400'
+    case 'in_progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400'
+    case 'pending': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400'
+    default: return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400'
+  }
+}
+
+const getStatusLabel = (status: string): string => {
+  return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
+}
+
+const getTeamTypeDisplayName = (team: any): string => {
+  if (team.team_type?.display_name) return team.team_type.display_name
+  const type = COMMON_TEAM_TYPES.find(t => t.team_type_id === team.team_type_id)
+  return type?.display_name || 'Specialized Unit'
+}
+
+/**
+ * Watchers
+ */
+watch(() => props.task, async (newTask, oldTask) => {
+  if (newTask && (!oldTask || newTask.id !== oldTask.id)) {
+    await fetchTeamsForTask(newTask.id)
+  }
+}, { deep: true, immediate: true })
 </script>
+
+<style scoped>
+.toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(20px); }
+
+/* Animation for the blue pulse */
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+}
+.shadow-glow { animation: glow 2s infinite; }
+</style>

@@ -80,207 +80,195 @@ export function useProjectPDF() {
     const totalTasks = tasks.length
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
-    const brandingColor = '#15803d' // Woodwork Green (Green-700)
-    const accentColor = '#22c55e' // Green-500
+    // Blue Theme (Matching Budget PDF)
+    const primaryColor = '#2563eb' // Blue-600
+    const headerBg = '#eff6ff'     // Blue-50
+    const headerText = '#1e40af'   // Blue-800
+    const borderColor = '#e2e8f0'
+
+    const jobNo = enquiry.job_number || '-'
+    const dept = (enquiry.department as any)?.name || 'General'
+    const surveyStatus = (enquiry as any).site_survey_skipped ? 'Skipped' : 'Required'
 
     return `
-      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; color: #1f2937; line-height: 1.4; font-size: 12px;">
+      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.4; font-size: 10px;">
         
         <!-- Header -->
-        <div style="background: ${brandingColor}; color: white; padding: 20px 25px; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-          <div>
-            <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">PROJECT DATA SHEET</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 11px;">ENQUIRY #${enquiry.enquiry_number}</p>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 11px; opacity: 0.9;">GENERATED ON</div>
-            <div style="font-weight: 600; font-size: 13px;">${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).toUpperCase()}</div>
-          </div>
-        </div>
+        <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+          <tr>
+            <td style="width: 50%; vertical-align: top;">
+               <!-- Logo placeholder - ensure /logo-outline.png exists in public folder -->
+               <img src="/logo-outline.png" style="height: 60px; margin-bottom: 5px;" alt="Logo" />
+               <div style="font-weight: bold; font-size: 14px; text-transform: uppercase; color: #111827;">Woodnork Green</div>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: top;">
+               <h1 style="color: ${primaryColor}; font-size: 20px; margin: 0 0 10px 0; text-transform: uppercase;">Project Data Sheet</h1>
+               <div style="display: inline-block; border: 1px solid ${borderColor};">
+                  <table style="border-collapse: collapse;">
+                    <tr>
+                      <td style="padding: 4px 10px; background: #fff; font-weight: bold; border-right: 1px solid ${borderColor}; color: #4b5563;">DATE</td>
+                      <td style="padding: 4px 10px; background: #fff; color: ${primaryColor}; font-weight: bold;">${new Date().toLocaleDateString('en-GB')}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px 10px; background: #fff; font-weight: bold; border-right: 1px solid ${borderColor}; border-top: 1px solid ${borderColor}; color: #4b5563;">ENQ #</td>
+                      <td style="padding: 4px 10px; background: #fff; color: #dc2626; font-weight: bold; border-top: 1px solid ${borderColor};">${enquiry.enquiry_number}</td>
+                    </tr>
+                  </table>
+               </div>
+            </td>
+          </tr>
+        </table>
 
-        <!-- Executive Summary -->
-        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
-          <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-            <div style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Project Status</div>
-            <div style="font-size: 14px; font-weight: 700; color: ${addonStatusColor(enquiry.status)};">${statusLabel.toUpperCase()}</div>
-          </div>
-          <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-            <div style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Task Progress</div>
-            <div style="font-size: 14px; font-weight: 700; color: #0f172a;">${progress}% COMPLETE</div>
-            <div style="background: #e2e8f0; height: 4px; border-radius: 2px; margin-top: 6px; overflow: hidden;">
-              <div style="background: ${accentColor}; width: ${progress}%; height: 100%;"></div>
-            </div>
-          </div>
-           <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-            <div style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">Priority Level</div>
-            <div style="font-size: 14px; font-weight: 700; color: ${getPriorityColor(enquiry.priority)};">${priorityLabel}</div>
-          </div>
-        </div>
+        <!-- Executive Summary Grid -->
+        <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+           <tr>
+             <td style="width: 25%; padding-right: 10px;">
+                <div style="background: #f8fafc; border: 1px solid ${borderColor}; padding: 8px; border-radius: 4px;">
+                   <div style="font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Status</div>
+                   <div style="font-size: 11px; font-weight: bold; color: ${addonStatusColor(enquiry.status)};">${statusLabel.toUpperCase()}</div>
+                </div>
+             </td>
+             <td style="width: 25%; padding-right: 10px;">
+                <div style="background: #f8fafc; border: 1px solid ${borderColor}; padding: 8px; border-radius: 4px;">
+                   <div style="font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Progress</div>
+                   <div style="font-size: 11px; font-weight: bold;">${progress}% COMPLETE</div>
+                   <div style="height: 3px; background: #e2e8f0; margin-top: 4px; border-radius: 2px;"><div style="width: ${progress}%; height: 100%; background: ${primaryColor}; border-radius: 2px;"></div></div>
+                </div>
+             </td>
+             <td style="width: 25%; padding-right: 10px;">
+                <div style="background: #f8fafc; border: 1px solid ${borderColor}; padding: 8px; border-radius: 4px;">
+                   <div style="font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Priority</div>
+                   <div style="font-size: 11px; font-weight: bold; color: ${getPriorityColor(enquiry.priority)};">${priorityLabel}</div>
+                </div>
+             </td>
+             <td style="width: 25%;">
+                <div style="background: #f8fafc; border: 1px solid ${borderColor}; padding: 8px; border-radius: 4px;">
+                   <div style="font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Department</div>
+                   <div style="font-size: 11px; font-weight: bold;">${dept}</div>
+                </div>
+             </td>
+           </tr>
+        </table>
 
-        <div style="display: flex; gap: 25px; margin-bottom: 25px;">
-          
-          <!-- Column 1: Client & Contact -->
-          <div style="flex: 1;">
-             <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Client Information</h3>
-             <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-               <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600; width: 35%;">CLIENT NAME</td>
-                 <td style="padding: 4px 0; font-weight: 600;">${getClientName(enquiry)}</td>
-               </tr>
-               <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">CONTACT</td>
-                 <td style="padding: 4px 0;">${enquiry.contact_person || '-'}</td>
-               </tr>
-                <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">PHONE</td>
-                 <td style="padding: 4px 0;">${(enquiry.client as any)?.phone || '-'}</td>
-               </tr>
-                <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">EMAIL</td>
-                 <td style="padding: 4px 0;">${(enquiry.client as any)?.email || '-'}</td>
-               </tr>
-             </table>
-          </div>
-
-          <!-- Column 2: Project Details -->
-          <div style="flex: 1;">
-            <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Project Particulars</h3>
-             <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-               <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600; width: 35%;">TITLE</td>
-                 <td style="padding: 4px 0; font-weight: 600;">${enquiry.title}</td>
-               </tr>
-               ${enquiry.job_number ? `
-               <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">JOB #</td>
-                 <td style="padding: 4px 0;">${enquiry.job_number}</td>
-               </tr>` : ''}
-              <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">VENUE</td>
-                 <td style="padding: 4px 0;">${enquiry.venue || 'N/A'}</td>
-               </tr>
-               <tr>
-                 <td style="padding: 4px 0; color: #64748b; font-weight: 600;">OFFICER</td>
-                 <td style="padding: 4px 0;">${enquiry.project_officer?.name || 'Unassigned'}</td>
-               </tr>
-             </table>
-          </div>
-        </div>
+        <!-- Details Sections with Standard Headers -->
         
-        <!-- Timeline Section (Horizontal) -->
-        <div style="margin-bottom: 25px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 15px;">
-           <h3 style="color: #64748b; font-size: 11px; font-weight: 700; margin: 0 0 10px 0; text-transform: uppercase;">Project Schedule</h3>
-           <div style="display: flex; justify-content: space-between;">
-              <div style="flex: 1; border-right: 1px solid #e2e8f0; padding-right: 10px;">
-                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Received</div>
-                 <div style="font-weight: 600;">${formatDate(enquiry.date_received || enquiry.created_at || null)}</div>
-              </div>
-               <div style="flex: 1; border-right: 1px solid #e2e8f0; padding: 0 10px;">
-                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Expected Delivery</div>
-                 <div style="font-weight: 600;">${formatDate(enquiry.expected_delivery_date || null)}</div>
-              </div>
-              ${(enquiry as any).event_date ? `
-               <div style="flex: 1; border-right: 1px solid #e2e8f0; padding: 0 10px;">
-                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Event Date</div>
-                 <div style="font-weight: 600;">${formatDate((enquiry as any).event_date)}</div>
-              </div>` : ''}
-               <div style="flex: 1; padding-left: 10px;">
-                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Days Remaining</div>
-                 <div style="font-weight: 600;">${calculateDaysRemaining(enquiry.expected_delivery_date)}</div>
-              </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+           <tr style="vertical-align: top;">
+              <td style="width: 50%; padding-right: 15px;">
+                 <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">CLIENT INFORMATION</div>
+                 <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 3px 0; color: #64748b; width: 30%; font-weight: bold;">Name</td><td style="font-weight: bold;">${getClientName(enquiry)}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Contact</td><td>${enquiry.contact_person || '-'}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Phone</td><td>${(enquiry.client as any)?.phone || '-'}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Email</td><td>${(enquiry.client as any)?.email || '-'}</td></tr>
+                 </table>
+              </td>
+              <td style="width: 50%;">
+                 <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">PROJECT PARTICULARS</div>
+                 <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 3px 0; color: #64748b; width: 30%; font-weight: bold;">Project Title</td><td style="font-weight: bold;">${enquiry.title}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Job Number</td><td>${jobNo}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Venue</td><td>${enquiry.venue || 'N/A'}</td></tr>
+                    <tr><td style="padding: 3px 0; color: #64748b; font-weight: bold;">Officer</td><td>${enquiry.project_officer?.name || 'Unassigned'}</td></tr>
+                 </table>
+              </td>
+           </tr>
+        </table>
+
+        <!-- Timeline Block -->
+        <div style="background: #fff; border: 1px solid ${borderColor}; padding: 10px; margin-bottom: 20px;">
+           <div style="font-size: 10px; color: #1e40af; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">Timeline Schedule</div>
+           <table style="width: 100%; text-align: center;">
+              <tr>
+                 <td style="border-right: 1px solid ${borderColor};">
+                    <div style="font-size: 9px; color: #64748b; text-transform: uppercase;">Received</div>
+                    <div style="font-weight: bold;">${formatDate(enquiry.date_received || enquiry.created_at || null)}</div>
+                 </td>
+                 <td style="border-right: 1px solid ${borderColor};">
+                    <div style="font-size: 9px; color: #64748b; text-transform: uppercase;">Deadline</div>
+                    <div style="font-weight: bold;">${formatDate(enquiry.expected_delivery_date || null)}</div>
+                 </td>
+                 <td style="border-right: 1px solid ${borderColor};">
+                    <div style="font-size: 9px; color: #64748b; text-transform: uppercase;">Survey</div>
+                    <div style="font-weight: bold;">${surveyStatus}</div>
+                 </td>
+                 <td>
+                    <div style="font-size: 9px; color: #64748b; text-transform: uppercase;">Status</div>
+                    <div style="font-weight: bold;">${calculateDaysRemaining(enquiry.expected_delivery_date)}</div>
+                 </td>
+              </tr>
+           </table>
+        </div>
+
+        <!-- Scope Block -->
+        <div style="margin-bottom: 20px;">
+           <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">SCOPE OF WORKS</div>
+           <div style="background: #f8fafc; border: 1px solid ${borderColor}; padding: 10px; text-align: justify; margin-bottom: 10px;">
+              ${enquiry.description || 'No description provided.'}
            </div>
+           
+           <!-- Deliverables List -->
+           ${deliverables.length > 0 ? `
+           <div style="font-weight: bold; font-size: 10px; color: #4b5563; margin-bottom: 4px; text-transform: uppercase;">Key Deliverables</div>
+           <ul style="margin: 0; padding-left: 20px; color: #1f2937;">
+              ${deliverables.map(d => `<li style="margin-bottom: 2px;">${d}</li>`).join('')}
+           </ul>
+           ` : ''}
         </div>
 
-        <!-- Description & Scope Grid -->
-        <div style="display: flex; gap: 25px; margin-bottom: 25px;">
-          <div style="flex: 3;">
-             <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Description of Works</h3>
-             <div style="background: #f8fafc; padding: 12px; border-radius: 4px; font-size: 11px; color: #334155; text-align: justify;">
-                ${enquiry.description || 'No description provided.'}
-             </div>
-          </div>
-          
-          <div style="flex: 2;">
-             <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Deliverables</h3>
-             <div style="background: #f8fafc; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
-                <ul style="margin: 0; padding: 0 0 0 15px; font-size: 11px; color: #334155;">
-                  ${deliverables.length > 0
-        ? deliverables.map(d => `<li style="margin-bottom: 4px;">${d}</li>`).join('')
-        : '<li>As per description</li>'}
-                </ul>
-             </div>
-          </div>
-        </div>
-
-        <!-- Detailed Tasks Table -->
-        <div style="margin-bottom: 25px;">
-           <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Operational Tasks (${tasks.length})</h3>
-           <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+        <!-- Tasks Table -->
+        <div style="margin-bottom: 20px;">
+           <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">OPERATIONAL TASKS (${tasks.length})</div>
+           <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
               <thead style="background: #f1f5f9;">
                 <tr>
-                  <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e1; font-weight: 700; color: #475569;">TASK NAME</th>
-                  <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e1; font-weight: 700; color: #475569;">TYPE</th>
-                  <th style="padding: 8px; text-align: center; border: 1px solid #cbd5e1; font-weight: 700; color: #475569;">STATUS</th>
-                  <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e1; font-weight: 700; color: #475569;">ASSIGNED TO</th>
-                  <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e1; font-weight: 700; color: #475569;">DUE DATE</th>
+                  <th style="padding: 6px; text-align: left; border: 1px solid ${borderColor}; color: #475569;">TASK</th>
+                  <th style="padding: 6px; text-align: center; border: 1px solid ${borderColor}; color: #475569;">STATUS</th>
+                  <th style="padding: 6px; text-align: left; border: 1px solid ${borderColor}; color: #475569;">ASSIGNED TO</th>
+                  <th style="padding: 6px; text-align: right; border: 1px solid ${borderColor}; color: #475569;">DUE</th>
                 </tr>
               </thead>
               <tbody>
                 ${tasks.length > 0 ? tasks.map((task, idx) => `
-                  <tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0;">
-                    <td style="padding: 6px 8px; border: 1px solid #e2e8f0; font-weight: 600;">${task.title || formatTaskType(task.type)}</td>
-                    <td style="padding: 6px 8px; border: 1px solid #e2e8f0;">${formatTaskType(task.type)}</td>
-                    <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center;">
-                       <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; color: white; background: ${getTaskStatusColor(task.status)};">
-                         ${task.status.toUpperCase().replace('_', ' ')}
+                  <tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid ${borderColor};">
+                    <td style="padding: 6px; border: 1px solid ${borderColor}; font-weight: 600;">${task.title || formatTaskType(task.type)}</td>
+                    <td style="padding: 6px; border: 1px solid ${borderColor}; text-align: center;">
+                       <span style="padding: 2px 4px; border-radius: 2px; color: white; background: ${getTaskStatusColor(task.status)}; font-size: 8px; text-transform: uppercase;">
+                         ${task.status.replace('_', ' ')}
                        </span>
                     </td>
-                    <td style="padding: 6px 8px; border: 1px solid #e2e8f0;">${getTaskAssignee(task)}</td>
-                    <td style="padding: 6px 8px; border: 1px solid #e2e8f0;">${formatDate(task.due_date || null)}</td>
+                    <td style="padding: 6px; border: 1px solid ${borderColor};">${getTaskAssignee(task)}</td>
+                    <td style="padding: 6px; border: 1px solid ${borderColor}; text-align: right;">${formatDate(task.due_date || null)}</td>
                   </tr>
-                `).join('') : `<tr><td colspan="5" style="padding: 15px; text-align: center; color: #94a3b8; font-style: italic;">No tasks assigned yet.</td></tr>`}
+                `).join('') : `<tr><td colspan="4" style="padding: 10px; text-align: center; color: #94a3b8;">No tasks assigned.</td></tr>`}
               </tbody>
            </table>
         </div>
 
-        <!-- Financial & Notes Grid -->
-        <div style="display: flex; gap: 25px; page-break-inside: avoid;">
-           <div style="flex: 1;">
-              <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Financial Summary</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-                <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-                   <td style="padding: 8px; color: #64748b; font-weight: 600;">ESTIMATED BUDGET</td>
-                   <td style="padding: 8px; font-weight: 700; text-align: right;">KES ${formatCurrency(enquiry.estimated_budget || 0)}</td>
-                </tr>
-                <!-- Placeholder for future financial data -->
-                <tr style="border-bottom: 1px solid #e2e8f0;">
-                   <td style="padding: 8px; color: #64748b; font-weight: 600;">QUOTED AMOUNT</td>
-                   <td style="padding: 8px; font-weight: 600; text-align: right; color: #94a3b8;">-</td>
-                </tr>
-                 <tr>
-                   <td style="padding: 8px; color: #64748b; font-weight: 600;">INVOICED</td>
-                   <td style="padding: 8px; font-weight: 600; text-align: right; color: #94a3b8;">-</td>
-                </tr>
-              </table>
-           </div>
-
-           <div style="flex: 1;">
-              <h3 style="border-bottom: 2px solid ${brandingColor}; color: ${brandingColor}; font-size: 13px; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 4px; text-transform: uppercase;">Important Notes</h3>
-              <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; padding: 10px; font-size: 11px; color: #92400e; min-height: 60px;">
-                 ${enquiry.follow_up_notes || 'No notes flagged for this project.'}
-              </div>
-           </div>
+        <!-- Financials & Notes -->
+        <div style="margin-bottom: 20px; page-break-inside: avoid;">
+           <table style="width: 100%; border-collapse: collapse;">
+              <tr style="vertical-align: top;">
+                 <td style="width: 50%; padding-right: 15px;">
+                    <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">FINANCIAL OVERVIEW</div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                       <tr style="border-bottom: 1px solid ${borderColor};"><td style="padding: 5px 0; font-weight: bold; color: #64748b;">Budget Est.</td><td style="text-align: right; font-weight: bold;">KES ${formatCurrency(enquiry.estimated_budget || 0)}</td></tr>
+                       <tr style="border-bottom: 1px solid ${borderColor};"><td style="padding: 5px 0; font-weight: bold; color: #64748b;">Current Quote</td><td style="text-align: right; color: #9ca3af;">-</td></tr>
+                    </table>
+                 </td>
+                 <td style="width: 50%;">
+                    <div style="border-left: 3px solid #3b82f6; background-color: #eff6ff; color: #1e40af; font-weight: bold; padding: 4px 8px; margin-bottom: 8px; font-size: 11px;">NOTES</div>
+                    <div style="background: #fffbeb; border: 1px solid #fcd34d; padding: 8px; color: #b45309; border-radius: 4px; font-size: 10px;">
+                       ${enquiry.follow_up_notes || 'No critical notes.'}
+                    </div>
+                 </td>
+              </tr>
+           </table>
         </div>
 
         <!-- Footer -->
-        <div style="border-top: 1px solid #cbd5e1; margin-top: 40px; padding-top: 15px; display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
-           <div>
-              <strong>CONFIDENTIAL DOCUMENT</strong><br>
-              This document contains proprietary information.
-           </div>
-           <div style="text-align: right;">
-              System Generated • Page 1 of 1
-           </div>
+        <div style="border-top: 1px solid ${borderColor}; margin-top: 30px; padding-top: 10px; font-size: 9px; color: #94a3b8; text-align: center;">
+           Woodnork Green Ltd • Generated from System
         </div>
 
       </div>

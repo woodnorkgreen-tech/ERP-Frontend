@@ -2,38 +2,39 @@ import type { PaymentMethod, Classification, NullableString, NullableNumber } fr
 
 // Enhanced form data interfaces with strict typing and validation
 export interface CreateTopUpFormData {
-  readonly amount: number | string
-  readonly payment_method: PaymentMethod
-  readonly transaction_code?: NullableString
-  readonly description?: NullableString
+  amount: number | string
+  payment_method: PaymentMethod
+  transaction_code?: NullableString
+  description?: NullableString
+  date_topped_up?: string | null
 }
 
 export interface CreateDisbursementFormData {
-  readonly receiver: string
-  readonly account: string
-  readonly amount: number | string
-  readonly description: string
-  readonly project_name?: NullableString
-  readonly classification: Classification
-  readonly job_number?: NullableString
-  readonly payment_method: PaymentMethod
-  readonly transaction_code?: NullableString
-  readonly tax?: string // Optional tax field for UI purposes
-  readonly date_disbursed?: string | null
+  receiver: string
+  account: string
+  amount: number | string
+  description: string
+  project_name?: NullableString
+  classification: Classification
+  job_number?: NullableString
+  payment_method: PaymentMethod
+  transaction_code?: NullableString
+  tax?: string // Optional tax field for UI purposes
+  date_disbursed?: string | null
 }
 
 // Partial update interface with strict null safety
 export interface UpdateDisbursementFormData {
-  readonly receiver?: NullableString
-  readonly account?: NullableString
-  readonly amount?: number | string | null
-  readonly description?: NullableString
-  readonly project_name?: NullableString
-  readonly classification?: Classification | null
-  readonly job_number?: NullableString
-  readonly payment_method?: PaymentMethod | null
-  readonly transaction_code?: NullableString
-  readonly date_disbursed?: string | null
+  receiver?: NullableString
+  account?: NullableString
+  amount?: number | string | null
+  description?: NullableString
+  project_name?: NullableString
+  classification?: Classification | null
+  job_number?: NullableString
+  payment_method?: PaymentMethod | null
+  transaction_code?: NullableString
+  date_disbursed?: string | null
 }
 
 export interface VoidDisbursementFormData {
@@ -42,11 +43,11 @@ export interface VoidDisbursementFormData {
 
 // Enhanced form validation interfaces with strict typing
 export interface FormValidationErrors {
-  readonly [key: string]: ReadonlyArray<string>
+  [key: string]: string[]
 }
 
 export interface FormValidationWarnings {
-  readonly [key: string]: ReadonlyArray<string>
+  [key: string]: string[]
 }
 
 export interface FormValidationState {
@@ -197,8 +198,8 @@ export interface ValidationRules {
 // Enhanced validation result interface
 export interface ValidationResult {
   readonly isValid: boolean
-  readonly errors: ReadonlyArray<string>
-  readonly warnings: ReadonlyArray<string>
+  readonly errors: string[]
+  readonly warnings: string[]
   readonly field: string
   readonly value: unknown
 }

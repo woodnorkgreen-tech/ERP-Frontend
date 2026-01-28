@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { BudgetService } from '../services/budgetService'
-import type { BudgetData, BudgetMaterialItem, LabourType } from '../services/budgetService'
+import type { BudgetData, BudgetMaterialItem, LabourType, BudgetElement, ExpenseItem, LogisticsItem } from '../services/budgetService'
 
 export function useBudgetOperations(state: any, task: any, emit: any, initialTab?: string) {
   const activeTab = ref(initialTab || 'materials')
@@ -11,7 +11,7 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
     { key: 'expenses', label: 'Expenses' },
     { key: 'logistics', label: 'Logistics' },
     { key: 'summary', label: 'Summary' },
-    { key: 'additions', label: 'Additions' },
+    { key: 'comparison', label: 'Comparison' },
   ]
 
   // Load existing budget data
@@ -72,15 +72,11 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
 
   // Import materials from Materials Task
   const importMaterials = async (forceReimport = false) => {
-    if (!forceReimport && state.formData.materials && state.formData.materials.length > 0) {
-      return
-    }
-
     state.isImporting = true
     state.error = null
 
     try {
-      const budgetData = await BudgetService.importMaterials(task.id)
+      const budgetData = await BudgetService.importMaterials(task.id, forceReimport)
 
       // Update form data with imported materials
       state.formData.materials = budgetData.materials
@@ -192,7 +188,7 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
 
   // Remove labour item
   const removeLabourItem = (id: string) => {
-    state.formData.labour = state.formData.labour.filter((item) => item.id !== id)
+    state.formData.labour = state.formData.labour.filter((item: LabourType) => item.id !== id)
   }
 
   // Add expense
@@ -333,7 +329,8 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
           logisticsTotal: state.logisticsTotal,
           grandTotal: state.grandTotal,
         },
-        status: state.formData.status,
+        status: 'draft', // Ensure it stays as draft
+        taskId: task.id,
       }
 
       // Validate data integrity before saving
@@ -343,7 +340,7 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
         return
       }
 
-      await BudgetService.submitForApproval(task.id)
+      await BudgetService.saveBudgetData(task.id, budgetData)
       state.successMessage = 'Budget draft saved successfully!'
       setTimeout(() => {
         state.successMessage = null
@@ -402,13 +399,13 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
 
     try {
       // Calculate totals directly from form data to ensure they're accurate
-      const materialsTotal = state.formData.materials?.reduce((total, element) => {
-        return total + (element.materials?.reduce((sum, material) => sum + (material.totalPrice || 0), 0) || 0)
+      const materialsTotal = state.formData.materials?.reduce((total: number, element: BudgetElement) => {
+        return total + (element.materials?.reduce((sum: number, material: BudgetMaterialItem) => sum + (material.totalPrice || 0), 0) || 0)
       }, 0) || 0
 
-      const labourTotal = state.formData.labour?.reduce((total, item) => total + (item.amount || 0), 0) || 0
-      const expensesTotal = state.formData.expenses?.reduce((total, item) => total + (item.amount || 0), 0) || 0
-      const logisticsTotal = state.formData.logistics?.reduce((total, item) => total + (item.amount || 0), 0) || 0
+      const labourTotal = state.formData.labour?.reduce((total: number, item: LabourType) => total + (item.amount || 0), 0) || 0
+      const expensesTotal = state.formData.expenses?.reduce((total: number, item: ExpenseItem) => total + (item.amount || 0), 0) || 0
+      const logisticsTotal = state.formData.logistics?.reduce((total: number, item: LogisticsItem) => total + (item.amount || 0), 0) || 0
       const grandTotal = materialsTotal + labourTotal + expensesTotal + logisticsTotal
 
       console.log('Budget submission totals:', {

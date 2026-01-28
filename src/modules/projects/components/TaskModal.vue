@@ -45,7 +45,8 @@
             <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Assigned To</p>
             
             <!-- Claim Button or Assigned Name -->
-            <div v-if="!isAssigned(task)" class="flex justify-end">
+            <!-- Claim button temporarily disabled -->
+            <!-- <div v-if="!isAssigned(task)" class="flex justify-end">
                <button 
                   @click="claimTask" 
                   :disabled="isClaiming"
@@ -55,7 +56,7 @@
                   <i v-else class="mdi mdi-hand-back-right"></i>
                   {{ isClaiming ? 'Claiming...' : 'Claim Task' }}
                </button>
-            </div>
+            </div> -->
               <button 
                 v-if="canRelease(task)" 
                 @click="releaseTask"

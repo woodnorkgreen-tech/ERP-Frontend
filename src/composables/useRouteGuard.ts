@@ -214,19 +214,27 @@ export function useRouteGuard() {
       return
     }
 
-    // Production users go to Production module
+    // Production users go to Production dashboard
     if (userRoles.includes('Production')) {
-      router.push('/production/work-orders')
+      router.push('/production/dashboard')
       return
     }
 
-    // Logistics, Stores, and Procurement users go to projects dashboard
-    // (temporary until their dedicated modules are developed)
-    if (userRoles.includes('Logistics') ||
-      userRoles.includes('Stores') ||
-      userRoles.includes('Designer') ||
-      userRoles.includes('Procurement')) {
+    // Logistics & Designers go to projects dashboard
+    if (userRoles.includes('Logistics') || userRoles.includes('Designer')) {
       router.push('/projects/dashboard')
+      return
+    }
+
+    // Stores users go to stores dashboard
+    if (userRoles.includes('Stores')) {
+      router.push('/stores/dashboard')
+      return
+    }
+
+    // Procurement users go to procurement dashboard
+    if (userRoles.includes('Procurement')) {
+      router.push('/procurement/dashboard')
       return
     }
 
@@ -297,7 +305,10 @@ export function useRouteGuard() {
         {
           department: 'Production',
           routes: [
-            { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' }
+            { name: 'production-dashboard', path: '/production/dashboard', label: 'Production Dashboard', icon: 'mdi-view-dashboard' },
+            { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' },
+            { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' },
+            { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
           ]
         },
         {
@@ -346,13 +357,12 @@ export function useRouteGuard() {
         { name: 'admin-departments', path: '/admin/departments', label: 'Department Management', icon: 'mdi-office-building' }
       )
     }
-    // HR gets HR routes + Projects access
+    // HR gets HR routes + Production Reports access
     else if (userRoles.includes('HR')) {
       routes.push(
         { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
         { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
-        { name: 'projects-dashboard', path: '/projects/dashboard', label: 'Project Dashboard', icon: 'mdi-chart-line' },
-        // { name: 'projects-enquiries', path: '/projects/enquiries', label: 'Project Enquiries', icon: 'mdi-file-document-edit' }
+        { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
       )
     }
 
@@ -377,7 +387,34 @@ export function useRouteGuard() {
     // Add production routes for authorized users (skip for Super Admin as they're already included in departments)
     if (userRoles.includes('Production') && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' }
+        { name: 'production-dashboard', path: '/production/dashboard', label: 'Production Dashboard', icon: 'mdi-view-dashboard' },
+        { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' },
+        { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' }
+      )
+    }
+
+    // Add stores routes
+    if (userRoles.includes('Stores') && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'stores-dashboard', path: '/stores/dashboard', label: 'Stores Dashboard', icon: 'mdi-view-dashboard-variant' },
+        { name: 'stores-materials-library', path: '/stores/materials-library', label: 'Materials Library', icon: 'mdi-library-shelves' },
+        { name: 'stores-check-in', path: '/stores/check-in', label: 'Check Inns (GRN)', icon: 'mdi-package-variant-closed' },
+        { name: 'stores-check-out', path: '/stores/check-out', label: 'Check Outs (Issues)', icon: 'mdi-truck-delivery' },
+        { name: 'stores-returns', path: '/stores/returns', label: 'Stock Returns', icon: 'mdi-keyboard-return' },
+        { name: 'stores-defective', path: '/stores/defective', label: 'Defective & Repairs', icon: 'mdi-alert-circle-outline' },
+        { name: 'stores-alerts', path: '/stores/alerts', label: 'Inventory Alerts', icon: 'mdi-bell-ring-outline' }
+      )
+    }
+
+    // Add procurement routes
+    if (userRoles.includes('Procurement') && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'procurement-dashboard', path: '/procurement/dashboard', label: 'Procurement Dashboard', icon: 'mdi-shopping' },
+        { name: 'procurement-suppliers', path: '/procurement/suppliers', label: 'Suppliers & Vendors', icon: 'mdi-account-star-outline' },
+        { name: 'procurement-requisitions', path: '/procurement/requisitions', label: 'Stock Requisitions', icon: 'mdi-file-plus-outline' },
+        { name: 'procurement-purchase-orders', path: '/procurement/purchase-orders', label: 'Purchase Orders (LPOs)', icon: 'mdi-file-sign' },
+        { name: 'procurement-goods-receipt', path: '/procurement/goods-receipt', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' },
+        { name: 'procurement-billing', path: '/procurement/billing', label: 'Billing', icon: 'mdi-clipboard-check-outline' }
       )
     }
 
@@ -408,9 +445,14 @@ export function useRouteGuard() {
       return 'Admin Panel'
     }
 
+    // Production
+    if (userRoles.includes('Production')) {
+      return 'Events Fabrication'
+    }
+
     // HR
     if (userRoles.includes('HR')) {
-      return 'HR Panel'
+      return 'Human Resources'
     }
 
     // Check feature access in priority order
@@ -448,6 +490,11 @@ export function useRouteGuard() {
     // Admin
     if (userRoles.includes('Admin')) {
       return 'System Administration'
+    }
+
+    // Production
+    if (userRoles.includes('Production')) {
+      return 'Events & Fabrication Management'
     }
 
     // HR

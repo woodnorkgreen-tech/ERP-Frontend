@@ -1,6 +1,6 @@
-import type { 
-  PettyCashBalance, 
-  PettyCashTopUp, 
+import type {
+  PettyCashBalance,
+  PettyCashTopUp,
   PettyCashDisbursement,
   TransactionSummary,
   SpendingAnalytics,
@@ -17,8 +17,8 @@ import type {
   ThresholdData,
   HealthIndicators
 } from '../types/pettyCash'
-import type { 
-  CreateTopUpFormData, 
+import type {
+  CreateTopUpFormData,
   CreateDisbursementFormData,
   VoidDisbursementFormData,
   TopUpFormState,
@@ -27,7 +27,7 @@ import type {
   FilterFormData,
   SearchFormData
 } from '../types/forms'
-import type { 
+import type {
   DeepReadonly,
   SafeArray,
   ComponentStateManager,
@@ -190,6 +190,31 @@ export const defaultPaymentMethodBreakdown: PaymentMethodBreakdown = {
     total_amount: 0,
     average_amount: 0
   },
+  equity: {
+    count: 0,
+    total_amount: 0,
+    average_amount: 0
+  },
+  stanbic: {
+    count: 0,
+    total_amount: 0,
+    average_amount: 0
+  },
+  ncba: {
+    count: 0,
+    total_amount: 0,
+    average_amount: 0
+  },
+  kcb: {
+    count: 0,
+    total_amount: 0,
+    average_amount: 0
+  },
+  family: {
+    count: 0,
+    total_amount: 0,
+    average_amount: 0
+  },
   bank_transfer: {
     count: 0,
     total_amount: 0,
@@ -215,7 +240,8 @@ export const defaultTopUpFormData: CreateTopUpFormData = {
   amount: '',
   payment_method: 'cash',
   transaction_code: '',
-  description: ''
+  description: '',
+  date_topped_up: new Date().toISOString().split('T')[0]
 }
 
 export const defaultDisbursementFormData: CreateDisbursementFormData = {
@@ -240,10 +266,16 @@ export const defaultTopUpFormState: TopUpFormState = {
   validation: {
     isValid: false,
     errors: {},
-    touched: {}
+    touched: {},
+    dirty: {},
+    validating: {}
   },
   isSubmitting: false,
-  isValid: false
+  isValid: false,
+  isDirty: false,
+  hasErrors: false,
+  hasWarnings: false,
+  submitAttempts: 0
 }
 
 export const defaultDisbursementFormState: DisbursementFormState = {
@@ -251,12 +283,20 @@ export const defaultDisbursementFormState: DisbursementFormState = {
   validation: {
     isValid: false,
     errors: {},
-    touched: {}
+    touched: {},
+    dirty: {},
+    validating: {}
   },
   isSubmitting: false,
   isValid: false,
+  isDirty: false,
+  hasErrors: false,
+  hasWarnings: false,
+  submitAttempts: 0,
   availableTopUps: [],
-  selectedTopUpBalance: 0
+  selectedTopUpBalance: 0,
+  insufficient_balance: false,
+  balance_warning_threshold: 500
 }
 
 export const defaultVoidFormState: VoidFormState = {
@@ -264,10 +304,18 @@ export const defaultVoidFormState: VoidFormState = {
   validation: {
     isValid: false,
     errors: {},
-    touched: {}
+    touched: {},
+    dirty: {},
+    validating: {}
   },
   isSubmitting: false,
-  isValid: false
+  isValid: false,
+  isDirty: false,
+  hasErrors: false,
+  hasWarnings: false,
+  submitAttempts: 0,
+  disbursement_id: 0,
+  current_status: 'active'
 }
 
 // Default filter data
@@ -436,17 +484,17 @@ export const mergeWithDefaults = <T extends Record<string, unknown>>(
   }
 
   const merged = { ...defaultData } as T
-  
+
   Object.keys(actualData).forEach(key => {
     const value = actualData[key as keyof T]
     if (value !== null && value !== undefined) {
-      if (typeof value === 'object' && 
-          !Array.isArray(value) && 
-          typeof defaultData[key as keyof T] === 'object' &&
-          defaultData[key as keyof T] !== null) {
+      if (typeof value === 'object' &&
+        !Array.isArray(value) &&
+        typeof defaultData[key as keyof T] === 'object' &&
+        defaultData[key as keyof T] !== null) {
         // Recursively merge nested objects
         merged[key as keyof T] = mergeWithDefaults(
-          defaultData[key as keyof T] as Record<string, unknown>, 
+          defaultData[key as keyof T] as Record<string, unknown>,
           value as Record<string, unknown>
         ) as T[keyof T]
       } else {
@@ -469,7 +517,7 @@ export const createSafeArray = <T>(
   }
 
   const safeArray = [...data]
-  
+
   // Ensure minimum length
   while (safeArray.length < minLength) {
     safeArray.push({ ...defaultItem } as T)

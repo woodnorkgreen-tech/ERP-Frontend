@@ -71,6 +71,20 @@
                 </svg>
                 {{ isRefreshing ? 'Refreshing...' : 'Refresh All' }}
               </button>
+              
+              <!-- Clear All Button (New) -->
+              <button
+                v-if="permissions.canManageSettings"
+                @click="handleClearAll"
+                :disabled="isRefreshing"
+                class="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-900/50 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
+                title="Reset all petty cash data"
+              >
+                <svg class="-ml-1 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Clear All
+              </button>
             </div>
           </div>
 
@@ -561,7 +575,7 @@ const handleRefreshAll = async () => {
   
   try {
     // Check permissions before refreshing
-    permissions.requirePermission('petty_cash.view')
+    permissions.requirePermission('finance.petty_cash.view')
     
     await withErrorHandling(async () => {
       await store.refreshAll()
@@ -570,6 +584,25 @@ const handleRefreshAll = async () => {
     handleError(error, { context: 'refresh_all' })
   } finally {
     isRefreshing.value = false
+  }
+}
+
+
+
+const handleClearAll = async () => {
+  if (confirm('CRITICAL WARNING: This will permanently delete ALL top-ups and disbursements. The current balance will be reset to zero. This action CANNOT be undone. Are you absolutely sure?')) {
+    if (confirm('Please confirm ONE LAST TIME that you want to reset the entire Petty Cash system.')) {
+      try {
+        isInitialLoading.value = true
+        await store.clearAllPettyCashData()
+        alert('Petty Cash system has been successfully reset.')
+      } catch (error: any) {
+        console.error('Failed to clear all data:', error)
+        handleError(error, { context: 'clear_all_data' })
+      } finally {
+        isInitialLoading.value = false
+      }
+    }
   }
 }
 
@@ -731,7 +764,7 @@ const onUploadSuccess = async () => {
 const editDisbursement = async (disbursement: PettyCashDisbursement) => {
   try {
     // Check permissions before opening edit modal
-    permissions.requirePermission('petty_cash.edit_disbursement')
+    permissions.requirePermission('finance.petty_cash.edit_disbursement')
     
     // Prevent modal conflicts
     if (activeModal.value && activeModal.value !== 'edit') {
@@ -752,7 +785,7 @@ const editDisbursement = async (disbursement: PettyCashDisbursement) => {
 const voidDisbursement = async (disbursement: PettyCashDisbursement) => {
   try {
     // Check permissions before opening void modal
-    permissions.requirePermission('petty_cash.void_disbursement')
+    permissions.requirePermission('finance.petty_cash.void_disbursement')
     
     // Prevent modal conflicts
     if (activeModal.value && activeModal.value !== 'void') {
@@ -773,7 +806,7 @@ const voidDisbursement = async (disbursement: PettyCashDisbursement) => {
 const deleteDisbursement = async (disbursement: PettyCashDisbursement) => {
   try {
     // Check permissions before opening delete modal
-    permissions.requirePermission('petty_cash.delete_disbursement')
+    permissions.requirePermission('finance.petty_cash.delete_disbursement')
     
     // Prevent modal conflicts
     if (activeModal.value && activeModal.value !== 'delete') {
@@ -934,7 +967,7 @@ const handleReset = async () => {
 const initializeComponent = async () => {
   try {
     // Check basic view permissions
-    permissions.requirePermission('petty_cash.view')
+    permissions.requirePermission('finance.petty_cash.view')
     
     // Use nextTick to ensure component is fully mounted
     await nextTick()

@@ -373,20 +373,6 @@
                     <tr v-for="material in element.materials" :key="material.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td class="py-3 px-4 pl-8">
                         <div class="flex items-center space-x-2">
-                           <!-- Visibility Toggle -->
-                           <div class="relative flex items-center group/tooltip mr-2">
-                              <input 
-                                type="checkbox" 
-                                v-model="material.isVisible" 
-                                @change="updateMaterialElementTotals(); calculateAllTotals(); markDirty()"
-                                :readonly="props.readonly"
-                                class="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
-                              >
-                              <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[9px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                                Show Item
-                              </div>
-                            </div>
-
                           <span v-if="material.isAddition" class="bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded-full">Addition</span>
                           <span class="text-gray-900 dark:text-white font-medium">{{ material.description }}</span>
                         </div>
@@ -458,13 +444,29 @@
               <tbody>
                 <tr v-for="labour in quoteData.labour" :key="labour.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex flex-col gap-1">
-                      <input 
-                        v-model="labour.type" 
-                        @input="markDirty()"
-                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
-                      >
-                      <span v-if="labour.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex items-start gap-2">
+                       <!-- Visibility Toggle -->
+                       <div class="relative flex items-center group/tooltip mt-1">
+                          <input 
+                            type="checkbox" 
+                            v-model="labour.isVisible" 
+                            @change="calculateAllTotals(); markDirty()"
+                            :readonly="props.readonly"
+                            class="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                          >
+                          <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[9px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                            Show Item
+                          </div>
+                        </div>
+
+                      <div class="flex flex-col gap-1 w-full">
+                        <input 
+                          v-model="labour.type" 
+                          @input="markDirty()"
+                          class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                        >
+                        <span v-if="labour.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                      </div>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize">{{ labour.unit }}</td>
@@ -536,13 +538,29 @@
               <tbody>
                 <tr v-for="expense in quoteData.expenses" :key="expense.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex flex-col gap-1">
-                      <input 
-                        v-model="expense.description" 
-                        @input="markDirty()"
-                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
-                      >
-                      <span v-if="expense.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex items-start gap-2">
+                       <!-- Visibility Toggle -->
+                       <div class="relative flex items-center group/tooltip mt-1">
+                          <input 
+                            type="checkbox" 
+                            v-model="expense.isVisible" 
+                            @change="calculateAllTotals(); markDirty()"
+                            :readonly="props.readonly"
+                            class="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                          >
+                          <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[9px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                            Show Item
+                          </div>
+                        </div>
+
+                      <div class="flex flex-col gap-1 w-full">
+                        <input 
+                          v-model="expense.description" 
+                          @input="markDirty()"
+                          class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                        >
+                        <span v-if="expense.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                      </div>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 capitalize font-medium">{{ expense.category }}</td>
@@ -608,13 +626,29 @@
               <tbody>
                 <tr v-for="logistics in quoteData.logistics" :key="logistics.id" class="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td class="py-3 px-4">
-                    <div class="flex flex-col gap-1">
-                      <input 
-                        v-model="logistics.description" 
-                        @input="markDirty()"
-                        class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
-                      >
-                      <span v-if="logistics.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                    <div class="flex items-start gap-2">
+                       <!-- Visibility Toggle -->
+                       <div class="relative flex items-center group/tooltip mt-1">
+                          <input 
+                            type="checkbox" 
+                            v-model="logistics.isVisible" 
+                            @change="calculateAllTotals(); markDirty()"
+                            :readonly="props.readonly"
+                            class="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                          >
+                          <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-[9px] font-medium text-white bg-gray-900 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                            Show Item
+                          </div>
+                        </div>
+
+                      <div class="flex flex-col gap-1 w-full">
+                        <input 
+                          v-model="logistics.description" 
+                          @input="markDirty()"
+                          class="text-gray-900 dark:text-white font-medium bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded px-1 -ml-1 text-sm w-full"
+                        >
+                        <span v-if="logistics.isAddition" class="w-fit bg-orange-100/50 text-orange-800 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Addition</span>
+                      </div>
                     </div>
                   </td>
                   <td class="py-3 px-4 text-gray-600 dark:text-gray-400 font-bold tracking-tight">{{ logistics.vehicleReg }}</td>
@@ -1177,6 +1211,10 @@ interface ProjectInfo {
   setupDate: string
   /** Date when project set down occurs (ISO date string or "tbc") */
   setDownDate: string
+  /** High-level project description */
+  description?: string
+  /** Array of project scope/deliverables */
+  projectScope?: any[]
 }
 
 /**
@@ -1263,6 +1301,8 @@ interface QuoteLabourItem {
   marginAmount: number
   /** Final price including margin */
   finalPrice: number
+  /** Whether the item should be visible in the final quote */
+  isVisible?: boolean
 }
 
 /**
@@ -1285,6 +1325,8 @@ interface QuoteExpenseItem {
   marginAmount: number
   /** Final price including margin */
   finalPrice: number
+  /** Whether the item should be visible in the final quote */
+  isVisible?: boolean
 }
 
 /**
@@ -1313,6 +1355,8 @@ interface QuoteLogisticsItem {
   marginAmount: number
   /** Final price including margin */
   finalPrice: number
+  /** Whether the item should be visible in the final quote */
+  isVisible?: boolean
 }
 
 /**
@@ -1616,7 +1660,9 @@ const projectInfo = computed(() => {
     clientName: enquiry?.client?.full_name || enquiry?.contact_person || quoteData.projectInfo?.clientName || 'Client Name',
     eventVenue: enquiry?.venue || quoteData.projectInfo?.eventVenue || 'Venue TBC',
     setupDate: enquiry?.expected_delivery_date || quoteData.projectInfo?.setupDate || new Date().toISOString(),
-    setDownDate: quoteData.projectInfo?.setDownDate || 'TBC'
+    setDownDate: quoteData.projectInfo?.setDownDate || 'TBC',
+    description: enquiry?.description || quoteData.projectInfo?.description || '',
+    projectScope: enquiry?.project_scope || quoteData.projectInfo?.projectScope || []
   }
 })
 
@@ -1783,6 +1829,8 @@ watch(
     totals: quoteData.totals
   }),
   () => {
+    // When visibility or other data changes, recalculate everything
+    calculateAllTotals()
     autoSaveQuote()
   },
   { deep: true }
@@ -2164,36 +2212,39 @@ const calculateAllTotals = () => {
   )
 
   // Labour totals (sum from individual labour items)
+  const visibleLabour = quoteData.labour.filter(l => l.isVisible !== false)
   quoteData.totals.labourBase = roundCurrency(
-    quoteData.labour.reduce((sum, labour) => sum + labour.amount, 0)
+    visibleLabour.reduce((sum, labour) => sum + (labour.amount || 0), 0)
   )
   quoteData.totals.labourMargin = roundCurrency(
-    quoteData.labour.reduce((sum, labour) => sum + (labour.marginAmount || 0), 0)
+    visibleLabour.reduce((sum, labour) => sum + (labour.marginAmount || 0), 0)
   )
   quoteData.totals.labourTotal = roundCurrency(
-    quoteData.labour.reduce((sum, labour) => sum + (labour.finalPrice || 0), 0)
+    visibleLabour.reduce((sum, labour) => sum + (labour.finalPrice || 0), 0)
   )
 
   // Expenses totals (sum from individual expense items)
+  const visibleExpenses = quoteData.expenses.filter(e => e.isVisible !== false)
   quoteData.totals.expensesBase = roundCurrency(
-    quoteData.expenses.reduce((sum, expense) => sum + expense.amount, 0)
+    visibleExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0)
   )
   quoteData.totals.expensesMargin = roundCurrency(
-    quoteData.expenses.reduce((sum, expense) => sum + expense.marginAmount, 0)
+    visibleExpenses.reduce((sum, expense) => sum + (expense.marginAmount || 0), 0)
   )
   quoteData.totals.expensesTotal = roundCurrency(
-    quoteData.expenses.reduce((sum, expense) => sum + expense.finalPrice, 0)
+    visibleExpenses.reduce((sum, expense) => sum + (expense.finalPrice || 0), 0)
   )
 
   // Logistics totals (sum from individual logistics items)
+  const visibleLogistics = quoteData.logistics.filter(l => l.isVisible !== false)
   quoteData.totals.logisticsBase = roundCurrency(
-    quoteData.logistics.reduce((sum, logistics) => sum + logistics.amount, 0)
+    visibleLogistics.reduce((sum, logistics) => sum + (logistics.amount || 0), 0)
   )
   quoteData.totals.logisticsMargin = roundCurrency(
-    quoteData.logistics.reduce((sum, logistics) => sum + logistics.marginAmount, 0)
+    visibleLogistics.reduce((sum, logistics) => sum + (logistics.marginAmount || 0), 0)
   )
   quoteData.totals.logisticsTotal = roundCurrency(
-    quoteData.logistics.reduce((sum, logistics) => sum + logistics.finalPrice, 0)
+    visibleLogistics.reduce((sum, logistics) => sum + (logistics.finalPrice || 0), 0)
   )
 
   // Grand totals

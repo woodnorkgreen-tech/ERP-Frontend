@@ -171,7 +171,7 @@
 
       <!-- Read-Only View -->
       <div v-if="readonly">
-         <TaskDataViewer :task="task" />
+         <TaskDataViewer :task="task" @edit="toggleEditMode" />
       </div>
 
       <!-- Edit Form -->
@@ -212,6 +212,7 @@
                   @check-updates="checkMaterialsUpdates"
                   @re-import-materials="reImportMaterials"
                   @calculate-material-total="calculateMaterialTotal"
+                  @switch-tab="activeTab = $event"
                />
             </div>
             <div v-show="activeTab === 'labour'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -243,6 +244,14 @@
                   :labour-total="labourTotal"
                   :expenses-total="expensesTotal"
                   :logistics-total="logisticsTotal"
+                  :grand-total="grandTotal"
+                  :baseline-total="baselineTotal"
+               />
+            </div>
+            <div v-show="activeTab === 'comparison'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+               <BudgetComparisonTab
+                  :current-data="state.formData"
+                  :task-id="task.id"
                   :grand-total="grandTotal"
                />
             </div>
@@ -348,7 +357,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
 import { useVersioning } from '@/composables/useVersioning'
 import { useBudgetState } from '../../composables/useBudgetState'
 import { useBudgetOperations } from '../../composables/useBudgetOperations'
@@ -360,10 +369,12 @@ import BudgetLabourTab from './BudgetLabourTab.vue'
 import BudgetExpensesTab from './BudgetExpensesTab.vue'
 import BudgetLogisticsTab from './BudgetLogisticsTab.vue'
 import BudgetSummaryTab from './BudgetSummaryTab.vue'
+import BudgetComparisonTab from './BudgetComparisonTab.vue'
 import VersionHistoryModal from '../shared/VersionHistoryModal.vue'
 import CreateVersionButton from '../shared/CreateVersionButton.vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import api from '@/plugins/axios'
+import lodash from 'lodash'
 
 interface Props {
   task: EnquiryTask
@@ -479,6 +490,28 @@ const {
   handleSubmit,
 } = useBudgetOperations(state, props.task, emit, props.initialTab)
 
+// --- INTELLIGENT AUTO-SAVE ---
+// Debounced save to persist changes while user is typing/editing
+// This prevents data loss when navigating away to "Materials Task"
+const debouncedSave = lodash.debounce(async () => {
+  if (!readonly.value && (state.formData.status as string) !== 'completed' && !state.isLoading) {
+    await saveDraft()
+  }
+}, 2000) // 2 second delay
+
+// Watch for changes in form data with deep observation
+watch(() => state.formData, (newVal, oldVal) => {
+  if (!state.isLoading && !state.isImporting) {
+    debouncedSave()
+  }
+}, { deep: true })
+
+// Ensure we save immediately if they leave the component
+onBeforeUnmount(async () => {
+  debouncedSave.flush() // Force any pending save to execute
+})
+// -----------------------------
+
 // Version Management
 const showVersionHistory = ref(false)
 const {
@@ -486,6 +519,7 @@ const {
   isLoading: versionsLoading,
   error: versionsError,
   fetchVersions,
+  fetchVersion,
   createVersion,
   restoreVersion,
 } = useVersioning(computed(() => props.task.id), 'budget')
@@ -535,11 +569,80 @@ const checkMaterialsUpdateStatus = async () => {
     const response = await api.get(`/api/projects/tasks/${props.task.id}/budget/check-materials-update`)
     if (response.data?.data) {
       materialsUpdateStatus.value = response.data.data
+      // Also update state for useBudgetState to see obsolete IDs
+      state.materialsUpdateCheck = response.data.data
     }
   } catch (error) {
     console.error('Failed to check materials update status:', error)
   }
 }
+
+const baselineTotal = computed(() => {
+   // 1. PRIORITIZE SNAPSHOT: If we have historical snapshots, use the latest one as the primary baseline
+   if (budgetVersions.value && budgetVersions.value.length > 0) {
+      const latest = budgetVersions.value[0]
+      const data = (latest.data || latest) as any
+      const summary = data.budget_summary || data.budgetSummary
+      
+      if (summary && (summary.grandTotal > 0 || summary.grand_total > 0)) {
+         return summary.grandTotal || summary.grand_total
+      }
+      
+      // Manual sum if summary missing in snapshot
+      let total = 0
+      const materials = data.materials_data || data.materials || []
+      materials.forEach((el: any) => {
+         el.materials?.forEach((m: any) => {
+            if (m.isIncluded || m.is_included !== false) {
+               total += (m.totalPrice || ((m.quantity || 0) * (m.unitPrice || 0)))
+            }
+         })
+      })
+      const lab = (data.labour_data || data.labour || []).reduce((s: any, i: any) => s + (i.amount || 0), 0)
+      const log = (data.logistics_data || data.logistics || []).reduce((s: any, i: any) => s + (i.amount || 0), 0)
+      const exp = (data.expenses_data || data.expenses || []).reduce((s: any, i: any) => s + (i.amount || 0), 0)
+      return total + lab + log + exp
+   }
+
+   // 2. FALLBACK TO MASTER MQ: If no snapshots exist, compare against HQ design
+   const analysis = materialsUpdateStatus.value as any
+   if (!analysis || !analysis.analysis?.analysis_raw_materials) return grandTotal.value
+
+   const masterMaterials = analysis.analysis.analysis_raw_materials
+   let total = 0
+
+   const pricingMap = new Map()
+   state.formData.materials.forEach((el: any) => {
+      el.materials?.forEach((m: any) => {
+         if (m.isIncluded !== false) {
+            let key = m.persistent_id
+            if (!key) {
+               const eName = el.name.toLowerCase().replace(/\s+/g, '')
+               const mDesc = m.description.toLowerCase().replace(/\s+/g, '')
+               key = `legacy_${eName}_${mDesc}`
+            }
+            pricingMap.set(key, m.unitPrice || 0)
+         }
+      })
+   })
+
+   masterMaterials.forEach((el: any) => {
+      el.materials?.forEach((m: any) => {
+         let key = m.persistent_id
+         if (!key) {
+            const eName = el.name.toLowerCase().replace(/\s+/g, '')
+            const mDesc = m.description.toLowerCase().replace(/\s+/g, '')
+            key = `legacy_${eName}_${mDesc}`
+         }
+         const priceAtBudget = pricingMap.get(key)
+         if (priceAtBudget !== undefined) {
+             total += (m.quantity || 0) * priceAtBudget
+         }
+      })
+   })
+
+   return total + labourTotal.value + expensesTotal.value + logisticsTotal.value
+})
 
 const refreshFromMaterials = async () => {
   if (!confirm('This will sync your budget with the latest approved materials.\n\n✅ Your pricing will be PRESERVED\n✅ Quantities will be updated\n✅ New materials will be added\n\nContinue?')) {
@@ -557,7 +660,8 @@ const refreshFromMaterials = async () => {
     setTimeout(() => state.successMessage = '', 3000)
   } catch (error: any) {
     console.error('Sync failed:', error)
-    alert(error.message || 'Failed to refresh from materials')
+    state.error = error.response?.data?.message || error.message || 'Sync failed: Materials might need approval.'
+    state.successMessage = ''
   } finally {
     isRefreshing.value = false
   }
@@ -600,13 +704,32 @@ const handleRestoreVersion = async (versionId: number) => {
 }
 
 const handlePreviewVersion = async (version: any) => {
-  originalBudgetData.value = JSON.parse(JSON.stringify(state.formData))
-  if (version.data) {
-    Object.assign(state.formData, version.data)
+  try {
+    originalBudgetData.value = JSON.parse(JSON.stringify(state.formData))
+    
+    let versionWithData = version
+    if (!version.data) {
+      if (typeof fetchVersion === 'function') {
+        versionWithData = await fetchVersion(version.id)
+      }
+    }
+
+    if (versionWithData && versionWithData.data) {
+      const data = versionWithData.data
+      state.formData.materials = data.materials_data || data.materials || []
+      state.formData.labour = data.labour_data || data.labour || []
+      state.formData.expenses = data.expenses_data || data.expenses || []
+      state.formData.logistics = data.logistics_data || data.logistics || []
+      state.formData.projectInfo = data.project_info || data.projectInfo || state.formData.projectInfo
+      
+      isPreviewingVersion.value = true
+      previewingVersionLabel.value = version.label
+      previewingVersionId.value = version.id
+    }
+  } catch (error) {
+    console.error('Failed to preview version:', error)
+    alert('Failed to load version data for preview.')
   }
-  isPreviewingVersion.value = true
-  previewingVersionLabel.value = version.label
-  previewingVersionId.value = version.id
 }
 
 const exitPreview = async () => {

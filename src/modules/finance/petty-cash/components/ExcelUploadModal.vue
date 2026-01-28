@@ -45,6 +45,20 @@
                     <li>Accepted classification values: <strong>Admin, Agencies, Operations, Other</strong></li>
                     <li>Tax values: <strong>ETR, NO ETR</strong></li>
                   </ul>
+                  <div class="mt-4">
+                    <button 
+                      @click="downloadTemplate" 
+                      class="inline-flex items-center text-xs font-semibold text-blue-700 dark:text-blue-200 hover:text-blue-800 dark:hover:text-white underline"
+                    >
+                      <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                      </svg>
+                      Download Sample Template (.csv)
+                    </button>
+                    <p class="mt-1 text-[10px] text-blue-600/70 dark:text-blue-400/70">
+                      Tip: You can use CSV or copy the headers into an XLSX file.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -369,6 +383,14 @@ const uploadFile = async () => {
     uploadError.value = error.message || 'An error occurred during upload'
   } finally {
     isUploading.value = false
+  }
+}
+
+const downloadTemplate = async () => {
+  try {
+    await pettyCashService.downloadTemplate()
+  } catch (error: any) {
+    handleError(error, { context: 'download_template' })
   }
 }
 

@@ -3,6 +3,7 @@ import type { ProjectInfo } from './materialsService'
 
 export interface BudgetMaterialItem {
   id: string
+  persistent_id?: string
   description: string
   unitOfMeasurement: string
   quantity: number
@@ -20,6 +21,7 @@ export interface BudgetElement {
   templateId?: string
   elementType: string
   name: string
+  persistent_id?: string
   category: 'production' | 'hire' | 'outsourced'
   dimensions?: {
     length: string
@@ -88,12 +90,35 @@ export interface MaterialsImportInfo {
   }
 }
 
+export interface SyncAnalysisDetail {
+  status: 'added' | 'updated' | 'removed'
+  description: string
+  currentQty: number
+  newQty: number
+  unit: string
+  persistent_id?: string
+}
+
+export interface SyncAnalysis {
+  hasUpdate: boolean
+  summary: {
+    added: number
+    updated: number
+    removed: number
+    no_change: number
+  }
+  details: SyncAnalysisDetail[]
+  obsolete_persistent_ids: string[]
+  analysis_raw_materials?: BudgetElement[]
+}
+
 export interface MaterialsUpdateCheckResponse {
   has_updates: boolean
   last_import_at?: string
   materials_updated_at?: string
   materials_task_title?: string
   message: string
+  analysis?: SyncAnalysis
 }
 
 export interface BudgetData {
@@ -142,9 +167,19 @@ export class BudgetService {
   /**
    * Import materials from the materials task into budget
    */
-  static async importMaterials(taskId: number): Promise<BudgetData> {
-    const response = await axios.post(`/api/projects/tasks/${taskId}/budget/import-materials`)
-    return response.data.data
+  /**
+   * Import materials from the materials task into budget
+   */
+  static async importMaterials(taskId: number, force: boolean = false): Promise<BudgetData> {
+    try {
+      const response = await axios.post(`/api/projects/tasks/${taskId}/budget/import-materials`, { force })
+      return response.data.data
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      }
+      throw error
+    }
   }
 
   /**

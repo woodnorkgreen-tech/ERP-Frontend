@@ -198,9 +198,6 @@
                           <!-- Item Identity -->
                           <td class="px-6 py-5">
                              <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 shrink-0 border border-slate-200/50 dark:border-slate-600/50">
-                                   <i class="mdi mdi-cube-send text-xl"></i>
-                                </div>
                                 <div class="flex flex-col min-w-0">
                                    <span class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ element.name || element.description }}</span>
                                    <div class="flex items-center gap-2 mt-1">
