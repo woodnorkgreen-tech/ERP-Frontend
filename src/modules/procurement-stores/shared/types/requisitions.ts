@@ -20,6 +20,7 @@ export interface Requisition {
   }
   urgency: 'normal' | 'urgent'
   status: 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'completed'
+  total_amount: number
   items: RequisitionItem[]
   createdBy?: {
     id: number
@@ -39,6 +40,8 @@ export interface RequisitionItem {
     material_name: string
   }
   quantity: number
+  unit_price: number
+  total: number
   purpose: string
   reason?: string
   

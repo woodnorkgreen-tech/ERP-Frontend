@@ -4,7 +4,7 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/procurement/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
               <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
             </svg>
@@ -197,7 +197,9 @@
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Item</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">SKU</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Quantity</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Quantity</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Unit Price</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Reason</th>
               </tr>
@@ -206,11 +208,20 @@
               <tr v-for="item in requisition.items" :key="item.id">
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.material?.material_name }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.material?.material_code }}</td>
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
+                <td class="px-6 py-4 text-sm text-right text-gray-900 dark:text-white">{{ item.quantity }}</td>
+                <td class="px-6 py-4 text-sm text-right text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price || 0) }}</td>
+                <td class="px-6 py-4 text-sm text-right font-semibold text-gray-900 dark:text-white">KES {{ formatNumber(item.total || 0) }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.purpose }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.reason || 'N/A' }}</td>
               </tr>
             </tbody>
+            <tfoot class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <td colspan="4" class="px-6 py-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Total Amount:</td>
+                <td class="px-6 py-4 text-right text-base font-bold text-gray-900 dark:text-white">KES {{ formatNumber(calculateTotal()) }}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -340,6 +351,15 @@ const confirmDelete = async () => {
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Failed to delete requisition'
   }
+}
+
+const calculateTotal = () => {
+  if (!requisition.value.items || !Array.isArray(requisition.value.items)) return 0
+  return requisition.value.items.reduce((sum: number, item: any) => sum + (item.total || 0), 0)
+}
+
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat().format(num)
 }
 
 const formatDate = (date: string) => {

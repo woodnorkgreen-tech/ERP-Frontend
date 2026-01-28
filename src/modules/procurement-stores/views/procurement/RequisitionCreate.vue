@@ -4,7 +4,7 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/procurement/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
               <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
             </svg>
@@ -167,6 +167,18 @@
           />
         </div>
 
+        <!-- Total Amount -->
+        <div class="mb-6">
+          <div class="flex justify-end">
+            <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
+              <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
+              <div class="text-2xl font-bold text-gray-900 dark:text-white">
+                KES {{ formatNumber(totalAmount) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Error Message -->
         <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
@@ -200,11 +212,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import type { RequisitionItem } from '../../shared/types/requisitions'
 import RequisitionItemsTable from '../../components/RequisitionItemsTable.vue'
+
 const router = useRouter()
 
 const loading = ref(false)
@@ -225,11 +238,14 @@ const formData = ref({
   items: [] as RequisitionItem[]
 })
 
+const totalAmount = computed(() => {
+  return formData.value.items.reduce((sum, item) => sum + (item.total || 0), 0)
+})
+
 const fetchProjects = async () => {
   try {
     const response = await axios.get('/api/projects')
     projects.value = response.data.data.data || response.data.data || []
-    console.log('Projects loaded:', projects.value)
   } catch (e) {
     console.error('Failed to fetch projects:', e)
   }
@@ -257,6 +273,8 @@ const addItem = () => {
   formData.value.items.push({
     material_id: 0,
     quantity: 1,
+    unit_price: 0,
+    total: 0,
     purpose: '',
     reason: '',
     sku_search: '',
@@ -274,6 +292,10 @@ const removeItem = (index: number) => {
   formData.value.items.splice(index, 1)
 }
 
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat().format(num)
+}
+
 const handleSubmit = async () => {
   loading.value = true
   errorMessage.value = ''
@@ -285,6 +307,7 @@ const handleSubmit = async () => {
       items: formData.value.items.map(item => ({
         material_id: item.material_id,
         quantity: item.quantity,
+        unit_price: item.unit_price,
         purpose: item.purpose,
         reason: item.reason
       }))

@@ -4,7 +4,7 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/procurement/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
               <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
             </svg>
@@ -140,37 +140,69 @@
         </div>
 
         <!-- Items Table -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Order Items</h3>
-            <button
-              type="button"
-              @click="addItem"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              Add Item
-            </button>
-          </div>
+<div class="mb-6">
+  <div v-if="isFromRequisition" class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+    <p class="text-sm text-yellow-800 dark:text-yellow-200">
+      <strong>Note:</strong> This purchase order was created from a requisition. Items cannot be modified.
+    </p>
+  </div>
 
-          <PurchaseOrderItemsTable
-            :items="formData.items"
-            @update="updateItem"
-            @remove="removeItem"
-          />
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Order Items</h3>
 
-          <!-- Total -->
-          <div class="mt-4 flex justify-end">
-            <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                KES{{ formatNumber(totalAmount) }}
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Read-only items from requisition -->
+  <div v-if="isFromRequisition" class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Item</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Quantity</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Unit Price</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tr v-for="item in formData.items" :key="item.id">
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.material?.material_name }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price) }}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">KES {{ formatNumber(item.total) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Editable items (only for non-requisition POs) -->
+  <div v-else>
+    <div class="flex justify-between items-center mb-4">
+      <button
+        type="button"
+        @click="addItem"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
+      >
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Item
+      </button>
+    </div>
+
+    <PurchaseOrderItemsTable
+      :items="formData.items"
+      @update="updateItem"
+      @remove="removeItem"
+    />
+  </div>
+
+  <!-- Total -->
+  <div class="mt-4 flex justify-end">
+    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
+      <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-white">
+        KES {{ formatNumber(totalAmount) }}
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- Error Message -->
         <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -214,6 +246,7 @@ import PurchaseOrderItemsTable from '../../components/PurchaseOrderItemsTable.vu
 const router = useRouter()
 const route = useRoute()
 const id = route.params.id as string
+const isFromRequisition = ref(false)
 
 const loading = ref(false)
 const loadingData = ref(true)
@@ -243,6 +276,9 @@ const fetchPurchaseOrder = async () => {
     const response = await axios.get(`/api/procurement-stores/purchase-orders/${id}`)
     const data = response.data.data || response.data
     
+    // Check if this PO is from a requisition
+    isFromRequisition.value = !!data.requisition_id
+    
     formData.value = {
       date: data.date,
       supplier_id: data.supplier_id,
@@ -269,7 +305,6 @@ const fetchPurchaseOrder = async () => {
     loadingData.value = false
   }
 }
-
 const fetchSuppliers = async () => {
   try {
     const response = await axios.get('/api/procurement-stores/suppliers')
@@ -352,4 +387,5 @@ onMounted(async () => {
     fetchSuppliers()
   ])
 })
+
 </script>

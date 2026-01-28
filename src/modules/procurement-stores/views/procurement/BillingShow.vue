@@ -4,7 +4,7 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/procurement/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
               <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
             </svg>
@@ -46,7 +46,7 @@
           Print
         </button>
         <button
-          v-if="bill.balance > 0"
+          v-if="totalSelectedBalance > 0"
           @click="openPaymentModal"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center"
         >
@@ -92,17 +92,138 @@
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Bill Number</label>
             <p class="text-base font-medium text-gray-900 dark:text-white">{{ bill.bill_number }}</p>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">PO Number</label>
-            <router-link 
-              v-if="bill.purchase_order?.id" 
-              :to="`/procurement/purchase-order/${bill.purchase_order.id}`" 
-              class="text-base font-medium text-blue-600 hover:text-blue-800"
-            >
-              {{ bill.purchase_order?.po_number }}
-            </router-link>
-            <p v-else class="text-base font-medium text-gray-900 dark:text-white">N/A</p>
+          
+          <!-- Multi-select PO Dropdown -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+              Select Pending Bills for Payment (Same Supplier)
+            </label>
+            <div class="relative">
+              <button
+                @click="toggleDropdown"
+                class="w-full px-4 py-2 text-left border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white flex justify-between items-center"
+              >
+                <span v-if="selectedBills.length === 0">Select bills to pay...</span>
+                <span v-else>{{ selectedBills.length }} bill(s) selected - Total: KES {{ formatNumber(totalSelectedBalance) }}</span>
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              <!-- Dropdown with checkboxes -->
+              <div v-if="showDropdown" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <!-- Select All Option -->
+                <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      v-model="selectAll"
+                      @change="toggleSelectAll"
+                      class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Select All ({{ totalBillsCount }} bills) - KES {{ formatNumber(totalAllBillsBalance) }}
+                    </span>
+                  </label>
+                </div>
+                
+                <!-- Current Bill -->
+                <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      :value="bill.id"
+                      v-model="selectedBills"
+                      :disabled="bill.balance <= 0"
+                      class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <div class="ml-2 flex-1">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        {{ bill.bill_number }} (PO: {{ bill.purchase_order?.po_number || 'N/A' }}) - Current
+                      </div>
+                      <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>Balance: KES {{ formatNumber(bill.balance) }}</span>
+                        <router-link 
+                          v-if="bill.purchase_order?.id"
+                          :to="`/procurement/purchase-order/${bill.purchase_order.id}`"
+                          @click.stop
+                          class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                          title="View PO Details"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                          </svg>
+                          View PO
+                        </router-link>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                
+                <!-- Other Pending Bills -->
+                <div v-for="pendingBill in allPendingBills" :key="pendingBill.id" class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      :value="pendingBill.id"
+                      v-model="selectedBills"
+                      class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <div class="ml-2 flex-1">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        {{ pendingBill.bill_number }} (PO: {{ pendingBill.po_number || 'N/A' }})
+                      </div>
+                      <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>Balance: KES {{ formatNumber(pendingBill.balance) }}</span>
+                        <router-link 
+                          v-if="pendingBill.purchase_order_id"
+                          :to="`/procurement/purchase-order/${pendingBill.purchase_order_id}`"
+                          @click.stop
+                          class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                          title="View PO Details"
+                        >
+                          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                          </svg>
+                          View PO
+                        </router-link>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selected Bills Summary -->
+            <div v-if="selectedBills.length > 0" class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
+                {{ selectedBills.length }} bill(s) selected for payment - Total: KES {{ formatNumber(totalSelectedBalance) }}
+              </p>
+              <div class="space-y-1 max-h-32 overflow-y-auto">
+                <div v-for="billId in selectedBills" :key="billId" class="flex justify-between items-center text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-blue-700 dark:text-blue-300">
+                      {{ getBillById(billId)?.bill_number }}
+                      (PO: {{ getBillById(billId)?.po_number || getBillById(billId)?.purchase_order?.po_number || 'N/A' }})
+                    </span>
+                    <router-link 
+                      v-if="getBillById(billId)?.purchase_order_id || getBillById(billId)?.purchase_order?.id"
+                      :to="`/procurement/purchase-order/${getBillById(billId)?.purchase_order_id || getBillById(billId)?.purchase_order?.id}`"
+                      @click.stop
+                      class="text-blue-600 hover:text-blue-800"
+                      title="View PO Details"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                      </svg>
+                    </router-link>
+                  </div>
+                  <span class="font-medium">KES {{ formatNumber(getBillById(billId)?.balance || 0) }}</span>
+                </div>
+              </div>
+            </div>
           </div>
+          
           <div>
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Status</label>
             <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', getStatusClass(bill.status)]">
@@ -125,20 +246,82 @@
 
         <!-- Payment Summary -->
         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Payment Summary</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Payment Summary {{ selectedBills.length > 1 ? `(Multiple Bills)` : '' }}
+          </h3>
+          
+          <!-- Single Bill View -->
+          <div v-if="selectedBills.length === 1" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <label class="block text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Original Amount</label>
-              <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.amount || 0) }}</p>
+              <p class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(getBillById(selectedBills[0])?.amount || 0) }}</p>
             </div>
             <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
               <label class="block text-sm font-medium text-green-600 dark:text-green-400 mb-1">Already Paid</label>
-              <p class="text-2xl font-bold text-green-900 dark:text-green-300">KES {{ formatNumber(bill.paid_amount || 0) }}</p>
+              <p class="text-2xl font-bold text-green-900 dark:text-green-300">KES {{ formatNumber(getBillById(selectedBills[0])?.paid_amount || 0) }}</p>
             </div>
             <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
               <label class="block text-sm font-medium text-yellow-600 dark:text-yellow-400 mb-1">Balance Due</label>
-              <p class="text-2xl font-bold text-yellow-900 dark:text-yellow-300">KES {{ formatNumber(bill.balance || 0) }}</p>
+              <p class="text-2xl font-bold text-yellow-900 dark:text-yellow-300">KES {{ formatNumber(getBillById(selectedBills[0])?.balance || 0) }}</p>
             </div>
+          </div>
+          
+          <!-- Multiple Bills View -->
+          <div v-else-if="selectedBills.length > 1" class="space-y-4">
+            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Total for {{ selectedBills.length }} Selected Bills</div>
+                  <div class="text-3xl font-bold text-purple-900 dark:text-purple-300">
+                    KES {{ formatNumber(totalSelectedBalance) }}
+                  </div>
+                </div>
+                <button
+                  @click="openPaymentModal"
+                  class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  Pay All Selected
+                </button>
+              </div>
+            </div>
+            
+            <!-- Individual Bill Breakdown -->
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Breakdown:</p>
+              <div v-for="billId in selectedBills" :key="billId" 
+                   class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div>
+                  <div class="font-medium text-gray-900 dark:text-white">{{ getBillById(billId)?.bill_number }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    PO: {{ getBillById(billId)?.po_number || getBillById(billId)?.purchase_order?.po_number || 'N/A' }}
+                    <router-link 
+                      v-if="getBillById(billId)?.purchase_order_id || getBillById(billId)?.purchase_order?.id"
+                      :to="`/procurement/purchase-order/${getBillById(billId)?.purchase_order_id || getBillById(billId)?.purchase_order?.id}`"
+                      @click.stop
+                      class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      title="View PO Details"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                      </svg>
+                    </router-link>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="font-medium text-gray-900 dark:text-white">
+                    KES {{ formatNumber(getBillById(billId)?.balance || 0) }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ getBillStatus(getBillById(billId)?.status) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- No Bills Selected Message -->
+          <div v-else class="text-center py-4">
+            <p class="text-gray-500 dark:text-gray-400">Select bills from the dropdown above to view payment summary</p>
           </div>
         </div>
 
@@ -160,7 +343,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Amount</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Method</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Processed By</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Notes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Reference</th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -181,7 +364,7 @@
                   {{ payment.created_by?.name || 'N/A' }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                  {{ payment.notes || '-' }}
+                  {{ payment.reference_number || '-' }}
                 </td>
               </tr>
             </tbody>
@@ -203,47 +386,74 @@
 
     <!-- Record Payment Modal -->
     <Teleport to="body">
-      <div 
-        v-if="showPaymentModal" 
-        class="fixed inset-0 z-[9999] overflow-y-auto"
-        @click.self="closePaymentModal"
-      >
+      <div v-if="showPaymentModal" class="fixed inset-0 z-[9999] overflow-y-auto" @click.self="closePaymentModal">
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
         
         <!-- Modal Container -->
         <div class="flex min-h-screen items-center justify-center p-4">
-          <div 
-            class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full"
-            @click.stop
-          >
+          <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full" @click.stop>
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Record Payment</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Record Payment for {{ selectedBills.length }} Bill(s)
+              </h3>
             </div>
 
             <!-- Modal Body -->
             <div class="px-6 py-4">
-              <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Balance Due</div>
-                <div class="text-2xl font-bold text-blue-900 dark:text-blue-300">KES {{ formatNumber(bill.balance || 0) }}</div>
+              <!-- Selected Bills Info -->
+              <div v-if="selectedBills.length > 1" class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">Selected Bills:</p>
+                <div class="space-y-2 max-h-40 overflow-y-auto">
+                  <div v-for="billId in selectedBills" :key="billId" 
+                       class="flex justify-between items-center text-sm">
+                    <span class="text-blue-700 dark:text-blue-300">
+                      {{ getBillById(billId)?.bill_number }}
+                    </span>
+                    <span class="font-medium">KES {{ formatNumber(getBillById(billId)?.balance || 0) }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Total Balance -->
+              <div class="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div class="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Total Balance Due</div>
+                <div class="text-2xl font-bold text-purple-900 dark:text-purple-300">
+                  KES {{ formatNumber(totalSelectedBalance) }}
+                </div>
               </div>
 
+              <!-- Payment Form -->
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Amount to Pay <span class="text-red-500">*</span>
+                    <span class="text-xs text-gray-500">(Max: KES {{ formatNumber(totalSelectedBalance) }})</span>
                   </label>
                   <input
                     v-model.number="paymentForm.amount_paid"
                     type="number"
                     step="0.01"
-                    :max="bill.balance"
+                    :max="totalSelectedBalance"
                     min="0.01"
                     required
                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0.00"
+                    @input="validatePaymentAmount"
                   />
+                  <div class="mt-1 flex justify-between text-xs">
+                    <span class="text-gray-500 dark:text-gray-400">
+                      {{ paymentForm.amount_paid >= totalSelectedBalance ? 'Full payment' : 'Partial payment' }}
+                    </span>
+                    <button
+                      type="button"
+                      @click="paymentForm.amount_paid = totalSelectedBalance"
+                      class="text-blue-600 hover:text-blue-800"
+                    >
+                      Pay full amount
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -286,14 +496,49 @@
                   </div>
                 </div>
 
+                <!-- Distribution Method (for partial payments to multiple bills) -->
+                <div v-if="selectedBills.length > 1 && paymentForm.amount_paid < totalSelectedBalance">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    How to distribute this payment?
+                  </label>
+                  <div class="space-y-2">
+                    <label class="flex items-center">
+                      <input
+                        type="radio"
+                        v-model="distributionMethod"
+                        value="proportional"
+                        class="h-4 w-4 text-blue-600"
+                      />
+                      <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Proportional to each bill's balance</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input
+                        type="radio"
+                        v-model="distributionMethod"
+                        value="oldest_first"
+                        class="h-4 w-4 text-blue-600"
+                      />
+                      <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Pay oldest bills first</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- CHANGED: Reference Number field instead of Notes -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-                  <textarea
-                    v-model="paymentForm.notes"
-                    rows="3"
-                    placeholder="Optional payment notes..."
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Reference Number / Transaction ID <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="paymentForm.reference_number"
+                    type="text"
+                    maxlength="255"
+                    required
+                    placeholder="e.g., TXN-123456, CHQ-7890, MPesa-ABC123"
                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  ></textarea>
+                  />
+                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Enter payment reference number or transaction ID (required)
+                  </p>
                 </div>
               </div>
 
@@ -388,9 +633,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBills } from '../../shared/composables/useBills'
+import axios from '@/plugins/axios'
 
 const route = useRoute()
 const id = Number(route.params.id)
@@ -402,55 +648,187 @@ const submitting = ref(false)
 const paymentError = ref('')
 const error = ref('')
 const bill = ref<any>({})
+const allPendingBills = ref<any[]>([])
 const paymentMethods = ref<any[]>([])
 const showPaymentModal = ref(false)
 const showAddMethodModal = ref(false)
 const newMethodName = ref('')
+const showDropdown = ref(false)
+const selectedBills = ref<number[]>([])
+const selectAll = ref(false)
+const distributionMethod = ref('proportional')
 
+// Payment form - CHANGED: notes → reference_number
 const paymentForm = ref({
   amount_paid: 0,
   payment_date: new Date().toISOString().split('T')[0],
   payment_method_id: 0,
-  notes: ''
+  reference_number: ''  // CHANGED from 'notes'
+})
+
+// Computed properties - FIXED: Added parseFloat to prevent NaN
+const totalSelectedBalance = computed(() => {
+  return selectedBills.value.reduce((sum, billId) => {
+    const bill = getBillById(billId)
+    const balance = parseFloat(bill?.balance) || 0  // FIXED: Added parseFloat
+    return sum + balance
+  }, 0)
+})
+
+const totalAllBillsBalance = computed(() => {
+  let total = parseFloat(bill.value.balance) || 0  // FIXED: Added parseFloat
+  allPendingBills.value.forEach(b => {
+    total += parseFloat(b.balance) || 0  // FIXED: Added parseFloat
+  })
+  return total
+})
+
+const totalBillsCount = computed(() => {
+  let count = bill.value.balance > 0 ? 1 : 0
+  count += allPendingBills.value.filter(b => b.balance > 0).length
+  return count
 })
 
 const isPaymentFormValid = computed(() => {
   return paymentForm.value.amount_paid > 0 && 
          paymentForm.value.payment_method_id > 0 &&
-         paymentForm.value.payment_date !== ''
+         paymentForm.value.payment_date !== '' &&
+         paymentForm.value.reference_number.trim() !== ''  // CHANGED: Added reference_number validation
 })
 
+// Methods
 const fetchBill = async () => {
   loading.value = true
   error.value = ''
   try {
     const data = await getBill(id)
     if (data) {
-      bill.value = data
-      console.log('Bill loaded:', bill.value)
+      bill.value = {
+        ...data,
+        balance: typeof data.balance === 'string' ? parseFloat(data.balance) : (data.balance || 0),
+        amount: typeof data.amount === 'string' ? parseFloat(data.amount) : (data.amount || 0),
+        paid_amount: typeof data.paid_amount === 'string' ? parseFloat(data.paid_amount) : (data.paid_amount || 0)
+      }
+      
+      // Auto-select the current bill if it has balance
+      if (bill.value.balance > 0) {
+        selectedBills.value = [bill.value.id]
+      }
+      
+      await fetchPendingBillsForSupplier()
     } else {
       error.value = 'Bill not found'
     }
   } catch (err: any) {
-    console.error('Failed to load bill:', err)
     error.value = err.message || 'Failed to load bill'
   } finally {
     loading.value = false
   }
 }
 
-const loadPaymentMethods = async () => {
+const fetchPendingBillsForSupplier = async () => {
+  if (!bill.value.supplier_id) return
+  
   try {
-    paymentMethods.value = await getPaymentMethods()
-    console.log('Payment methods loaded:', paymentMethods.value)
+    const response = await axios.get('/api/procurement-stores/pending-bills', {
+      params: { supplier_id: bill.value.supplier_id }
+    })
+    
+    console.log('Pending bills API response:', response.data.data)
+    
+    const allPending = response.data.data || []
+    
+    // Transform the data to ensure consistent structure
+    allPendingBills.value = allPending.map((b: any) => ({
+      id: b.id,
+      bill_number: b.bill_number,
+      purchase_order_id: b.purchase_order_id || b.purchase_order?.id || null,
+      purchase_order: b.purchase_order || null,
+      po_number: b.po_number || b.purchase_order?.po_number || 'N/A',
+      amount: parseFloat(b.amount) || 0,
+      paid_amount: parseFloat(b.paid_amount) || 0,
+      balance: parseFloat(b.balance) || 0,
+      status: b.status || 'pending',
+      due_date: b.due_date
+    })).filter((b: any) => 
+      b.id !== bill.value.id && b.balance > 0
+    )
+    
+    console.log('Transformed pending bills:', allPendingBills.value)
+    
+    // Sort by due date (oldest first)
+    allPendingBills.value.sort((a, b) => 
+      new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+    )
   } catch (err) {
-    console.error('Failed to load payment methods:', err)
+    console.error('Failed to fetch pending bills:', err)
+  }
+}
+
+const getBillById = (billId: number) => {
+  if (billId === bill.value.id) {
+    return {
+      ...bill.value,
+      purchase_order_id: bill.value.purchase_order?.id || null,
+      po_number: bill.value.purchase_order?.po_number || 'N/A'
+    }
+  }
+  
+  const pendingBill = allPendingBills.value.find(b => b.id === billId)
+  if (!pendingBill) return null
+  
+  return {
+    ...pendingBill,
+    purchase_order_id: pendingBill.purchase_order_id || pendingBill.purchase_order?.id || null,
+    po_number: pendingBill.po_number || pendingBill.purchase_order?.po_number || 'N/A'
+  }
+}
+
+const getBillStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    pending: 'Pending',
+    partial: 'Partially Paid',
+    overdue: 'Overdue',
+    paid: 'Paid'
+  }
+  return statusMap[status] || status
+}
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
+const toggleSelectAll = () => {
+  if (selectAll.value) {
+    // Select all bills with balance
+    const billsWithBalance = [
+      ...(bill.value.balance > 0 ? [bill.value.id] : []),
+      ...allPendingBills.value.filter(b => b.balance > 0).map(b => b.id)
+    ]
+    selectedBills.value = billsWithBalance
+  } else {
+    // Clear all selections
+    selectedBills.value = []
+  }
+}
+
+// Watch for changes in selectedBills to update selectAll
+watch(selectedBills, (newSelection) => {
+  const billsWithBalance = [
+    ...(bill.value.balance > 0 ? [bill.value.id] : []),
+    ...allPendingBills.value.filter(b => b.balance > 0).map(b => b.id)
+  ]
+  selectAll.value = newSelection.length === billsWithBalance.length && billsWithBalance.length > 0
+}, { deep: true })
+
+const validatePaymentAmount = () => {
+  if (paymentForm.value.amount_paid > totalSelectedBalance.value) {
+    paymentForm.value.amount_paid = totalSelectedBalance.value
   }
 }
 
 const openPaymentModal = () => {
-  console.log('Opening payment modal')
-  paymentForm.value.amount_paid = bill.value.balance || 0
+  paymentForm.value.amount_paid = totalSelectedBalance.value
   showPaymentModal.value = true
 }
 
@@ -460,9 +838,64 @@ const closePaymentModal = () => {
     amount_paid: 0,
     payment_date: new Date().toISOString().split('T')[0],
     payment_method_id: 0,
-    notes: ''
+    reference_number: ''  // CHANGED from 'notes'
   }
   paymentError.value = ''
+  distributionMethod.value = 'proportional'
+}
+
+const calculatePaymentDistribution = (amount: number): Array<{billId: number, amount: number}> => {
+  const distribution: Array<{billId: number, amount: number}> = []
+  let remainingAmount = amount
+  
+  if (distributionMethod.value === 'oldest_first') {
+    // Sort selected bills by due date
+    const sortedBills = [...selectedBills.value]
+      .map(id => getBillById(id))
+      .filter(b => b)
+      .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
+    
+    for (const bill of sortedBills) {
+      if (remainingAmount <= 0) break
+      
+      const billBalance = parseFloat(bill.balance) || 0
+      const amountForBill = Math.min(remainingAmount, billBalance)
+      
+      distribution.push({
+        billId: bill.id,
+        amount: parseFloat(amountForBill.toFixed(2))
+      })
+      
+      remainingAmount -= amountForBill
+    }
+  } else {
+    // Proportional distribution
+    const totalBalance = totalSelectedBalance.value
+    for (const billId of selectedBills.value) {
+      const bill = getBillById(billId)
+      if (!bill) continue
+      
+      const billBalance = parseFloat(bill.balance) || 0
+      if (billBalance <= 0) continue
+      
+      const proportion = billBalance / totalBalance
+      const amountForBill = parseFloat((amount * proportion).toFixed(2))
+      
+      distribution.push({
+        billId: billId,
+        amount: amountForBill
+      })
+      
+      remainingAmount -= amountForBill
+    }
+  }
+  
+  // Adjust for rounding errors
+  if (remainingAmount > 0 && distribution.length > 0) {
+    distribution[0].amount = parseFloat((distribution[0].amount + remainingAmount).toFixed(2))
+  }
+  
+  return distribution
 }
 
 const submitPayment = async () => {
@@ -475,10 +908,38 @@ const submitPayment = async () => {
   paymentError.value = ''
   
   try {
-    console.log('Submitting payment:', paymentForm.value)
-    await recordPayment(id, paymentForm.value)
+    const paymentDistribution = calculatePaymentDistribution(paymentForm.value.amount_paid)
+    
+    console.log('Payment distribution:', paymentDistribution)
+    
+    // Verify total distribution equals payment amount
+    const totalDistributed = paymentDistribution.reduce((sum, item) => sum + item.amount, 0)
+    const paymentAmount = parseFloat(paymentForm.value.amount_paid.toFixed(2))
+    
+    if (Math.abs(totalDistributed - paymentAmount) > 0.01) {
+      throw new Error('Payment distribution calculation error')
+    }
+    
+    // Create payment for each bill
+    for (const { billId, amount } of paymentDistribution) {
+      if (amount <= 0) continue
+      
+      console.log(`Recording payment for bill ${billId}: KES ${amount}`)
+      
+      // CHANGED: Using reference_number instead of notes
+      await recordPayment(billId, {
+        amount_paid: amount,
+        payment_date: paymentForm.value.payment_date,
+        payment_method_id: paymentForm.value.payment_method_id,
+        reference_number: selectedBills.value.length > 1 
+          ? `${paymentForm.value.reference_number} (Multi-bill: ${selectedBills.value.length} bills)`
+          : paymentForm.value.reference_number
+      })
+    }
+    
     closePaymentModal()
     await fetchBill()
+    await fetchPendingBillsForSupplier()
   } catch (err: any) {
     console.error('Payment error:', err)
     paymentError.value = err.response?.data?.error || err.message || 'Failed to record payment'
@@ -502,6 +963,14 @@ const addNewPaymentMethod = async () => {
   }
 }
 
+const loadPaymentMethods = async () => {
+  try {
+    paymentMethods.value = await getPaymentMethods()
+  } catch (err) {
+    console.error('Failed to load payment methods:', err)
+  }
+}
+
 const handlePrint = () => window.print()
 
 const formatDate = (date: string) => {
@@ -509,7 +978,13 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString()
 }
 
-const formatNumber = (num: number) => new Intl.NumberFormat().format(num || 0)
+const formatNumber = (num: number) => {
+  if (isNaN(num)) return '0.00'  // FIXED: Handle NaN
+  return new Intl.NumberFormat('en-KE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num || 0)
+}
 
 const formatStatus = (status: string) => {
   if (!status) return 'Unknown'

@@ -4,9 +4,11 @@
     <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <router-link to="/procurement/dashboard"
+            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
             <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
+              <path
+                d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z" />
             </svg>
             Home
           </router-link>
@@ -14,9 +16,10 @@
         <li>
           <div class="flex items-center">
             <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
             </svg>
-            <router-link to="/procurement/purchase-orders" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
+            <router-link to="/procurement/purchase-orders"
+              class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
               Purchase Orders
             </router-link>
           </div>
@@ -24,7 +27,7 @@
         <li aria-current="page">
           <div class="flex items-center">
             <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
             </svg>
             <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">New Purchase Order</span>
           </div>
@@ -35,11 +38,13 @@
     <!-- Header -->
     <div>
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Create Purchase Order</h1>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Create purchase order from requisition {{ requisition.requisition_number }}</p>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Create purchase order from requisition {{
+        requisition.requisition_number }}</p>
     </div>
 
     <!-- Loading State -->
-    <div v-if="loadingRequisition" class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-8">
+    <div v-if="loadingRequisition"
+      class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 p-8">
       <div class="flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         <p class="ml-3 text-gray-600 dark:text-gray-400">Loading requisition details...</p>
@@ -56,13 +61,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Date <span class="text-red-500">*</span>
             </label>
-            <input
-              v-model="formData.date"
-              type="date"
-              required
+            <input v-model="formData.date" type="date" required
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-              :class="{ 'border-red-500': errors.date }"
-            />
+              :class="{ 'border-red-500': errors.date }" />
             <p v-if="errors.date" class="mt-1 text-sm text-red-600">{{ errors.date[0] }}</p>
           </div>
 
@@ -71,12 +72,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Supplier <span class="text-red-500">*</span>
             </label>
-            <select
-              v-model="formData.supplier_id"
-              required
+            <select v-model="formData.supplier_id" required
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-              :class="{ 'border-red-500': errors.supplier_id }"
-            >
+              :class="{ 'border-red-500': errors.supplier_id }">
               <option value="">Select Supplier</option>
               <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
                 {{ supplier.supplier_name }}
@@ -90,13 +88,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Due Date <span class="text-red-500">*</span>
             </label>
-            <input
-              v-model="formData.due_date"
-              type="date"
-              required
+            <input v-model="formData.due_date" type="date" required
               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-              :class="{ 'border-red-500': errors.due_date }"
-            />
+              :class="{ 'border-red-500': errors.due_date }" />
             <p v-if="errors.due_date" class="mt-1 text-sm text-red-600">{{ errors.due_date[0] }}</p>
           </div>
         </div>
@@ -106,13 +100,9 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Delivery Address <span class="text-red-500">*</span>
           </label>
-          <textarea
-            v-model="formData.delivery_address"
-            rows="3"
-            required
+          <textarea v-model="formData.delivery_address" rows="3" required
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-            :class="{ 'border-red-500': errors.delivery_address }"
-          ></textarea>
+            :class="{ 'border-red-500': errors.delivery_address }"></textarea>
           <p v-if="errors.delivery_address" class="mt-1 text-sm text-red-600">{{ errors.delivery_address[0] }}</p>
         </div>
 
@@ -121,105 +111,73 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Description
           </label>
-          <textarea
-            v-model="formData.description"
-            rows="2"
-            placeholder="Optional notes or special instructions"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-          ></textarea>
+          <textarea v-model="formData.description" rows="2" placeholder="Optional notes or special instructions"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
         </div>
 
-        <!-- Items from Requisition -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Order Items (From Requisition)</h3>
+        <!-- Items from Requisition (READ-ONLY) -->
+<div class="mb-6">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    Order Items (From Requisition - Cannot be modified)
+  </h3>
 
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Item</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">SKU</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Quantity <span class="text-red-500">*</span>
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                    Unit Price <span class="text-red-500">*</span>
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <tr v-for="(item, index) in formData.items" :key="index">
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {{ item.material_name }}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                    {{ item.material_code }}
-                  </td>
-                  <td class="px-4 py-3">
-                    <input 
-                      v-model.number="item.quantity" 
-                      @input="calculateTotal(index)" 
-                      type="number" 
-                      min="1"
-                      required
-                      class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    />
-                  </td>
-                  <td class="px-4 py-3">
-                    <input 
-                      v-model.number="item.unit_price" 
-                      @input="calculateTotal(index)" 
-                      type="number" 
-                      step="0.01"
-                      min="0"
-                      required
-                      class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                    />
-                  </td>
-                  <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                    KES{{ formatNumber(item.total || 0) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Item</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">SKU</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Quantity</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Unit Price</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tr v-for="(item, index) in formData.items" :key="index">
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.material_name }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.material_code }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price) }}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">KES {{ formatNumber(item.total) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-          <!-- Total -->
-          <div class="mt-4 flex justify-end">
-            <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
-              <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
-              <div class="text-2xl font-bold text-gray-900 dark:text-white">
-                KES{{ formatNumber(totalAmount) }}
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Total -->
+  <div class="mt-4 flex justify-end">
+    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-lg">
+      <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Amount</div>
+      <div class="text-2xl font-bold text-gray-900 dark:text-white">
+        KES {{ formatNumber(totalAmount) }}
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- Error Message -->
-        <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <div v-if="errorMessage"
+          class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
         </div>
 
         <!-- Form Actions -->
         <div class="flex gap-3">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="bg-primary hover:bg-primary-light text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
-          >
+          <button type="submit" :disabled="loading"
+            class="bg-primary hover:bg-primary-light text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center">
             <span v-if="loading" class="mr-2">
               <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none">
+                </circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
               </svg>
             </span>
             {{ loading ? 'Creating...' : 'Create Purchase Order' }}
           </button>
-          <router-link
-            :to="`/procurement/requisition/${requisitionId}`"
-            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg font-medium transition-colors"
-          >
+          <router-link :to="`/procurement/requisition/${requisitionId}`"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-2 rounded-lg font-medium transition-colors">
             Cancel
           </router-link>
         </div>
@@ -271,8 +229,8 @@ const fetchRequisition = async () => {
       material_name: item.material?.material_name || '',
       material_code: item.material?.material_code || '',
       quantity: item.quantity,
-      unit_price: item.material?.unit_cost || 0,
-      total: item.quantity * (item.material?.unit_cost || 0)
+      unit_price: item.unit_price || item.material?.unit_cost || 0,
+      total: item.quantity * (item.unit_price || item.material?.unit_cost || 0)
     }))
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Failed to load requisition details'
@@ -315,7 +273,7 @@ const handleSubmit = async () => {
     }
 
     const response = await axios.post('/api/procurement-stores/purchase-orders', payload)
-    
+
     if (response.data && response.data.id) {
       router.push(`/procurement/purchase-order/${response.data.id}`)
     } else if (response.data.data && response.data.data.id) {

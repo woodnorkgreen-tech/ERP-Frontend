@@ -10,6 +10,12 @@
                         Qty <span class="text-red-500">*</span>
                     </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        Unit Price <span class="text-red-500">*</span>
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        Total
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Purpose <span class="text-red-500">*</span>
                     </th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -51,8 +57,19 @@
 
                     <!-- Quantity -->
                     <td class="px-4 py-3">
-                        <input type="number" v-model.number="item.quantity" @input="updateItem(index)" min="1" required
+                        <input type="number" v-model.number="item.quantity" @input="calculateTotal(index)" min="1" required
                             class="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white">
+                    </td>
+
+                    <!-- Unit Price -->
+                    <td class="px-4 py-3">
+                        <input type="number" v-model.number="item.unit_price" @input="calculateTotal(index)" step="0.01" min="0" required
+                            class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white">
+                    </td>
+
+                    <!-- Total -->
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
+                        KES {{ formatNumber(item.total || 0) }}
                     </td>
 
                     <!-- Purpose -->
@@ -79,7 +96,7 @@
                 </tr>
 
                 <tr v-if="items.length === 0">
-                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                         No items added yet.
                     </td>
                 </tr>
@@ -92,7 +109,6 @@
 import { useDebounceFn } from '@vueuse/core'
 import api from '@/plugins/axios'
 import type { RequisitionItem } from '../../shared/types/requisitions'
-
 
 interface Props {
     items: RequisitionItem[]
@@ -133,13 +149,25 @@ const selectMaterial = (index: number, material: any) => {
             material_code: material.material_code,
             material_name: material.material_name
         },
+        unit_price: material.unit_cost || 0,
         sku_search: material.material_code,
         showDropdown: false,
         searchResults: []
     })
+    calculateTotal(index)
+}
+
+const calculateTotal = (index: number) => {
+    const item = props.items[index]
+    const total = (item.quantity || 0) * (item.unit_price || 0)
+    emit('update', index, { total })
 }
 
 const updateItem = (index: number) => {
     emit('update', index, props.items[index])
+}
+
+const formatNumber = (num: number) => {
+    return new Intl.NumberFormat().format(num)
 }
 </script>
