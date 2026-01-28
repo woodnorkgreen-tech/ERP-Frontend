@@ -70,13 +70,14 @@ const emit = defineEmits<{
 const shouldUseDirectComponent = (taskType?: string) => {
   if (!taskType) return false
   
+  const normalizedType = taskType.trim().toLowerCase()
   const specialTypes = [
     'budget', 'design', 'quote', 'quote_approval', 'production', 
     'logistics', 'procurement', 'site-survey', 'survey', 'site survey',
-    'archival', 'setup', 'setdown', 'teams'
+    'archival', 'report', 'setup', 'setdown', 'teams'
   ]
   
-  return specialTypes.includes(taskType.toLowerCase())
+  return specialTypes.includes(normalizedType)
 }
 
 // Helper function to determine if task should remain editable when completed

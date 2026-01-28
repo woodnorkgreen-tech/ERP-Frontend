@@ -205,10 +205,15 @@ export const validateBalanceData = (data: unknown): ValidationResult<PettyCashBa
         if (typeof balanceData.health_indicators.needs_attention !== 'boolean') {
             errors.health_indicators = ['Invalid needs_attention value']
         }
-        if (balanceData.health_indicators.days_since_last_top_up !== undefined &&
-            !isValidNumber(balanceData.health_indicators.days_since_last_top_up, 0)) {
-            errors.health_indicators = [...(errors.health_indicators || []), 'Invalid days_since_last_top_up']
-        }
+
+        // Optional numeric fields can be numbers or null
+        const optionalNumericFields = ['days_since_last_top_up', 'average_daily_spending', 'estimated_days_remaining']
+        optionalNumericFields.forEach(field => {
+            const val = balanceData.health_indicators[field]
+            if (val !== undefined && val !== null && !isValidNumber(val, 0)) {
+                errors.health_indicators = [...(errors.health_indicators || []), `Invalid ${field} value`]
+            }
+        })
     } else {
         errors.health_indicators = ['Missing health_indicators data']
     }

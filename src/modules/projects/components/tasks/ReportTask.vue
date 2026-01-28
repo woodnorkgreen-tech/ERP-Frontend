@@ -27,11 +27,13 @@
           <span :class="task.status === 'completed' ? 'text-green-600' : task.status === 'skipped' ? 'text-gray-600' : 'text-gray-500'" class="text-sm font-medium">
             {{ task.status === 'completed' ? 'Completed' : task.status === 'skipped' ? 'Skipped' : 'In Progress' }}
           </span>
+          <p v-if="task.status !== 'completed'" class="text-sm text-gray-600 dark:text-gray-400">Mark as completed</p>
           <label v-if="task.status !== 'skipped'" class="relative inline-flex items-center cursor-pointer">
             <input
               v-model="isCompleted"
               type="checkbox"
               class="sr-only peer"
+              :disabled="readonly"
               @change="toggleTaskCompletion"
             />
             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -160,7 +162,17 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Materials Used in Production</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Materials Used in Production
+            <button
+               v-if="!readonly"
+               type="button"
+               @click="autoFillMaterialsData"
+               class="ml-2 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+            >
+               Auto-fill from Materials
+            </button>
+          </label>
           <textarea v-model="formData.materials_used_in_production" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="List materials and quantities used in production..."></textarea>
         </div>
       </div>
@@ -244,7 +256,17 @@
         <!-- Section 5.2: Setup Item Allocation -->
         <div>
           <div class="flex items-center justify-between mb-3">
-            <h5 class="text-sm font-semibold text-gray-900 dark:text-white">5.2 Setup Item Allocation</h5>
+            <h5 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center">
+                5.2 Setup Item Allocation
+                <button
+                    v-if="!readonly"
+                    type="button"
+                    @click="autoFillMaterialsData"
+                    class="ml-2 text-[10px] text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                >
+                    Auto-fill from Materials
+                </button>
+            </h5>
             <button @click="addSetupItem" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -261,13 +283,14 @@
                   <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Assigned Technician</th>
                   <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Site Section</th>
                   <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Status</th>
+                  <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Placement Accuracy</th>
                   <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Notes</th>
                   <th class="px-3 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600 w-16">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!formData.setup_items || formData.setup_items.length === 0">
-                  <td colspan="6" class="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colspan="7" class="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     No setup items added yet. Click "Add Item" to get started.
                   </td>
                 </tr>
@@ -276,7 +299,12 @@
                     <input v-model="item.deliverable_item" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter item name" />
                   </td>
                   <td class="px-3 py-2">
-                    <input v-model="item.assigned_technician" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Technician name" />
+                    <select v-model="item.assigned_technician" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="">Select Technician</option>
+                        <option v-for="labour in technicalLabour" :key="labour.id" :value="labour.full_name">
+                            {{ labour.full_name }} ({{ labour.specialization || 'N/A' }})
+                        </option>
+                    </select>
                   </td>
                   <td class="px-3 py-2">
                     <input v-model="item.site_section" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Section" />
@@ -285,6 +313,13 @@
                     <select v-model="item.status" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
                       <option value="pending">Pending</option>
                       <option value="set">Set</option>
+                    </select>
+                  </td>
+                  <td class="px-3 py-2">
+                    <select v-model="item.placement_accuracy" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                      <option value="">Select Accuracy</option>
+                      <option value="correct">Correct</option>
+                      <option value="needs_adjusted">Needs Adjusted</option>
                     </select>
                   </td>
                   <td class="px-3 py-2">
@@ -302,68 +337,6 @@
             </table>
           </div>
         </div>
-
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
-
-        <!-- Section 5.4: Item Placement Details -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h5 class="text-sm font-semibold text-gray-900 dark:text-white">5.4 Item Placement Details</h5>
-            <button @click="addItemPlacement" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Add Placement</span>
-            </button>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full border border-gray-300 dark:border-gray-600 rounded-lg">
-              <thead class="bg-gray-100 dark:bg-gray-700">
-                <tr>
-                  <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Section/Area</th>
-                  <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Items Installed</th>
-                  <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Placement Accuracy</th>
-                  <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600">Observation</th>
-                  <th class="px-3 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-300 dark:border-gray-600 w-16">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="!formData.item_placements || formData.item_placements.length === 0">
-                  <td colspan="5" class="px-3 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                    No item placements added yet. Click "Add Placement" to get started.
-                  </td>
-                </tr>
-                <tr v-for="(placement, index) in formData.item_placements" :key="index" class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="px-3 py-2">
-                    <input v-model="placement.section_area" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Section or area" />
-                  </td>
-                  <td class="px-3 py-2">
-                    <input v-model="placement.items_installed" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="List items" />
-                  </td>
-                  <td class="px-3 py-2">
-                    <select v-model="placement.placement_accuracy" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                      <option value="correct">Correct</option>
-                      <option value="needs_adjusted">Needs Adjusted</option>
-                    </select>
-                  </td>
-                  <td class="px-3 py-2">
-                    <input v-model="placement.observation" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Observations" />
-                  </td>
-                  <td class="px-3 py-2 text-center">
-                    <button @click="removeItemPlacement(index)" class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
 
         <!-- Section 5.3: Site Ratings & Findings -->
         <div class="space-y-4">
@@ -775,7 +748,7 @@
           <button
             @click="handleGenerateAnalysis"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-            :disabled="loading || !formData.id"
+            :disabled="loading || !formData.id || readonly"
           >
             <span v-if="loading" class="mr-2">...</span>
             <span v-else class="mr-2">🔄</span>
@@ -908,6 +881,7 @@
           v-if="task.status === 'in_progress' && reportData.report_signoff"
           @click="updateStatus('completed')"
           class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+          :disabled="readonly"
         >
           Complete Report
         </button>
@@ -939,21 +913,31 @@
         </div>
         
         <div class="flex space-x-2">
-        <button
-          v-if="formData.id"
-          @click="handleDownloadPdf"
-          class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center"
-          :disabled="loading"
-        >
-          <span class="mr-2">📄</span> Download PDF
-        </button>
-        <button
-          @click="handleSubmit"
-          class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-          :disabled="loading"
-        >
-          {{ loading ? 'Saving...' : 'Save Report Data' }}
-        </button>
+            <button
+                v-if="!readonly"
+                @click="handleAutoPopulate"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+                :disabled="loading"
+            >
+                <span class="mr-2">⚡</span> Auto-populate from Previous Tasks
+            </button>
+            
+            <button
+              v-if="formData.id"
+              @click="handleDownloadPdf"
+              class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center"
+              :disabled="loading"
+            >
+              <span class="mr-2">📄</span> Download PDF
+            </button>
+            
+            <button
+              @click="handleSubmit"
+              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+              :disabled="loading || readonly"
+            >
+              {{ loading ? 'Saving...' : 'Save Report Data' }}
+            </button>
         </div>
       </div>
     </div>
@@ -1014,6 +998,7 @@ interface DistributionRecipient {
 
 interface Props {
   task: EnquiryTask
+  readonly?: boolean
 }
 
 const props = defineProps<Props>()
@@ -1029,6 +1014,16 @@ const activeTab = ref('project-info')
 const successMessage = ref('')
 const errorMessage = ref('')
 const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
+const technicalLabour = ref<any[]>([])
+
+const fetchTechnicalLabour = async () => {
+    try {
+        const response = await api.get('/api/hr/technical-labour?status=active')
+        technicalLabour.value = response.data || []
+    } catch (e) {
+        console.error('Failed to fetch technical labour', e)
+    }
+}
 
 // Form data connected to archival backend
 const formData = reactive<ArchivalReportData>({
@@ -1047,6 +1042,11 @@ const tabs = [
   { id: 'signatures', label: 'Signatures', icon: '✍️' },
   { id: 'analysis', label: 'Analysis & Insights', icon: '📊' }
 ]
+
+onMounted(async () => {
+    await fetchTechnicalLabour()
+    await loadArchivalReport()
+})
 
 const isCompleted = computed({
   get: () => props.task.status === 'completed',
@@ -1148,6 +1148,21 @@ const autoFillBrandingTeam = async () => {
   }
 }
 
+const autoFillMaterialsData = async () => {
+    try {
+        const response = await autoPopulate(props.task.id)
+        if (response && response.materials_used_in_production) {
+            formData.materials_used_in_production = response.materials_used_in_production
+            alert('Materials data auto-filled successfully!')
+        } else {
+            alert('No materials data found to auto-fill.')
+        }
+    } catch (error) {
+        console.error('Failed to auto-fill materials:', error)
+        alert('Failed to auto-fill materials data.')
+    }
+}
+
 const { fetchSurvey, surveyData } = useHandover()
 
 const autoFillHandoverData = async () => {
@@ -1245,21 +1260,12 @@ const mapRating = (val: number): 'good' | 'fair' | 'poor' | undefined => {
 
 const toggleTaskCompletion = async () => {
   try {
-    const response = await fetch(`/api/projects/enquiry-tasks/${props.task.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({
-        status: 'completed'
-      })
+    const response = await api.put(`/api/projects/enquiry-tasks/${props.task.id}`, {
+      status: 'completed'
     })
 
-    if (response.ok) {
-      const result = await response.json()
+    if (response.status >= 200 && response.status < 300) {
       emit('update-status', 'completed')
-
       alert(`Task "${props.task.title}" has been marked as completed! All users have been notified.`)
 
       if (window.dispatchEvent) {
@@ -1367,10 +1373,10 @@ const reportData = ref({
   report_signoff: false
 })
 
-// Load existing report on mount
-onMounted(async () => {
-  await loadArchivalReport()
-})
+// Load existing report on mount (handled in combined onMounted above)
+// onMounted(async () => {
+//   await loadArchivalReport()
+// })
 
 // Auto-save function
 const performAutoSave = async () => {
@@ -1651,6 +1657,7 @@ const addSetupItem = () => {
     assigned_technician: '',
     site_section: '',
     status: 'pending',
+    placement_accuracy: 'correct',
     notes: ''
   })
 }

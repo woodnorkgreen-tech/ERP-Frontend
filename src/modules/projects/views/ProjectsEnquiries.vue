@@ -1622,17 +1622,26 @@ const dashboardTabs = [
 const statusTabs = computed(() => {
   if (currentView.value === 'projects') {
     return [
-      { key: 'all', label: 'All', count: filteredEnquiries.value.length },
+      { key: 'all', label: 'All', count: pagination.value.total },
+       // { key: 'all', label: 'All', count: filteredEnquiries.value.length },
       { key: 'pre_prod', label: 'Preparation', count: enquiries.value.filter(e => ['quote_approved', 'planning'].includes(e.status)).length },
-      { key: 'in_progress', label: 'Active', count: enquiries.value.filter(e => e.status === 'in_progress').length },
-      { key: 'completed', label: 'Done', count: enquiries.value.filter(e => e.status === 'completed').length },
-       { key: 'cancelled', label: 'Cancelled', count: enquiries.value.filter(e => e.status === 'cancelled').length }
+      { key: 'in_progress_active', label: 'Active', count: enquiries.value.filter(e => e.status === 'in_progress').length }
     ]
   }
+  
+  if (currentView.value === 'completed') {
+    return [
+      { key: 'all', label: 'All History', count: pagination.value.total },
+      { key: 'completed', label: 'Finished', count: enquiries.value.filter(e => e.status === 'completed').length },
+      { key: 'cancelled', label: 'Aborted', count: enquiries.value.filter(e => e.status === 'cancelled').length }
+    ]
+  }
+
+  // Default: Enquiries View
   return [
-    { key: 'all', label: 'All', count: filteredEnquiries.value.length },
+    { key: 'all', label: 'All', count: pagination.value.total },
     { key: 'new', label: 'New', count: newEnquiries.value.length },
-    { key: 'in_progress', label: 'Active', count: enquiries.value.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(e.status)).length }
+    { key: 'in_progress_enquiry', label: 'In Prep', count: enquiries.value.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(e.status)).length }
   ]
 })
 

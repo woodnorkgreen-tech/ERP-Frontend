@@ -26,13 +26,13 @@ export const projectsRoutes: RouteRecordRaw[] = [
         path: 'enquiries',
         name: 'projects-enquiries',
         component: () => import('../modules/projects/views/ProjectsEnquiries.vue'),
-        meta: { title: 'Project Enquiries' }
+        meta: { title: 'Project Enquiries', transition: 'page-slide' }
       },
       {
         path: 'tasks',
         name: 'projects-tasks',
         component: () => import('../modules/projects/views/ProjectTasks.vue'),
-        meta: { title: 'Project Tasks' }
+        meta: { title: 'Project Tasks', transition: 'page-slide' }
       },
     ],
   },

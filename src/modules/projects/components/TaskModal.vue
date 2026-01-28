@@ -1,151 +1,141 @@
 <template>
-  <div v-if="show && task" class="fixed inset-0 flex items-center justify-center z-[100] p-4 sm:p-6 font-poppins">
-    <!-- Glass Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
-
-    <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-[1600px] max-h-[95vh] flex flex-col relative z-20 border border-white/20 dark:border-gray-800 overflow-hidden animate-in fade-in zoom-in duration-200">
-      
-      <!-- Premium Header -->
-      <div class="px-8 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50">
-        <div class="flex items-center space-x-5">
-           <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
-            <i class="mdi mdi-clipboard-text-outline text-blue-600 text-2xl"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-3">
-              <h2 class="text-3xl font-black text-gray-900 dark:text-white truncate max-w-[600px] tracking-tighter">
-                {{ task.title }}
-              </h2>
-              <span
-                :class="[
-                  'text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm',
-                  getStatusColor(task.status)
-                ]"
-              >
-                {{ getStatusLabel(task.status) }}
-              </span>
-            </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center">
-              <span class="capitalize">{{ task.type.replace('_', ' ') }} Task</span>
-              <span class="mx-2 text-gray-300">•</span>
-              <span class="text-blue-600 dark:text-blue-400 opacity-80 italic">
-                <span v-if="task.enquiry" :class="task.enquiry.job_number ? 'font-black' : ''">
-                  {{ task.enquiry.job_number || task.enquiry.enquiry_number }}
-                </span>
-                <span v-if="task.enquiry"> — </span>
-                {{ task.enquiry?.title || 'Standalone Project' }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center space-x-6 mr-8 border-r border-gray-200 dark:border-gray-700 pr-8 hidden md:flex">
-          <div class="text-right">
-            <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Assigned To</p>
-            
-            <!-- Claim Button or Assigned Name -->
-            <!-- Claim button temporarily disabled -->
-            <!-- <div v-if="!isAssigned(task)" class="flex justify-end">
-               <button 
-                  @click="claimTask" 
-                  :disabled="isClaiming"
-                  class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2"
-               >
-                  <i v-if="isClaiming" class="mdi mdi-loading mdi-spin"></i>
-                  <i v-else class="mdi mdi-hand-back-right"></i>
-                  {{ isClaiming ? 'Claiming...' : 'Claim Task' }}
-               </button>
-            </div> -->
-              <button 
-                v-if="canRelease(task)" 
-                @click="releaseTask"
-                :disabled="isReleasing"
-                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 shadow-sm flex items-center justify-center gap-2"
-              >
-                <i v-if="isReleasing" class="mdi mdi-loading mdi-spin"></i>
-                <i v-else class="mdi mdi-lock-open-outline"></i>
-                <span>Release</span>
-              </button>
-              <div v-else class="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center justify-end gap-2">
-                <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                    {{ getInitials(getAssignedUserName(task)) }}
-                </div>
-                {{ getAssignedUserName(task) }}
-              </div>
-          </div>
-          <div v-if="task.due_date" class="text-right">
-            <p class="text-sm uppercase tracking-[0.2em] text-gray-400 font-bold mb-0.5">Deadline</p>
-            <p 
-              class="text-sm font-black"
-              :class="isOverdue(task.due_date) ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'"
-            >
-              {{ formatDate(task.due_date) }}
-            </p>
-          </div>
-        </div>
-
-        <button
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="show && task" class="fixed inset-0 z-[100] font-poppins flex justify-end overflow-hidden">
+        <!-- Glass Backdrop -->
+        <div 
+          class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity" 
           @click="closeModal"
-          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all duration-200"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
+        ></div>
 
-      <!-- Navigation Tabs -->
-      <div class="px-8 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <nav class="flex space-x-1" aria-label="Tabs">
-          <button 
-            v-for="tab in [{id: 'details', label: 'Task Execution', icon: 'mdi-play-box-outline'}, {id: 'history', label: 'Assignment Logs', icon: 'mdi-history'}]"
-            :key="tab.id"
-            @click="activeTab = tab.id"
-            :class="[
-              activeTab === tab.id
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-500/5'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50',
-              'whitespace-nowrap pt-4 pb-3 px-6 border-b-2 font-bold text-sm uppercase tracking-[0.2em] transition-all'
-            ]"
-          >
-            <i class="mdi mr-2 text-base align-middle" :class="tab.icon"></i>
-            {{ tab.label }}
-          </button>
-        </nav>
-      </div>
+        <!-- Sliding Panel Container -->
+        <Transition name="panel-slide" appear>
+          <div v-if="show" class="bg-white dark:bg-gray-900 shadow-[-20px_0_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[1600px] h-full flex flex-col relative z-20 border-l border-white/20 dark:border-gray-800 transition-transform">
+            
+            <!-- Premium Header -->
+            <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-30">
+              <div class="flex items-center space-x-5">
+                <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
+                  <i class="mdi mdi-clipboard-text-outline text-blue-600 text-2xl"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-black text-gray-900 dark:text-white truncate max-w-[600px] tracking-tighter">
+                      {{ task.title }}
+                    </h2>
+                    <span
+                      :class="[
+                        'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm',
+                        getStatusColor(task.status)
+                      ]"
+                    >
+                      {{ getStatusLabel(task.status) }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium flex items-center">
+                    <span class="capitalize">{{ task.type.replace('_', ' ') }} Task</span>
+                    <span class="mx-2 text-gray-300">•</span>
+                    <span class="text-blue-600 dark:text-blue-400 opacity-80 italic">
+                      <span v-if="task.enquiry" :class="task.enquiry.job_number ? 'font-black' : ''">
+                        {{ task.enquiry.job_number || task.enquiry.enquiry_number }}
+                      </span>
+                      <span v-if="task.enquiry"> — </span>
+                      {{ task.enquiry?.title || 'Standalone Project' }}
+                    </span>
+                  </p>
+                </div>
+              </div>
 
-      <!-- Modal Body -->
-      <div class="flex-grow overflow-y-auto custom-scrollbar p-0 bg-gray-50/30 dark:bg-gray-900/40">
-        
-        <!-- Locked/Read-Only Banner -->
-        <div v-if="readonly" class="bg-amber-500/10 border-b border-amber-500/20 px-8 py-3 animate-in slide-in-from-top duration-300">
-          <div class="flex items-center text-amber-700 dark:text-amber-400">
-            <i class="mdi mdi-lock-outline mr-2 text-lg"></i>
-            <span class="text-xs font-bold uppercase tracking-wide">Read-Only Session:</span>
-            <span class="text-xs ml-2 font-medium opacity-80">This task is currently locked. View-only mode is active.</span>
-          </div>
-        </div>
+              <div class="flex items-center space-x-6">
+                <div class="hidden md:flex flex-col items-end mr-6 pr-6 border-r border-gray-100 dark:border-gray-800">
+                   <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mb-1">Assigned To</p>
+                   <button 
+                    v-if="canRelease(task)" 
+                    @click="releaseTask"
+                    :disabled="isReleasing"
+                    class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2"
+                  >
+                    <i v-if="isReleasing" class="mdi mdi-loading mdi-spin"></i>
+                    <i v-else class="mdi mdi-lock-open-outline"></i>
+                    <span>Release</span>
+                  </button>
+                  <div v-else class="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[8px] font-bold text-blue-600 dark:text-blue-400">
+                        {{ getInitials(getAssignedUserName(task)) }}
+                    </div>
+                    {{ getAssignedUserName(task) }}
+                  </div>
+                </div>
 
-        <div class="p-8">
-           <!-- Task Content via TaskRenderer -->
-          <div class="task-content">
-            <div v-show="activeTab === 'details'" class="animate-in fade-in duration-500">
-              <TaskRenderer
-                :task="task"
-                :readonly="readonly"
-                :initial-tab="initialTab"
-                @update-status="handleStatusUpdate"
-                @complete="handleComplete"
-                @save-design-data="handleSaveDesignData"
-              />
+                <button
+                  @click="closeModal"
+                  class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 group"
+                >
+                  <svg class="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div v-if="activeTab === 'history'" class="animate-in fade-in slide-in-from-bottom-2 duration-400">
-              <TaskHistory :taskId="task.id" />
+
+            <!-- Navigation Tabs (Sticky) -->
+            <div class="px-8 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-[89px] z-30">
+              <nav class="flex space-x-1" aria-label="Tabs">
+                <button 
+                  v-for="tab in [{id: 'details', label: 'Execution', icon: 'mdi-play-box-outline'}, {id: 'history', label: 'Logs', icon: 'mdi-history'}]"
+                  :key="tab.id"
+                  @click="activeTab = tab.id"
+                  :class="[
+                    activeTab === tab.id
+                      ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/10'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50',
+                    'whitespace-nowrap pt-4 pb-3 px-6 border-b-2 font-bold text-xs uppercase tracking-[0.2em] transition-all'
+                  ]"
+                >
+                  <i class="mdi mr-2 text-base align-middle" :class="tab.icon"></i>
+                  {{ tab.label }}
+                </button>
+              </nav>
+            </div>
+
+            <!-- Panel Body -->
+            <div class="flex-grow overflow-y-auto custom-scrollbar bg-white dark:bg-gray-900">
+              
+              <!-- Locked/Read-Only Banner -->
+              <div v-if="readonly" class="bg-amber-500/10 border-b border-amber-500/20 px-8 py-3">
+                <div class="flex items-center text-amber-700 dark:text-amber-400">
+                  <i class="mdi mdi-lock-outline mr-2 text-lg"></i>
+                  <span class="text-[10px] font-bold uppercase tracking-wide">Read-Only Session</span>
+                </div>
+              </div>
+
+              <div class="p-8">
+                <div class="task-content">
+                  <Transition name="fade-slide" mode="out-in">
+                    <div :key="activeTab">
+                      <div v-if="activeTab === 'details'">
+                        <TaskRenderer
+                          :task="task"
+                          :readonly="readonly"
+                          :initial-tab="initialTab"
+                          @update-status="handleStatusUpdate"
+                          @complete="handleComplete"
+                          @save-design-data="handleSaveDesignData"
+                        />
+                      </div>
+                      <div v-else-if="activeTab === 'history'">
+                        <TaskHistory :taskId="task.id" />
+                      </div>
+                    </div>
+                  </Transition>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </Transition>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -175,15 +165,13 @@ const isReleasing = ref(false)
 
 // Debug: Log task data when it changes
 watch(() => props.task, (newTask) => {
-  console.log('[DEBUG TaskModal] Task received:', {
-    id: newTask?.id,
-    title: newTask?.title,
-    assigned_to: newTask?.assigned_to,
-    assignedTo: newTask?.assignedTo,
-    assignedUser: newTask?.assignedUser,
-    assigned_user_id: newTask?.assigned_user_id,
-    assigned_by: newTask?.assigned_by
-  })
+  if (newTask) {
+    console.log('[DEBUG TaskModal] Task received:', {
+      id: newTask?.id,
+      title: newTask?.title,
+      assigned_to: newTask?.assigned_to
+    })
+  }
 }, { immediate: true })
 
 const emit = defineEmits<{
@@ -250,7 +238,6 @@ const getStatusLabel = (status: string) => {
 
 const isOverdue = (dueDate: string) => {
   if (!dueDate) return false
-  // Check if the current task is already completed, skipped or cancelled
   if (props.task?.status === 'completed' || props.task?.status === 'cancelled' || props.task?.status === 'skipped') return false
   return new Date(dueDate) < new Date()
 }
@@ -259,9 +246,6 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-/**
- * Check if task is assigned to anyone
- */
 const isAssigned = (task: EnquiryTask | null): boolean => {
   if (!task) return false
   return !!(
@@ -272,22 +256,16 @@ const isAssigned = (task: EnquiryTask | null): boolean => {
   )
 }
 
-/**
- * Get assigned user name from all possible sources
- */
 const getAssignedUserName = (task: EnquiryTask | null): string => {
   if (!task) return 'Unassigned'
-  
   if (task.assigned_to?.name) return task.assigned_to.name
   if (task.assignedUser?.name) return task.assignedUser.name
-  
   if (task.assigned_users && task.assigned_users.length > 0) {
     return task.assigned_users[0].name
   }
   if (task.assignedUsers && task.assignedUsers.length > 0) {
     return task.assignedUsers[0].name
   }
-  
   return 'Unassigned'
 }
 
@@ -302,48 +280,15 @@ const getInitials = (name?: string | null) => {
     .slice(0, 2)
 }
 
-/**
- * Claim Task Implementation
- */
-const claimTask = async () => {
-  if (!props.task || !user.value?.id) return
-  
-  isClaiming.value = true
-  
-  try {
-    const response = await api.post(`/api/projects/enquiry-tasks/${props.task.id}/assign`, {
-      assigned_user_id: user.value.id,
-      priority: props.task.priority || 'medium'
-    })
-    
-    // Emit event to parent to update task
-    emit('assign', response.data.data)
-    
-  } catch (error) {
-    console.error('Error claiming task:', error)
-    alert('Failed to claim task. Please try again.')
-  } finally {
-    isClaiming.value = false
-  }
-}
-
-/**
- * Check if current user can release this task
- */
 const canRelease = (task: EnquiryTask | null): boolean => {
   if (!task || !user.value) return false
   if (task.status === 'completed' || task.status === 'cancelled') return false
   
   const currentUserId = user.value.id
-  
-  // Check if current user is the primary assignee
   const isPrimaryAssignee = task.assigned_to?.id === currentUserId || task.assigned_user_id === currentUserId
-  
-  // Check if current user is in the multiple assignees list (if applicable)
   const isOneOfAssignees = task.assignedUsers?.some(u => u.id === currentUserId) || 
                           task.assigned_users?.some(u => u.id === currentUserId)
   
-  // Check if admin/manager
   const isAdmin = user.value.roles?.some(r => 
     ['Super Admin', 'Project Manager', 'Project Officer'].includes(typeof r === 'string' ? r : (r as any).name)
   )
@@ -351,29 +296,18 @@ const canRelease = (task: EnquiryTask | null): boolean => {
   return isPrimaryAssignee || isOneOfAssignees || !!isAdmin
 }
 
-/**
- * Release Task Implementation
- */
 const releaseTask = async () => {
   if (!props.task || !user.value?.id) return
-  
   const reason = prompt(`Please provide a reason for releasing task "${props.task.title}" back to the pool:`)
-  if (reason === null) return // Cancelled
+  if (reason === null) return
   if (!reason.trim()) {
       alert("A reason is required to release the task.")
       return
   }
-
   isReleasing.value = true
-  
   try {
-    const response = await api.put(`/api/projects/enquiry-tasks/${props.task.id}/release`, {
-      reason: reason
-    })
-    
-    // Emit event to parent to update task
+    const response = await api.put(`/api/projects/enquiry-tasks/${props.task.id}/release`, { reason })
     emit('assign', response.data.data)
-    
   } catch (error) {
     console.error('Error releasing task:', error)
     alert('Failed to release task. Please try again.')
@@ -398,12 +332,46 @@ const releaseTask = async () => {
   background: #334155;
 }
 
-@keyframes animate-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+/* Modal Transitions */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.animate-in {
-  animation: animate-in 0.2s ease-out forwards;
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.panel-slide-enter-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel-slide-enter-from {
+  transform: translateX(100%);
+}
+
+.panel-slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* Tab Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

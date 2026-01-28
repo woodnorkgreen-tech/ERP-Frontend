@@ -97,6 +97,7 @@ export interface SetupItem {
     assigned_technician?: string
     site_section?: string
     status?: 'set' | 'pending'
+    placement_accuracy?: 'correct' | 'needs_adjusted'
     notes?: string
 }
 

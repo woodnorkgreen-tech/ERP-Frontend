@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 
 // Permission types for petty cash module
 export type PettyCashPermission =
@@ -24,130 +25,50 @@ export const PERMISSION_GROUPS = {
   REPORTS: ['finance.petty_cash.view_reports', 'finance.petty_cash.export_data']
 } as const
 
-// User role types
-export type UserRole = 'admin' | 'manager' | 'user' | 'viewer'
-
 // Permission error types
 export interface PermissionError {
   code: 'PERMISSION_DENIED' | 'ROLE_INSUFFICIENT' | 'FEATURE_DISABLED'
   message: string
-  requiredPermission?: PettyCashPermission
-  userRole?: UserRole
+  requiredPermission?: string
+  userRole?: string
   suggestedAction?: string
 }
 
-// Mock user data - in real app this would come from auth store/API
-interface User {
-  id: number
-  name: string
-  email: string
-  role: UserRole
-  permissions: PettyCashPermission[]
-  isActive: boolean
-}
-
-// Default permissions by role
-const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, PettyCashPermission[]> = {
-  admin: [
-    'finance.petty_cash.view',
-    'finance.petty_cash.create_top_up',
-    'finance.petty_cash.create_disbursement',
-    'finance.petty_cash.edit_disbursement',
-    'finance.petty_cash.void_disbursement',
-    'finance.petty_cash.delete_disbursement',
-    'finance.petty_cash.view_balance',
-    'finance.petty_cash.recalculate_balance',
-    'finance.petty_cash.view_reports',
-    'finance.petty_cash.export_data',
-    'finance.petty_cash.upload_excel',
-    'finance.petty_cash.manage_settings'
-  ],
-  manager: [
-    'finance.petty_cash.view',
-    'finance.petty_cash.create_top_up',
-    'finance.petty_cash.create_disbursement',
-    'finance.petty_cash.edit_disbursement',
-    'finance.petty_cash.void_disbursement',
-    'finance.petty_cash.delete_disbursement',
-    'finance.petty_cash.view_balance',
-    'finance.petty_cash.view_reports',
-    'finance.petty_cash.export_data',
-    'finance.petty_cash.upload_excel'
-  ],
-  user: [
-    'finance.petty_cash.view',
-    'finance.petty_cash.create_disbursement',
-    'finance.petty_cash.view_balance',
-    'finance.petty_cash.view_reports'
-  ],
-  viewer: [
-    'finance.petty_cash.view',
-    'finance.petty_cash.view_balance',
-    'finance.petty_cash.view_reports'
-  ]
-}
-
 export function usePermissions() {
-  // Mock current user - in real app this would come from auth store
-  const currentUser = ref<User | null>({
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'admin',
-    permissions: DEFAULT_ROLE_PERMISSIONS.admin,
-    isActive: true
-  })
-
-  const isLoading = ref(false)
-  const error = ref<PermissionError | null>(null)
+  const { user, permissions: authPermissions, isLoggedIn, fetchPermissions } = useAuth()
 
   // Computed properties
-  const isAuthenticated = computed(() => !!currentUser.value)
-  const userRole = computed(() => currentUser.value?.role || 'viewer')
-  const userPermissions = computed(() => currentUser.value?.permissions || [])
-  const isActive = computed(() => currentUser.value?.isActive || false)
+  const isAuthenticated = computed(() => isLoggedIn.value)
+
+  const userRoles = computed(() => {
+    const rolesFromUser = user.value?.roles || []
+    const rolesFromPerms = authPermissions.value?.roles || []
+    return Array.from(new Set([...rolesFromUser, ...rolesFromPerms]))
+  })
+
+  const userRole = computed(() => userRoles.value[0] || 'viewer')
+
+  const userPermissions = computed(() => {
+    return authPermissions.value?.user_permissions || []
+  })
 
   // Permission checking methods
-  const hasPermission = (permission: PettyCashPermission): boolean => {
-    if (!isAuthenticated.value || !isActive.value) {
-      return false
-    }
-
+  const hasPermission = (permission: string): boolean => {
+    if (!isAuthenticated.value) return false
+    if (userRoles.value.includes('Super Admin')) return true
     return userPermissions.value.includes(permission)
   }
 
-  const hasAnyPermission = (permissions: ReadonlyArray<PettyCashPermission>): boolean => {
-    if (!isAuthenticated.value || !isActive.value) {
-      return false
-    }
-
+  const hasAnyPermission = (permissions: ReadonlyArray<string>): boolean => {
+    if (!isAuthenticated.value) return false
+    if (userRoles.value.includes('Super Admin')) return true
     return permissions.some(permission => userPermissions.value.includes(permission))
   }
 
-  const hasAllPermissions = (permissions: ReadonlyArray<PettyCashPermission>): boolean => {
-    if (!isAuthenticated.value || !isActive.value) {
-      return false
-    }
-
-    return permissions.every(permission => userPermissions.value.includes(permission))
-  }
-
-  const hasRole = (role: UserRole): boolean => {
-    return userRole.value === role
-  }
-
-  const hasMinimumRole = (minimumRole: UserRole): boolean => {
-    const roleHierarchy: Record<UserRole, number> = {
-      viewer: 1,
-      user: 2,
-      manager: 3,
-      admin: 4
-    }
-
-    const currentRoleLevel = roleHierarchy[userRole.value] || 0
-    const requiredRoleLevel = roleHierarchy[minimumRole] || 0
-
-    return currentRoleLevel >= requiredRoleLevel
+  const hasRole = (role: string | string[]): boolean => {
+    if (!isAuthenticated.value) return false
+    const roles = Array.isArray(role) ? role : [role]
+    return roles.some(r => userRoles.value.includes(r))
   }
 
   // Permission group checks
@@ -170,112 +91,47 @@ export function usePermissions() {
   const canManageSettings = computed(() => hasPermission('finance.petty_cash.manage_settings'))
 
   // Permission validation with error handling
-  const requirePermission = (permission: PettyCashPermission): void => {
+  const requirePermission = (permission: string): void => {
     if (!isAuthenticated.value) {
-      const error: PermissionError = {
+      throw {
         code: 'PERMISSION_DENIED',
         message: 'Authentication required',
         suggestedAction: 'Please log in to continue'
-      }
-      throw error
-    }
-
-    if (!isActive.value) {
-      const error: PermissionError = {
-        code: 'PERMISSION_DENIED',
-        message: 'Account is inactive',
-        suggestedAction: 'Please contact your administrator'
-      }
-      throw error
+      } as PermissionError
     }
 
     if (!hasPermission(permission)) {
-      const error: PermissionError = {
+      throw {
         code: 'PERMISSION_DENIED',
         message: `Permission '${permission}' is required`,
         requiredPermission: permission,
-        userRole: userRole.value,
+        userRole: userRoles.value.join(', '),
         suggestedAction: 'Contact your administrator for access permissions'
-      }
-      throw error
+      } as PermissionError
     }
   }
 
-  const requireAnyPermission = (permissions: ReadonlyArray<PettyCashPermission>): void => {
+  const requireAnyPermission = (permissions: ReadonlyArray<string>): void => {
     if (!isAuthenticated.value) {
-      const error: PermissionError = {
+      throw {
         code: 'PERMISSION_DENIED',
         message: 'Authentication required',
         suggestedAction: 'Please log in to continue'
-      }
-      throw error
+      } as PermissionError
     }
 
     if (!hasAnyPermission(permissions)) {
-      const error: PermissionError = {
+      throw {
         code: 'PERMISSION_DENIED',
         message: `One of the following permissions is required: ${permissions.join(', ')}`,
-        userRole: userRole.value,
+        userRole: userRoles.value.join(', '),
         suggestedAction: 'Contact your administrator for access permissions'
-      }
-      throw error
+      } as PermissionError
     }
   }
 
-  const requireRole = (role: UserRole): void => {
-    if (!isAuthenticated.value) {
-      const error: PermissionError = {
-        code: 'PERMISSION_DENIED',
-        message: 'Authentication required',
-        suggestedAction: 'Please log in to continue'
-      }
-      throw error
-    }
-
-    if (!hasRole(role)) {
-      const error: PermissionError = {
-        code: 'ROLE_INSUFFICIENT',
-        message: `Role '${role}' is required`,
-        userRole: userRole.value,
-        suggestedAction: 'Contact your administrator for role upgrade'
-      }
-      throw error
-    }
-  }
-
-  const requireMinimumRole = (minimumRole: UserRole): void => {
-    if (!isAuthenticated.value) {
-      const error: PermissionError = {
-        code: 'PERMISSION_DENIED',
-        message: 'Authentication required',
-        suggestedAction: 'Please log in to continue'
-      }
-      throw error
-    }
-
-    if (!hasMinimumRole(minimumRole)) {
-      const error: PermissionError = {
-        code: 'ROLE_INSUFFICIENT',
-        message: `Minimum role '${minimumRole}' is required`,
-        userRole: userRole.value,
-        suggestedAction: 'Contact your administrator for role upgrade'
-      }
-      throw error
-    }
-  }
-
-  // Utility methods
-  const getPermissionError = (permission: PettyCashPermission): PermissionError | null => {
-    try {
-      requirePermission(permission)
-      return null
-    } catch (error) {
-      return error as PermissionError
-    }
-  }
-
-  const getUserFriendlyPermissionName = (permission: PettyCashPermission): string => {
-    const permissionNames: Record<PettyCashPermission, string> = {
+  const getUserFriendlyPermissionName = (permission: string): string => {
+    const permissionNames: Record<string, string> = {
       'finance.petty_cash.view': 'View Petty Cash',
       'finance.petty_cash.create_top_up': 'Create Top-ups',
       'finance.petty_cash.create_disbursement': 'Create Disbursements',
@@ -293,63 +149,12 @@ export function usePermissions() {
     return permissionNames[permission] || permission
   }
 
-  const getUserFriendlyRoleName = (role: UserRole): string => {
-    const roleNames: Record<UserRole, string> = {
-      admin: 'Administrator',
-      manager: 'Manager',
-      user: 'User',
-      viewer: 'Viewer'
-    }
-
-    return roleNames[role] || role
-  }
-
-  // Mock methods for updating user data (in real app these would call APIs)
-  const refreshPermissions = async (): Promise<void> => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      // Mock API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // In real app, this would fetch fresh user data from API
-      // For now, just simulate success
-      console.log('Permissions refreshed')
-    } catch (err) {
-      error.value = {
-        code: 'PERMISSION_DENIED',
-        message: 'Failed to refresh permissions',
-        suggestedAction: 'Please try again or contact support'
-      }
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  const updateUserRole = (newRole: UserRole): void => {
-    if (currentUser.value) {
-      currentUser.value.role = newRole
-      currentUser.value.permissions = DEFAULT_ROLE_PERMISSIONS[newRole]
-    }
-  }
-
-  // Clear error
-  const clearError = (): void => {
-    error.value = null
-  }
-
   return {
-    // State
-    currentUser,
-    isLoading,
-    error,
-
     // Computed
     isAuthenticated,
     userRole,
+    userRoles,
     userPermissions,
-    isActive,
     canView,
     canCreate,
     canEdit,
@@ -369,18 +174,10 @@ export function usePermissions() {
     // Methods
     hasPermission,
     hasAnyPermission,
-    hasAllPermissions,
     hasRole,
-    hasMinimumRole,
     requirePermission,
     requireAnyPermission,
-    requireRole,
-    requireMinimumRole,
-    getPermissionError,
     getUserFriendlyPermissionName,
-    getUserFriendlyRoleName,
-    refreshPermissions,
-    updateUserRole,
-    clearError
+    refreshPermissions: fetchPermissions
   }
 }

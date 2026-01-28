@@ -31,6 +31,16 @@
           <i class="mdi mdi-file-pdf-box"></i>
           Download Report
         </button>
+
+        <button 
+          v-if="task.status !== 'completed'"
+          @click="handleCompleteTask"
+          :disabled="loading" 
+          class="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <i class="mdi mdi-check-circle"></i>
+          Complete Task
+        </button>
       </div>
     </div>
 
@@ -176,7 +186,18 @@
         </section>
 
       </div>
-
+      
+      <!-- Bottom Actions -->
+      <div v-if="reportData && task.status !== 'completed'" class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+        <button 
+          @click="handleCompleteTask"
+          :disabled="loading" 
+          class="px-8 py-3 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
+        >
+          <i class="mdi mdi-check-circle text-lg"></i>
+          Finish & Mark Completed
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -193,6 +214,8 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const emit = defineEmits(['update-status', 'complete', 'task-completed'])
+
 const reportData = ref<ArchivalReportData | null>(null)
 const loading = ref(false)
 
@@ -253,6 +276,40 @@ const handleDownloadPdf = async () => {
     } catch (error) {
         console.error('PDF download failed:', error)
         alert('Failed to download PDF report.')
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleCompleteTask = async () => {
+    if (loading.value) return
+    
+    // Optional: Confirm if report is ready
+    if (isReportEmpty.value) {
+        if (!confirm('The report data is empty. Are you sure you want to complete this task?')) return
+    }
+
+    loading.value = true
+    try {
+        const response = await api.put(`/api/projects/enquiry-tasks/${props.task.id}`, {
+            status: 'completed'
+        })
+
+        if (response.status >= 200 && response.status < 300) {
+            emit('update-status', 'completed')
+            emit('complete')
+            
+            alert(`Archival Task has been marked as completed.`)
+
+            if (window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent('task-completed', {
+                    detail: { task: props.task }
+                }))
+            }
+        }
+    } catch (error) {
+        console.error('Failed to complete archival task:', error)
+        alert('Failed to mark task as completed. Please try again.')
     } finally {
         loading.value = false
     }

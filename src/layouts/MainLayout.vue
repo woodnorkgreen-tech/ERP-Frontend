@@ -163,10 +163,12 @@
 
       <!-- Main Content Area -->
       <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 scroll-smooth custom-scrollbar">
-        <div class="max-w-8xl mx-auto w-full">
-           <router-view v-slot="{ Component }">
-              <transition name="fade" mode="out-in">
-                <component :is="Component" @taskAssigned="handleGlobalTaskAssigned" />
+        <div class="max-w-8xl mx-auto w-full grid grid-cols-1 items-start">
+           <router-view v-slot="{ Component, route }">
+              <transition :name="route.meta.transition || 'fade'" :mode="route.meta.transition === 'page-slide' ? undefined : 'out-in'">
+                <div :key="route.fullPath" class="col-start-1 row-start-1 w-full">
+                  <component :is="Component" @taskAssigned="handleGlobalTaskAssigned" />
+                </div>
               </transition>
            </router-view>
         </div>
@@ -464,5 +466,26 @@ const handleGlobalTaskAssigned = (data: {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(107, 114, 128, 0.8);
+}
+
+/* Page Transitions */
+.page-slide-enter-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+  position: relative;
+}
+
+.page-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.page-slide-enter-from {
+  transform: translateX(-100%);
+}
+
+.page-slide-leave-to {
+  transform: translateX(30%);
+  opacity: 0;
 }
 </style>

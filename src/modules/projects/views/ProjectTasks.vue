@@ -538,7 +538,7 @@ const lockedTask = ref<EnquiryTask | null>(null)
 
 // Performance Optimizations
 const viewMode = ref<'grid' | 'table' | 'board'>('grid')
-const showAllTasks = ref(false)
+const showAllTasks = ref(true)
 const availableUsers = ref<Array<{ id: number; name: string; department?: string }>>([])
 
 // Mission Milestones Logic

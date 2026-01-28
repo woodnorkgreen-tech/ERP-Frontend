@@ -72,6 +72,20 @@
                 {{ isRefreshing ? 'Refreshing...' : 'Refresh All' }}
               </button>
               
+              <!-- Recalculate Balance Button -->
+              <button
+                v-if="permissions.canAdmin"
+                @click="handleRecalculate"
+                :disabled="isRefreshing"
+                class="inline-flex items-center px-4 py-2 border border-blue-300 dark:border-blue-900/50 rounded-md shadow-sm text-sm font-medium text-blue-700 dark:text-blue-400 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                title="Sync balance with transactions"
+              >
+                <svg class="-ml-1 mr-2 h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                Recalculate
+              </button>
+
               <!-- Clear All Button (New) -->
               <button
                 v-if="permissions.canManageSettings"
@@ -584,6 +598,23 @@ const handleRefreshAll = async () => {
     handleError(error, { context: 'refresh_all' })
   } finally {
     isRefreshing.value = false
+  }
+}
+
+
+
+const handleRecalculate = async () => {
+  if (confirm('This will audit all transactions and update the global balance based on the actual sum of top-ups and active disbursements. Proceed?')) {
+    try {
+      isRefreshing.value = true
+      await store.recalculateBalance()
+      alert('Balance has been successfully recalculated and synchronized.')
+    } catch (error: any) {
+      console.error('Failed to recalculate balance:', error)
+      handleError(error, { context: 'recalculate_balance' })
+    } finally {
+      isRefreshing.value = false
+    }
   }
 }
 

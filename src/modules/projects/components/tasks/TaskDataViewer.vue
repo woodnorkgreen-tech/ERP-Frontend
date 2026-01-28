@@ -176,20 +176,22 @@ const getDataComponent = (taskKey?: string) => {
     return DefaultDataDisplay
   }
 
-  const component = dataDisplayComponents[taskKey as keyof typeof dataDisplayComponents]
+  const normalizedKey = taskKey.trim().toLowerCase()
+  const component = dataDisplayComponents[normalizedKey as keyof typeof dataDisplayComponents]
   if (!component) {
-    console.warn('TaskDataViewer: No component found for task type:', taskKey, '- available types:', Object.keys(dataDisplayComponents), '- using DefaultDataDisplay')
+    console.warn('TaskDataViewer: No component found for task type:', normalizedKey, '- available types:', Object.keys(dataDisplayComponents), '- using DefaultDataDisplay')
     return DefaultDataDisplay
   }
 
-  console.log('TaskDataViewer: Using component for task type:', taskKey, '- component:', component.name || 'unnamed')
+  console.log('TaskDataViewer: Using component for task type:', normalizedKey, '- component:', component.name || 'unnamed')
   return component
 }
 
 // Get the appropriate editable component for the task type
 const getEditableComponent = async (taskKey?: string) => {
   if (!taskKey) return null
-  const componentImport = editableComponents[taskKey as keyof typeof editableComponents]
+  const normalizedKey = taskKey.trim().toLowerCase()
+  const componentImport = editableComponents[normalizedKey as keyof typeof editableComponents]
   if (componentImport) {
     const module = await componentImport()
     return markRaw(module.default)
@@ -209,11 +211,12 @@ const fetchTaskData = async () => {
   error.value = ''
 
   try {
-    const taskKey = props.task.type
-    if (!taskKey) {
+    const rawType = props.task.type
+    if (!rawType) {
       throw new Error('Task type not defined')
     }
 
+    const taskKey = rawType.trim().toLowerCase()
     console.log('TaskDataViewer: Task key determined as:', taskKey)
     console.log('TaskDataViewer: Available data display components:', Object.keys(dataDisplayComponents))
 
@@ -271,6 +274,11 @@ const fetchTaskData = async () => {
       case 'setdown':
         endpoint = `/api/projects/tasks/${props.task.id}/setdown`
         console.log('TaskDataViewer: Setdown task endpoint:', endpoint)
+        break
+      case 'archival':
+      case 'report':
+        endpoint = `/api/projects/tasks/${props.task.id}/archival`
+        console.log(`TaskDataViewer: ${taskKey} task endpoint:`, endpoint)
         break
       // Add more task types here
       default:

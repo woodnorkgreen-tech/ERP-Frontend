@@ -301,7 +301,18 @@
                class="px-8 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-sm font-bold uppercase tracking-wide shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2"
             >
                <i v-if="state.isSaving" class="mdi mdi-loading mdi-spin"></i>
-               {{ state.isSaving ? 'Submitting...' : 'Submit Budget' }}
+               {{ state.isSaving ? 'Submitting...' : 'Save & Submit' }}
+            </button>
+
+            <button
+               v-if="task.status !== 'completed'"
+               type="button"
+               @click="completeTask"
+               :disabled="state.isSaving"
+               class="px-8 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl text-sm font-bold uppercase tracking-wide shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex items-center gap-2"
+            >
+               <i class="mdi mdi-check-circle"></i>
+               Complete Task
             </button>
          </div>
 
@@ -488,6 +499,7 @@ const {
   calculateLogisticsTotal,
   saveDraft,
   handleSubmit,
+  completeTask,
 } = useBudgetOperations(state, props.task, emit, props.initialTab)
 
 // --- INTELLIGENT AUTO-SAVE ---

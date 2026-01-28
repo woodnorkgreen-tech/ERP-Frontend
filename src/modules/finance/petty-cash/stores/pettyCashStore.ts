@@ -1315,6 +1315,35 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+    const recalculateBalance = async () => {
+        const operation = async () => {
+            loading.value.balance = true
+            errors.value.balance = null
+
+            const response = await pettyCashService.recalculateBalance()
+
+            if ('success' in response && response.success) {
+                // Refresh all data to reflect the new balance
+                await Promise.all([
+                    fetchCurrentBalance(),
+                    fetchSummary(),
+                    fetchTransactions()
+                ])
+                return response.data
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+
+        const result = await withErrorHandling(operation, {
+            context: 'recalculateBalance',
+            showToast: true
+        })
+
+        loading.value.balance = false
+        return result
+    }
+
     // Error recovery mechanisms
     const recoverFromError = async (errorType: keyof typeof errors.value) => {
         try {
@@ -1566,6 +1595,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         createTopUp,
         uploadExcel,
         fetchCurrentBalance,
+        recalculateBalance,
         fetchSummary,
         fetchAnalytics,
         fetchRecentTransactions,

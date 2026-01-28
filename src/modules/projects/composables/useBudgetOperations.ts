@@ -354,6 +354,40 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
     }
   }
 
+  // Complete task
+  const completeTask = async () => {
+    state.isSaving = true
+    state.error = null
+
+    try {
+      // Use axios instead of fetch to ensure correct base URL
+      const response = await import('@/plugins/axios').then(({ default: api }) =>
+        api.put(`/api/projects/tasks/${task.id}/status`, {
+          status: 'completed'
+        })
+      )
+
+      if (response.status >= 200 && response.status < 300) {
+        // Dispatch global task-completed event like other tasks do
+        if (window.dispatchEvent) {
+          window.dispatchEvent(new CustomEvent('task-completed', {
+            detail: { task: task }
+          }))
+        }
+        // Emit Vue event for component communication
+        emit('task-completed')
+        state.successMessage = 'Task completed successfully!'
+      } else {
+        throw new Error(`Failed to update task status: ${response.status} ${response.statusText}`)
+      }
+    } catch (error: any) {
+      console.error('Error completing budget task:', error)
+      state.error = error.message || 'Failed to complete task'
+    } finally {
+      state.isSaving = false
+    }
+  }
+
   // Submit budget
   const handleSubmit = async (validateFn?: (formData: any) => any) => {
     // Validate before submission if validation function provided
@@ -470,47 +504,6 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
       await BudgetService.saveBudgetData(task.id, budgetData)
       state.successMessage = 'Budget submitted successfully!'
 
-      // Complete the task directly like SetupTask does
-      console.log('Attempting to complete budget task:', task.id)
-      try {
-        // Use axios instead of fetch to ensure correct base URL
-        const response = await import('@/plugins/axios').then(({ default: api }) =>
-          api.put(`/api/projects/tasks/${task.id}/status`, {
-            status: 'completed'
-          })
-        )
-
-        console.log('API response status:', response.status, response.statusText)
-
-        if (response.status >= 200 && response.status < 300) {
-          console.log('Task completion API call successful')
-          // Dispatch global task-completed event like other tasks do
-          if (window.dispatchEvent) {
-            console.log('Dispatching global task-completed event')
-            window.dispatchEvent(new CustomEvent('task-completed', {
-              detail: { task: task }
-            }))
-          }
-          // Emit Vue event for component communication
-          emit('task-completed')
-        } else {
-          console.error('Task completion failed:', {
-            status: response.status,
-            statusText: response.statusText,
-            data: response.data,
-            url: `/api/projects/tasks/${task.id}/status`,
-            method: 'PUT',
-            body: { status: 'completed' }
-          })
-          throw new Error(`Failed to update task status: ${response.status} ${response.statusText}`)
-        }
-      } catch (error) {
-        console.error('Error completing budget task:', error)
-        // Don't emit success events if the API call failed
-        // This prevents UI from showing task as completed when it's not
-        state.error = 'Budget was saved but task completion failed. Please try again or contact support.'
-        throw error // Re-throw to prevent success message
-      }
     } catch (err: unknown) {
       console.error('Budget submission error:', err)
       console.error('Error response:', (err as any)?.response?.data)
@@ -572,5 +565,7 @@ export function useBudgetOperations(state: any, task: any, emit: any, initialTab
     formatCurrency,
     saveDraft,
     handleSubmit,
+    completeTask,
   }
 }
+
