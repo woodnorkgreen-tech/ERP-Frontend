@@ -1,81 +1,76 @@
 <template>
-  <!-- Readonly budget data display -->
-  <div class="budget-data-display bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
+   <!-- Readonly budget data display -->
+   <div class="budget-data-display animate-in fade-in duration-500">
+      <!-- Tabs Navigation: Premium Boxed Style -->
+      <div class="flex items-end gap-1 mb-0 relative z-10 px-1 leading-none">
+         <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            type="button"
+            @click="activeTab = tab.key"
+            class="flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 rounded-t-2xl border-t border-l border-r relative"
+            :class="activeTab === tab.key 
+               ? 'bg-white dark:bg-gray-900 border-blue-500 dark:border-blue-800 text-blue-600 -mb-[1px] shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]' 
+               : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 pb-3.5'"
+         >
+            <i class="mdi" :class="getTabIcon(tab.key)"></i>
+            <span>{{ tab.label }}</span>
+            
+            <!-- Top Accent Bar for Active Tab -->
+            <div v-if="activeTab === tab.key" class="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-2xl"></div>
+         </button>
+      </div>
 
-    <!-- Tab Navigation -->
-    <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
-      <nav class="flex space-x-8" aria-label="Tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          @click="activeTab = tab.key"
-          :class="[
-            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors',
-            activeTab === tab.key
-              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-          ]"
-        >
-          {{ tab.label }}
-        </button>
-      </nav>
-    </div>
-
-    <div class="space-y-6">
-      <!-- Materials Tab - Readonly -->
-      <BudgetMaterialsTab
-        v-show="activeTab === 'materials'"
-        :form-data="state.formData"
-        :import-status="null"
-        :materials-update-check="null"
-        :is-importing="false"
-        :is-checking-updates="false"
-        :readonly="true"
-      />
-
-      <!-- Labour Tab - Readonly -->
-      <BudgetLabourTab
-        v-show="activeTab === 'labour'"
-        :form-data="state.formData"
-        :readonly="true"
-      />
-
-      <!-- Expenses Tab - Readonly -->
-      <BudgetExpensesTab
-        v-show="activeTab === 'expenses'"
-        :form-data="state.formData"
-        :readonly="true"
-      />
-
-      <!-- Logistics Tab - Readonly -->
-      <BudgetLogisticsTab
-        v-show="activeTab === 'logistics'"
-        :form-data="state.formData"
-        :readonly="true"
-      />
-
-      <!-- Summary Tab - Readonly -->
-      <BudgetSummaryTab
-        v-show="activeTab === 'summary'"
-        :materials-total="materialsTotal"
-        :labour-total="labourTotal"
-        :expenses-total="expensesTotal"
-        :logistics-total="logisticsTotal"
-        :grand-total="grandTotal"
-        :baseline-total="baselineTotal"
-        :readonly="true"
-      />
-
-      <!-- Comparison Tab - Readonly -->
-      <BudgetComparisonTab
-        v-show="activeTab === 'comparison'"
-        :current-data="state.formData"
-        :task-id="task.id"
-        :grand-total="grandTotal"
-      />
-      <!-- No action buttons in readonly display -->
-    </div>
-  </div>
+      <!-- Tab Contents: Integrated into the Box -->
+      <div class="bg-white dark:bg-gray-900 border border-blue-500 dark:border-blue-800 rounded-2xl rounded-tl-none p-8 shadow-sm min-h-[500px] relative z-0">
+         <div v-show="activeTab === 'materials'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetMaterialsTab
+               :form-data="state.formData"
+               :import-status="null"
+               :materials-update-check="null"
+               :is-importing="false"
+               :is-checking-updates="false"
+               :readonly="true"
+            />
+         </div>
+         <div v-show="activeTab === 'labour'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetLabourTab
+               :form-data="state.formData"
+               :readonly="true"
+            />
+         </div>
+         <div v-show="activeTab === 'expenses'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetExpensesTab
+               :form-data="state.formData"
+               :readonly="true"
+            />
+         </div>
+         <div v-show="activeTab === 'logistics'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetLogisticsTab
+               :form-data="state.formData"
+               :readonly="true"
+            />
+         </div>
+         <div v-show="activeTab === 'summary'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetSummaryTab
+               :materials-total="materialsTotal"
+               :labour-total="labourTotal"
+               :expenses-total="expensesTotal"
+               :logistics-total="logisticsTotal"
+               :grand-total="grandTotal"
+               :baseline-total="baselineTotal"
+               :readonly="true"
+            />
+         </div>
+         <div v-show="activeTab === 'comparison'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <BudgetComparisonTab
+               :current-data="state.formData"
+               :task-id="task.id"
+               :grand-total="grandTotal"
+            />
+         </div>
+      </div>
+   </div>
 </template>
 
 <script setup lang="ts">
@@ -106,6 +101,18 @@ const { state, materialsTotal, labourTotal, expensesTotal, logisticsTotal, grand
 
 // Use operations composable for data loading only
 const { activeTab, tabs, loadBudgetData } = useBudgetOperations(state, props.task, { 'task-completed': () => {}, 'task-updated': () => {} })
+
+const getTabIcon = (key: string) => {
+   const map: Record<string, string> = {
+      'materials': 'mdi-cube-outline',
+      'labour': 'mdi-account-hard-hat',
+      'expenses': 'mdi-cash-multiple',
+      'logistics': 'mdi-truck-fast-outline',
+      'summary': 'mdi-chart-pie',
+      'comparison': 'mdi-compare-horizontal'
+   }
+   return map[key] || 'mdi-circle'
+}
 
 // Remove duplicate additions tab since it's already included in useBudgetOperations
 

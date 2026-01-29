@@ -1,48 +1,53 @@
 <template>
-  <div class="procurement-data-display">
-    <!-- Project Information -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
-        <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-        </svg>
-        <span>Procurement & Inventory Management</span>
-      </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <DataField label="Project Title" :value="taskData.projectInfo?.enquiryTitle" />
-        <DataField label="Project ID" :value="taskData.projectInfo?.projectId" />
-        <DataField label="Client Name" :value="taskData.projectInfo?.clientName" />
-        <DataField label="Event Venue" :value="taskData.projectInfo?.eventVenue" />
-        <DataField label="Expected Delivery" :value="formatDate(taskData.projectInfo?.setupDate)" />
-        <DataField label="Import Date" :value="formatDate(taskData.lastImportDate)" />
+   <!-- Readonly procurement data display -->
+   <div class="procurement-data-display animate-in fade-in duration-500">
+      <!-- Header Section -->
+      <div class="flex items-center justify-between mb-8 px-1">
+         <div>
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+               <span class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                  <i class="mdi mdi-clipboard-text-outline text-xl"></i>
+               </span>
+               Procurement Summary
+            </h3>
+            <p class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-widest pl-1">View-only inventory & purchasing status</p>
+         </div>
       </div>
 
-      <!-- Budget Summary -->
-      <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
-        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Budget Summary</h4>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-            <div class="text-sm text-blue-600 dark:text-blue-400">Materials Budget</div>
-            <div class="text-lg font-semibold text-blue-900 dark:text-blue-100">
-              KES {{ formatCurrency(taskData.budgetSummary?.materialsTotal) }}
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 px-1">
+         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Project Budget</p>
+               <p class="text-2xl font-black text-slate-900 dark:text-white">{{ formatCurrency(taskData.budgetSummary?.materialsTotal) }}</p>
             </div>
-          </div>
-          <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-            <div class="text-sm text-green-600 dark:text-green-400">Total Items</div>
-            <div class="text-lg font-semibold text-green-900 dark:text-green-100">
-              {{ taskData.budgetSummary?.totalItems }}
+            <i class="mdi mdi-cash-multiple absolute right-4 bottom-4 text-5xl text-slate-100 dark:text-slate-700/50 -rotate-12 group-hover:rotate-0 transition-transform duration-500"></i>
+         </div>
+
+         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Items Tracked</p>
+               <p class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ taskData.budgetSummary?.totalItems }} Items</p>
             </div>
-          </div>
-          <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-            <div class="text-sm text-purple-600 dark:text-purple-400">Completion</div>
-            <div class="text-lg font-semibold text-purple-900 dark:text-purple-100">
-              {{ calculateCompletionPercentage() }}%
+            <i class="mdi mdi-package-variant absolute right-4 bottom-4 text-5xl text-slate-100 dark:text-slate-700/50 group-hover:scale-110 transition-transform duration-500"></i>
+         </div>
+
+         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Completion Level</p>
+               <div class="flex items-center gap-3">
+                  <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ calculateCompletionPercentage() }}%</p>
+                  <div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                     <div class="h-full bg-emerald-500 transition-all duration-1000" :style="{ width: `${calculateCompletionPercentage()}%` }"></div>
+                  </div>
+               </div>
             </div>
-          </div>
-        </div>
+            <i class="mdi mdi-check-decagram absolute right-4 bottom-4 text-5xl text-slate-100 dark:text-slate-700/50 group-hover:text-emerald-50 dark:group-hover:text-emerald-900/20 transition-colors duration-500"></i>
+         </div>
       </div>
-    </div>
+
+      <!-- Integrated Content Box -->
+      <div class="bg-white dark:bg-gray-900 border border-blue-500 dark:border-blue-800 rounded-2xl p-8 shadow-sm min-h-[400px]">
 
     <!-- Procurement Items -->
     <div v-if="taskData.procurementItems && taskData.procurementItems.length > 0" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -108,7 +113,8 @@
       <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Procurement Data</h3>
       <p class="text-gray-600 dark:text-gray-400">No procurement items have been processed for this task yet.</p>
     </div>
-  </div>
+      </div> <!-- End of content box -->
+   </div> <!-- End of display container -->
 </template>
 
 <script setup lang="ts">
@@ -169,7 +175,7 @@ const calculateCompletionPercentage = () => {
 
   const completedStatuses = ['received', 'hired']
   const completedItems = props.taskData.procurementItems.filter(item =>
-    completedStatuses.includes(item.availabilityStatus)
+    item.availabilityStatus && completedStatuses.includes(item.availabilityStatus)
   ).length
 
   return Math.round((completedItems / props.taskData.procurementItems.length) * 100)
@@ -181,6 +187,7 @@ const getStatusCount = (status: ProcurementItem['availabilityStatus']) => {
 }
 
 const getStatusClass = (status: ProcurementItem['availabilityStatus']) => {
+  if (!status) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
   const classes: Record<string, string> = {
     'available': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300',
     'ordered': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
@@ -192,6 +199,7 @@ const getStatusClass = (status: ProcurementItem['availabilityStatus']) => {
 }
 
 const getStatusBadgeClass = (status: ProcurementItem['availabilityStatus']) => {
+  if (!status) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
   const classes: Record<string, string> = {
     'available': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     'ordered': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',

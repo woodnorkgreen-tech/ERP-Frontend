@@ -10,6 +10,7 @@
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
+      @switch-task="handleSwitchTask"
     />
     <!-- Show TaskDataViewer for other completed tasks -->
     <TaskDataViewer
@@ -26,6 +27,7 @@
       @update-status="handleStatusUpdate"
       @complete="handleComplete"
       @save-design-data="handleSaveDesignData"
+      @switch-task="handleSwitchTask"
     />
   </div>
 </template>
@@ -64,6 +66,7 @@ const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
   'save-design-data': [data: DesignAsset[]]
+  'switch-task': [taskType: string]
 }>()
 
 // Helper function to determine if task should use direct component instead of TaskDataViewer
@@ -74,7 +77,7 @@ const shouldUseDirectComponent = (taskType?: string) => {
   const specialTypes = [
     'budget', 'design', 'quote', 'quote_approval', 'production', 
     'logistics', 'procurement', 'site-survey', 'survey', 'site survey',
-    'archival', 'report', 'setup', 'setdown', 'teams'
+    'archival', 'report', 'setup', 'setdown', 'teams', 'materials'
   ]
   
   return specialTypes.includes(normalizedType)
@@ -162,5 +165,9 @@ const handleComplete = () => {
 
 const handleSaveDesignData = (data: DesignAsset[]) => {
   emit('save-design-data', data)
+}
+const handleSwitchTask = (taskType: string) => {
+  console.log(`[DEBUG] TaskRenderer: handleSwitchTask called with type = ${taskType}`)
+  emit('switch-task', taskType)
 }
 </script>

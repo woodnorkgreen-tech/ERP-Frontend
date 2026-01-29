@@ -1,20 +1,43 @@
 <template>
   <Teleport to="body">
-    <Transition name="modal-fade">
+    <Transition name="modal-container">
       <div v-if="show && task" class="fixed inset-0 z-[100] font-poppins flex justify-end overflow-hidden">
         <!-- Glass Backdrop -->
-        <div 
-          class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity" 
-          @click="closeModal"
-        ></div>
+        <Transition name="backdrop-fade" appear>
+          <div 
+            v-if="show"
+            class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" 
+            @click="closeModal"
+          ></div>
+        </Transition>
 
         <!-- Sliding Panel Container -->
         <Transition name="panel-slide" appear>
-          <div v-if="show" class="bg-white dark:bg-gray-900 shadow-[-20px_0_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[1600px] h-full flex flex-col relative z-20 border-l border-white/20 dark:border-gray-800 transition-transform">
+          <div v-if="show" class="bg-white dark:bg-gray-900 shadow-[-20px_0_50px_-12px_rgba(0,0,0,0.25)] w-full max-w-[1600px] h-full flex flex-col relative z-20 border-l border-white/20 dark:border-gray-800">
             
             <!-- Premium Header -->
             <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-30">
               <div class="flex items-center space-x-5">
+                <!-- Navigation Arrows -->
+                <div class="flex items-center space-x-2 mr-4">
+                    <button 
+                        @click="switchTask(prevTask)" 
+                        :disabled="!prevTask"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all border border-transparent hover:border-blue-200"
+                        title="Previous Task"
+                    >
+                        <i class="mdi mdi-chevron-left text-2xl"></i>
+                    </button>
+                    <button 
+                        @click="switchTask(nextTask)" 
+                        :disabled="!nextTask"
+                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-300 disabled:opacity-20 disabled:cursor-not-allowed transition-all border border-transparent hover:border-blue-200"
+                        title="Next Task"
+                    >
+                        <i class="mdi mdi-chevron-right text-2xl"></i>
+                    </button>
+                </div>
+
                 <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
                   <i class="mdi mdi-clipboard-text-outline text-blue-600 text-2xl"></i>
                 </div>
@@ -115,12 +138,14 @@
                     <div :key="activeTab">
                       <div v-if="activeTab === 'details'">
                         <TaskRenderer
+                          :key="task.id"
                           :task="task"
                           :readonly="readonly"
                           :initial-tab="initialTab"
                           @update-status="handleStatusUpdate"
                           @complete="handleComplete"
                           @save-design-data="handleSaveDesignData"
+                          @switch-task="handleSwitchTask"
                         />
                       </div>
                       <div v-else-if="activeTab === 'history'">
@@ -152,6 +177,8 @@ const activeTab = ref('details')
 interface Props {
   show: boolean
   task: EnquiryTask | null
+  prevTask?: EnquiryTask | null
+  nextTask?: EnquiryTask | null
   readonly?: boolean
   initialTab?: string | null
 }
@@ -179,7 +206,8 @@ const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
   'complete': []
   'save-design-data': [taskId: number, data: DesignAsset[]]
-  'assign': [task: EnquiryTask] 
+  'assign': [task: EnquiryTask]
+  'switch-task': [task: EnquiryTask | string]
 }>()
 
 const closeModal = () => {
@@ -315,6 +343,17 @@ const releaseTask = async () => {
     isReleasing.value = false
   }
 }
+
+const switchTask = (targetTask: EnquiryTask | null | undefined) => {
+    if (targetTask) {
+        emit('switch-task', targetTask)
+    }
+}
+
+const handleSwitchTask = (taskOrType: EnquiryTask | string) => {
+  console.log('[DEBUG] TaskModal: handleSwitchTask called with:', taskOrType)
+  emit('switch-task', taskOrType)
+}
 </script>
 
 <style scoped>
@@ -332,23 +371,25 @@ const releaseTask = async () => {
   background: #334155;
 }
 
-/* Modal Transitions */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
+/* Modal Container (Persistence for children) */
+.modal-container-enter-active,
+.modal-container-leave-active {
+  transition: all 0.8s;
 }
 
-.modal-fade-enter-from,
-.modal-fade-leave-to {
+/* Backdrop Fade Transition */
+.backdrop-fade-enter-active,
+.backdrop-fade-leave-active {
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.backdrop-fade-enter-from,
+.backdrop-fade-leave-to {
   opacity: 0;
 }
 
-.panel-slide-enter-active {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
+.panel-slide-enter-active,
 .panel-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .panel-slide-enter-from {
@@ -372,6 +413,6 @@ const releaseTask = async () => {
 
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(10px);
 }
 </style>

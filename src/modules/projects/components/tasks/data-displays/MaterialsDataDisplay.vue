@@ -24,40 +24,74 @@
 
     <!-- Main Content -->
     <div v-else>
-      <!-- Project Header Section -->
-    <div class="mb-6">
-      <!-- Project Information Display -->
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Project Information</h5>
-        <!-- Project Information Grid - 3 per row -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Project Title</label>
-            <p class="text-sm text-gray-900 dark:text-white font-semibold">{{ materialsData.projectInfo.enquiryTitle }}</p>
+        <!-- Minimalistic Workflow & Approvals -->
+      <div v-if="materialsData.projectElements.length > 0" class="mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-700 overflow-hidden shadow-sm">
+          <!-- Compact Header -->
+          <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-gray-700">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                <i class="mdi mdi-clipboard-check text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Workflow Progress</h3>
+                <p class="text-xs text-slate-500 dark:text-gray-400">Materials → Approvals → Budget</p>
+              </div>
+            </div>
+            
+            <!-- Status Badge -->
+            <div>
+              <span v-if="approvalStatus.all_approved" class="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg text-xs font-bold">
+                ✓ Approved
+              </span>
+              <span v-else class="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold">
+                Pending
+              </span>
+            </div>
           </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Enquiry Number</label>
-            <p class="text-sm text-gray-900 dark:text-white font-medium">{{ materialsData.projectInfo.projectId }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Client Name</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.clientName }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Event Venue</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ materialsData.projectInfo.eventVenue }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Expected Delivery Date</label>
-            <p class="text-sm text-gray-900 dark:text-white">{{ formatDate(materialsData.projectInfo.setupDate) }}</p>
-          </div>
-          <div>
-            <label class="text-xs text-gray-500 dark:text-gray-400">Set Down Date</label>
-            <p class="text-sm text-gray-900 dark:text-white text-gray-500 italic">{{ materialsData.projectInfo.setDownDate }}</p>
+
+          <!-- Progress Steps -->
+          <div class="p-4">
+            <div class="flex items-center gap-2 mb-0">
+              <!-- Step 1 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-emerald-500 text-white">
+                  <i class="mdi mdi-check"></i>
+                </div>
+                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  Materials
+                </span>
+              </div>
+              
+              <div class="w-8 h-0.5 bg-emerald-300"></div>
+              
+              <!-- Step 2 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                     :class="approvalStatus.all_approved ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+                  <i class="mdi mdi-check" v-if="approvalStatus.all_approved"></i>
+                  <span v-else>2</span>
+                </div>
+                <span class="text-xs font-medium" :class="approvalStatus.all_approved ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+                  Approvals
+                </span>
+              </div>
+              
+              <div class="w-8 h-0.5" :class="approvalStatus.all_approved ? 'bg-emerald-300' : 'bg-slate-200 dark:bg-gray-700'"></div>
+              
+              <!-- Step 3 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-slate-200 dark:bg-gray-700 text-slate-400">
+                  3
+                </div>
+                <span class="text-xs font-medium text-slate-500">
+                  Budget
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Project Elements Section -->
     <div class="mb-6">
@@ -462,6 +496,17 @@ interface ProjectInfo {
   eventVenue: string
   setupDate: string
   setDownDate: string
+  approval_status?: ApprovalStatus
+}
+
+interface ApprovalStatus {
+    all_approved: boolean;
+    needs_approval: boolean;
+    approved_count: number;
+    total_count: number;
+    project_officer: { status: 'pending' | 'approved' | 'rejected', notes?: string, action_at?: string, action_by?: string };
+    production: { status: 'pending' | 'approved' | 'rejected', notes?: string, action_at?: string, action_by?: string };
+    finance: { status: 'pending' | 'approved' | 'rejected', notes?: string, action_at?: string, action_by?: string };
 }
 
 interface ProjectElement {
@@ -541,6 +586,7 @@ const loadMaterialsData = async () => {
     const data = await MaterialsService.getMaterialsData(props.task.id)
     Object.assign(materialsData, data)
     initializeCollapsedState()
+    loadApprovalStatus()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to load materials data'
     console.error('Failed to load materials data:', err)
@@ -566,19 +612,27 @@ const materialsData = reactive<MaterialsData>({
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
+// Approval status tracking
+const approvalStatus = ref<ApprovalStatus>({
+    all_approved: false,
+    needs_approval: false,
+    approved_count: 0,
+    total_count: 0,
+    project_officer: { status: 'pending' },
+    production: { status: 'pending' },
+    finance: { status: 'pending' }
+})
+
 /**
- * Watch for changes in the task prop and update project info accordingly
- * This ensures the component stays in sync if the task data is updated externally
+ * Load approval status from the project data
  */
-watch(
-  () => props.task,
-  (newTask) => {
-    if (newTask) {
-      Object.assign(materialsData.projectInfo, initializeProjectInfo())
-    }
-  },
-  { deep: true }
-)
+const loadApprovalStatus = () => {
+  if (materialsData.projectInfo?.approval_status) {
+    approvalStatus.value = materialsData.projectInfo.approval_status
+  }
+}
+
+// Watch for changes in the task prop and update project info accordingly
 
 // View modal state
 const isViewModalOpen = ref(false)
@@ -834,8 +888,16 @@ const getStatusColor = (status: string): string => {
 }
 
 /**
- * Get human-readable label for task status
- * @param status - The current task status
- * @returns Human-readable status label
+ * Watch for changes in the task prop and update project info accordingly
+ * This ensures the component stays in sync if the task data is updated externally
  */
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask) {
+      Object.assign(materialsData.projectInfo, initializeProjectInfo())
+    }
+  },
+  { deep: true }
+)
 </script>

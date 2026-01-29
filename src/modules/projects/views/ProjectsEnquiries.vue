@@ -23,6 +23,17 @@
           
           <div class="flex flex-wrap items-center gap-4">
             <button
+              @click="filters.needs_attention = !filters.needs_attention"
+              class="h-10 px-6 rounded-lg font-bold text-sm transition-all border flex items-center gap-2"
+              :class="filters.needs_attention 
+                ? 'bg-amber-50 text-amber-600 border-amber-200 shadow-sm' 
+                : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
+            >
+              <i class="mdi" :class="filters.needs_attention ? 'mdi-alert-circle' : 'mdi-alert-circle-outline'"></i>
+              Needs Attention
+            </button>
+
+            <button
               v-if="isProjectOfficer"
               @click="filters.assigned_to_me = !filters.assigned_to_me"
               class="h-10 px-6 rounded-lg font-bold text-sm transition-all border flex items-center gap-2"
@@ -177,7 +188,11 @@
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
             <template v-for="enquiry in filteredEnquiries" :key="enquiry.id">
-              <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+              <tr 
+                :id="'enquiry-row-' + enquiry.id"
+                class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
+                :class="{ 'bg-blue-50/50 dark:bg-blue-900/10': selectedEnquiry?.id === enquiry.id }"
+              >
                 <td class="px-6 py-5 whitespace-nowrap">
                   <div class="flex flex-col">
                     <span 
@@ -197,10 +212,35 @@
                     <span class="text-sm font-semibold text-slate-500 tracking-wide">{{ enquiry.client?.full_name || 'No Client' }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-5 whitespace-nowrap">
-                  <div class="flex flex-col">
-                    <span class="text-base font-bold text-slate-800 dark:text-slate-200">{{ enquiry.project_officer?.name || 'Unassigned' }}</span>
+                <td class="px-6 py-5 whitespace-nowrap relative">
+                  <div class="flex flex-col relative">
+                    <button 
+                        @click.stop="editingAssigneeId = editingAssigneeId === enquiry.id ? null : enquiry.id"
+                        class="text-left group/assign"
+                    >
+                        <span class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover/assign:text-blue-600 transition-colors border-b border-dashed border-transparent group-hover/assign:border-blue-400">
+                            {{ enquiry.project_officer?.name || 'Unassigned' }}
+                        </span>
+                    </button>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-[0.05em] mt-0.5">{{ enquiry.contact_person || 'No Contact' }}</span>
+                    
+                    <!-- Quick Assign Dropdown -->
+                    <div v-if="editingAssigneeId === enquiry.id" class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                        <div class="fixed inset-0 z-40" @click.stop="editingAssigneeId = null"></div>
+                        <div class="relative z-50 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                            <div class="px-3 py-2 text-xs font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-900/50 mb-1">Select Officer</div>
+                            <button 
+                                v-for="officer in availableProjectOfficers" 
+                                :key="officer.id"
+                                @click.stop="updateAssignment(enquiry, officer.id); editingAssigneeId = null"
+                                class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 transition-colors flex items-center justify-between"
+                                :class="enquiry.project_officer_id === officer.id ? 'bg-blue-50 text-blue-600' : 'text-slate-700 dark:text-slate-300'"
+                            >
+                                <span>{{ officer.name }}</span>
+                                <i v-if="enquiry.project_officer_id === officer.id" class="mdi mdi-check-circle text-blue-600"></i>
+                            </button>
+                        </div>
+                    </div>
                   </div>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
@@ -212,26 +252,65 @@
                   </div>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
-                  <div 
-                    class="px-3 py-2 text-xs font-black rounded-lg uppercase tracking-widest border shadow-sm flex items-center gap-1.5 transition-all duration-300"
+                  <button 
+                    @click.stop="togglePriority(enquiry)"
+                    class="px-3 py-2 text-xs font-black rounded-lg uppercase tracking-widest border shadow-sm flex items-center gap-1.5 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer select-none"
                     :class="getPriorityDisplayClasses(enquiry.priority)"
+                    title="Click to cycle priority"
                   >
                     {{ enquiry.priority || 'Normal' }}
-                  </div>
+                    <i class="mdi mdi-refresh text-[10px] opacity-50"></i>
+                  </button>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600">
                       {{ getPresetLabel(enquiry.workflow_preset_type) }}
                    </span>
                 </td>
-                <td class="px-6 py-5 whitespace-nowrap">
-                  <div class="flex flex-col gap-2">
-                    <span 
-                      class="px-4 py-1.5 text-xs font-black rounded-full uppercase tracking-widest border shadow-sm inline-flex w-fit"
+                <td class="px-6 py-5 whitespace-nowrap relative">
+                  <!-- Check for My Pending Actions First -->
+                  <div v-if="getUserPendingTaskCount(enquiry) > 0" class="flex flex-col gap-1 items-start">
+                     <span class="text-[10px] font-black uppercase text-amber-600 tracking-widest flex items-center gap-1 animate-pulse">
+                        <i class="mdi mdi-alert-circle"></i> Action Required
+                     </span>
+                     
+                     <div class="px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-xs font-bold shadow-sm max-w-[180px] truncate" :title="getUserNextAction(enquiry)?.title">
+                        {{ getUserNextAction(enquiry)?.title || 'Pending Tasks' }}
+                     </div>
+                     
+                     <span v-if="getUserPendingTaskCount(enquiry) > 1" class="text-[9px] font-bold text-slate-400 mt-0.5 ml-1">
+                       {{ getUserPendingTaskCount(enquiry) - 1 }} other task{{ getUserPendingTaskCount(enquiry) > 2 ? 's' : '' }}
+                     </span>
+                  </div>
+
+                  <!-- Default Status Display -->
+                  <div v-else class="flex flex-col gap-2 relative">
+                    <button 
+                      @click.stop="editingStatusId = editingStatusId === enquiry.id ? null : enquiry.id"
+                      class="px-4 py-1.5 text-xs font-black rounded-full uppercase tracking-widest border shadow-sm inline-flex w-fit items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer"
                       :class="getStatusColor(enquiry.status)"
                     >
                       {{ getStatusLabel(enquiry.status) }}
-                    </span>
+                      <i class="mdi mdi-chevron-down text-[10px] opacity-70"></i>
+                    </button>
+                    
+                    <!-- Quick Status Dropdown -->
+                    <div v-if="editingStatusId === enquiry.id" class="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                        <div class="fixed inset-0 z-40" @click.stop="editingStatusId = null"></div>
+                        <div class="relative z-50 py-1">
+                            <button 
+                              v-for="(label, key) in ENQUIRY_STATUS_LABELS"
+                              :key="key"
+                              @click.stop="quickUpdateStatus(enquiry, key); editingStatusId = null"
+                              class="w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 border-l-4 border-transparent hover:border-l-blue-500 transition-all"
+                              :class="key === enquiry.status ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-gray-300'"
+                            >
+                              <div class="w-2 h-2 rounded-full" :class="getStatusColorDot(key)"></div>
+                              {{ label }}
+                            </button>
+                        </div>
+                    </div>
+
                     <div v-if="getUserTaskCount(enquiry) > 0" class="flex items-center gap-1.5 text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-md border border-amber-100 dark:border-amber-800/50 w-fit">
                       <span class="text-xs font-black uppercase tracking-tight">{{ getUserTaskCount(enquiry) }} Tasks</span>
                     </div>
@@ -1327,7 +1406,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
-const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries' })
+const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries', needs_attention: false })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -1358,7 +1437,85 @@ const activeTab = computed({
 })
 const showCreateModal = ref(false)
 const titleInputRef = ref<HTMLInputElement | null>(null)
-const editingEnquiry = ref<ProjectEnquiry | null>(null)
+
+const filteredEnquiries = computed(() => {
+  if (!enquiries.value) return []
+  
+  let result = enquiries.value
+  
+  // Client-side filtering for 'Needs Attention'
+  if (filters.value.needs_attention) {
+    result = result.filter(enquiry => getUserPendingTaskCount(enquiry) > 0)
+  }
+  
+  return result
+})
+
+const getProjectIdentifier = (task: any): string => {
+  if (!task.enquiry) return 'General Task'
+  return task.enquiry.job_number || task.enquiry.enquiry_number || 'TBC'
+}
+
+const getUserPendingTaskCount = (enquiry: any) => {
+  const tasks = enquiry.enquiryTasks || enquiry.enquiry_tasks
+  if (!user.value || !tasks) return 0
+  
+  const myDeptId = user.value.department_id
+  
+  return tasks.filter((task: any) => {
+    if (task.status === 'completed' || task.status === 'cancelled') return false
+    
+    // 1. Explicit Assignment
+    if (task.assigned_to?.id === user.value!.id) return true
+    if (task.assigned_user_id === user.value!.id) return true
+    const assignedUsers = task.assignedUsers || task.assigned_users
+    if (assignedUsers?.some((u: any) => u.id === user.value!.id)) return true
+    
+    // 2. Departmental Pool (Unassigned tasks matching user's department)
+    // Only if task is strictly unassigned
+    const isUnassigned = !task.assigned_to && !task.assigned_user_id && (!assignedUsers || assignedUsers.length === 0)
+    if (isUnassigned && myDeptId && task.department_id === myDeptId) return true
+    
+    return false
+  }).length
+}
+
+const getUserNextAction = (enquiry: any) => {
+  const tasks = enquiry.enquiryTasks || enquiry.enquiry_tasks
+  if (!user.value || !tasks) return null
+  
+  const myDeptId = user.value.department_id
+  
+  const myTasks = tasks.filter((task: any) => {
+    if (task.status === 'completed' || task.status === 'cancelled') return false
+    
+    if (task.assigned_to?.id === user.value!.id) return true
+    if (task.assigned_user_id === user.value!.id) return true
+    const assignedUsers = task.assignedUsers || task.assigned_users
+    if (assignedUsers?.some((u: any) => u.id === user.value!.id)) return true
+    
+    // Departmental Pool
+    const isUnassigned = !task.assigned_to && !task.assigned_user_id && (!assignedUsers || assignedUsers.length === 0)
+    if (isUnassigned && myDeptId && task.department_id === myDeptId) return true
+    
+    return false
+  })
+  
+  if (myTasks.length === 0) return null
+  
+  // Sort by priority (Urgent > High > Medium > Low)
+  const priorityOrder = { 'urgent': 4, 'high': 3, 'medium': 2, 'normal': 2, 'low': 1 }
+  
+  myTasks.sort((a: any, b: any) => {
+    const pA = priorityOrder[a.priority?.toLowerCase() as keyof typeof priorityOrder] || 1
+    const pB = priorityOrder[b.priority?.toLowerCase() as keyof typeof priorityOrder] || 1
+    return pB - pA
+  })
+  
+  return myTasks[0]
+}
+
+
 const saving = ref(false)
 const formError = ref('')
 const formSuccess = ref('')
@@ -1534,34 +1691,44 @@ const removeDeliverable = (index: number) => {
 // Workflow Task Selection
 const taskPresets = {
   full_event: {
-    label: 'Full Event (All Tasks)',
-    description: 'Complete event lifecycle from survey to reporting',
+    label: 'Full Event Production',
+    description: 'Complete event lifecycle with setup, execution, and teardown',
     tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'production', 'logistics', 'setup', 'handover', 'setdown', 'report']
   },
+  proposal: {
+    label: 'Proposal Development',
+    description: 'Survey, design, and quote preparation without execution',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote']
+  },
+  branding_production: {
+    label: 'Branding & Production',
+    description: 'Design, production, and delivery of branded materials',
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report']
+  },
+  fabrication: {
+    label: 'Fabrication Project',
+    description: 'Manufacturing and delivery with site survey',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report']
+  },
+  installation: {
+    label: 'Installation & Setup',
+    description: 'Installation project with setup and handover',
+    tasks: ['site-survey', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'logistics', 'setup', 'handover', 'report']
+  },
   delivery_only: {
-    label: 'Delivery Only',
-    description: 'Simple delivery projects without design/production',
-    tasks: ['materials', 'procurement', 'logistics', 'handover']
+    label: 'Simple Delivery',
+    description: 'Material procurement and delivery without production',
+    tasks: ['materials', 'budget', 'quote', 'quote_approval', 'procurement', 'logistics', 'handover']
   },
-  branding: {
-    label: 'Branding/Merchandising',
-    description: 'Branding projects with design and production',
-    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'production', 'handover']
+  design_consultation: {
+    label: 'Design & Consultation',
+    description: 'Design services with site survey and advisory',
+    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'handover', 'report']
   },
-  design_only: {
-    label: 'Design Only',
-    description: 'Concept and design delivery without execution',
-    tasks: ['site-survey', 'design', 'handover', 'report']
-  },
-  consultation: {
-    label: 'Consultation/Advisory',
-    description: 'Advisory services without physical delivery',
-    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'report']
-  },
-  internal_job: {
-    label: 'Internal Job',
-    description: 'Jobs executed within the company facility (Production only)',
-    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'report']
+  internal_production: {
+    label: 'Internal Production',
+    description: 'In-house production without external logistics',
+    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'handover', 'report']
   }
 }
 
@@ -1645,11 +1812,8 @@ const statusTabs = computed(() => {
   ]
 })
 
-const filteredEnquiries = computed(() => {
-  // Now that filtering is done in the backend, we essentially just return the items for the current page.
-  // We keep the null check for safety.
-  return enquiries.value.filter(e => e !== undefined && e !== null)
-})
+
+
 
 const applyFilters = () => {
   fetchEnquiries({ ...filters.value, page: 1 }) // Reset to page 1 when applying filters
@@ -2090,6 +2254,79 @@ const handleFormSubmit = async () => {
   }
 }
 
+const editingStatusId = ref<number | null>(null)
+const editingAssigneeId = ref<number | null>(null)
+
+const togglePriority = async (enquiry: ProjectEnquiry) => {
+  const priorities = ['low', 'medium', 'high', 'urgent']
+  // Handle 'normal' as 'medium'
+  const current = (enquiry.priority || 'medium').toLowerCase() === 'normal' ? 'medium' : (enquiry.priority || 'medium').toLowerCase()
+  const currentIndex = priorities.indexOf(current)
+  const nextIndex = (currentIndex + 1) % priorities.length
+  const newPriority = priorities[nextIndex]
+  
+  // Optimistic update
+  const oldPriority = enquiry.priority
+  enquiry.priority = newPriority as any
+  
+  try {
+    await updateEnquiry(enquiry.id, { priority: newPriority } as any)
+  } catch (error) {
+    console.error('Failed to update priority:', error)
+    enquiry.priority = oldPriority
+    alert('Failed to update priority')
+  }
+}
+
+const quickUpdateStatus = async (enquiry: ProjectEnquiry, newStatus: string) => {
+  const oldStatus = enquiry.status
+  // Optimistic update
+  enquiry.status = newStatus as any
+  
+  try {
+    await updateEnquiry(enquiry.id, { status: newStatus } as any)
+  } catch (error) {
+    console.error('Failed to update status:', error)
+    enquiry.status = oldStatus
+    alert('Failed to update status')
+  }
+}
+
+const updateAssignment = async (enquiry: ProjectEnquiry, officerId: number) => {
+  const oldOfficer = enquiry.project_officer
+  const officer = availableProjectOfficers.value.find(o => o.id === officerId)
+  
+  // Optimistic
+  enquiry.project_officer = officer
+  enquiry.project_officer_id = officerId
+  
+  try {
+    await updateEnquiry(enquiry.id, { project_officer_id: officerId } as any)
+  } catch (error) {
+    console.error('Failed to update assignment:', error)
+    enquiry.project_officer = oldOfficer
+    alert('Failed to update assignment')
+  }
+}
+
+const getStatusColorDot = (status: string) => {
+  // Map status to dot background color directly
+  const dotColors: Record<string, string> = {
+    'client_registered': 'bg-blue-500',
+    'enquiry_logged': 'bg-slate-500',
+    'site_survey_completed': 'bg-indigo-500',
+    'design_completed': 'bg-purple-500',
+    'budget_created': 'bg-amber-500',
+    'quote_prepared': 'bg-orange-500',
+    'quote_approved': 'bg-green-500',
+    'planning': 'bg-cyan-500',
+    'in_progress': 'bg-emerald-500',
+    'completed': 'bg-green-600',
+    'cancelled': 'bg-red-500'
+  }
+  return dotColors[status] || 'bg-slate-400'
+}
+
 const updateStatus = async (enquiry: ProjectEnquiry, newStatus: string) => {
   const oldStatus = enquiry.status
   if (confirm(`Are you sure you want to change status to "${ENQUIRY_STATUS_LABELS[newStatus] || newStatus}"?`)) {
@@ -2263,8 +2500,48 @@ watch(showCreateModal, (newVal) => {
 
 const fetchAvailableProjectOfficers = async () => {
   try {
-    const response = await api.get('/api/projects/available-project-officers')
-    availableProjectOfficers.value = response.data.data || []
+    // Try to fetch Project Officers
+    const response = await api.get('/api/users', {
+      params: {
+        role_name: 'Project Officer',
+        status: 'active',
+        per_page: 100
+      }
+    })
+    
+    let officers = response.data.data || []
+
+    // Also fetch Project Managers as they can also be assigned
+    try {
+        const pmResponse = await api.get('/api/users', {
+            params: {
+                role_name: 'Project Manager',
+                status: 'active',
+                per_page: 100
+            }
+        })
+        const managers = pmResponse.data.data || []
+        // Merge and deduplicate by ID
+        officers = [...officers, ...managers].filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
+    } catch (e) {
+        console.warn('Failed to fetch Project Managers', e)
+    }
+
+    // If still empty, try fetching Super Admins just in case (for dev environments)
+    if (officers.length === 0) {
+         try {
+            const adminResponse = await api.get('/api/users', {
+                params: {
+                    role_name: 'Super Admin',
+                    status: 'active',
+                    per_page: 100
+                }
+            })
+            officers = adminResponse.data.data || []
+        } catch (e) {}
+    }
+
+    availableProjectOfficers.value = officers
   } catch (error) {
     console.error('Failed to fetch available project officers:', error)
     availableProjectOfficers.value = []
@@ -2296,21 +2573,52 @@ const handleProjectActivatedSignal = async () => {
 }
 
 onMounted(async () => {
+  const query = router.currentRoute.value.query
+
+  // Restoration Logic: Tab
+  if (query.tab && (query.tab === 'projects' || query.tab === 'enquiries')) {
+    currentView.value = query.tab
+  }
+
   if (isProjectOfficer.value) {
       filters.value.assigned_to_me = true
   }
+  
   await fetchEnquiries(filters.value)
   await fetchClients()
   await fetchAvailableProjectOfficers()
   await fetchLogisticsDrivers()
 
-  // Handle direct ID navigation from external links (like from Lead Capture panel)
-  const queryId = router.currentRoute.value.query.id
-  if (queryId) {
-    const enquiryId = parseInt(queryId as string)
-    const target = enquiries.value.find(e => e.id === enquiryId)
+  // Handle direct ID navigation or restoration highlighting
+  // Support both 'id' (external links) and 'highlight' (internal back navigation)
+  if (query.id) {
+    const targetId = parseInt(query.id as string)
+    const target = enquiries.value.find(e => e.id === targetId)
     if (target) {
       viewEnquiryDetails(target)
+    }
+  }
+
+  if (query.highlight) {
+    const highlightId = parseInt(query.highlight as string)
+    const target = enquiries.value.find(e => e.id === highlightId)
+    if (target) {
+      // Just highlight the row without opening details
+      selectedEnquiry.value = target
+      
+      // Scroll into view
+      nextTick(() => {
+        const row = document.getElementById(`enquiry-row-${target.id}`)
+        if (row) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            // Add a temporary flash effect class then remove it
+            row.classList.add('highlight-pulse')
+            setTimeout(() => {
+                row.classList.remove('highlight-pulse')
+                selectedEnquiry.value = null // Optional: clear selection after a while or keep it? Keeping it is better for context.
+            }, 6000)
+        }
+      })
     }
   }
 
@@ -2322,3 +2630,15 @@ onUnmounted(() => {
   window.removeEventListener('project-activated', handleProjectActivatedSignal)
 })
 </script>
+
+<style scoped>
+@keyframes highlightPulse {
+  0% { background-color: rgba(59, 130, 246, 0.1); }
+  50% { background-color: rgba(59, 130, 246, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.highlight-pulse {
+  animation: highlightPulse 6s ease-in-out;
+}
+</style>

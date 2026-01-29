@@ -1,5 +1,5 @@
 <template>
-  <div class="task-content">
+  <div class="task-content bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     <div class="mb-4">
       <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
         {{ task.title }}

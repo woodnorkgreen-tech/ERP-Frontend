@@ -1,126 +1,60 @@
 <template>
-  <div class="procurement-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
-
-    <!-- Loading State -->
-    <div v-if="isImporting" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-      <div class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
-        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-        <span class="text-sm font-medium">Loading procurement data...</span>
+  <div class="procurement-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+    <div class="flex items-center justify-between mb-8 px-1">
+      <div>
+        <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+            <i class="mdi mdi-cart-outline text-xl"></i>
+          </span>
+          <span>{{ task.title }}</span>
+        </h3>
+        <p class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-widest pl-1">Inventory Management & Procurement Tracking</p>
       </div>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="importError" class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3 text-red-600 dark:text-red-400">
-
-          <div>
-            <p class="text-sm font-medium">Failed to load procurement data</p>
-            <p class="text-xs text-red-500 dark:text-red-300">{{ importError }}</p>
-          </div>
-        </div>
-        <button
-          @click="importBudgetData"
-          :disabled="isImporting"
-          class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50"
-        >
-          {{ isImporting ? 'Importing...' : 'Retry Import' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div v-else>
-      <!-- Project Details -->
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
-        <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-        
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
-          <div class="space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <i class="mdi mdi-office-building text-2xl"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-6 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-identifier"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
-                  <i class="mdi mdi-account-tie"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
-                  <i class="mdi mdi-map-marker"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Side: Status/Highlights -->
-          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
-             <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Schedule</p>
-                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                  <i class="mdi mdi-calendar-check text-blue-400"></i>
-                  {{ formatDate(projectInfo.setupDate) }}
-                </div>
-             </div>
-             
-             <div class="flex items-center gap-2">
-               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
-             </div>
-          </div>
-        </div>
+      <!-- Loading/Error States remain same... -->
+      <div v-if="isImporting" class="mb-8 p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 rounded-2xl">
+         <div class="flex items-center gap-4 text-blue-600 dark:text-blue-400">
+            <div class="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+            <span class="text-sm font-bold uppercase tracking-wider">Synchronizing procurement engine...</span>
+         </div>
       </div>
 
-      <!-- Tab Navigation -->
-      <div class="mb-6">
-        <nav class="flex space-x-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-1.5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
-          <button
+      <div v-else-if="importError" class="mb-8 p-6 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800/50 rounded-2xl flex items-center justify-between">
+         <div class="flex items-center gap-4 text-red-600 dark:text-red-400">
+            <i class="mdi mdi-alert-circle text-2xl"></i>
+            <div>
+               <p class="text-sm font-bold">Data Synchronization Failed</p>
+               <p class="text-xs opacity-80">{{ importError }}</p>
+            </div>
+         </div>
+         <button @click="importBudgetData" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-red-500/20">
+            Retry Sync
+         </button>
+      </div>
+
+      <!-- Tabs Navigation: Premium Boxed Style -->
+      <div v-else class="flex items-end gap-1 mb-0 relative z-10 px-1 leading-none">
+         <button
             v-for="tab in tabs"
             :key="tab.id"
+            type="button"
             @click="activeTab = tab.id"
-            :class="[
-              'flex-1 relative py-3 px-4 rounded-lg font-medium text-sm transition-all duration-300 transform',
-              activeTab === tab.id
-                ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-md scale-105 border border-blue-200 dark:border-blue-800'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-800/50'
-            ]"
-          >
-            <span class="flex items-center justify-center space-x-2">
-              <span>{{ tab.label }}</span>
-            </span>
-            <div v-if="activeTab === tab.id" class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-t-full"></div>
-          </button>
-        </nav>
+            class="flex items-center gap-2 px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 rounded-t-2xl border-t border-l border-r relative"
+            :class="activeTab === tab.id 
+               ? 'bg-white dark:bg-gray-900 border-blue-500 dark:border-blue-800 text-blue-600 -mb-[1px] shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]' 
+               : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 pb-3.5'"
+         >
+            <i class="mdi" :class="getTabIcon(tab.id)"></i>
+            <span>{{ tab.label }}</span>
+            
+            <!-- Top Accent Bar for Active Tab -->
+            <div v-if="activeTab === tab.id" class="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-2xl"></div>
+         </button>
       </div>
+
+      <!-- Main Content Container: Integrated into the Box -->
+      <div v-if="!isImporting && !importError" class="bg-white dark:bg-gray-900 border border-blue-500 dark:border-blue-800 rounded-2xl rounded-tl-none p-8 shadow-sm min-h-[600px] relative z-0">
 
       <!-- Items Tab -->
       <div v-if="activeTab === 'items'" class="space-y-6">
@@ -588,7 +522,6 @@
           </button>
         </div>
       </div>
-    </div>
 
     <!-- Handover Modal -->
     <div v-if="showHandoverModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -646,7 +579,8 @@
         </div>
       </div>
     </div>
-  </div>
+      </div> <!-- End of Boxed Container -->
+   </div> <!-- End of Task Container -->
 </template>
 
 <script setup lang="ts">
@@ -761,9 +695,17 @@ watch(() => props.initialTab, (newTab) => {
     activeTab.value = newTab
   }
 })
+const getTabIcon = (id: string) => {
+  const icons: Record<string, string> = {
+    'items': 'mdi-package-variant-closed',
+    'report': 'mdi-file-chart-outline'
+  }
+  return icons[id] || 'mdi-circle'
+}
+
 const tabs = [
-  { id: 'items', label: 'Order Progress', icon: '📦' },
-  { id: 'report', label: 'Download Report', icon: '📄' }
+  { id: 'items', label: 'Order Progress' },
+  { id: 'report', label: 'Download Report' }
 ]
 
 // Use composables

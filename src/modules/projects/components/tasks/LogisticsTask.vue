@@ -1,173 +1,156 @@
 <template>
-  <div class="logistics-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
-    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
+  <div class="logistics-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+    
+    <!-- Premium Header Section -->
+    <div class="mb-10">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+        <div class="flex items-center gap-5">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
+            <i class="mdi mdi-truck-delivery text-3xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-3 mb-1.5">
+              <span class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase rounded-lg tracking-wider">PROJECT {{ projectInfo.projectId }}</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+              <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ task.title }}</span>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none group flex items-center gap-3">
+              {{ projectInfo.enquiryTitle }}
+              <i class="mdi mdi-check-decagram text-blue-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </h2>
+          </div>
+        </div>
 
-    <!-- Project Header Section -->
-    <div class="mb-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Delivery Task - {{ task.title }}
-        </h4>
-        <div class="flex items-center gap-2">
-          <button
-            v-if="task.status === 'completed'"
-            @click="revertTaskStatus"
-            :disabled="isReverting"
-            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span>{{ isReverting ? 'Reverting...' : 'Revert to In Progress' }}</span>
-          </button>
-          
-          <button
-            @click="downloadPdfReport"
-            :disabled="isDownloading"
-            class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
-          >
-            <i v-if="isDownloading" class="mdi mdi-loading mdi-spin"></i>
-            <i v-else class="mdi mdi-file-pdf-box text-base"></i> 
-            {{ isDownloading ? 'Generating...' : 'Download PDF' }}
-          </button>
+        <div class="flex items-center gap-3">
+             <button
+                v-if="task.status === 'completed'"
+                @click="revertTaskStatus"
+                :disabled="isReverting"
+                class="h-11 px-6 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 border border-slate-200 dark:border-slate-800"
+              >
+                <i class="mdi mdi-history text-lg"></i>
+                <span>{{ isReverting ? 'Reverting...' : 'Revert to In Progress' }}</span>
+              </button>
+              
+              <button
+                @click="downloadPdfReport"
+                :disabled="isDownloading"
+                class="h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20 active:scale-95 flex items-center gap-2"
+              >
+                <i v-if="isDownloading" class="mdi mdi-loading mdi-spin text-lg"></i>
+                <i v-else class="mdi mdi-file-pdf-box text-lg"></i> 
+                {{ isDownloading ? 'Generating...' : 'Download PDF' }}
+              </button>
         </div>
       </div>
 
-      <!-- Project Details -->
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
-        <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
+      <!-- Modern Information Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:flex lg:items-center gap-y-6 gap-x-12 py-6 px-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2rem] border border-slate-100 dark:border-slate-800/50">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400">
+            <i class="mdi mdi-account-tie text-xl"></i>
+          </div>
+          <div>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Client</p>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+          </div>
+        </div>
         
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
-          <div class="space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
-                <i class="mdi mdi-truck-delivery text-2xl"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-6 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                  <i class="mdi mdi-tag-outline text-slate-400"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                  <i class="mdi mdi-account-tie-outline text-slate-400"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                  <i class="mdi mdi-map-marker-outline text-slate-400"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                  <i class="mdi mdi-account-star-outline text-slate-400"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Officer</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.projectOfficer }}</p>
-                </div>
-              </div>
-            </div>
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400">
+            <i class="mdi mdi-map-marker text-xl"></i>
           </div>
-
-          <!-- Right Side: Status/Highlights -->
-          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
-             <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Project Schedule</p>
-                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                  {{ formatDate(projectInfo.setupDate) }}
-                </div>
-             </div>
-             
-             <div class="flex items-center gap-2">
-               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Live Status</span>
-             </div>
+          <div>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Venue</p>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
           </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400">
+            <i class="mdi mdi-account-star text-xl"></i>
+          </div>
+          <div>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Project Officer</p>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.projectOfficer }}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400">
+            <i class="mdi mdi-calendar-check text-xl"></i>
+          </div>
+          <div>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Setup Date</p>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ formatDate(projectInfo.setupDate) }}</p>
+          </div>
+        </div>
+
+        <div class="lg:ml-auto flex items-center gap-3 px-4 py-2 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+           <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Operational Live</span>
         </div>
       </div>
     </div>
-
     <!-- Feedback Messages -->
-    <div v-if="feedbackMessages.length > 0" class="mb-6 space-y-2">
+    <TransitionGroup 
+      name="list" 
+      tag="div" 
+      class="mb-8 space-y-3"
+    >
       <div
         v-for="message in feedbackMessages"
         :key="message.id"
+        class="flex items-center justify-between px-6 py-4 rounded-2xl border backdrop-blur-sm transition-all duration-300"
         :class="[
-          'flex items-center justify-between p-3 rounded-lg border text-sm',
           {
-            'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200': message.type === 'success',
-            'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200': message.type === 'error',
-            'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200': message.type === 'warning',
-            'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200': message.type === 'info'
+            'bg-emerald-50/80 border-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-200': message.type === 'success',
+            'bg-rose-50/80 border-rose-100 text-rose-800 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-200': message.type === 'error',
+            'bg-amber-50/80 border-amber-100 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-200': message.type === 'warning',
+            'bg-sky-50/80 border-sky-100 text-sky-800 dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-200': message.type === 'info'
           }
         ]"
       >
-        <div class="flex items-center space-x-2">
-          <span>{{ message.type.toUpperCase() }}:</span>
-          <span>{{ message.message }}</span>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 shadow-sm">
+             <i v-if="message.type === 'success'" class="mdi mdi-check-circle text-emerald-500"></i>
+             <i v-else-if="message.type === 'error'" class="mdi mdi-alert-circle text-rose-500"></i>
+             <i v-else-if="message.type === 'warning'" class="mdi mdi-alert text-amber-500"></i>
+             <i v-else class="mdi mdi-information text-sky-500"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-60">{{ message.type }}</p>
+            <p class="text-xs font-bold">{{ message.message }}</p>
+          </div>
         </div>
         <button
           @click="removeFeedbackMessage(message.id)"
-          class="text-current hover:opacity-70 transition-opacity p-1 rounded-md"
-          :aria-label="'Dismiss message'"
+          class="w-8 h-8 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-colors"
         >
-          Dismiss
+          <i class="mdi mdi-close"></i>
         </button>
       </div>
-    </div>
+    </TransitionGroup>
 
-    <!-- Tab Navigation -->
-    <div class="mb-6">
-      <nav
-        class="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto"
-        role="tablist"
-        aria-label="Logistics task navigation"
-      >
+
+    <!-- Refined Tab Navigation -->
+    <div class="flex items-center justify-between mb-10 border-b border-slate-100 dark:border-slate-800/50">
+      <nav class="flex space-x-10" role="tablist">
         <button
           v-for="(tab, index) in tabs"
           :key="tab.id"
           @click="setActiveTab(tab.id)"
-          @keydown="handleTabKeydown($event, index)"
-          :class="[
-            'flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap min-w-0',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700',
-            activeTab === tab.id
-              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm transform scale-105'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:scale-102'
-          ]"
-          :aria-selected="activeTab === tab.id"
-          :aria-controls="`tab-panel-${tab.id}`"
-          :id="`tab-${tab.id}`"
-          role="tab"
-          :tabindex="activeTab === tab.id ? 0 : -1"
+          class="relative py-5 text-[10px] font-black uppercase tracking-[0.25em] transition-all duration-300"
+          :class="activeTab === tab.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'"
         >
-          <span class="truncate">{{ tab.label }}</span>
-          <!-- Tab indicator badges -->
+          {{ tab.label }}
+          <!-- Active Indicator -->
+          <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 dark:bg-indigo-400 rounded-t-full"></div>
+          
+          <!-- Tab Badge -->
           <span
             v-if="getTabBadgeCount(tab.id) > 0"
-            class="ml-2 inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200"
-            :class="getTabBadgeClass(tab.id)"
+            class="ml-2 px-1.5 py-0.5 rounded-md text-[9px] font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
           >
             {{ getTabBadgeCount(tab.id) }}
           </span>
@@ -182,796 +165,496 @@
       <!-- Dispatch & Route Planning Tab -->
       <div
         v-show="activeTab === 'dispatch-planning'"
-        class="dispatch-planning-section tab-panel transition-opacity duration-200"
-        :id="`tab-panel-dispatch-planning`"
+        class="tab-panel animate-fade-in"
         role="tabpanel"
-        :aria-labelledby="`tab-dispatch-planning`"
-        :class="{ 'animate-fade-in': activeTab === 'dispatch-planning' }"
       >
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Dispatch & Route Planning</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Configure vehicle, driver, and travel timeline for this project
-            </p>
-          </div>
-          <div class="flex space-x-3">
-            <button
-              v-if="!isReadOnly"
-              @click="importLatestLog"
-              :disabled="isSavingPlanning"
-              class="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
-            >
-              <i class="mdi mdi-sync"></i>
-              <span>Import from Transport Log</span>
-            </button>
-            <button
-              v-if="!isReadOnly"
-              @click="saveDispatchPlanning"
-              :disabled="isSavingPlanning"
-              class="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg active:scale-95 flex items-center gap-2"
-            >
-              <i v-if="isSavingPlanning" class="mdi mdi-loading mdi-spin"></i>
-              <span>{{ isSavingPlanning ? 'Saving...' : 'Save Planning' }}</span>
-            </button>
-          </div>
+        <div class="flex items-center justify-between mb-8">
+            <div>
+               <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Dispatch & Transportation</h3>
+               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Map out the project logistics manifest</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+               <button
+                  @click="importLatestLog"
+                  :disabled="isSavingPlanning"
+                  class="h-10 px-5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase rounded-2xl transition-all border border-indigo-100 dark:border-indigo-800 flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                >
+                  <i class="mdi mdi-cloud-download text-lg"></i>
+                  <span>Sync via Log</span>
+                </button>
+                <button
+                  v-if="!isReadOnly"
+                  @click="saveDispatchPlanning"
+                  :disabled="isSavingPlanning"
+                  class="h-10 px-6 bg-slate-900 dark:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <i v-if="isSavingPlanning" class="mdi mdi-loading mdi-spin text-lg"></i>
+                  <i v-else class="mdi mdi-content-save-check text-lg"></i>
+                  <span>{{ isSavingPlanning ? 'Saving...' : 'Secure Manifest' }}</span>
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <!-- Transport Details -->
-          <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                  <i class="mdi mdi-truck-delivery text-2xl"></i>
-                </div>
-                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Detail</h4>
-              </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <!-- Card 1: Transport Detail -->
+           <div class="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 relative group transition-all duration-500 hover:border-indigo-500/30">
+               <div class="flex items-center gap-4 mb-8">
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-indigo-500 border border-slate-100 dark:border-slate-700">
+                     <i class="mdi mdi-truck text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-0.5">Transportation Unit</h4>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Vehicle & Driver Setup</p>
+                  </div>
+               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle Type</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.vehicle_type"
-                    type="text"
-                    placeholder="e.g. 10 Ton Lorry, Pickup"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Vehicle ID / Plate #</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.vehicle_identification"
-                    type="text"
-                    placeholder="e.g. KCA 123X"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Assigned Driver</label>
-                  <select 
-                    v-model="logisticsData.logistics_planning.driver_name"
-                    @change="onSelectDriver(logisticsData.logistics_planning.driver_name || '')"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all appearance-none"
-                  >
-                    <option value="">Select a driver...</option>
-                    <option v-for="driver in drivers" :key="driver.id" :value="driver.name">{{ driver.name }}</option>
-                    <option value="Third-party">Third-party Driver</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Driver Contact</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.driver_contact"
-                    type="text"
-                    placeholder="e.g. +254 7..."
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+               <div class="space-y-6">
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Vehicle Classification</label>
+                    <input v-model="logisticsData.logistics_planning.vehicle_type" type="text" placeholder="e.g. 10 Ton Flatbed" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Vehicle ID / Plate #</label>
+                    <input v-model="logisticsData.logistics_planning.vehicle_identification" type="text" placeholder="e.g. KCA 123X" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Assigned Driver</label>
+                    <div class="relative">
+                      <select v-model="logisticsData.logistics_planning.driver_name" @change="onSelectDriver(logisticsData.logistics_planning.driver_name || '')" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all appearance-none outline-none">
+                        <option value="">Select a driver...</option>
+                        <option v-for="driver in drivers" :key="driver.id" :value="driver.name">{{ driver.name }}</option>
+                        <option value="Third-party">Third-party Driver</option>
+                      </select>
+                      <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Driver Contact</label>
+                    <input v-model="logisticsData.logistics_planning.driver_contact" type="text" placeholder="e.g. +254 7..." class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none" />
+                  </div>
+               </div>
+           </div>
 
-          <!-- Route Planning -->
-          <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                  <i class="mdi mdi-map-marker-distance text-2xl"></i>
-                </div>
-                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Route Planning</h4>
-              </div>
+           <!-- Card 2: Route Planning -->
+           <div class="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 relative group transition-all duration-500 hover:border-emerald-500/30">
+               <div class="flex items-center gap-4 mb-8">
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-emerald-500 border border-slate-100 dark:border-slate-700">
+                     <i class="mdi mdi-map-marker-path text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-0.5">Navigation Path</h4>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Origin & Destination</p>
+                  </div>
+               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Origin</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.route.origin"
-                    type="text"
-                    placeholder="e.g. Workshop"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Destination</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.route.destination"
-                    type="text"
-                    placeholder="Project Venue"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Distance (KM)</label>
-                  <input 
-                    v-model.number="logisticsData.logistics_planning.route.distance"
-                    type="number"
-                    step="0.1"
-                    placeholder="Approx km"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Estimated Travel Time</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.route.travel_time"
-                    type="text"
-                    placeholder="e.g. 1 hour 30 mins"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+               <div class="space-y-6">
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Point of Origin</label>
+                    <input v-model="logisticsData.logistics_planning.route.origin" type="text" placeholder="e.g. Main Workshop" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-emerald-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Project Destination</label>
+                    <input v-model="logisticsData.logistics_planning.route.destination" type="text" placeholder="Venue Location" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-emerald-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Distance Matrix (KM)</label>
+                    <input v-model.number="logisticsData.logistics_planning.route.distance" type="number" step="0.1" placeholder="Approx distance" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-emerald-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Est. Transit Duration</label>
+                    <input v-model="logisticsData.logistics_planning.route.travel_time" type="text" placeholder="e.g. 2 hrs 15 mins" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-emerald-500 transition-all outline-none" />
+                  </div>
+               </div>
+           </div>
 
-          <!-- Timeline -->
-          <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                  <i class="mdi mdi-clock-outline text-2xl"></i>
-                </div>
-                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Transport Timeline</h4>
-              </div>
+           <!-- Card 3: Timeline -->
+           <div class="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 relative group transition-all duration-500 hover:border-amber-500/30">
+               <div class="flex items-center gap-4 mb-8">
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-amber-500 border border-slate-100 dark:border-slate-700">
+                     <i class="mdi mdi-clock-fast text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-0.5">Deployment Timeline</h4>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Transit & Setup Sync</p>
+                  </div>
+               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Departure Time</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.timeline.departure_time"
-                    type="datetime-local"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Arrival Time</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.timeline.arrival_time"
-                    type="datetime-local"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Target Setup Start</label>
-                  <input 
-                    v-model="logisticsData.logistics_planning.timeline.setup_start_time"
-                    type="datetime-local"
-                    class="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-blue-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div class="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl">
-                <div class="flex gap-3">
-                  <i class="mdi mdi-information-outline text-amber-500 text-xl"></i>
-                  <p class="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase leading-relaxed">
-                    These arrival/departure times will be reflected on the official Logistics Manifest report.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+               <div class="space-y-6">
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Scheduled Departure</label>
+                    <input v-model="logisticsData.logistics_planning.timeline.departure_time" type="datetime-local" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-amber-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Estimated Arrival</label>
+                    <input v-model="logisticsData.logistics_planning.timeline.arrival_time" type="datetime-local" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-amber-500 transition-all outline-none" />
+                  </div>
+                  <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Target Setup Kickoff</label>
+                    <input v-model="logisticsData.logistics_planning.timeline.setup_start_time" type="datetime-local" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-amber-500 transition-all outline-none" />
+                  </div>
+               </div>
+           </div>
         </div>
       </div>
 
       <!-- Team Confirmation Tab -->
       <div
         v-show="activeTab === 'team-confirmation'"
-        class="team-confirmation-section tab-panel transition-opacity duration-200"
-        :id="`tab-panel-team-confirmation`"
+        class="tab-panel animate-fade-in"
         role="tabpanel"
-        :aria-labelledby="`tab-team-confirmation`"
-        :class="{ 'animate-fade-in': activeTab === 'team-confirmation' }"
       >
-        <!-- Team Confirmation Header -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Team Confirmation</h3>
-            <!-- <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Confirm team assignments from Teams Task for logistics coordination
-            </p> -->
-          </div>
-          <div class="flex space-x-3">
-            <button
-              @click="refreshTeamData"
-              :disabled="teamDataState.isLoading"
-              class="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <span>{{ teamDataState.isLoading ? 'Loading...' : 'Refresh' }}</span>
-            </button>
-            <button
-              v-if="!isReadOnly"
-              @click="saveTeamConfirmation"
-              :disabled="!hasTeamConfirmationChanges"
-              class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded-lg transition-colors"
-            >
-              Save Confirmation
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="teamDataState.isLoading" class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div class="flex items-center space-x-3">
-            <p class="text-sm text-blue-800 dark:text-blue-200">Loading team assignments...</p>
-          </div>
-        </div>
-
-
-        <div v-else-if="teamDataState.hasError" class="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800">
-          <div class="flex items-start space-x-3">
-            <span>Error:</span>
-            <div class="flex-1">
-              <h4 class="text-sm font-medium text-red-800 dark:text-red-200">Unable to Load Team Assignments</h4>
-              <p class="text-sm text-red-700 dark:text-red-300 mt-1">
-                {{ teamDataState.errorMessage || 'Failed to load team data. Please try again.' }}
-              </p>
-              <div class="flex space-x-3 mt-3">
-                <button
+        <div class="flex items-center justify-between mb-8">
+            <div>
+               <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Team Readiness</h3>
+               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Confirm on-site workforce presence</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+               <button
                   @click="refreshTeamData"
-                  class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                  :disabled="teamDataState.isLoading"
+                  class="h-10 px-5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase rounded-2xl transition-all border border-indigo-100 dark:border-indigo-800 flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
                 >
-                  Retry
+                  <i :class="['mdi mdi-refresh text-lg', { 'mdi-spin': teamDataState.isLoading }]"></i>
+                  <span>Sync Personnel</span>
                 </button>
-                <button
-                  @click="proceedWithoutTeamData"
-                  class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors"
-                >
-                  Proceed Without Team Data
-                </button>
-              </div>
             </div>
-          </div>
         </div>
 
-        <!-- No Team Data Available State -->
-        <div v-if="!teamDataState.isLoading && !teamDataState.hasError && !teamDataState.data" class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800">
-          <div class="flex items-start space-x-3">
-            <span>Note:</span>
-            <div class="flex-1">
-              <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">No Team Assignments Found</h4>
-              <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                No team assignments have been found for this project. Complete the Teams Task first to enable team confirmation.
-              </p>
-              <button
-                @click="proceedWithoutTeamData"
-                class="mt-3 px-3 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors"
-              >
-                Proceed Without Team Data
-              </button>
+        <!-- States: Error -->
+        <div v-if="teamDataState.hasError" class="p-10 bg-rose-50 dark:bg-rose-900/20 rounded-[2.5rem] border border-rose-100 dark:border-rose-900/30 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-rose-500 mx-auto mb-6">
+               <i class="mdi mdi-alert-circle text-3xl"></i>
             </div>
-          </div>
+            <h4 class="text-lg font-black text-rose-900 dark:text-rose-200 mb-2 uppercase tracking-tight">Synchronization Error</h4>
+            <p class="max-w-md mx-auto text-sm font-bold text-rose-700/70 dark:text-rose-300/50 mb-8">{{ teamDataState.errorMessage || 'Failed to connect to team management services.' }}</p>
+            <div class="flex items-center justify-center gap-4">
+                <button @click="refreshTeamData" class="h-11 px-8 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-rose-500/20 active:scale-95">Retry Sync</button>
+                <button @click="proceedWithoutTeamData" class="h-11 px-8 bg-slate-900 dark:bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl active:scale-95">Bypass Service</button>
+            </div>
         </div>
 
-        <!-- Team Confirmation Content -->
-        <div v-else class="space-y-6">
-          <!-- Setup Teams Only (as requested) -->
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div>
-                  <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Setup Teams</h4>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Teams assigned for event setup and installation</p>
-                </div>
-              </div>
-              <label class="flex items-center space-x-2 text-sm">
-                <input
-                  type="checkbox"
-                  :id="`confirm-setup`"
-                  v-model="logisticsData.team_confirmation.setup_teams_confirmed"
-                  @change="updateTeamConfirmation('setup')"
-                  class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span class="font-medium">Confirm All Setup Teams</span>
-              </label>
+        <!-- States: No Data -->
+        <div v-else-if="!teamDataState.isLoading && !teamDataState.data" class="p-10 bg-amber-50 dark:bg-amber-900/10 rounded-[2.5rem] border border-amber-100 dark:border-amber-900/20 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-amber-500 mx-auto mb-6">
+               <i class="mdi mdi-account-question text-3xl"></i>
             </div>
+            <h4 class="text-lg font-black text-amber-900 dark:text-amber-200 mb-2 uppercase tracking-tight">No Assignments Found</h4>
+            <p class="max-w-md mx-auto text-sm font-bold text-amber-700/70 dark:text-amber-300/50 mb-8">No workforce clusters have been assigned to this project yet. Please verify the Teams Task assignments.</p>
+            <button @click="proceedWithoutTeamData" class="h-11 px-8 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95">Initialize Empty State</button>
+        </div>
 
-            <!-- Setup Teams List -->
-            <div v-if="getSelectedTeamTypes('setup').length > 0" class="space-y-4">
-              <div class="grid gap-3">
-                <div
-                  v-for="team in getSelectedTeamTypes('setup')"
-                  :key="team.id"
-                  class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50"
-                >
-                  <!-- Team Header -->
-                  <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center space-x-3">
-                      <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <span class="text-lg"></span>
+        <!-- Team Content -->
+        <div v-else class="space-y-10">
+            <!-- Setup Teams Section -->
+            <div class="p-10 bg-slate-50 dark:bg-slate-900/40 rounded-[3rem] border border-slate-100 dark:border-slate-800 relative group">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+                   <div class="flex items-center gap-5">
+                      <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center text-indigo-500">
+                         <i class="mdi mdi-account-group text-3xl"></i>
                       </div>
                       <div>
-                        <h5 class="font-medium text-gray-900 dark:text-white">{{ team.name }}</h5>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ team.members.length }} member{{ team.members.length !== 1 ? 's' : '' }}</p>
+                         <h4 class="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1.5">Deployment Squads</h4>
+                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Team clusters assigned for event execution</p>
                       </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <span class="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs rounded-full font-medium">
-                        Setup Team
-                      </span>
-                    </div>
-                  </div>
+                   </div>
 
-                  <!-- Team Members -->
-                  <div class="mb-3">
-                    <h6 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Team Members:</h6>
-                    <div class="flex flex-wrap gap-2">
-                      <span
-                        v-for="member in team.members"
-                        :key="member.id"
-                        class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-500"
-                      >
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                        {{ member.name }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Team Notes -->
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
-                    <span>Assigned: {{ formatDate(team.members[0]?.addedAt) }}</span>
-                  </div>
+                   <button
+                      @click="logisticsData.team_confirmation.setup_teams_confirmed = !logisticsData.team_confirmation.setup_teams_confirmed; updateTeamConfirmation('setup')"
+                      class="h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-3 border-2"
+                      :class="logisticsData.team_confirmation.setup_teams_confirmed 
+                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-xl shadow-emerald-500/20' 
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-500'"
+                   >
+                      <i :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'mdi mdi-check-decagram text-lg' : 'mdi mdi-circle-outline text-lg'"></i>
+                      {{ logisticsData.team_confirmation.setup_teams_confirmed ? 'Squads Verified' : 'Verify Squad Presence' }}
+                   </button>
                 </div>
-              </div>
+
+                <div v-if="getSelectedTeamTypes('setup').length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <div 
+                      v-for="team in getSelectedTeamTypes('setup')" 
+                      :key="team.id"
+                      class="p-6 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group/card"
+                   >
+                      <div class="flex items-center gap-4 mb-4 relative z-10">
+                         <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover/card:text-indigo-500 transition-colors">
+                            <i class="mdi mdi-account-star text-xl"></i>
+                         </div>
+                         <div class="min-w-0">
+                            <h5 class="text-sm font-black text-slate-900 dark:text-white truncate uppercase tracking-tight">{{ team.name }}</h5>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ team.members.length }} Operatives</p>
+                         </div>
+                      </div>
+
+                      <div class="flex flex-wrap gap-2 mb-6 relative z-10">
+                         <span v-for="member in team.members" :key="member.id" class="px-2.5 py-1 bg-slate-50 dark:bg-slate-900/50 text-[10px] font-bold text-slate-600 dark:text-slate-300 rounded-lg border border-slate-100 dark:border-slate-800">
+                            {{ member.name }}
+                         </span>
+                      </div>
+                      
+                      <div class="pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between relative z-10">
+                         <span class="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">Squad Status</span>
+                         <span class="flex items-center gap-1.5 text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Standby
+                         </span>
+                      </div>
+                   </div>
+                </div>
+
+                <div v-else class="py-12 text-center text-slate-400">
+                    <i class="mdi mdi-account-off-outline text-4xl mb-3 block opacity-20"></i>
+                    <p class="text-[10px] font-black uppercase tracking-widest">No matching squad assignments</p>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="mt-10">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-3 block">Deployment Intelligence (Logistics Notes)</label>
+                    <textarea
+                      v-model="logisticsData.team_confirmation.notes"
+                      @input="updateTeamConfirmation('setup')"
+                      rows="3"
+                      class="w-full p-6 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] text-sm font-bold text-slate-700 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      placeholder="Add specific requirements, coordination details, or on-site changes..."
+                    ></textarea>
+                </div>
             </div>
 
-            <!-- No Setup Teams Message -->
-            <div v-else class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
-              <h5 class="text-lg font-medium mb-2">No Setup Teams Assigned</h5>
-             
-            </div>
-
-            <!-- Notes Section -->
-            <div class="mt-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logistics Notes (Optional)</label>
-              <textarea
-                v-model="logisticsData.team_confirmation.notes"
-                @input="updateTeamConfirmation('setup')"
-                rows="3"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
-                placeholder="Add any logistics-specific notes about setup teams, special requirements, or coordination details..."
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Logistics Readiness Summary -->
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Logistics Readiness</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Setup teams confirmation status</p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <div :class="[
-                  'w-4 h-4 rounded-full',
-                  logisticsData.team_confirmation.setup_teams_confirmed ? 'bg-green-500' : 'bg-yellow-500'
-                ]"></div>
-                <span class="text-sm font-medium" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-green-700 dark:text-green-300' : 'text-yellow-700 dark:text-yellow-300'">
-                  {{ logisticsData.team_confirmation.setup_teams_confirmed ? 'Confirmed' : 'Pending' }}
-                </span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">Team Assignment</span>
+            <!-- Readiness KPI Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                   <div>
+                      <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 text-slate-400">Squad Count</p>
+                      <p class="text-3xl font-black tracking-tighter text-indigo-600 dark:text-indigo-400">{{ getSelectedTeamTypes('setup').length }}</p>
+                   </div>
+                   <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+                      <i class="mdi mdi-apps text-2xl"></i>
+                   </div>
                 </div>
-                <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ getSelectedTeamTypes('setup').length }}</div>
-                <div class="text-xs text-gray-600 dark:text-gray-400">Setup teams assigned</div>
-              </div>
 
-              <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">Team Members</span>
+                <div class="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                   <div>
+                      <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 text-slate-400">Personnel Kraft</p>
+                      <p class="text-3xl font-black tracking-tighter text-emerald-600 dark:text-emerald-400">{{ getSelectedTeamTypes('setup').reduce((sum, team) => sum + team.members.length, 0) }}</p>
+                   </div>
+                   <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500">
+                      <i class="mdi mdi-account-multiple-check text-2xl"></i>
+                   </div>
                 </div>
-                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getSelectedTeamTypes('setup').reduce((sum, team) => sum + team.members.length, 0) }}</div>
-                <div class="text-xs text-gray-600 dark:text-gray-400">Total team members</div>
-              </div>
 
-              <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-2 mb-2">
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">Confirmation</span>
+                <div class="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                   <div>
+                      <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1.5 text-slate-400">Approval State</p>
+                      <p class="text-xl font-black tracking-tight" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-emerald-500' : 'text-amber-500'">
+                         {{ logisticsData.team_confirmation.setup_teams_confirmed ? 'VERIFIED' : 'PENDING' }}
+                      </p>
+                   </div>
+                   <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-emerald-500' : 'text-amber-500'">
+                      <i :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'mdi mdi-shield-check' : 'mdi mdi-shield-clock'" class="text-2xl"></i>
+                   </div>
                 </div>
-                <div class="text-2xl font-bold" :class="logisticsData.team_confirmation.setup_teams_confirmed ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'">
-                  {{ logisticsData.team_confirmation.setup_teams_confirmed ? 'Done' : 'Pending' }}
-                </div>
-                <div class="text-xs text-gray-600 dark:text-gray-400">Logistics approval</div>
-              </div>
             </div>
-          </div>
         </div>
       </div>
 
       <!-- Items Management Tab -->
       <div
         v-show="activeTab === 'loading-sheet'"
-        class="loading-sheet-section tab-panel transition-opacity duration-200"
-        :id="`tab-panel-loading-sheet`"
+        class="tab-panel animate-fade-in"
         role="tabpanel"
-        :aria-labelledby="`tab-loading-sheet`"
-        :class="{ 'animate-fade-in': activeTab === 'loading-sheet' }"
       >
         <!-- Header actions -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6">
           <div>
-            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Delivery List</h3>
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Manage project elements and custom loading items</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Delivery Manifest</h3>
+            <p class="text-xs font-bold text-slate-400 dark:text-white uppercase tracking-widest leading-none">Manage project elements and custom loading items</p>
           </div>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex items-center gap-4">
+            <div class="relative hidden lg:block">
+              <input
+                v-model="itemsState.searchQuery"
+                type="text"
+                placeholder="Search manifest..."
+                class="h-10 px-10 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all w-64"
+              />
+              <i class="mdi mdi-magnify absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
             <button
               @click="importProductionElements"
               :disabled="itemsState.isImporting"
-              class="h-10 px-6 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center gap-2"
+              class="h-10 px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 active:scale-95 flex items-center gap-2"
             >
-              <span>{{ itemsState.isImporting ? 'Importing...' : 'Import Elements' }}</span>
+              <i v-if="itemsState.isImporting" class="mdi mdi-loading mdi-spin text-lg"></i>
+              <i v-else class="mdi mdi-cloud-download text-lg"></i>
+              <span>{{ itemsState.isImporting ? 'Syncing...' : 'Sync Elements' }}</span>
             </button>
-            <button
-              v-if="itemsState.importError"
-              @click="importProductionElements"
-              class="h-10 px-6 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95"
-            >Retry</button>
           </div>
         </div>
 
         <!-- Inline Add Custom Item Interface -->
-        <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-8 mb-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all group hover:border-blue-500/50">
-          <div class="flex flex-col gap-6">
-            <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-               <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                 <i class="mdi mdi-plus text-xl"></i>
+        <div class="relative overflow-hidden bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 mb-10 group transition-all duration-500 hover:border-indigo-500/30">
+          <div class="flex flex-col gap-8">
+            <div class="flex items-center gap-4">
+               <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+                 <i class="mdi mdi-plus-circle text-2xl"></i>
                </div>
                <div>
-                 <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Rapid Item Add</h4>
-                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Add custom items to your manifest instantly</p>
+                 <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-0.5">Rapid Manifest Entry</h4>
+                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Add custom items to your manifest instantly</p>
                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <!-- Item Name -->
-              <div class="lg:col-span-6">
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Item Designation*</label>
-                <div class="relative">
-                  <input 
-                    v-model="customItemForm.name"
-                    @keydown.enter="addCustomTransportItem"
-                    type="text"
-                    placeholder="Enter item name (e.g. Stage Deck, Truss)..."
-                    class="w-full h-14 pl-12 pr-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:opacity-50"
-                  />
-                  <i class="mdi mdi-cube-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                </div>
+              <div class="lg:col-span-12">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Item Designation*</label>
+                <input v-model="customItemForm.name" @keydown.enter="addCustomTransportItem" type="text" placeholder="Enter item name (e.g. Stage Deck, Truss)..." class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all outline-none" />
               </div>
 
-              <!-- Quantity & Unit -->
+              <!-- Logistics Metadata -->
               <div class="lg:col-span-3">
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-2 block">Quantity & Unit*</label>
-                <div class="flex gap-2">
-                  <div class="relative flex-1">
-                    <input 
-                      v-model.number="customItemForm.quantity"
-                      type="number"
-                      min="1"
-                      class="w-full h-14 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-center"
-                    />
-                  </div>
-                  <div class="relative flex-1">
-                    <select 
-                      v-model="customItemForm.unit"
-                      class="w-full h-14 pl-4 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-black text-slate-700 dark:text-white appearance-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 uppercase tracking-widest"
-                    >
-                      <option value="pcs">pcs</option>
-                      <option value="sets">sets</option>
-                      <option value="boxes">boxes</option>
-                      <option value="rolls">rolls</option>
-                      <option value="meters">meters</option>
-                    </select>
-                    <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                  </div>
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Quantity*</label>
+                <input v-model.number="customItemForm.quantity" type="number" min="1" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-black text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none text-center" />
+              </div>
+              <div class="lg:col-span-2">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Unit*</label>
+                <div class="relative">
+                  <select v-model="customItemForm.unit" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-sm font-bold text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none outline-none uppercase tracking-widest">
+                    <option value="pcs">pcs</option>
+                    <option value="sets">sets</option>
+                    <option value="boxes">boxes</option>
+                    <option value="rolls">rolls</option>
+                    <option value="meters">meters</option>
+                  </select>
+                  <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                </div>
+              </div>
+              <div class="lg:col-span-3">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2.5 block">Category Cluster*</label>
+                <div class="relative">
+                  <select v-model="customItemForm.main_category" class="w-full h-12 px-5 bg-white dark:bg-slate-800 border-0 rounded-2xl text-[10px] font-black text-slate-700 dark:text-white shadow-sm ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 appearance-none outline-none uppercase tracking-widest">
+                    <option v-for="cat in DEPLOYMENT_CATEGORIES" :key="cat" :value="cat">{{ cat.replace('_', ' ') }}</option>
+                  </select>
+                  <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                 </div>
               </div>
 
-              <!-- Action Button -->
-              <div class="lg:col-span-3 flex items-end">
+               <div class="lg:col-span-4 flex items-end">
                 <button 
                   @click="addCustomTransportItem"
-                  class="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3"
+                  class="w-full h-12 bg-slate-900 dark:bg-slate-800 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-slate-900/10 hover:bg-emerald-600 dark:hover:bg-emerald-500 transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
-                  <i class="mdi mdi-check-circle"></i>
-                  <span>Commit to List</span>
+                  <i class="mdi mdi-check-decagram text-lg"></i>
+                  <span>Secure to Manifest</span>
                 </button>
               </div>
-            </div>
-
-            <!-- Categories (Toggle Buttons/Check buttons) -->
-            <div>
-              <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 mb-3 block">Deployment Category*</label>
-              <div class="flex flex-wrap gap-2">
-                <button 
-                  v-for="cat in DEPLOYMENT_CATEGORIES" 
-                  :key="cat"
-                  @click="customItemForm.main_category = cat"
-                  type="button"
-                  class="px-5 py-3 rounded-xl border-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2"
-                  :class="customItemForm.main_category === cat 
-                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                    : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-blue-500 hover:text-blue-500'"
-                >
-                  <i :class="[
-                    'mdi',
-                    cat === 'PRODUCTION' ? 'mdi-factory' :
-                    cat === 'TOOLS_EQUIPMENTS' ? 'mdi-tools' :
-                    cat === 'STORES' ? 'mdi-warehouse' :
-                    cat === 'ELECTRICALS' ? 'mdi-lightning-bolt' : 'mdi-domain'
-                  ]"></i>
-                  {{ cat.replace('_', ' ') }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Secondary Metadata (Optional) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
-               <div>
-                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Weight Metadata</label>
-                 <div class="relative">
-                   <input 
-                      v-model="customItemForm.weight"
-                      type="text"
-                      placeholder="e.g. 50kg, 2 Tons"
-                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
-                   />
-                   <i class="mdi mdi-weight absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                 </div>
-               </div>
-               <div>
-                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Handling Protocol</label>
-                 <div class="relative">
-                   <select 
-                      v-model="customItemForm.special_handling"
-                      class="w-full h-11 pl-10 pr-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 appearance-none transition-all focus:border-blue-500"
-                   >
-                      <option value="">Normal Handling</option>
-                      <option value="FRAGILE">Fragile / High Risk</option>
-                      <option value="HEAVY">Oversized / Heavy Load</option>
-                      <option value="FLAMMABLE">Flammable Material</option>
-                   </select>
-                   <i class="mdi mdi-hand-pointing-up absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                   <i class="mdi mdi-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                 </div>
-               </div>
-               <div class="md:col-span-2 lg:col-span-1">
-                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 mb-2 block">Internal Notes</label>
-                 <div class="relative">
-                   <input 
-                      v-model="customItemForm.description"
-                      type="text"
-                      placeholder="Special instructions or details..."
-                      class="w-full h-11 px-4 pl-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 transition-all focus:border-blue-500"
-                   />
-                   <i class="mdi mdi-note-text-outline absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                 </div>
-               </div>
             </div>
           </div>
         </div>
 
-        <!-- Content -->
-        <div class="w-full gap-4">
-          <!-- Imported/Existing Items -->
-          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Loading Sheet Items</h4>
-                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ filteredTransportItems.length }}</span>
-              </div>
-              <input
-                v-model="itemsState.searchQuery"
-                type="text"
-                placeholder="Search items..."
-                class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
+        <!-- manifest items list -->
+        <div class="space-y-6">
+          <div v-if="filteredTransportItems.length === 0" class="py-24 text-center bg-slate-50 dark:bg-slate-900/20 rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
+             <div class="w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-300 mx-auto mb-6">
+                <i class="mdi mdi-clipboard-text-outline text-4xl"></i>
+             </div>
+             <h4 class="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Manifest is Empty</h4>
+             <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">Import assignments or add items to begin</p>
+          </div>
 
-            <div v-if="filteredTransportItems.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
-              <div>No items yet. Import production elements or add a custom item.</div>
-              <div v-if="itemsState.importError" class="mt-2 text-red-600 dark:text-red-400">{{ itemsState.importError }}</div>
-            </div>
-
-            <!-- Table Layout -->
-            <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[40%]">Item Details</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Quantity</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[15%]">Weight</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[20%]">Handling</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[10%]">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:border-gray-700">
-                  <template v-for="group in groupedTransportItems" :key="group.mainCategory">
-                    <!-- Group Header Row -->
-                    <tr class="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm sticky top-0 z-10">
-                      <td colspan="5" class="px-6 py-2 border-y border-slate-100 dark:border-slate-800">
-                         <div class="flex items-center gap-3">
-                            <i :class="['mdi', getCategoryIcon(group.mainCategory), 'text-slate-400']"></i>
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                              {{ group.category }} 
-                              <span class="ml-2 text-slate-300 dark:text-slate-600">|</span>
-                              <span class="ml-2 text-blue-600 dark:text-blue-400">{{ group.items.length }} Items</span>
-                            </span>
-                         </div>
-                      </td>
-                    </tr>
-
-                    <!-- Flat list of items in this group -->
-                    <tr v-for="item in group.items" :key="item.id" class="group/row hover:bg-blue-50/30 dark:hover:bg-blue-900/5 transition-colors">
-                      
-                      <!-- Read Mode -->
-                      <template v-if="!isEditing(item.id)">
-                        <td class="px-6 py-4">
-                          <div class="flex items-start gap-3">
-                            <div class="flex-shrink-0 mt-1">
-                              <span 
-                                class="inline-block w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.1)] transition-transform group-hover/row:scale-125" 
-                                :class="getCategoryColor(item.main_category || '')"
-                              ></span>
-                            </div>
-                            <div>
-                               <div class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-tight group-hover/row:text-blue-600 transition-colors">{{ item.name }}</div>
-                               <div v-if="item.description" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1 whitespace-pre-wrap">{{ item.description }}</div>
-                            </div>
+          <div v-else class="overflow-x-auto rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
+            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
+              <thead class="bg-slate-50/50 dark:bg-slate-900/50">
+                <tr>
+                  <th scope="col" class="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-[45%]">Resource & Specifications</th>
+                  <th scope="col" class="px-8 py-5 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-[15%]">Quantitas</th>
+                  <th scope="col" class="px-8 py-5 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-[15%]">Weight</th>
+                  <th scope="col" class="px-8 py-5 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-[15%]">Protocol</th>
+                  <th scope="col" class="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] w-[10%]">Control</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-slate-950 divide-y divide-slate-100 dark:divide-slate-800">
+                <template v-for="group in groupedTransportItems" :key="group.mainCategory">
+                  <!-- Group Header -->
+                  <tr class="bg-slate-50/30 dark:bg-slate-900/20 backdrop-blur-sm sticky top-0 z-10">
+                    <td colspan="5" class="px-8 py-3">
+                       <div class="flex items-center gap-3">
+                          <div class="w-6 h-6 rounded-lg bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-indigo-500 border border-slate-100 dark:border-slate-700">
+                             <i :class="['mdi', getCategoryIcon(group.mainCategory), 'text-xs']"></i>
                           </div>
-                        </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white font-medium">{{ item.quantity }} <span class="text-gray-500 dark:text-gray-400 font-normal">{{ item.unit }}</span></div>
+                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                            {{ group.category }} 
+                            <span class="mx-2 text-slate-200 dark:text-slate-700 opacity-50">/</span>
+                            <span class="text-indigo-600 dark:text-indigo-400">{{ group.items.length }} Resources</span>
+                          </span>
+                       </div>
+                    </td>
+                  </tr>
+
+                  <tr v-for="item in group.items" :key="item.id" class="group/row hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
+                    <template v-if="!isEditing(item.id)">
+                      <td class="px-8 py-5">
+                        <div class="flex items-start gap-4">
+                          <div class="w-2 h-2 rounded-full mt-1.5 shrink-0" :class="getCategoryColor(item.main_category || '')"></div>
+                          <div>
+                             <p class="text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ item.name }}</p>
+                             <p v-if="item.description" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-60 line-clamp-1">{{ item.description }}</p>
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.weight || '-' }}</div>
+                      <td class="px-8 py-5 text-center">
+                        <span class="text-xs font-black text-slate-700 dark:text-slate-200">{{ item.quantity }}</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1.5">{{ item.unit }}</span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span v-if="item.special_handling" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
-                          {{ item.special_handling }}
-                        </span>
-                        <span v-else class="text-gray-400 text-xs">-</span>
+                      <td class="px-8 py-5 text-center">
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ item.weight || '-' }}</span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end gap-2">
-                          <button 
-                            @click="startEditingItem(item)" 
-                            class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:text-blue-600"
-                            title="Edit"
-                          >
-                            Edit
+                      <td class="px-8 py-5 text-center">
+                         <span v-if="item.special_handling" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-[9px] font-black uppercase tracking-widest rounded-lg border border-amber-100 dark:border-amber-800">
+                           {{ item.special_handling }}
+                         </span>
+                         <span v-else class="text-[10px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-widest italic">Standard</span>
+                      </td>
+                      <td class="px-8 py-5">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                          <button @click="startEditingItem(item)" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-indigo-500 hover:border-indigo-500 transition-all">
+                             <i class="mdi mdi-pencil-outline"></i>
                           </button>
-                          <button 
-                            @click="removeTransportItem(item.id.toString())" 
-                            class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:text-red-600"
-                            title="Delete"
-                          >
-                            Delete
+                          <button @click="removeTransportItem(item.id.toString())" class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-500 transition-all">
+                             <i class="mdi mdi-trash-can-outline"></i>
                           </button>
                         </div>
                       </td>
                     </template>
-
-                    <!-- Edit Mode -->
                     <template v-else>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10">
-                        <div class="space-y-2">
-                          <input 
-                            v-model="itemsState.editData[item.id].name"
-                            type="text"
-                            placeholder="Item Name"
-                            class="w-full px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                            :class="itemsState.validationErrors[item.id]?.name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                          />
-                          <textarea 
-                            v-model="itemsState.editData[item.id].description"
-                            rows="1"
-                            placeholder="Description"
-                            class="w-full px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500"
-                          ></textarea>
+                      <td class="px-8 py-5 bg-indigo-50/50 dark:bg-indigo-900/10">
+                         <input v-model="itemsState.editData[item.id].name" type="text" class="w-full h-10 px-4 bg-white dark:bg-slate-800 border-0 rounded-xl text-xs font-black text-slate-900 dark:text-white shadow-sm ring-1 ring-indigo-200 focus:ring-2 focus:ring-indigo-500 outline-none uppercase tracking-tight" />
+                      </td>
+                      <td class="px-8 py-5 bg-indigo-50/50 dark:bg-indigo-900/10">
+                        <div class="flex items-center gap-2">
+                          <input v-model.number="itemsState.editData[item.id].quantity" type="number" class="w-16 h-10 bg-white dark:bg-slate-800 border-0 rounded-xl text-xs font-black text-center shadow-sm ring-1 ring-indigo-200 outline-none" />
+                          <input v-model="itemsState.editData[item.id].unit" type="text" class="w-16 h-10 bg-white dark:bg-slate-800 border-0 rounded-xl text-[10px] font-black text-center shadow-sm ring-1 ring-indigo-200 outline-none uppercase" />
                         </div>
                       </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <div class="flex flex-col gap-1">
-                          <div class="flex items-center gap-1">
-                            <button 
-                              @click="adjustQuantity(item.id, -1)"
-                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                              type="button"
-                            >−</button>
-                            <input 
-                              v-model.number="itemsState.editData[item.id].quantity"
-                              type="number"
-                              min="1"
-                              class="w-16 px-1 py-1 text-sm text-center border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                              :class="itemsState.validationErrors[item.id]?.quantity ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                            />
-                            <button 
-                              @click="adjustQuantity(item.id, 1)"
-                              class="p-1 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-                              type="button"
-                            >+</button>
-                          </div>
-                          <input 
-                            v-model="itemsState.editData[item.id].unit"
-                            type="text"
-                            placeholder="Unit"
-                            class="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                            :class="itemsState.validationErrors[item.id]?.unit ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'"
-                          />
+                      <td class="px-8 py-5 bg-indigo-50/50 dark:bg-indigo-900/10">
+                         <input v-model="itemsState.editData[item.id].weight" type="text" class="w-full h-10 px-4 bg-white dark:bg-slate-800 border-0 rounded-xl text-xs font-bold text-center shadow-sm ring-1 ring-indigo-200 outline-none" />
+                      </td>
+                      <td class="px-8 py-5 bg-indigo-50/50 dark:bg-indigo-900/10">
+                         <input v-model="itemsState.editData[item.id].special_handling" type="text" class="w-full h-10 px-4 bg-white dark:bg-slate-800 border-0 rounded-xl text-[10px] font-bold text-center shadow-sm ring-1 ring-indigo-200 outline-none uppercase" />
+                      </td>
+                      <td class="px-8 py-5 bg-indigo-50/50 dark:bg-indigo-900/10">
+                        <div class="flex flex-col gap-2 scale-90">
+                          <button @click="saveEditedItem(item.id)" class="px-4 py-1.5 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg">Save</button>
+                          <button @click="cancelEditingItem(item.id)" class="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Cancel</button>
                         </div>
                       </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <input 
-                          v-model="itemsState.editData[item.id].weight"
-                          type="text"
-                          placeholder="Weight"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 align-top">
-                        <input 
-                          v-model="itemsState.editData[item.id].special_handling"
-                          type="text"
-                          placeholder="Handling"
-                          class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                        />
-                      </td>
-                      <td class="px-6 py-4 bg-blue-50/50 dark:bg-blue-900/10 text-right align-top">
-                        <div class="flex flex-col gap-2 items-end">
-                          <button 
-                            @click="saveEditedItem(item.id)"
-                            :disabled="itemsState.isSaving[item.id]"
-                            class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm disabled:opacity-50 whitespace-nowrap"
-                          >
-                            {{ itemsState.isSaving[item.id] ? 'Saving...' : 'Save' }}
-                          </button>
-                          <button 
-                            @click="cancelEditingItem(item.id)"
-                            class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </td>
-                      </template>
-                    </tr>
-                  </template>
-                  
-                  <!-- Empty State -->
-                  <tr v-if="filteredTransportItems.length === 0">
-                    <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                      <p class="text-base font-medium">No items in loading sheet</p>
-                      <p class="text-sm mt-1">Import from production or add custom items above</p>
-                    </td>
+                    </template>
                   </tr>
-                </tbody>
-              </table>
-            </div>
+                </template>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -979,127 +662,143 @@
       <!-- Logistics Log Tab -->
       <div
         v-show="activeTab === 'logistics-log'"
-        class="logistics-log-section tab-panel transition-opacity duration-200"
-        :id="`tab-panel-logistics-log`"
+        class="tab-panel animate-fade-in"
         role="tabpanel"
-        :aria-labelledby="`tab-logistics-log`"
-        :class="{ 'animate-fade-in': activeTab === 'logistics-log' }"
       >
-        <LogisticsDataDisplay
-          :task="task"
-          :task-data="logisticsData"
-          :enquiry-id="task.project_enquiry_id"
-        />
+        <div class="mb-8">
+           <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Transport Intelligence</h3>
+           <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Historical vehicle movements and mission logs</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden">
+          <LogisticsDataDisplay
+            :task="task"
+            :task-data="logisticsData"
+            :enquiry-id="task.project_enquiry_id"
+          />
+        </div>
       </div>
 
       <!-- Checklist Tab -->
       <div
         v-show="activeTab === 'checklist'"
-        class="checklist-section tab-panel transition-opacity duration-200"
-        :id="`tab-panel-checklist`"
+        class="tab-panel animate-fade-in"
         role="tabpanel"
-        :aria-labelledby="`tab-checklist`"
-        :class="{ 'animate-fade-in': activeTab === 'checklist' }"
       >
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6">
           <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Final Check</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Check items, teams, and safety before moving</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Final Verification</h3>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Pre-departure mission critical checklist</p>
           </div>
-          <div class="flex flex-wrap gap-2 items-center">
-            <span class="text-sm text-gray-700 dark:text-gray-300">Progress: {{ checklistProgress }}%</span>
-            <div class="w-40 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div class="h-2 bg-green-500" :style="{ width: checklistProgress + '%' }"></div>
+          
+          <div class="flex items-center gap-6 bg-slate-50 dark:bg-slate-900/40 px-6 py-4 rounded-3xl border border-slate-100 dark:border-slate-800">
+            <div class="flex flex-col">
+              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Deployment Readiness</span>
+              <div class="flex items-center gap-3">
+                 <div class="w-32 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.4)]" :style="{ width: checklistProgress + '%' }"></div>
+                 </div>
+                 <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">{{ checklistProgress }}%</span>
+              </div>
             </div>
+            
+            <div class="w-px h-10 bg-slate-200 dark:bg-slate-800"></div>
+
             <button
-              @click="generateChecklistFromItems"
-              class="px-3 py-1 text-xs bg-purple-500 hover:bg-purple-600 text-white rounded-lg"
-            >Add items from Delivery List</button>
+               @click="generateChecklistFromItems"
+               class="h-10 px-5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase rounded-2xl transition-all border border-indigo-100 dark:border-indigo-800 flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+             >
+               <i class="mdi mdi-auto-fix text-lg"></i>
+               <span>Sync Manifest</span>
+             </button>
           </div>
         </div>
 
         <!-- Sections grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Items Checklist -->
-          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 lg:col-span-2">
-            <div class="flex items-center gap-2 mb-3">
-              <h4 class="text-md font-medium text-gray-900 dark:text-white">Items</h4>
-              <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full">{{ checklist.items.length }}</span>
-            </div>
+          <div class="lg:col-span-2 space-y-4">
+             <div class="flex items-center justify-between mb-2 ml-4">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Cargo Verification</span>
+                <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-900/20 px-2 py-0.5 rounded-md">{{ checklist.items.length }} UNITS</span>
+             </div>
 
-            <div v-if="checklist.items.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
-              No checklist items yet. Use "Generate from Transport Items" to create them.
-            </div>
+             <div v-if="checklist.items.length === 0" class="py-20 text-center bg-slate-50 dark:bg-slate-900/20 rounded-[3rem] border border-slate-100 dark:border-slate-800">
+                <i class="mdi mdi-playlist-remove text-4xl text-slate-300 mb-2 block"></i>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No verification items pending</p>
+             </div>
 
-            <div v-else class="space-y-3">
-              <div v-for="ci in checklist.items" :key="ci.id" class="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ ci.item_name }}</p>
-                    <p v-if="ci.notes" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{{ ci.notes }}</p>
-                  </div>
-                  <div class="flex flex-wrap gap-2 items-center">
-                    <select v-model="ci.status" @change="touchChecklistItem(ci)"
-                      class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                      <option value="present">Present</option>
-                      <option value="missing">Missing</option>
-                      <option value="coming_later">Coming later</option>
-                    </select>
-                    <input v-model="ci.notes" @change="touchChecklistItem(ci)" type="text" placeholder="Notes"
-                      class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-44"/>
-                  </div>
+             <div v-else class="space-y-3">
+                <div v-for="ci in checklist.items" :key="ci.id" class="group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 hover:border-indigo-500/30 transition-all shadow-sm">
+                   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div class="flex items-center gap-4 min-w-0">
+                         <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 shrink-0">
+                            <i :class="ci.status === 'present' ? 'mdi mdi-check-circle text-emerald-500' : 'mdi mdi-cube-outline'"></i>
+                         </div>
+                         <div class="min-w-0">
+                            <p class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{{ ci.item_name }}</p>
+                            <p v-if="ci.checkedBy" class="text-[9px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest mt-0.5">Verified by {{ ci.checkedBy }}</p>
+                         </div>
+                      </div>
+
+                      <div class="flex items-center gap-3">
+                         <select v-model="ci.status" @change="touchChecklistItem(ci)" class="h-9 px-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl text-[10px] font-black text-slate-700 dark:text-slate-200 outline-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 uppercase tracking-widest">
+                            <option value="present">Present</option>
+                            <option value="missing">Missing</option>
+                            <option value="coming_later">Coming Later</option>
+                         </select>
+                         <input v-model="ci.notes" @change="touchChecklistItem(ci)" type="text" placeholder="Protocol notes..." class="h-9 px-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-xl text-[10px] font-bold text-slate-600 dark:text-slate-300 outline-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 w-48" />
+                      </div>
+                   </div>
                 </div>
-                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400" v-if="ci.checkedBy || ci.checkedAt">
-                  <span v-if="ci.checkedBy">Checked by {{ ci.checkedBy }}</span>
-                  <span v-if="ci.checkedAt"> • {{ formatChecklistDate(ci.checkedAt) }}</span>
-                </div>
-              </div>
-            </div>
+             </div>
           </div>
 
           <!-- Teams & Safety -->
-          <div class="space-y-4">
-            <!-- Teams -->
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center gap-2 mb-3">
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Teams</h4>
-              </div>
-              <div class="space-y-2">
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.teams.workshop" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Workshop team is here</span>
-                </label>
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.teams.setup" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Setup team is here</span>
-                </label>
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.teams.setdown" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Collection team is here</span>
-                </label>
-              </div>
+          <div class="space-y-8">
+            <!-- Squad Presence -->
+            <div class="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
+               <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <i class="mdi mdi-account-multiple-check text-lg text-indigo-500"></i>
+                  Squad Verification
+               </h4>
+               <div class="space-y-4">
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-indigo-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Workshop Squad Presence</span>
+                     <input type="checkbox" v-model="checklist.teams.workshop" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-indigo-600 focus:ring-indigo-500 transition-all" />
+                  </label>
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-indigo-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Setup Squad Presence</span>
+                     <input type="checkbox" v-model="checklist.teams.setup" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-indigo-600 focus:ring-indigo-500 transition-all" />
+                  </label>
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-indigo-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Setdown Squad Presence</span>
+                     <input type="checkbox" v-model="checklist.teams.setdown" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-indigo-600 focus:ring-indigo-500 transition-all" />
+                  </label>
+               </div>
             </div>
 
-            <!-- Safety -->
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="flex items-center gap-2 mb-3">
-                <h4 class="text-md font-medium text-gray-900 dark:text-white">Safety</h4>
-              </div>
-              <div class="space-y-2">
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.safety.ppe" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>PPE available</span>
-                </label>
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.safety.first_aid" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>First aid kit</span>
-                </label>
-                <label class="flex items-center gap-2 text-sm">
-                  <input type="checkbox" v-model="checklist.safety.fire_extinguisher" @change="touchChecklistMeta()" class="w-4 h-4"/>
-                  <span>Fire extinguisher</span>
-                </label>
-              </div>
+            <!-- Operational Safety -->
+            <div class="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
+               <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <i class="mdi mdi-shield-check text-lg text-rose-500"></i>
+                  Operational Safety
+               </h4>
+               <div class="space-y-4">
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-rose-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">PPE Certification</span>
+                     <input type="checkbox" v-model="checklist.safety.ppe" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-rose-600 focus:ring-rose-500 transition-all" />
+                  </label>
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-rose-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">First Aid Certification</span>
+                     <input type="checkbox" v-model="checklist.safety.first_aid" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-rose-600 focus:ring-rose-500 transition-all" />
+                  </label>
+                  <label class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 group cursor-pointer hover:border-rose-500 transition-colors">
+                     <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Fire Safety Certification</span>
+                     <input type="checkbox" v-model="checklist.safety.fire_extinguisher" @change="touchChecklistMeta()" class="w-5 h-5 rounded-lg border-2 border-slate-200 text-rose-600 focus:ring-rose-500 transition-all" />
+                  </label>
+               </div>
             </div>
           </div>
         </div>
@@ -1107,46 +806,51 @@
     </div>
 
     <!-- Task Status and Actions -->
-    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div class="flex items-center space-x-2">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
-        <span :class="getStatusColor(task.status)" class="px-3 py-1.5 text-xs rounded-full font-medium">
-          {{ getStatusLabel(task.status) }}
-        </span>
+    <div class="mt-16 pt-10 border-t border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+      <div class="flex items-center gap-5">
+        <div class="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center border border-slate-100 dark:border-slate-800 overflow-hidden">
+           <div class="w-full h-full flex items-center justify-center" :class="getStatusColor(task.status)">
+              <i :class="['mdi text-2xl text-white', 
+                task.status === 'completed' ? 'mdi-check-all' : 
+                task.status === 'pending' ? 'mdi-clock-outline' : 'mdi-alert-circle-outline'
+              ]"></i>
+           </div>
+        </div>
+        <div>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Mission Authority Status</p>
+          <div class="flex items-center gap-2">
+             <h4 class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ getStatusLabel(task.status) }}</h4>
+             <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protocol V4.2</p>
+          </div>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-center gap-4">
           <button
-            v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled' && !readonly"
+            v-if="task.status !== 'skipped' && task.status !== 'completed' && task.status !== 'cancelled' && !isReadOnly"
             @click="showSkipModal = true"
-            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+            class="h-12 px-8 bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all active:scale-95"
           >
-            Skip Task
+            Bypass Mission
           </button>
 
           <button
-            v-if="['skipped', 'completed'].includes(task.status) && !readonly"
+            v-if="['skipped', 'completed'].includes(task.status) && !isReadOnly"
             @click="$emit('update-status', 'pending')"
-            class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+            class="h-12 px-8 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
           >
-            <span>{{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}</span>
+            {{ task.status === 'skipped' ? 'Revoke Bypass' : 'Recall Mission' }}
           </button>
           
           <button
-            v-if="task.status !== 'completed' && task.status !== 'cancelled' && !readonly"
+            v-if="task.status !== 'completed' && task.status !== 'cancelled' && !isReadOnly"
             @click="$emit('update-status', 'completed')"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white text-sm rounded-lg transition-colors flex items-center justify-center space-x-2 font-medium shadow-sm"
+            class="h-12 px-10 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-indigo-500/40 active:scale-95 hover:bg-indigo-700 transition-all flex items-center gap-3"
           >
-            <span>Mark Complete</span>
+            <i class="mdi mdi-shield-check text-lg"></i>
+            Authorize Mission Completion
           </button>
-
-
-        </div>
-
-        <div v-if="task.status === 'completed'" class="flex items-center justify-center sm:justify-start space-x-2 text-green-600 dark:text-green-400">
-          <span class="text-sm font-medium">Task Completed</span>
-        </div>
       </div>
     </div>
     <!-- Removed Custom Item Modal -->
@@ -3040,14 +2744,10 @@ const revertTaskStatus = async () => {
 /* Tab panel animations */
 
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-in-out;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -3055,10 +2755,28 @@ const revertTaskStatus = async () => {
   }
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Feedback List Animations */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.list-move {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Modal transitions */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-enter-from,
@@ -3068,7 +2786,7 @@ const revertTaskStatus = async () => {
 
 .modal-bg-enter-active,
 .modal-bg-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-bg-enter-from,
@@ -3076,22 +2794,15 @@ const revertTaskStatus = async () => {
   opacity: 0;
 }
 
-.modal-content-enter-active {
-  transition: all 0.3s ease;
-}
-
+.modal-content-enter-active,
 .modal-content-leave-active {
-  transition: all 0.2s ease;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.modal-content-enter-from {
-  opacity: 0;
-  transform: scale(0.95) translateY(-20px);
-}
-
+.modal-content-enter-from,
 .modal-content-leave-to {
   opacity: 0;
-  transform: scale(0.95);
+  transform: scale(0.95) translateY(20px);
 }
 
 /* Screen reader only class for accessibility announcements */

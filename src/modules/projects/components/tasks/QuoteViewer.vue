@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isVisible" class="quote-viewer-inline relative z-10 font-poppins bg-white dark:bg-gray-900 flex flex-col min-h-full">
+  <div v-if="isVisible" class="quote-viewer-inline relative z-10 font-sans bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white leading-normal tracking-normal antialiased flex flex-col min-h-full">
     <!-- Modal Container (Now filling parent) -->
     <div class="w-full flex flex-col relative z-20 h-full">
       

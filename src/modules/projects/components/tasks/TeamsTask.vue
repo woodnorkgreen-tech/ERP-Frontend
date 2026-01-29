@@ -3,7 +3,7 @@
   <TaskDataViewer v-if="isReadonly && !isEditMode" :task="task" @edit="isEditMode = true" />
 
   <!-- Editable Teams Task View -->
-  <div v-else class="teams-task bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+  <div v-else class="teams-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     
     <!-- Premium Task Header -->
     <div class="mb-8">
@@ -42,68 +42,6 @@
         </div>
       </div>
 
-      <!-- Project Details Premium Card -->
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 border border-slate-100 dark:border-slate-800 group/card">
-        <!-- Abstract Glassmorphism decorative elements -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover/card:bg-purple-500/10 transition-colors"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/5 rounded-full -ml-24 -mb-24 blur-3xl group-hover/card:bg-indigo-500/10 transition-colors transition-delay-700"></div>
-        
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-10">
-          <div class="space-y-6">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-400 dark:text-slate-500">
-                <i class="mdi mdi-folder-outline text-2xl"></i>
-              </div>
-              <div>
-                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Project Enquiry</p>
-                <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-                  {{ projectInfo.enquiryTitle }}
-                  <span class="text-slate-300 dark:text-slate-600 font-medium">/</span>
-                  <span class="text-purple-600 dark:text-purple-400">{{ projectInfo.projectId }}</span>
-                </h2>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-8 pl-1">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/10 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-account-tie-outline text-xl"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Name</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/10 flex items-center justify-center text-amber-500">
-                  <i class="mdi mdi-map-marker-radius-outline text-xl"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Venue Location</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Highlight Stats / Date -->
-          <div class="flex flex-col justify-between items-end gap-6 min-w-[240px]">
-             <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Project Commencement</p>
-                <div class="px-6 py-3 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-xl shadow-2xl flex items-center gap-3 ring-4 ring-slate-50 dark:ring-slate-800/50">
-                  <i class="mdi mdi-calendar-check text-purple-400"></i>
-                  {{ formatDate(projectInfo.setupDate) }}
-                </div>
-             </div>
-             
-             <div class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/10 px-4 py-2 rounded-full border border-emerald-100 dark:border-emerald-800/50">
-               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-glow shadow-emerald-500"></span>
-               <span class="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Resource Pool Live</span>
-             </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Rapid Team Assign Interface -->
@@ -186,7 +124,7 @@
     </div>
 
     <!-- Teams List by Category -->
-    <div class="space-y-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       <div v-for="category in TEAM_CATEGORIES" :key="category.key" class="category-card relative">
         <!-- Category Section Header -->
         <div class="flex items-center justify-between mb-6 px-2">
@@ -213,14 +151,25 @@
         <!-- Team Items Container -->
         <div class="bg-slate-50/50 dark:bg-slate-800/20 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800/50 overflow-hidden backdrop-blur-sm">
           <div v-if="teamsByCategory[category.key]?.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800/40">
-            <div v-for="team in teamsByCategory[category.key]" :key="team.id" class="p-8 hover:bg-white dark:hover:bg-slate-800/40 transition-all flex flex-col lg:flex-row lg:items-center gap-8 group/team">
+            <div v-for="team in teamsByCategory[category.key]" :key="team.id" class="p-6 hover:bg-white dark:hover:bg-slate-800/40 transition-all flex flex-col gap-6 group/team">
               <!-- Team Identity -->
-              <div class="w-full lg:w-1/4">
-                <div class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-3 mb-2">
-                   <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 transition-colors group-hover/team:text-purple-500">
-                     <i class="mdi mdi-account-group-outline text-lg"></i>
-                   </div>
-                   {{ getTeamTypeDisplayName(team) }}
+              <div class="w-full">
+                <div class="flex items-center justify-between gap-4 mb-2">
+                  <div class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 transition-colors group-hover/team:text-purple-500">
+                      <i class="mdi mdi-account-group-outline text-lg"></i>
+                    </div>
+                    {{ getTeamTypeDisplayName(team) }}
+                  </div>
+                  
+                  <button
+                    v-if="canDeleteTeams && !isReadonly"
+                    @click="deleteTeam(team.id)"
+                    class="text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all w-8 h-8 flex items-center justify-center rounded-lg"
+                    title="Remove Team"
+                  >
+                    <i class="mdi mdi-trash-can-outline text-lg"></i>
+                  </button>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                   <span :class="getStatusColorClass(team.status)" class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg leading-none shadow-sm">
@@ -254,9 +203,9 @@
                 </div>
 
                 <!-- Personnel Addition Input -->
-                <div v-if="canManageMembers && !isReadonly" class="flex flex-col sm:flex-row items-stretch gap-4 max-w-2xl group/add">
+                <div v-if="canManageMembers && !isReadonly" class="space-y-3 group/add">
                    <!-- Registry Selection -->
-                   <div class="relative flex-1">
+                   <div class="relative">
                       <i class="mdi mdi-book-open-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/add:text-purple-500 transition-colors z-10"></i>
                       <select
                          v-model="selectedLabourId[team.id]"
@@ -288,25 +237,14 @@
                    <button
                       @click="addMemberToTeam(team.id)"
                       :disabled="!selectedLabourId[team.id] && !newMemberInputs[team.id]?.trim()"
-                      class="px-6 h-11 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl active:scale-95 transition-all text-xs font-black uppercase tracking-widest disabled:opacity-30"
+                      class="w-full h-11 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg active:scale-95 transition-all text-[10px] font-black uppercase tracking-widest disabled:opacity-30"
                    >
-                      <i class="mdi mdi-plus-circle text-lg mr-2"></i>
-                      Assign
+                      <i class="mdi mdi-plus-circle text-base mr-2"></i>
+                      Assign Personnel
                    </button>
                 </div>
               </div>
 
-              <!-- Item Actions -->
-              <div class="lg:w-16 flex justify-end">
-                 <button
-                    v-if="canDeleteTeams && !isReadonly"
-                    @click="deleteTeam(team.id)"
-                    class="text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all w-12 h-12 flex items-center justify-center rounded-2xl"
-                    title="Remove Team"
-                 >
-                    <i class="mdi mdi-trash-can-outline text-2xl"></i>
-                 </button>
-              </div>
             </div>
           </div>
 
@@ -478,7 +416,7 @@ const { labours, fetchLabours } = useTechnicalLabour()
 const TEAM_CATEGORIES = [
   { id: 1, key: 'workshop', label: 'Workshop Fabrication', icon: 'mdi-hammer-wrench', color: 'blue' },
   { id: 2, key: 'setup', label: 'On-Site Installation', icon: 'mdi-truck-delivery-outline', color: 'amber' },
-  { id: 3, key: 'setdown', label: 'Dismantling & Recovery', icon: 'mdi-archive-arrow-down-outline', color: 'rose' }
+  { id: 3, key: 'setdown', label: 'Setdown & Recovery', icon: 'mdi-archive-arrow-down-outline', color: 'rose' }
 ]
 
 const COMMON_TEAM_TYPES = [

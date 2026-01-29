@@ -78,8 +78,40 @@
     <!-- Inventory Table -->
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden min-h-[500px]">
         <!-- Reuse the Master Table -->
+        <!-- View Switcher Header -->
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <h3 class="font-bold text-slate-700 dark:text-slate-200">
+               {{ inventory.length }} Materials Found
+            </h3>
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button 
+                  @click="viewMode = 'board'"
+                  class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"
+                  :class="viewMode === 'board' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                >
+                  <i class="mdi mdi-kanban"></i> Board
+                </button>
+                 <button 
+                  @click="viewMode = 'grid'"
+                  class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"
+                  :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                >
+                  <i class="mdi mdi-view-grid"></i> Grid
+                </button>
+                 <button 
+                  @click="viewMode = 'table'"
+                  class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"
+                  :class="viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'"
+                >
+                  <i class="mdi mdi-table"></i> Table
+                </button>
+            </div>
+        </div>
+
+        <!-- Views -->
         <div class="p-4">
             <MaterialsTable 
+                v-if="viewMode === 'table'"
                 :materials="inventory" 
                 :loading="loading"
                 :canDelete="isSuperAdmin"
@@ -89,6 +121,27 @@
                 @markDefective="handleMarkDefective"
                 @updateStockSettings="handleUpdateStockSettings"
                 @delete="handleDelete"
+            />
+            
+            <MaterialsGrid
+                v-if="viewMode === 'grid'"
+                :materials="inventory" 
+                :loading="loading"
+                :canDelete="isSuperAdmin"
+                @view="handleView"
+                @edit="handleEdit"
+                @checkIn="handleCheckIn"
+                @markDefective="handleMarkDefective"
+                @updateStockSettings="handleUpdateStockSettings"
+                @delete="handleDelete"
+            />
+            
+            <MaterialsBoard
+                v-if="viewMode === 'board'"
+                :materials="inventory"
+                :loading="loading"
+                @view="handleView"
+                @edit="handleEdit"
             />
         </div>
     </div>
@@ -139,6 +192,8 @@ import { useInventory } from '../../composables/useInventory'
 import { useWorkstations } from '@/modules/materials-library/composables/useWorkstations'
 import { useMaterials } from '@/modules/materials-library/composables/useMaterials'
 import MaterialsTable from '@/modules/materials-library/components/MaterialsTable.vue'
+import MaterialsGrid from '@/modules/materials-library/components/MaterialsGrid.vue'
+import MaterialsBoard from '@/modules/materials-library/components/MaterialsBoard.vue'
 import SearchFilters from '@/modules/materials-library/components/SearchFilters.vue'
 import MaterialDetailsModal from '@/modules/materials-library/components/MaterialDetailsModal.vue'
 import MaterialFormModal from '@/modules/materials-library/components/MaterialForm/MaterialFormModal.vue'
@@ -158,6 +213,8 @@ const filters = reactive({
     workstation_id: null as number | null,
     category: ''
 })
+
+const viewMode = ref('table')
 
 const showDetails = ref(false)
 const showForm = ref(false)

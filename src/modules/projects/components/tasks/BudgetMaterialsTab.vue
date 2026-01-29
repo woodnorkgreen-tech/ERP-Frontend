@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col min-h-[600px] font-sans">
+  <div class="bg-white dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col min-h-[600px] font-sans">
     
     <!-- Header / Toolbar -->
     <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -61,7 +61,7 @@
     </div>
 
     <!-- Excel-Style Table -->
-    <div class="overflow-x-auto flex-grow bg-white dark:bg-gray-900 relative">
+    <div class="overflow-x-auto flex-grow bg-white dark:bg-slate-950 relative">
        <!-- Empty State -->
        <div v-if="!hasMaterials" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-0">
           <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-gray-200 dark:border-gray-700">
@@ -95,7 +95,7 @@
              <th class="px-4 py-2 text-right text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-widest w-40">Total Extended</th>
            </tr>
          </thead>
-         <tbody class="bg-white dark:bg-gray-800">
+         <tbody class="bg-white dark:bg-slate-950">
            <template v-for="(element, elementIndex) in filteredElements" :key="element.id">
              
              <!-- ELEMENT Row (PROFESSIONAL BLUE STYLE) -->
@@ -103,7 +103,7 @@
                class="border-b border-blue-200 dark:border-blue-800/50 cursor-pointer transition-colors bg-blue-50/70 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 sticky top-[42px] z-10 backdrop-blur-sm"
                @click="toggleElement(element.id)"
              >
-               <td class="border-r border-blue-200 dark:border-blue-800/30 px-3 py-3 text-center text-xs font-black text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/40">
+               <td class="border-r border-blue-200 dark:border-blue-800/30 px-3 py-3 text-center text-xs font-black text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-slate-950">
                  {{ elementIndex + 1 }}
                </td>
                
@@ -151,7 +151,7 @@
                   class="border-b border-gray-100 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-800/40 transition-colors group/item"
                 >
                   <!-- Nested Numbering -->
-                  <td class="border-r border-gray-200 dark:border-gray-800 px-3 py-2 text-center text-[10px] text-gray-400 dark:text-gray-600 bg-gray-50/30 dark:bg-gray-900/30 font-mono">
+                  <td class="border-r border-gray-200 dark:border-gray-800 px-3 py-2 text-center text-[10px] text-gray-400 dark:text-gray-600 bg-gray-50/30 dark:bg-slate-950 font-mono">
                      {{ elementIndex + 1 }}.{{ materialIndex + 1 }}
                   </td>
 
@@ -194,7 +194,7 @@
                   </td>
 
                   <!-- Quantity -->
-                  <td class="border-r border-gray-200 dark:border-gray-700 px-4 py-2 text-center bg-slate-50/50 dark:bg-gray-800/50">
+                  <td class="border-r border-gray-200 dark:border-gray-700 px-4 py-2 text-center bg-slate-50/50 dark:bg-slate-950">
                      <div class="flex flex-col items-center">
                         <span class="text-sm font-black text-slate-800 dark:text-gray-200 font-mono">
                            {{ material.quantity }}
@@ -204,7 +204,7 @@
                   </td>
 
                   <!-- Unit Price Input -->
-                  <td class="border-r border-gray-200 dark:border-gray-700 px-2 py-1 text-right bg-white dark:bg-gray-900 group/rate">
+                  <td class="border-r border-gray-200 dark:border-gray-700 px-2 py-1 text-right bg-white dark:bg-slate-950 group/rate">
                       <div class="flex items-center">
                          <span class="text-[10px] text-slate-300 dark:text-gray-600 font-black mr-1 uppercase">Rate</span>
                          <input

@@ -1,77 +1,7 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden font-sans">
+  <div class="budget-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     
-    
-
-    <!-- Premium Project Information Section -->
-    <div class="px-6 pb-6">
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 group">
-        <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-        
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
-          <div class="space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <i class="mdi mdi-office-building text-2xl"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-6 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-identifier"></i>
-                </div>
-                <div>
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
-                  <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
-                  <i class="mdi mdi-account-tie"></i>
-                </div>
-                <div>
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
-                  <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
-                  <i class="mdi mdi-map-marker"></i>
-                </div>
-                <div>
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
-                  <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Side: Status/Highlights -->
-          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
-            <div class="text-right">
-              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
-              <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                <i class="mdi mdi-calendar-check text-blue-400"></i>
-                {{ formatDate(projectInfo.setupDate) }}
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  
 
     <!-- Main Content Area -->
     <div class="px-6 pb-6">
@@ -177,29 +107,34 @@
       <!-- Edit Form -->
       <form v-else @submit.prevent="handleSubmit(validateBudget)">
          
-         <!-- Tabs Navigation -->
-         <div class="flex flex-wrap gap-2 mb-8 p-1 bg-gray-100 dark:bg-gray-800/50 rounded-xl w-fit">
+         <!-- Tabs Navigation: Premium Boxed Style -->
+         <div class="flex items-end gap-1 mb-0 relative z-10 px-1 leading-none">
             <button
                v-for="tab in tabs"
                :key="tab.key"
                type="button"
                @click="activeTab = tab.key"
-               class="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 flex items-center gap-2"
-               :class="activeTab === tab.key ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-white' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 dark:text-gray-400 dark:hover:text-gray-200'"
+               class="flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 rounded-t-2xl border-t border-l border-r relative"
+               :class="activeTab === tab.key 
+                  ? 'bg-white dark:bg-gray-900 border-blue-500 dark:border-blue-800 text-blue-600 -mb-[1px] shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]' 
+                  : 'bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 pb-3.5'"
             >
                <i class="mdi" :class="getTabIcon(tab.key)"></i>
-               {{ tab.label }}
+               <span>{{ tab.label }}</span>
+               
+               <!-- Top Accent Bar for Active Tab -->
+               <div v-if="activeTab === tab.key" class="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-2xl"></div>
             </button>
          </div>
 
          <!-- Loader -->
-         <div v-if="state.isLoading" class="py-20 flex flex-col items-center justify-center text-gray-400">
+         <div v-if="state.isLoading" class="bg-white dark:bg-gray-900 border border-blue-500 dark:border-blue-800 rounded-2xl rounded-tl-none p-12 flex flex-col items-center justify-center text-gray-400 min-h-[500px]">
             <i class="mdi mdi-loading mdi-spin text-4xl mb-4 text-blue-500"></i>
-            <p class="font-medium animate-pulse">Loading budget data...</p>
+            <p class="font-bold tracking-widest uppercase text-[10px] animate-pulse">Synchronizing Budget Intelligence...</p>
          </div>
 
-         <!-- Tab Contents -->
-         <div v-else class="min-h-[400px]">
+         <!-- Tab Contents: Integrated into the Box -->
+         <div v-else class="bg-white dark:bg-gray-900 border border-blue-500 dark:border-blue-800 rounded-2xl rounded-tl-none p-8 shadow-sm min-h-[500px] relative z-0">
             <div v-show="activeTab === 'materials'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
                <BudgetMaterialsTab
                   :form-data="state.formData"
@@ -473,7 +408,8 @@ const getTabIcon = (key: string) => {
       'labour': 'mdi-account-hard-hat',
       'expenses': 'mdi-cash-multiple',
       'logistics': 'mdi-truck-fast-outline',
-      'summary': 'mdi-chart-pie'
+      'summary': 'mdi-chart-pie',
+      'comparison': 'mdi-compare-horizontal'
    }
    return map[key] || 'mdi-circle'
 }

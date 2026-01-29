@@ -1,323 +1,190 @@
 <template>
-  <div class="quote-approval-task font-poppins bg-slate-50/50 dark:bg-gray-900/50 min-h-full rounded-2xl overflow-hidden">
-    <!-- Premium Header / Hero Section -->
-    <div class="relative p-8 mb-8 overflow-hidden bg-white border border-gray-100 dark:bg-gray-800 dark:border-gray-700 rounded-2xl shadow-sm">
-      <div class="absolute top-0 right-0 p-4 -mr-16 -mt-16 opacity-5 dark:opacity-10 rotate-12">
-        <i class="mdi mdi-file-certificate text-[200px] text-blue-600"></i>
-      </div>
+  <div class="quote-approval-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased flex flex-col md:flex-row gap-6">
+    
+    <!-- Left Sidebar: Summary & Actions -->
+    <div class="w-full md:w-1/3 flex flex-col gap-6">
       
-      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/20 text-white">
-            <i class="mdi mdi-file-sign text-3xl"></i>
-          </div>
+      <!-- Summary Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-5 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
           <div>
-            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-              Quote Approval
-            </h2>
-            <div class="flex items-center gap-3 mt-2 text-slate-500 dark:text-gray-400 font-medium">
-              <span class="flex items-center gap-1">
-                <i class="mdi mdi-identifier text-blue-500"></i>
-                {{ quoteData.projectInfo?.projectId || 'ID TBC' }}
-              </span>
-              <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-              <span class="flex items-center gap-1">
-                <i class="mdi mdi-domain text-indigo-500"></i>
-                {{ quoteData.projectInfo?.clientName || 'Client TBC' }}
-              </span>
+            <h2 class="text-lg font-black text-slate-900 dark:text-white leading-tight">Quote Approval</h2>
+            <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+              <span class="font-bold text-blue-600">{{ quoteData.projectInfo?.projectId || 'TBC' }}</span>
+              <span>•</span>
+              <span class="truncate max-w-[150px]">{{ quoteData.projectInfo?.clientName }}</span>
             </div>
           </div>
+          <span :class="getQuoteStatusColor(quoteData.status || 'draft')" class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded border">
+             {{ getQuoteStatusLabel(quoteData.status || 'draft') }}
+          </span>
         </div>
 
-        <div class="flex flex-col items-end">
-          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 mb-1">Total Price</p>
-          <div class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-baseline gap-1">
-             <span class="text-xl font-bold text-blue-500">KES</span>
+        <div class="mb-6">
+           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Value</p>
+           <div class="text-3xl font-black text-slate-900 dark:text-white flex items-baseline gap-1">
+             <span class="text-sm font-bold text-slate-400">KES</span>
              {{ formatCurrencyValue(quoteData.totals?.grandTotal || 0) }}
-          </div>
+           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+           <div class="p-3 bg-slate-50 dark:bg-gray-700/50 rounded-lg border border-slate-100 dark:border-gray-700">
+             <p class="text-[9px] font-bold uppercase text-slate-400 mb-0.5">Margin</p>
+             <p class="text-sm font-black text-blue-600 dark:text-blue-400">{{ quoteData.totals?.overallMarginPercentage ?? 0 }}%</p>
+           </div>
+           <div class="p-3 bg-slate-50 dark:bg-gray-700/50 rounded-lg border border-slate-100 dark:border-gray-700">
+             <p class="text-[9px] font-bold uppercase text-slate-400 mb-0.5">Profit</p>
+             <p class="text-sm font-black text-slate-700 dark:text-gray-300">{{ formatCurrencyValue(quoteData.totals?.totalMargin ?? 0) }}</p>
+           </div>
+        </div>
+
+        <!-- Primary Actions -->
+        <div class="space-y-3">
+           <button 
+              v-if="formData.approval_status !== 'approved'"
+              @click="formData.approval_status = 'approved'"
+              class="w-full h-10 rounded-lg border font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+              :class="formData.approval_status === 'approved' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+           >
+             <i class="mdi mdi-check"></i> Approve Quote
+           </button>
+           
+           <button 
+              v-if="formData.approval_status !== 'rejected'"
+              @click="formData.approval_status = 'rejected'"
+              class="w-full h-10 rounded-lg border font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+              :class="formData.approval_status === 'rejected' ? 'bg-red-500 text-white border-red-500 shadow-md' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
+           >
+             <i class="mdi mdi-close"></i> Reject Quote
+           </button>
         </div>
       </div>
 
-      <!-- Quick Metrics Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-slate-100 dark:border-gray-700">
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-700/50 border border-slate-100 dark:border-gray-700">
-           <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Materials</p>
-           <p class="text-lg font-black text-slate-900 dark:text-white">{{ formatCurrency(quoteData.totals.materialsTotal) }}</p>
-        </div>
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-700/50 border border-slate-100 dark:border-gray-700">
-           <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Labour</p>
-           <p class="text-lg font-black text-slate-900 dark:text-white">{{ formatCurrency(quoteData.totals.labourTotal) }}</p>
-        </div>
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-700/50 border border-slate-100 dark:border-gray-700">
-           <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Logistics</p>
-           <p class="text-lg font-black text-slate-900 dark:text-white">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</p>
-        </div>
-        <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-           <p class="text-[10px] font-bold uppercase tracking-wider text-blue-500 mb-1">Profit Margin</p>
-           <p class="text-lg font-black text-blue-700 dark:text-blue-400">{{ formatCurrency(quoteData.totals.totalMargin) }} ({{ quoteData.totals.overallMarginPercentage }}%)</p>
-        </div>
+      <!-- Activation Card (Only visible when approved or nearly approved) -->
+      <div v-if="formData.approval_status === 'approved' || quoteData.status === 'approved'" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+         <h3 class="text-sm font-black text-emerald-800 dark:text-emerald-400 mb-2">Project Activation</h3>
+         <div v-if="quoteData.projectInfo?.jobNumber">
+            <p class="text-xs text-emerald-600 mb-1">Active Job Number:</p>
+            <p class="text-xl font-black text-emerald-700 dark:text-emerald-300 tracking-wider">{{ quoteData.projectInfo.jobNumber }}</p>
+         </div>
+         <button
+            v-else
+            @click="handleConvertToProject"
+            :disabled="isConverting || isLoading"
+            class="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs uppercase tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all"
+         >
+            <i v-if="isConverting" class="mdi mdi-loading mdi-spin"></i>
+            {{ isConverting ? 'Starting...' : 'Activate Project' }}
+         </button>
       </div>
+
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 pt-0">
-      <!-- Left Column: Action & Decision -->
-      <div class="lg:col-span-2 space-y-8">
-        <!-- Main Decision Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden">
-          <div class="flex items-center justify-between mb-8">
-            <h3 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <span class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border border-indigo-500/20">
-                <i class="mdi mdi-gavel"></i>
-              </span>
-              Final Choice
-            </h3>
-            <button 
-              @click="showQuoteViewer = true"
-              class="flex items-center gap-2 px-6 py-2.5 bg-slate-900 dark:bg-gray-700 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-black/10"
-            >
-              <i class="mdi mdi-eye-outline text-lg"></i>
-              View Full Quote
-            </button>
-          </div>
+    <!-- Right Content: Details Form -->
+    <div class="w-full md:w-2/3 flex flex-col gap-4">
+       <!-- Toolbar -->
+       <div class="flex justify-end">
+          <button 
+            @click="showQuoteViewer = true"
+            class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg text-xs font-bold text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all shadow-sm"
+          >
+            <i class="mdi mdi-file-document-outline"></i> View Full Document
+          </button>
+       </div>
 
-          <form @submit.prevent="handleSubmit" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="space-y-2">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Approval Status</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <button 
-                    type="button"
-                    @click="formData.approval_status = 'approved'"
-                    :class="formData.approval_status === 'approved' ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/30' : 'bg-slate-50 dark:bg-gray-700 dark:border-gray-600 text-slate-500 border-slate-200'"
-                    class="h-14 rounded-2xl border font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
-                  >
-                    <i class="mdi mdi-check-circle-outline text-xl"></i>
-                    Approve
-                  </button>
-                  <button 
-                    type="button"
-                    @click="formData.approval_status = 'rejected'"
-                    :class="formData.approval_status === 'rejected' ? 'bg-red-500 text-white border-red-400 shadow-lg shadow-red-500/30' : 'bg-slate-50 dark:bg-gray-700 dark:border-gray-600 text-slate-500 border-slate-200'"
-                    class="h-14 rounded-2xl border font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
-                  >
-                    <i class="mdi mdi-close-circle-outline text-xl"></i>
-                    Reject
-                  </button>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Approval Date</label>
+       <!-- Form Card -->
+       <form @submit.prevent="handleSubmit" class="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-6 flex-grow shadow-sm">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+             <div class="space-y-1.5">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Approval Date</label>
                 <input
                   v-model="formData.approval_date"
                   type="date"
-                  class="w-full h-14 px-6 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-2xl font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  class="w-full h-10 px-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-sm font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
                 />
-              </div>
-            </div>
-
-            <div v-if="formData.approval_status === 'rejected'" class="space-y-2 animate-slide-up">
-              <label class="text-[11px] font-black uppercase tracking-[0.2em] text-red-500 ml-1">Rejection Reason Required</label>
-              <textarea
-                v-model="formData.rejection_reason"
-                required
-                rows="3"
-                class="w-full px-6 py-4 bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-2xl font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-red-500/20 outline-none transition-all placeholder:text-red-300"
-                placeholder="Explain why this quote was declined..."
-              ></textarea>
-            </div>
-
-            <div class="space-y-2">
-              <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Notes & Rules</label>
-              <textarea
-                v-model="formData.comments"
-                rows="3"
-                class="w-full px-6 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-2xl font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
-                placeholder="Add any internal notes or project rules..."
-              ></textarea>
-            </div>
-
-            <div class="space-y-2">
-              <label class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-gray-500 ml-1">Approved By</label>
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-slate-400">
-                  <i class="mdi mdi-account-check"></i>
-                </div>
+             </div>
+             <div class="space-y-1.5">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Approved By</label>
                 <input
                   v-model="formData.approved_by"
                   type="text"
                   required
-                  class="w-full h-14 pl-12 pr-6 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-2xl font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                  placeholder="Enter your full name"
+                  class="w-full h-10 px-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-sm font-medium text-slate-800 dark:text-white focus:outline-none focus:border-blue-500"
+                  placeholder="Name"
                 />
-              </div>
-            </div>
+             </div>
+          </div>
 
-            <div class="flex items-center justify-between pt-8 border-t border-slate-100 dark:border-gray-700">
-              <button
-                v-if="task.status !== 'completed' && task.status !== 'skipped'"
-                type="button"
-                @click="showSkipModal = true"
-                class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                Skip Task
-              </button>
+          <div v-if="formData.approval_status === 'rejected'" class="space-y-1.5 mb-6 animate-slide-up">
+             <label class="text-[10px] font-bold uppercase tracking-wider text-red-500">Reason for Rejection</label>
+             <textarea
+                v-model="formData.rejection_reason"
+                required
+                rows="2"
+                class="w-full p-3 bg-white dark:bg-gray-800 border-l-4 border-red-500 text-sm text-slate-700 dark:text-gray-300 focus:outline-none focus:bg-slate-50"
+                placeholder="Required..."
+             ></textarea>
+          </div>
 
-              <button
-                v-if="['skipped', 'completed'].includes(task.status)"
-                type="button"
-                @click="$emit('update-status', 'pending')"
-                class="text-xs font-black uppercase tracking-widest text-yellow-600 hover:text-yellow-700 transition-colors"
-               >
-                {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
-               </button>
-              <div v-else></div>
+          <div class="space-y-1.5 mb-8">
+             <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Comments / Notes</label>
+             <textarea
+                v-model="formData.comments"
+                rows="3"
+                class="w-full p-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg text-sm text-slate-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 resize-none"
+                placeholder="Optional notes..."
+             ></textarea>
+          </div>
 
-              <div class="flex gap-4">
+          <!-- Footer Actions -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-gray-700">
+             <div class="flex gap-4">
                 <button
-                  type="submit"
-                  :disabled="isLoading || !formData.approval_status"
-                  class="h-14 px-10 bg-gradient-to-r from-slate-900 to-indigo-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 flex items-center gap-3"
+                  v-if="task.status !== 'completed' && task.status !== 'skipped'"
+                  type="button"
+                  @click="showSkipModal = true"
+                  class="text-xs font-bold text-slate-400 hover:text-slate-600 underline"
                 >
-                  <i v-if="isLoading" class="mdi mdi-loading mdi-spin text-lg"></i>
-                  <i v-else class="mdi mdi-content-save-check text-lg"></i>
-                  <span>{{ isLoading ? 'Saving...' : 'Save Choice' }}</span>
+                  Skip
                 </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <!-- Project Activation Area (If approved) -->
-        <div 
-          v-if="formData.approval_status === 'approved'"
-          class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-1 shadow-xl shadow-emerald-500/20 animate-fade-in"
-        >
-          <div class="bg-white dark:bg-gray-800 rounded-[calc(1.5rem-2px)] p-8">
-            <div class="flex flex-col md:flex-row items-center gap-8">
-              <div class="w-20 h-20 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-                <i class="mdi mdi-lightning-bolt text-4xl"></i>
-              </div>
-              <div class="flex-grow text-center md:text-left">
-                <h4 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Start This Project</h4>
-                <p class="text-slate-500 dark:text-gray-400 font-medium mt-1">
-                  Ready to start the project? Activating creates the Job ID and tells the team.
-                </p>
-              </div>
-              <div class="shrink-0 w-full md:w-auto">
-                <div v-if="quoteData.projectInfo?.jobNumber" class="bg-emerald-50 dark:bg-emerald-900/30 px-6 py-4 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-center">
-                   <p class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Active Job Number</p>
-                   <p class="text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-[0.2em]">{{ quoteData.projectInfo.jobNumber }}</p>
-                </div>
-                <button
-                  v-else
-                  @click="handleConvertToProject"
-                  :disabled="isConverting || isLoading"
-                  class="w-full md:w-auto h-16 px-8 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-wider text-sm shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-all flex items-center justify-center gap-3 active:scale-95"
-                >
-                   <i v-if="isConverting" class="mdi mdi-loading mdi-spin"></i>
-                   <i v-else class="mdi mdi-rocket-launch"></i>
-                   <span>{{ isConverting ? 'Starting...' : 'Activate & Get Job ID' }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Status & Preview -->
-      <div class="space-y-8">
-        <!-- Status Box -->
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Status Tracking</p>
-          <div class="flex flex-col gap-4">
-             <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-gray-700/50">
-               <span class="text-xs font-bold text-slate-500">Processing</span>
-               <span :class="getQuoteStatusColor(quoteData.status || 'draft')" class="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border shadow-sm">
-                 {{ getQuoteStatusLabel(quoteData.status || 'draft') }}
-               </span>
              </div>
-             <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-gray-700/50">
-               <span class="text-xs font-bold text-slate-500">Task State</span>
-               <span :class="getStatusBadgeClasses(task.status)" class="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border shadow-sm">
-                 {{ getStatusLabel(task.status) }}
-               </span>
-             </div>
+             
+             <button
+               type="submit"
+               :disabled="isLoading || !formData.approval_status"
+               class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
+             >
+               <i v-if="isLoading" class="mdi mdi-loading mdi-spin"></i>
+               <span>Save Decision</span>
+             </button>
           </div>
-        </div>
-
-        <!-- Venue Summary -->
-        <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group">
-          <div class="absolute top-0 right-0 p-4 -mr-8 -mt-8 opacity-5 group-hover:scale-110 transition-transform">
-             <i class="mdi mdi-map-marker-radius text-8xl text-indigo-500"></i>
-          </div>
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Project Info</p>
-          <div class="space-y-4 relative z-10">
-             <div>
-               <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Event Venue</p>
-               <p class="text-sm font-bold text-slate-900 dark:text-white">{{ quoteData.projectInfo?.eventVenue || 'TBC' }}</p>
-             </div>
-             <div>
-               <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Project Start Date</p>
-               <p class="text-sm font-bold text-slate-900 dark:text-white">{{ formatDate(quoteData.projectInfo?.setupDate) }}</p>
-             </div>
-          </div>
-        </div>
-
-        <!-- System Alerts -->
-        <div v-if="successMessage || error" class="animate-bounce-subtle">
-           <div v-if="successMessage" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-4 flex items-center gap-3">
-              <i class="mdi mdi-check-circle text-emerald-500 text-xl"></i>
-              <p class="text-xs font-bold text-emerald-700 dark:text-emerald-300">{{ successMessage }}</p>
-           </div>
-           <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl p-4 flex items-center gap-3 mt-4">
-              <i class="mdi mdi-alert-circle text-red-500 text-xl"></i>
-              <p class="text-xs font-bold text-red-700 dark:text-red-300">{{ error }}</p>
-           </div>
-        </div>
-      </div>
+       </form>
     </div>
 
-    <!-- Modals -->
-    <div v-if="showQuoteViewer" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4 md:p-12">
-      <div class="bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl w-full max-w-7xl h-full flex flex-col overflow-hidden relative border border-white/10">
-        <button 
-          @click="showQuoteViewer = false"
-          class="absolute top-8 right-8 z-[60] w-12 h-12 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all shadow-xl backdrop-blur-md"
-        >
-          <i class="mdi mdi-close text-2xl"></i>
+    <!-- Modals (Unchanged logic, just keeping structure) -->
+    <div v-if="showQuoteViewer" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col relative border border-white/10">
+        <button @click="showQuoteViewer = false" class="absolute top-4 right-4 z-[60] w-8 h-8 bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-500 rounded-full flex items-center justify-center transition-all">
+          <i class="mdi mdi-close"></i>
         </button>
-        <div class="flex-grow overflow-y-auto">
-          <QuoteViewer 
-            v-if="quoteTaskId"
-            :is-visible="true"
-            :readonly="true"
-            :quote-data="quoteData"
-            @close="showQuoteViewer = false"
-          />
+        <div class="flex-grow overflow-hidden rounded-2xl">
+          <QuoteViewer v-if="quoteTaskId" :is-visible="true" :readonly="true" :quote-data="quoteData" @close="showQuoteViewer = false" />
         </div>
       </div>
     </div>
 
-    <!-- Skip Task Modal -->
-    <div v-if="showSkipModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
-      <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/5">
-        <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Bypass Approval</h3>
-        <p class="text-slate-500 dark:text-gray-400 font-medium mb-6">Why is this money check being skipped? This will be saved in project history.</p>
-        <textarea
-            v-model="skipReason"
-            rows="3"
-            class="w-full px-6 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-2xl font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400 mb-6"
-            placeholder="Reason for bypass..."
-        ></textarea>
-        <div class="flex gap-4">
-            <button @click="showSkipModal = false" class="flex-1 h-14 rounded-2xl font-bold text-slate-400 hover:bg-slate-50 transition-all">Cancel</button>
-            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="flex-1 h-14 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all disabled:opacity-50">
-              {{ isSkipping ? 'Bypassing...' : 'Confirm' }}
-            </button>
+    <div v-if="showSkipModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full p-6">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Bypass Approval</h3>
+        <textarea v-model="skipReason" rows="3" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm mb-4 focus:outline-none focus:border-blue-500" placeholder="Reason..."></textarea>
+        <div class="flex gap-2">
+            <button @click="showSkipModal = false" class="flex-1 h-10 rounded-lg font-bold text-xs bg-slate-100 text-slate-500 hover:bg-slate-200">Cancel</button>
+            <button @click="handleSkipTask" :disabled="!skipReason.trim()" class="flex-1 h-10 rounded-lg font-bold text-xs bg-slate-900 text-white hover:bg-slate-800">Confirm</button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 

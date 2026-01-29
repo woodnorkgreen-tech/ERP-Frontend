@@ -30,7 +30,7 @@
        <!-- Cost Driver, Benchmark & Variance Analysis -->
        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Benchmark -->
-          <div class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border border-slate-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+          <div class="p-6 bg-white dark:bg-slate-950 rounded-[2rem] border border-slate-100 dark:border-gray-700 shadow-sm flex flex-col justify-between">
              <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Benchmark Intelligence</p>
                 <div class="flex items-end gap-2">
@@ -85,7 +85,7 @@
     </div>
 
     <!-- Distribution Breakdown -->
-    <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-8 shadow-sm">
+    <div class="bg-white dark:bg-slate-950 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-8 shadow-sm">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
          <div>
             <h4 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Resource Concentration</h4>

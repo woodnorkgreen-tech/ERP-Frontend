@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col min-h-[700px]">
+  <div class="bg-white dark:bg-slate-950 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col min-h-[700px]">
     
     <!-- Executive Header -->
     <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
@@ -19,7 +19,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="flex flex-col bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 min-w-[200px]">
+          <div class="flex flex-col bg-white dark:bg-slate-950 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 min-w-[200px]">
              <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Select Audit Baseline</span>
               <select 
                 v-model="selectedBaselineId" 
@@ -76,21 +76,21 @@
        </div>
 
        <div v-if="selectedBaselineId === 'materials' && materialsSyncAnalysis" class="md:col-span-2 lg:col-span-3 grid grid-cols-3 gap-4">
-          <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
+          <div class="p-5 bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
              <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">New Scope</span>
              <div>
                 <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">+{{ materialsSyncAnalysis.summary.added }}</span>
                 <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tight mt-1">Manual Additions</p>
              </div>
           </div>
-          <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
+          <div class="p-5 bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
              <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Qty Shifts</span>
              <div>
                 <span class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">Δ{{ materialsSyncAnalysis.summary.updated }}</span>
                 <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tight mt-1">Volume Changes</p>
              </div>
           </div>
-          <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
+          <div class="p-5 bg-white dark:bg-slate-950 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between shadow-sm">
              <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Obsolete Items</span>
              <div>
                 <span class="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono">-{{ materialsSyncAnalysis.summary.removed }}</span>
@@ -121,7 +121,7 @@
     </div>
 
     <!-- Data Grid -->
-    <div class="flex-grow bg-white dark:bg-gray-800 mx-8 mt-8 mb-8 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col shadow-sm">
+    <div class="flex-grow bg-white dark:bg-slate-950 mx-8 mt-8 mb-8 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col shadow-sm">
        <div class="overflow-x-auto relative flex-grow">
           <div v-if="isLoading" class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 fixed-blur flex items-center justify-center z-50">
              <div class="flex flex-col items-center gap-3">
@@ -131,7 +131,7 @@
           </div>
 
           <table class="w-full border-collapse min-w-[1100px]">
-             <thead class="bg-gray-50/80 dark:bg-gray-700/50 sticky top-0 z-20">
+             <thead class="bg-gray-50/80 dark:bg-slate-950 sticky top-0 z-20">
                 <tr class="border-b border-gray-200 dark:border-gray-600 font-mono uppercase text-[9px] text-gray-500 font-bold tracking-widest">
                    <th class="px-6 py-4 text-left w-16">Audit</th>
                    <th class="px-6 py-4 text-left">Component Item / Project Scope</th>

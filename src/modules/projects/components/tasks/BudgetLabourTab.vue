@@ -24,7 +24,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+    <div class="bg-white dark:bg-slate-950 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
       <div v-if="formData.labour.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
          <div class="w-12 h-12 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
             <i class="mdi mdi-account-hard-hat text-2xl text-gray-300"></i>
@@ -36,7 +36,7 @@
 
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50/80 dark:bg-gray-900/50 text-xs uppercase tracking-wider font-bold text-gray-400 border-b border-gray-100 dark:border-gray-700">
+          <thead class="bg-gray-50/80 dark:bg-slate-950 text-xs uppercase tracking-wider font-bold text-gray-400 border-b border-gray-100 dark:border-gray-700">
             <tr>
               <th class="text-left py-4 px-6">Role / Description</th>
               <th class="text-left py-4 px-4 w-48">Category</th>

@@ -1,5 +1,5 @@
 <template>
-  <div class="materials-task-content">
+  <div class="materials-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -57,73 +57,150 @@
         </div>
       </div>
 
-      <!-- Premium Project Information Section -->
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
-        <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-        
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
-          <div class="space-y-4">
+      <!-- Minimalistic Workflow & Approvals -->
+      <div v-if="materialsData.projectElements.length > 0" class="mb-6">
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-slate-200 dark:border-gray-700 overflow-hidden">
+          <!-- Compact Header -->
+          <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-gray-700">
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <i class="mdi mdi-office-building text-2xl"></i>
+              <div class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                <i class="mdi mdi-clipboard-check text-white text-xl"></i>
               </div>
               <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Concept</h4>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Workflow Progress</h3>
+                <p class="text-xs text-slate-500 dark:text-gray-400">Materials → Approvals → Budget</p>
               </div>
             </div>
             
-            <div class="flex flex-wrap items-center gap-6 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-identifier"></i>
+            <!-- Status Badge -->
+            <div>
+              <span v-if="approvalStatus.all_approved" class="px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg text-xs font-bold">
+                ✓ Approved
+              </span>
+              <span v-else class="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-lg text-xs font-bold">
+                Pending
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Steps -->
+          <div class="p-4">
+            <div class="flex items-center gap-2 mb-4">
+              <!-- Step 1 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                     :class="materialsData.projectElements.length > 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-gray-700 text-slate-400'">
+                  <i class="mdi mdi-check" v-if="materialsData.projectElements.length > 0"></i>
+                  <span v-else>1</span>
                 </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identifier</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
-                </div>
+                <span class="text-xs font-medium" :class="materialsData.projectElements.length > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'">
+                  Materials
+                </span>
               </div>
               
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
-                  <i class="mdi mdi-account-tie"></i>
+              <div class="w-8 h-0.5" :class="materialsData.projectElements.length > 0 ? 'bg-emerald-300' : 'bg-slate-200 dark:bg-gray-700'"></div>
+              
+              <!-- Step 2 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                     :class="approvalStatus.all_approved ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+                  <i class="mdi mdi-check" v-if="approvalStatus.all_approved"></i>
+                  <span v-else>2</span>
                 </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Stakeholder</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
+                <span class="text-xs font-medium" :class="approvalStatus.all_approved ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+                  Approvals
+                </span>
+              </div>
+              
+              <div class="w-8 h-0.5" :class="approvalStatus.all_approved ? 'bg-emerald-300' : 'bg-slate-200 dark:bg-gray-700'"></div>
+              
+              <!-- Step 3 -->
+              <div class="flex-1 flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-slate-200 dark:bg-gray-700 text-slate-400">
+                  3
+                </div>
+                <span class="text-xs font-medium text-slate-500">
+                  Budget
+                </span>
+              </div>
+            </div>
+
+            <!-- Approval Action -->
+            <div v-if="!approvalStatus.all_approved" class="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <div class="flex items-center gap-2">
+                <i class="mdi mdi-alert-circle-outline text-red-600 dark:text-red-400"></i>
+                <span class="text-xs font-medium text-red-900 dark:text-red-200">
+                  {{ pendingDepartments.filter(d => d !== 'None').length }} approval(s) pending
+                </span>
+              </div>
+              <button
+                @click="showApprovals = !showApprovals"
+                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+              >
+                <i class="mdi mdi-clipboard-check-outline"></i>
+                <span>{{ showApprovals ? 'Hide' : 'Review' }}</span>
+              </button>
+            </div>
+
+            <!-- Success Message with Action -->
+            <div v-else class="space-y-3">
+              <!-- Success Banner -->
+              <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <i class="mdi mdi-check-circle text-emerald-600 dark:text-emerald-400 text-xl"></i>
+                <div class="flex-1">
+                  <p class="text-xs font-bold text-emerald-900 dark:text-emerald-200">
+                    All approvals completed!
+                  </p>
+                  <p class="text-xs text-emerald-700 dark:text-emerald-300">
+                    Materials are ready for budget pricing
+                  </p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
-                  <i class="mdi mdi-map-marker"></i>
+              <!-- Next Step Action -->
+              <div class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="flex items-center gap-2">
+                  <i class="mdi mdi-arrow-right-circle text-blue-600 dark:text-blue-400"></i>
+                  <div>
+                    <p class="text-xs font-bold text-blue-900 dark:text-blue-200">Next Step: Add Prices</p>
+                    <p class="text-xs text-blue-700 dark:text-blue-300">Go to Budget task to set material costs</p>
+                  </div>
                 </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destinations</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
+                <button
+                  @click="navigateToBudgetTask"
+                  class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 whitespace-nowrap"
+                >
+                  <span>Go to Budget</span>
+                  <i class="mdi mdi-arrow-right"></i>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Right Side: Status/Highlights -->
-          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
-             <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Timeline Alignment</p>
-                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                  <i class="mdi mdi-calendar-check text-blue-400"></i>
-                  {{ formatDate(projectInfo.setupDate) }}
-                </div>
-             </div>
-             
-             <div class="flex items-center gap-2">
-               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Active Project Intelligence</span>
-             </div>
+          <!-- Approval Cards (Expandable) -->
+          <div v-show="showApprovals" class="border-t border-slate-200 dark:border-gray-700 p-4 bg-slate-50 dark:bg-gray-800/50">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <ApprovalCard
+                class="border border-slate-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-900"
+                department="project_officer"
+                title="Project Officer"
+                :approval-data="approvalStatus.project_officer"
+                :can-approve="canApproveForDepartment('project_officer')"
+                @approve="approveForDepartment('project_officer', $event)"
+              />
+              <ApprovalCard
+                class="border border-slate-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-900"
+                department="production"
+                title="Production"
+                :approval-data="approvalStatus.production"
+                :can-approve="canApproveForDepartment('production')"
+                @approve="approveForDepartment('production', $event)"
+              />
+            </div>
           </div>
         </div>
       </div>
+
 
     <!-- Project Elements Section -->
     <div class="mb-6">
@@ -231,7 +308,7 @@
        </div>
 
       <!-- Elements Display - Excel Style -->
-      <div class="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden shadow-lg">
+      <div class="bg-white dark:bg-slate-950 rounded-xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden shadow-lg">
         <!-- Excel-style continuous table -->
         <div class="overflow-x-auto">
           <table class="w-full border-collapse" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -246,7 +323,7 @@
                 <th class="px-3 py-2.5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider w-24">Actions</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-slate-800">
+            <tbody class="bg-white dark:bg-slate-950">
               <template v-for="(element, elementIndex) in materialsData.projectElements" :key="element.id">
                 <!-- Element Header Row -->
                 <tr 
@@ -256,7 +333,7 @@
                   ]"
                   @click="toggleElementCollapse(element.id)"
                 >
-                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900">
+                  <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950">
                     {{ elementIndex + 1 }}
                   </td>
                   <td class="border-r border-slate-200 dark:border-slate-700 px-3 py-3 text-center" @click.stop>
@@ -397,75 +474,6 @@
       </div>
     </div>
 
-    <!-- Department Approvals Section -->
-    <div class="mb-8 department-approvals-section">
-      <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
-        <div 
-          @click="showApprovals = !showApprovals" 
-          class="flex items-center justify-between cursor-pointer mb-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded transition-colors"
-        >
-          <div class="flex items-center">
-             <svg class="w-4 h-4 mr-2 text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': !showApprovals }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-             <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Department Approvals</h3>
-                <p v-if="showApprovals" class="text-sm text-gray-600 dark:text-gray-400">
-                  Project Officer or Manager must approve the materials list before budget can be created
-                </p>
-             </div>
-          </div>
-          <!-- Status Summary Badge when collapsed -->
-          <div v-if="!showApprovals">
-             <span v-if="approvalStatus.all_approved" class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">All Approved</span>
-             <span v-else class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs border border-yellow-200">Pending Approvals</span>
-          </div>
-        </div>
-
-        <div v-show="showApprovals">
-          <!-- Overall Status Banner -->
-          <div v-if="approvalStatus.all_approved" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <span class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                ✓ Materials list approved. Budget import enabled.
-              </span>
-            </div>
-          </div>
-          <div v-else class="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-              <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                ⚠ Pending approvals: {{ pendingDepartments.join(', ') }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Approval Status Bar -->
-          <div class="flex flex-col md:flex-row bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
-            <ApprovalCard
-              class="flex-1 border-0 rounded-none shadow-none"
-              department="project_officer"
-              title="Project Approval"
-              :approval-data="approvalStatus.project_officer"
-              :can-approve="canApproveForDepartment('project_officer')"
-              @approve="approveForDepartment('project_officer', $event)"
-            />
-            <ApprovalCard
-              class="flex-1 border-0 rounded-none shadow-none"
-              department="production"
-              title="Production Approval"
-              :approval-data="approvalStatus.production"
-              :can-approve="canApproveForDepartment('production')"
-              @approve="approveForDepartment('production', $event)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Materials Actions -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-3">
@@ -511,18 +519,6 @@
       </div>
 
       <div class="flex space-x-3">
-        <!-- Edit Mode Toggle (only for completed tasks) -->
-        <button
-          v-if="task.status === 'completed' && !isEditMode"
-          @click.prevent="toggleEditMode"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          <span>Enable Edit Mode</span>
-        </button>
-
         <button
           v-if="task.status === 'completed' && isEditMode"
           @click="toggleEditMode"
@@ -870,6 +866,7 @@ interface Props {
   task: EnquiryTask
   /** Initial tab or section to focus */
   initialTab?: string | null
+  initialEditMode?: boolean
 }
 
 /**
@@ -880,6 +877,8 @@ interface Emits {
    'update-status': [status: EnquiryTask['status']]
    /** Emitted when task is completed or skipped */
    'complete': []
+   /** Emitted to switch to another task type in the same project */
+   'switch-task': [taskType: string]
 }
 
 /**
@@ -1043,7 +1042,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Edit mode state for completed tasks
-const isEditMode = ref(false)
+const isEditMode = ref(props.initialEditMode || false)
 
 /**
  * Computed project information prioritizing live enquiry data
@@ -1088,6 +1087,8 @@ const loadMaterialsData = async () => {
     const data = await MaterialsService.getMaterialsData(props.task.id)
     Object.assign(materialsData, data)
     initializeCollapsedState()
+    // Sync approval status from the loaded data
+    await loadApprovalStatus()
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to load materials data'
     console.error('Failed to load materials data:', err)
@@ -1289,7 +1290,14 @@ const canApproveForDepartment = (dept: string) => {
 const approveForDepartment = async (department: 'design' | 'production' | 'project_officer', comments: string) => {
   try {
     const response = await api.post(`/api/projects/tasks/${props.task.id}/materials/approve/${department}`, { comments })
-    approvalStatus.value = response.data.approval_status
+    const newStatus = response.data.approval_status
+    approvalStatus.value = newStatus
+    
+    // Sync back to materialsData to ensure persistence across local refreshes
+    if (materialsData.projectInfo) {
+      materialsData.projectInfo.approval_status = newStatus
+    }
+    
     console.log(`${department} approval recorded successfully`)
   } catch (err: any) {
     console.error(`Failed to approve for ${department}:`, err)
@@ -1360,6 +1368,7 @@ const handlePreviewVersion = async (version: any) => {
   if (version.data) {
     Object.assign(materialsData, version.data)
     initializeCollapsedState()
+    await loadApprovalStatus()
   }
   
   // Set preview mode
@@ -1373,6 +1382,7 @@ const exitPreview = async () => {
   if (originalMaterialsData.value) {
     Object.assign(materialsData, originalMaterialsData.value)
     initializeCollapsedState()
+    await loadApprovalStatus()
   } else {
     // Fallback: reload from server
     await loadMaterialsData()
@@ -1522,7 +1532,7 @@ const saveChanges = async () => {
 /**
  * Save the materials list
  */
-const saveMaterialsList = async () => {
+const saveMaterialsList = async () =>{
   isSaving.value = true
   try {
     error.value = null
@@ -1534,8 +1544,15 @@ const saveMaterialsList = async () => {
 
     const savedData = await MaterialsService.saveMaterialsData(props.task.id, materialsData)
     Object.assign(materialsData, savedData)
+    
+    // Sync approval status from the saved data (it might have been reset by backend)
+    await loadApprovalStatus()
+    
     lastSaved.value = new Date()
     console.log('Materials list saved successfully')
+    
+    // Show workflow notification after successful save
+    showWorkflowNotification()
   } catch (err: any) {
     // Handle different types of errors
     if (err.response?.status === 422) {
@@ -1556,6 +1573,83 @@ const saveMaterialsList = async () => {
     console.error('Failed to save materials list:', err)
   } finally {
     isSaving.value = false
+  }
+}
+
+/**
+ * Navigate to the budget task within the same enquiry
+ * Guides the user to provide pricing for the specified materials
+ */
+const navigateToBudgetTask = () => {
+  console.log('[DEBUG] navigateToBudgetTask triggered in MaterialsTask')
+  emit('switch-task', 'budget')
+}
+
+/**
+ * Show workflow notification to guide users to next steps
+ */
+const showWorkflowNotification = () => {
+  // If all approvals are already complete, suggest going to budget
+  if (approvalStatus.value.all_approved) {
+    if (confirm('Materials saved! All approvals are already complete. Would you like to go to the Budget task now to set prices?')) {
+      navigateToBudgetTask()
+    }
+    return
+  }
+  
+  // Check pending departments
+  const pending = pendingDepartments.value.filter(dept => dept !== 'None')
+  
+  if (pending.length > 0) {
+    // Show notification for next steps
+    const message = `
+      <div class="space-y-4">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <i class="mdi mdi-check-circle text-white text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Materials Saved Successfully!</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Ready for the next workflow step</p>
+          </div>
+        </div>
+        
+        <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <h4 class="font-bold text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-2">
+            <i class="mdi mdi-information"></i>
+            Next Steps in Workflow
+          </h4>
+          <ol class="list-decimal list-inside space-y-2 text-sm text-blue-800 dark:text-blue-200">
+            <li><strong>Production Approval</strong> - Submit materials for production review</li>
+            <li><strong>Budget & Pricing</strong> - Transition to budget task for cost estimation</li>
+          </ol>
+        </div>
+        
+        <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-lg">
+          <p class="text-sm text-amber-800 dark:text-amber-200">
+            <i class="mdi mdi-alert-circle-outline mr-1"></i>
+            <strong>Pending Approvals:</strong> ${pending.join(', ')}
+          </p>
+        </div>
+        
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-4">
+          <i class="mdi mdi-lightbulb-outline mr-1"></i>
+          <em>Tip: Scroll down to the Approvals section to request production approval</em>
+        </div>
+      </div>
+    `
+    
+    // Use native confirm dialog with HTML support (if available) or simple alert
+    if (confirm('Materials saved successfully!\n\nNext Steps:\n1. Submit for Production Approval\n2. Proceed to Budget & Pricing\n\nWould you like to view the Approvals section now?')) {
+      // Scroll to approvals section
+      showApprovals.value = true
+      setTimeout(() => {
+        const approvalsSection = document.querySelector('.department-approvals-section')
+        if (approvalsSection) {
+          approvalsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 300)
+    }
   }
 }
 

@@ -1,148 +1,60 @@
 <template>
-  <div class="production-task bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
+  <div class="production-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
 
-    <!-- Project Header Section -->
-    <div class="mb-6">
-      <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        Production Plan - {{ task.title }}
-      </h4>
-
-      <!-- Project Details -->
-      <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
-        <!-- Decorative background elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-        
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
-          <div class="space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                <i class="mdi mdi-office-building text-2xl"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-black text-slate-400 dark:text-gray-500 uppercase tracking-[0.2em]">Project Name</h4>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ projectInfo.enquiryTitle }}</h2>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-6 pt-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-blue-500">
-                  <i class="mdi mdi-identifier"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project ID</p>
-                   <p class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight">{{ projectInfo.projectId }}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-indigo-500">
-                  <i class="mdi mdi-account-tie"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.clientName }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-emerald-500">
-                  <i class="mdi mdi-map-marker"></i>
-                </div>
-                <div>
-                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Venue</p>
-                   <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ projectInfo.eventVenue }}</p>
-                </div>
-              </div>
-            </div>
+    <!-- Precise Minimalist Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-gray-100 dark:border-gray-700 pb-8">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+          <i class="mdi mdi-factory text-2xl"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ task.title }}</h2>
+          <div class="flex items-center gap-3 mt-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ projectInfo.projectId }}</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ projectInfo.clientName }}</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{{ formatDate(projectInfo.setupDate) }}</span>
           </div>
+        </div>
+      </div>
 
-          <!-- Right Side: Status/Highlights -->
-          <div class="flex flex-col justify-between items-end gap-4 min-w-[200px]">
-             <div class="text-right">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Schedule</p>
-                <div class="px-4 py-2 bg-slate-900 dark:bg-slate-800 rounded-2xl text-white font-black text-lg shadow-xl shadow-black/10 flex items-center gap-2">
-                  <i class="mdi mdi-calendar-check text-blue-400"></i>
-                  {{ formatDate(projectInfo.setupDate) }}
-                </div>
-             </div>
-             
-             <div class="flex items-center gap-2">
-               <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-               <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Live Status</span>
-             </div>
-          </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full border border-emerald-100 dark:border-emerald-800/30">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Production Live</span>
         </div>
       </div>
     </div>
 
-    <!-- Tab Navigation -->
-    <div class="relative z-20">
-      <nav class="flex space-x-1 px-1" aria-label="Tabs">
-        <button
-          @click="activeTab = 'production-management'"
-          :class="[
-            activeTab === 'production-management'
-              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
-              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
-            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
-          ]"
-        >
-          <i class="mdi mdi-factory mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'production-management' ? 'text-white' : 'text-blue-500'"></i>
-          <span>Build Items</span>
-          <div v-if="activeTab === 'production-management'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
-        </button>
-
-        <button
-          @click="activeTab = 'quality'"
-          :class="[
-            activeTab === 'quality'
-              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
-              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
-            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
-          ]"
-        >
-          <i class="mdi mdi-shield-check mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'quality' ? 'text-white' : 'text-emerald-500'"></i>
-          <span>QA Checks</span>
-          <div v-if="activeTab === 'quality'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
-        </button>
-
-        <button
-          @click="activeTab = 'design'"
-          :class="[
-            activeTab === 'design'
-              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
-              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
-            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
-          ]"
-        >
-          <i class="mdi mdi-palette-swatch mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'design' ? 'text-white' : 'text-indigo-500'"></i>
-          <span>Designs</span>
-          <div v-if="activeTab === 'design'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
-        </button>
-
-        <button
-          @click="activeTab = 'issues'"
-          :class="[
-            activeTab === 'issues'
-              ? 'bg-blue-600 text-white shadow-[0_-4px_15px_-3px_rgba(37,99,235,0.4)] ring-1 ring-blue-500/50'
-              : 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-blue-600 translate-y-1',
-            'group flex items-center justify-center py-4 px-8 rounded-t-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 min-w-[160px] relative'
-          ]"
-        >
-          <i class="mdi mdi-alert-octagon mr-2 text-xl transition-transform group-hover:scale-110" :class="activeTab === 'issues' ? 'text-white' : 'text-rose-500'"></i>
-          <span>Issues</span>
-          <span v-if="getTabBadgeCount('issues') > 0" class="ml-2 bg-white text-blue-600 py-0.5 px-2 rounded-full text-[10px] font-black shadow-sm">
-            {{ getTabBadgeCount('issues') }}
-          </span>
-          <div v-if="activeTab === 'issues'" class="absolute -bottom-[2px] left-0 w-full h-[3px] bg-blue-600 z-30"></div>
-        </button>
-      </nav>
+    <!-- Simplified Tabs Navigation -->
+    <div class="flex items-center gap-1 mb-6 px-1 border-b border-gray-100 dark:border-gray-700">
+      <button
+        v-for="tab in [
+          { id: 'production-management', label: 'Build Items', icon: 'mdi-factory' },
+          { id: 'quality', label: 'QA Checks', icon: 'mdi-shield-check' },
+          { id: 'design', label: 'Design Art', icon: 'mdi-palette-swatch' },
+          { id: 'issues', label: 'Issues', icon: 'mdi-alert-octagon', count: getTabBadgeCount('issues') }
+        ]"
+        :key="tab.id"
+        @click="activeTab = tab.id"
+        class="flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative group"
+        :class="activeTab === tab.id 
+          ? 'text-blue-600' 
+          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+      >
+        <i :class="['mdi', tab.icon, 'text-lg', activeTab === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500']"></i>
+        <span>{{ tab.label }}</span>
+        <span v-if="tab.count" class="ml-1.5 px-1.5 py-0.5 bg-rose-500 text-white text-[9px] rounded-full">{{ tab.count }}</span>
+        
+        <!-- Underline Accent -->
+        <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+      </button>
     </div>
 
     <!-- Tab Content Container -->
-    <div class="tab-content-container relative z-10 bg-white dark:bg-slate-800 border-2 border-blue-600 rounded-b-3xl rounded-tr-3xl shadow-2xl shadow-blue-500/5 p-8 -mt-[2px]">
+    <div class="tab-content relative">
       <!-- Production Management Tab -->
       <div
         v-show="activeTab === 'production-management'"
@@ -151,113 +63,100 @@
 
 
         <div v-if="productionData.productionElements.length > 0" class="space-y-6">
-           <div v-for="category in categoriesWithElements" :key="category.id" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-              <!-- Category Header -->
-              <div 
-                 class="px-6 py-5 cursor-pointer flex justify-between items-center transition-all"
-                 :class="[
-                    isCategoryCollapsed(category.id) ? 'bg-slate-50 dark:bg-slate-900/40' : 'bg-white dark:bg-slate-800',
-                 ]"
-                 @click="toggleCategoryCollapse(category.id)"
-              >
-                  <div class="flex items-center gap-5">
-                     <div>
-                        <h3 class="text-lg font-black text-slate-900 dark:text-white leading-none">{{ category.displayName }}</h3>
-                        <div class="flex items-center gap-3 mt-2">
-                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getElementsByCategory(category.id).length }} Items to build</span>
-                           <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                           <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">{{ getCategoryTotalQuantity(category.id) }} Total Quantity</span>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="flex items-center gap-4">
-                     <div v-if="isCategoryCollapsed(category.id)" class="hidden sm:flex -space-x-2">
-                        <div v-for="n in Math.min(3, getElementsByCategory(category.id).length)" :key="n" class="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm">
-                           {{ getElementsByCategory(category.id)[n-1].name.substring(0,2).toUpperCase() }}
-                        </div>
-                     </div>
-                     <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shadow-sm">
-                        <i 
-                           class="mdi mdi-chevron-down text-xl text-slate-400 transition-transform duration-500"
-                           :class="{ 'rotate-180': !isCategoryCollapsed(category.id) }"
-                        ></i>
-                     </div>
-                  </div>
-              </div>
+           <template v-for="category in categoriesWithElements" :key="category.id">
+             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                <!-- Precise Category Header -->
+                <div 
+                   class="px-5 py-3 cursor-pointer flex justify-between items-center transition-all bg-slate-50/50 dark:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-900/40"
+                   @click="toggleCategoryCollapse(category.id)"
+                >
+                    <div class="flex items-center gap-4">
+                       <div>
+                          <h3 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">{{ category.displayName }}</h3>
+                          <div class="flex items-center gap-2 mt-1">
+                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ getElementsByCategory(category.id).length }} Items</span>
+                             <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ getCategoryTotalQuantity(category.id) }} Units</span>
+                          </div>
+                       </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                       <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                          <i 
+                             class="mdi mdi-chevron-down text-lg text-slate-400 transition-transform duration-300"
+                             :class="{ 'rotate-180': !isCategoryCollapsed(category.id) }"
+                          ></i>
+                       </div>
+                    </div>
+                </div>
 
-              <!-- Modern Production Table -->
-              <div v-if="isCategoryExpanded(category.id)" class="border-t border-slate-100 dark:border-slate-700 overflow-x-auto">
-                 <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
-                    <thead class="bg-slate-50/50 dark:bg-slate-900/30">
-                       <tr>
-                          <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                       </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 bg-white dark:bg-slate-800">
-                       <tr v-for="element in getElementsByCategory(category.id)" :key="element.id" class="hover:bg-blue-50/20 dark:hover:bg-blue-900/5 transition-colors group">
-                          <!-- Item Identity -->
-                          <td class="px-6 py-5">
-                             <div class="flex items-center gap-4">
-                                <div class="flex flex-col min-w-0">
-                                   <span class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ element.name || element.description }}</span>
-                                   <div class="flex items-center gap-2 mt-1">
-                                      <span class="text-[10px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 rounded-md border border-blue-100 dark:border-blue-800 uppercase tracking-tighter">
-                                         Qty: {{ element.quantity }} {{ element.unitOfMeasurement || element.unit }} REQUIRED
+                 <!-- Precise Production Table -->
+                 <div v-if="isCategoryExpanded(category.id)" class="border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
+                       <tbody class="bg-white dark:bg-slate-800">
+                          <tr v-for="element in getElementsByCategory(category.id)" :key="element.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
+                             <td class="px-5 py-3">
+                                <div class="flex items-center justify-between gap-4">
+                                   <div class="flex flex-col min-w-0">
+                                      <span class="text-xs font-bold text-slate-700 dark:text-white">{{ element.name || element.description }}</span>
+                                      <span class="text-[9px] font-medium text-slate-400 uppercase tracking-tighter mt-0.5">Specifications Pending Verification</span>
+                                   </div>
+                                   <div class="flex items-center gap-2">
+                                      <span class="text-[9px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded border border-blue-100 dark:border-blue-800/50 uppercase tracking-tighter">
+                                         {{ element.quantity }} {{ element.unitOfMeasurement || element.unit }}
                                       </span>
                                    </div>
                                 </div>
-                             </div>
-                          </td>
-                       </tr>
-                    </tbody>
-                 </table>
+                             </td>
+                          </tr>
+                       </tbody>
+                    </table>
+                 </div>
               </div>
-           </div>
-        </div>
+           </template>
+        </div><div v-else class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+            <!-- Premium Empty State -->
+            <div class="w-24 h-24 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-8 relative rotate-3 hover:rotate-0 transition-transform duration-500">
+               <i class="mdi mdi-factory text-5xl text-blue-500"></i>
+               <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800">
+                  <i class="mdi mdi-plus text-xl"></i>
+               </div>
+            </div>
 
-        <!-- Premium Empty State -->
-        <div v-else class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-           <div class="w-24 h-24 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-8 relative rotate-3 hover:rotate-0 transition-transform duration-500">
-              <i class="mdi mdi-factory text-5xl text-blue-500"></i>
-              <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800">
-                 <i class="mdi mdi-plus text-xl"></i>
-              </div>
-           </div>
-           
-           <div class="text-center max-w-lg px-8">
-              <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Start Building Items</h3>
-              <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg">
-                 Load your list of materials from the <strong>Materials Task</strong> to start tracking what needs to be built and checked.
-              </p>
-              
-              <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                 <button
-                   @click="retryMaterialsImport"
-                   class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
-                 >
-                   <i class="mdi mdi-import text-lg"></i>
-                   Sync Materials
-                 </button>
-                 <button
-                   class="px-10 py-5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
-                 >
-                   <i class="mdi mdi-help-circle-outline text-lg"></i>
-                   Learn More
-                 </button>
-              </div>
-              
-              <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-8 text-left">
-                 <div class="flex gap-3">
-                    <i class="mdi mdi-shield-check text-blue-500"></i>
-                     <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automatic check points</p>
-                 </div>
-                 <div class="flex gap-3">
-                    <i class="mdi mdi-truck-fast text-emerald-500"></i>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Real-time Procurement Sync</p>
-                 </div>
-              </div>
-           </div>
-        </div>
+            <div class="text-center max-w-lg px-8">
+               <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Start Building Items</h3>
+               <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg">
+                  Load your list of materials from the <strong>Materials Task</strong> to start tracking what needs to be built and checked.
+               </p>
+
+               <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    @click="retryMaterialsImport"
+                    class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  >
+                    <i class="mdi mdi-import text-lg"></i>
+                    Sync Materials
+                  </button>
+                  <button
+                    class="px-10 py-5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
+                  >
+                    <i class="mdi mdi-help-circle-outline text-lg"></i>
+                    Learn More
+                  </button>
+               </div>
+
+               <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-8 text-left">
+                  <div class="flex gap-3">
+                     <i class="mdi mdi-shield-check text-blue-500"></i>
+                      <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automatic check points</p>
+                  </div>
+                  <div class="flex gap-3">
+                     <i class="mdi mdi-truck-fast text-emerald-500"></i>
+                     <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Real-time Procurement Sync</p>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
 
 
@@ -283,7 +182,7 @@
                 </p>
              </div>
           </div>
-          
+
           <div class="flex items-center gap-3 w-full md:w-auto">
             <button
               v-if="!isReadOnly"
@@ -305,129 +204,96 @@
 
         <!-- Quality Control Summary -->
         <div v-if="productionData.qualityControl.length > 0" class="mb-10">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Scope -->
-            
-
-            
-
-            
-            
-          </div>
-
-          <!-- Overall Progress Bar Detailed -->
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative">
-             <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                <i class="mdi mdi-shield-check text-8xl"></i>
-             </div>
-             <div class="relative z-10">
-                <div class="flex justify-between items-center mb-4">
-                  <div>
-                     <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Check Progress</span>
-                     <span class="text-xs text-slate-500">System checks items against project designs</span>
+          <div class="flex flex-col md:flex-row gap-6">
+            <!-- Overall Progress Bar Detailed -->
+            <div class="flex-1 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+               <div class="relative z-10">
+                  <div class="flex justify-between items-center mb-4">
+                    <div>
+                       <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Progress</span>
+                       <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Standard Certification</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ qualityProgressPercentage }}%</span>
+                    </div>
                   </div>
-                  <div class="text-right">
-                    <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ qualityProgressPercentage }}%</span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block tracking-tighter">Certified Finish</span>
+                  <div class="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner border border-slate-200/50 dark:border-slate-700/50">
+                    <div
+                      class="h-full rounded-full transition-all duration-1000 ease-out bg-emerald-500"
+                      :style="{ width: qualityProgressPercentage + '%' }"
+                    ></div>
                   </div>
-                </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-4 overflow-hidden p-1 shadow-inner border border-slate-200/50 dark:border-slate-700/50">
-                  <div
-                    class="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
-                    :class="qualityProgressPercentage === 100 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/20' : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500'"
-                    :style="{ width: qualityProgressPercentage + '%' }"
-                  >
-                     <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-                     <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  <div class="flex justify-between mt-3 px-1">
+                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Start</span>
+                     <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter">Certified</span>
                   </div>
-                </div>
-                <div class="flex justify-between mt-3 px-1">
-                   <span class="text-[10px] font-bold text-slate-400 uppercase">Project Initiation</span>
-                   <span class="text-[10px] font-bold text-emerald-500 uppercase">Ready for Setup</span>
-                </div>
-             </div>
+               </div>
+            </div>
+
+            <!-- Mini Stats Row -->
+            <div class="grid grid-cols-2 gap-4 md:w-1/3">
+              <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all hover:border-blue-500/30">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Checkpoints</span>
+                <span class="text-xl font-black text-slate-800 dark:text-white">{{ productionData.qualityControl.length }}</span>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all hover:border-emerald-500/30">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Passed</span>
+                <span class="text-xl font-black text-emerald-600">{{ getQualityStatusCount('passed') }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-         <!-- Quality Control Checkpoints -->
-        <div v-if="productionData.qualityControl.length > 0" class="space-y-6">
+         <!-- Precise Quality Checkpoints -->
+        <div v-if="productionData.qualityControl.length > 0" class="space-y-4">
           <div
             v-for="checkpoint in productionData.qualityControl"
             :key="checkpoint.id"
-            class="group bg-white dark:bg-slate-800 rounded-2xl border transition-all duration-300 overflow-hidden"
-            :class="[
-              isCheckpointDetailsExpanded(checkpoint.id) ? 'shadow-xl ring-2 ring-blue-500/20 border-blue-200 dark:border-blue-800' : 'shadow-sm border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600',
-              checkpoint.priority === 'high' ? 'border-l-4 border-l-red-500' : ''
-            ]"
+            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition-all overflow-hidden"
+            :class="{ 'ring-1 ring-blue-500/50 border-blue-200 dark:border-blue-800 shadow-lg': isCheckpointDetailsExpanded(checkpoint.id) }"
           >
             <!-- Checkpoint Row -->
-            <div class="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-               <div class="flex items-start gap-4 flex-1">
-                  <!-- Status Circle -->
-                  <div 
-                    class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-inner"
+            <div class="px-5 py-3 flex items-center justify-between gap-4">
+               <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <div
+                    class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0"
                     :class="[
-                      checkpoint.status === 'passed' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30' : 
-                      checkpoint.status === 'failed' ? 'bg-red-50 text-red-600 dark:bg-red-900/30 animate-pulse' :
-                      checkpoint.status === 'in_progress' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30' :
-                      'bg-slate-50 text-slate-400 dark:bg-slate-900/30'
+                      checkpoint.status === 'passed' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' :
+                      checkpoint.status === 'failed' ? 'bg-red-50 text-red-600 dark:bg-red-900/20' :
+                      checkpoint.status === 'in_progress' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' :
+                      'bg-slate-50 text-slate-400 dark:bg-slate-900/20'
                     ]"
                   >
                     <i :class="getQualityStatusIconMdi(checkpoint.status)"></i>
                   </div>
-                  
+
                   <div class="flex-1 min-w-0">
-                     <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <h4 class="font-bold text-slate-900 dark:text-white truncate">{{ checkpoint.categoryName }}</h4>
-                        <span 
-                          v-if="checkpoint.priority === 'high'" 
-                          class="px-2 py-0.5 text-[9px] font-black bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 rounded-full uppercase tracking-tighter border border-red-200 dark:border-red-800"
-                        >
-                          Critical
-                        </span>
-                        <div class="flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800">
-                           <span class="w-1.5 h-1.5 rounded-full" :class="checkpoint.status === 'passed' ? 'bg-emerald-500' : 'bg-slate-300'"></span>
-                           <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">{{ checkpoint.status.replace('_', ' ') }}</span>
-                        </div>
+                     <div class="flex items-center gap-2">
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider truncate">{{ checkpoint.categoryName }}</h4>
+                        <span v-if="checkpoint.priority === 'high'" class="text-[8px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Critical</span>
                      </div>
-                     
-                     <div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-                        <span class="flex items-center gap-1">
-                          <i class="mdi mdi-layers-outline"></i>
-                          {{ checkpoint.elementCount }} Items
+                     <div class="flex items-center gap-3 mt-1">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1">
+                           <i class="mdi mdi-layers-outline"></i> {{ checkpoint.elementCount }} Items
                         </span>
-                        <span class="flex items-center gap-1" v-if="checkpoint.checklist">
-                          <i class="mdi mdi-check-all"></i>
-                          {{ checkpoint.checklist.filter(i => i.checked).length }}/{{ checkpoint.checklist.length }} Tasks
-                        </span>
-                        <span class="flex items-center gap-1" v-if="checkpoint.qualityScore">
-                           <i class="mdi mdi-star-outline"></i>
-                           {{ checkpoint.qualityScore }}% Quality
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1">
+                           <i class="mdi mdi-check-all"></i> {{ checkpoint.checklist?.filter(i => i.checked).length || 0 }}/{{ checkpoint.checklist?.length || 0 }} Steps
                         </span>
                      </div>
                   </div>
                </div>
 
-               <!-- Row Actions -->
-               <div class="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-700">
-                  <div class="hidden md:flex flex-col items-end mr-2 text-right">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ownership</span>
-                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ checkpoint.checkedBy || 'Unassigned' }}</span>
-                  </div>
-
-                  <button 
+               <div class="flex items-center gap-2">
+                  <button
                     v-if="!isReadOnly && checkpoint.status !== 'passed'"
                     @click="fastPassCheckpoint(checkpoint.id)"
-                    class="h-10 px-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-                    title="Quick Approve"
+                    class="h-8 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
                   >
-                    <i class="mdi mdi-check-all text-sm"></i>
-                    <span class="sm:hidden lg:inline">Quick Pass</span>
+                    Auto Pass
                   </button>
-
-                  <button 
+                  <button
                     @click="toggleCheckpointDetails(checkpoint.id)"
-                    class="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-500 hover:text-white transition-all shadow-inner"
+                    class="h-8 w-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-blue-500 transition-all"
                     :class="{ 'bg-blue-600 text-white': isCheckpointDetailsExpanded(checkpoint.id) }"
                   >
                     <i class="mdi" :class="isCheckpointDetailsExpanded(checkpoint.id) ? 'mdi-chevron-up' : 'mdi-cog-outline'"></i>
@@ -436,135 +302,87 @@
             </div>
 
             <!-- Detailed Panel -->
-            <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="px-5 pb-5 animate-fade-in-down border-t border-slate-100 dark:border-slate-700 pt-5 bg-slate-50/50 dark:bg-slate-900/20">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Checklist Side -->
+            <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700 pt-5 bg-slate-50/30 dark:bg-slate-900/10">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Checklist -->
                 <div>
-                   <div class="flex items-center justify-between mb-4">
-                      <h5 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                         <i class="mdi mdi-format-list-checks text-blue-500"></i>
-                         Checklist
-                      </h5>
-                      <span class="text-[10px] font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">MUST COMPLETE ALL</span>
-                   </div>
-                   
-                   <div class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      <div 
-                        v-for="item in checkpoint.checklist" 
+                   <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Verification Checklist</h5>
+                   <div class="space-y-1.5 max-h-[200px] overflow-y-auto pr-2">
+                      <div
+                        v-for="item in checkpoint.checklist"
                         :key="item.id"
-                        class="group/item flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer"
-                        :class="item.checked ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-800/50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-300'"
+                        class="flex items-center gap-2.5 p-2 rounded-lg border transition-all cursor-pointer text-[10px]"
+                        :class="item.checked ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'"
                         @click="item.checked = !item.checked; updateChecklistItem(checkpoint.id, item.id, item.checked)"
                       >
-                         <div 
-                           class="w-6 h-6 rounded-lg flex items-center justify-center transition-all border-2"
-                           :class="item.checked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 dark:border-slate-600 group-hover/item:border-blue-400'"
-                         >
-                            <i v-if="item.checked" class="mdi mdi-check text-sm"></i>
-                         </div>
-                         <span class="text-sm font-medium transition-all" :class="item.checked ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-70' : 'text-slate-700 dark:text-slate-300'">
+                         <i :class="[item.checked ? 'mdi-check-circle text-emerald-500' : 'mdi-circle-outline text-slate-300', 'mdi text-base']"></i>
+                         <span :class="item.checked ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-70' : 'text-slate-700 dark:text-slate-300 font-bold'">
                            {{ item.label }}
                          </span>
                       </div>
                    </div>
                 </div>
 
-                <!-- Controls Side -->
-                <div class="space-y-6">
-                   <!-- Final Verdict -->
-                   <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Check Result</label>
-                      <div class="flex gap-2">
-                        <button 
+                <!-- Controls -->
+                <div class="space-y-4">
+                   <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Final Verdict</span>
+                      <div class="grid grid-cols-4 gap-1.5">
+                        <button
                           v-for="status in (['pending', 'in_progress', 'passed', 'failed'] as const)"
                           :key="status"
                           @click="updateQualityStatus(checkpoint.id, status as any)"
-                          class="flex-1 py-3 rounded-xl border-2 transition-all font-bold text-[10px] uppercase flex flex-col items-center gap-1"
+                          class="py-2 rounded-lg border transition-all text-[8px] font-black uppercase"
                           :class="[
-                            checkpoint.status === status ? 
-                            (status === 'passed' ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 
-                             status === 'failed' ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20' :
-                             status === 'in_progress' ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20' :
-                             'bg-slate-500 border-slate-500 text-white shadow-lg shadow-slate-500/20') :
-                            'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-300'
+                            checkpoint.status === status ?
+                            (status === 'passed' ? 'bg-emerald-500 border-emerald-500 text-white' :
+                             status === 'failed' ? 'bg-red-500 border-red-500 text-white' :
+                             status === 'in_progress' ? 'bg-blue-500 border-blue-500 text-white' :
+                             'bg-slate-500 border-slate-500 text-white') :
+                            'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-700 text-slate-400'
                           ]"
                         >
-                          <i :class="getQualityStatusIconMdi(status)" class="text-lg"></i>
                           {{ status.replace('_', ' ') }}
                         </button>
                       </div>
                    </div>
 
-                   <!-- Notes & Scoring -->
-                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div class="md:col-span-2">
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Notes</label>
-                         <textarea 
+                   <div class="grid grid-cols-2 gap-4">
+                      <div class="col-span-2">
+                         <textarea
                            v-model="checkpoint.notes"
                            @change="updateCheckpointNotes(checkpoint.id, checkpoint.notes)"
-                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px]"
-                           placeholder="Describe any problems or notes about the quality..."
+                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-[10px] font-medium outline-none h-20"
+                           placeholder="Add technical notes..."
                          ></textarea>
                       </div>
-                      
-                      <div>
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 flex justify-between">
-                           Quality Score 
-                           <span class="text-blue-500">{{ checkpoint.qualityScore || 0 }}%</span>
-                         </label>
-                         <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                            <input 
-                              type="range" 
-                              v-model="checkpoint.qualityScore" 
-                              @change="updateQualityScore(checkpoint.id, checkpoint.qualityScore)"
-                              class="w-full accent-blue-500 cursor-pointer"
-                            />
-                         </div>
+                      <div class="flex flex-col gap-1">
+                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inspector</span>
+                         <input type="text" v-model="checkpoint.checkedBy" @change="updateInspector(checkpoint.id, checkpoint.checkedBy)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-[10px] font-bold outline-none" />
                       </div>
-
-                      <div>
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Inspector</label>
-                         <input 
-                           type="text" 
-                           v-model="checkpoint.checkedBy"
-                           @change="updateInspector(checkpoint.id, checkpoint.checkedBy)"
-                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="Name/ID"
-                         />
+                      <div class="flex flex-col gap-1 text-right mt-auto">
+                         <button @click="retryQualityCheck(checkpoint.id)" class="text-[8px] font-black text-slate-400 uppercase hover:text-red-500">Reset Check</button>
                       </div>
-                   </div>
-
-                   <!-- Footer Actions -->
-                   <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-                      <div class="flex gap-2">
-                         <button @click="retryQualityCheck(checkpoint.id)" class="px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 hover:text-white transition-all">Clear & Reset</button>
-                         <button @click="duplicateCheckpoint(checkpoint.id)" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-800 transition-all">Duplicate</button>
-                      </div>
-                      <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]" v-if="checkpoint.updatedAt">
-                        Synced: {{ formatDate(checkpoint.updatedAt) }}
-                      </span>
                    </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- No Quality Control State -->
-        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+        </div><div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+           <!-- No Quality Control State -->
           <div class="w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 relative">
              <i class="mdi mdi-shield-search text-5xl text-slate-300 dark:text-slate-600"></i>
              <div class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg animate-bounce">
                 <i class="mdi mdi-plus text-xl"></i>
              </div>
           </div>
-          
+
           <div class="text-center max-w-md px-6">
              <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">Start Quality Check</h3>
             <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
                Quality check points are created to make sure items are built correctly.
             </p>
-            
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 text-left">
                <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
                   <i class="mdi mdi-numeric-1-box text-blue-500 text-xl"></i>
@@ -592,7 +410,6 @@
             <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">Recommended for this project</p>
           </div>
         </div>
-      </div>
 
 
 
@@ -605,194 +422,155 @@
         :aria-labelledby="`tab-issues`"
         :class="{ 'animate-fade-in': activeTab === 'issues' }"
       >
-        <!-- Issues Header -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
-          <div class="flex items-center gap-5">
-             <div class="w-14 h-14 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/20 rotate-3 group-hover:rotate-0 transition-transform">
-                <i class="mdi mdi-alert-octagram-outline text-3xl"></i>
+        <!-- Precise Issues Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6 border-b border-gray-100 dark:border-gray-800 pb-6">
+          <div class="flex items-center gap-4">
+             <div class="w-12 h-12 rounded-xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
+                <i class="mdi mdi-alert-octagram text-2xl"></i>
              </div>
              <div>
-                 <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Project Problems</h3>
-                 <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Track and fix project issues</p>
+                 <h3 class="text-sm font-black text-slate-900 dark:text-white tracking-widest uppercase">Production Issues</h3>
+                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Incident logs and blockers</p>
              </div>
           </div>
-          
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-            <div class="relative group flex-1 sm:flex-none">
-               <select
-                 v-model="selectedIssueCategory"
-                 class="appearance-none pl-11 pr-10 py-3.5 text-xs font-black uppercase tracking-widest border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all min-w-[220px] shadow-sm hover:shadow-md cursor-pointer"
-               >
-                 <option value="">All Categories</option>
-                 <option v-for="cat in issueCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
-               </select>
-               <i class="mdi mdi-filter-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-               <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            </div>
 
-            <button
-              v-if="!isReadOnly"
-              @click="showAddIssueModal = true"
-              class="px-8 py-4 bg-slate-900 dark:bg-slate-700 hover:bg-rose-600 text-white rounded-2xl transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-black/10 active:scale-95"
-            >
-              <i class="mdi mdi-plus-circle-outline text-lg"></i>
-              <span>Report Issue</span>
-            </button>
+          <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+             <div class="relative flex-1 sm:flex-none">
+                <select
+                  v-model="selectedIssueCategory"
+                  class="appearance-none pl-9 pr-8 py-2.5 text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all min-w-[180px] cursor-pointer outline-none"
+                >
+                  <option value="">All Categories</option>
+                  <option v-for="cat in issueCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
+                </select>
+                <i class="mdi mdi-filter-variant absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+             </div>
+
+             <button
+               v-if="!isReadOnly"
+               @click="showAddIssueModal = true"
+               class="px-5 py-2.5 bg-slate-900 dark:bg-slate-700 hover:bg-rose-600 text-white rounded-xl transition-all flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-md active:scale-95"
+             >
+               <i class="mdi mdi-plus-circle-outline"></i>
+               <span>New Record</span>
+             </button>
           </div>
         </div>
 
-        <!-- Issues Summary Cards -->
-        <div v-if="productionData.issues.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <!-- Total Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
-               <div class="relative z-10 flex flex-col h-full">
-                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Total Records</span>
-                  <div class="flex items-end justify-between mt-auto">
-                    <p class="text-4xl font-black text-slate-800 dark:text-white leading-none">{{ productionData.issues.length }}</p>
-                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                       <i class="mdi mdi-clipboard-text-outline text-xl"></i>
-                    </div>
-                  </div>
+        <!-- Precise Issues Summary -->
+        <div v-if="productionData.issues.length > 0" class="flex flex-wrap gap-4 mb-8">
+            <div
+               v-for="stat in [
+                 { label: 'Total Logs', value: productionData.issues.length, color: 'slate' },
+                 { label: 'Unfixed', value: getIssueStatusCount('open'), color: 'rose' },
+                 { label: 'Being Fixed', value: getIssueStatusCount('in_progress'), color: 'amber' },
+                 { label: 'Resolved', value: getIssueStatusCount('resolved'), color: 'emerald' }
+               ]"
+               :key="stat.color"
+               class="px-5 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center gap-4"
+            >
+               <div class="flex flex-col">
+                  <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ stat.label }}</span>
+                  <p class="text-xl font-black transition-colors" :class="`text-${stat.color}-600 dark:text-${stat.color}-400`">{{ stat.value }}</p>
                </div>
-               <div class="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
-            </div>
-
-            <!-- Open Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
-               <div class="relative z-10 flex flex-col h-full">
-                   <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-4 block">Unfixed Issues</span>
-                  <div class="flex items-end justify-between mt-auto">
-                    <p class="text-4xl font-black text-rose-600 dark:text-rose-400 leading-none">{{ getIssueStatusCount('open') }}</p>
-                    <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/40 flex items-center justify-center text-rose-500 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                       <i class="mdi mdi-fire text-xl animate-pulse"></i>
-                    </div>
-                  </div>
-               </div>
-               <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-50/50 dark:bg-rose-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
-            </div>
-
-            <!-- In Progress Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
-               <div class="relative z-10 flex flex-col h-full">
-                   <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 block">Being Fixed</span>
-                  <div class="flex items-end justify-between mt-auto">
-                    <p class="text-4xl font-black text-amber-600 dark:text-amber-400 leading-none">{{ getIssueStatusCount('in_progress') }}</p>
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                       <i class="mdi mdi-tools text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-               <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50/50 dark:bg-amber-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
-            </div>
-
-            <!-- Resolved Card -->
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/30 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
-               <div class="relative z-10 flex flex-col h-full">
-                   <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 block">Resolved & Done</span>
-                  <div class="flex items-end justify-between mt-auto">
-                    <p class="text-4xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{{ getIssueStatusCount('resolved') }}</p>
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                       <i class="mdi mdi-check-decagram-outline text-xl"></i>
-                    </div>
-                  </div>
-               </div>
-               <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
             </div>
         </div>
 
         <!-- Modernized Issues List -->
         <div v-if="filteredIssues.length > 0" class="grid grid-cols-1 gap-6">
-          <div
+          <template
             v-for="issue in filteredIssues"
             :key="issue.id"
-            class="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
-            :class="{ 'opacity-75 grayscale-[0.5]': issue.status === 'resolved' }"
           >
-            <!-- Premium List Item Body -->
-            <div class="px-8 py-6">
-               <div class="flex flex-col xl:flex-row gap-6">
-                  <!-- Issue Info -->
-                  <div class="flex-1">
-                     <div class="flex items-center gap-3 mb-3">
-                        <span 
-                           class="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border"
-                           :class="getPriorityClass(issue.priority)"
-                        >
-                           <i class="mdi mr-1" :class="getPriorityIconMdi(issue.priority)"></i>
-                           {{ issue.priority }}
-                        </span>
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ issue.category }}</span>
-                        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ formatDate(issue.reportedDate) }}</span>
-                     </div>
-                     <h4 class="text-xl font-black text-slate-900 dark:text-white mb-2 group-hover:text-rose-600 transition-colors">{{ issue.title }}</h4>
-                     <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">{{ issue.description }}</p>
-                     
-                     <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
-                        <div class="flex items-center gap-2">
-                           <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">
-                              {{ issue.reportedBy.substring(0,1).toUpperCase() }}
-                           </div>
-                           <span class="text-[10px] font-black text-slate-400 uppercase">Reported By: {{ issue.reportedBy }}</span>
-                        </div>
-                        <div v-if="issue.resolvedDate" class="flex items-center gap-2">
-                           <i class="mdi mdi-check-circle text-emerald-500"></i>
-                           <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
-                        </div>
-                     </div>
-                  </div>
+            <div
+              class="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
+              :class="{ 'opacity-75 grayscale-[0.5]': issue.status === 'resolved' }"
+            >
+              <!-- Premium List Item Body -->
+              <div class="px-8 py-6">
+                 <div class="flex flex-col xl:flex-row gap-6">
+                    <!-- Issue Info -->
+                    <div class="flex-1">
+                       <div class="flex items-center gap-3 mb-3">
+                          <span
+                             class="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border"
+                             :class="getPriorityClass(issue.priority)"
+                          >
+                             <i class="mdi mr-1" :class="getPriorityIconMdi(issue.priority)"></i>
+                             {{ issue.priority }}
+                          </span>
+                          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ issue.category }}</span>
+                          <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ formatDate(issue.reportedDate) }}</span>
+                       </div>
+                       <h4 class="text-xl font-black text-slate-900 dark:text-white mb-2 group-hover:text-rose-600 transition-colors">{{ issue.title }}</h4>
+                       <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">{{ issue.description }}</p>
 
-                  <!-- Status Control Panel -->
-                  <div class="flex flex-col sm:flex-row xl:flex-col gap-3 justify-center xl:min-w-[200px]">
-                     <div class="relative group/select">
-                        <select
-                          v-model="issue.status"
-                          @change="updateIssueStatus(issue.id, issue.status)"
-                          class="w-full appearance-none px-5 py-3.5 text-[10px] font-black uppercase tracking-widest border-2 rounded-2xl bg-white dark:bg-slate-900 transition-all cursor-pointer shadow-sm hover:shadow-md outline-none"
-                          :class="getIssueStatusSelectClass(issue.status)"
-                        >
-                          <option value="open">⚠️ Open Ticket</option>
-                          <option value="in_progress">⚙️ In Progress</option>
-                          <option value="resolved">✅ Resolved</option>
-                        </select>
-                        <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                     </div>
+                       <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
+                          <div class="flex items-center gap-2">
+                             <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">
+                                {{ issue.reportedBy.substring(0,1).toUpperCase() }}
+                             </div>
+                             <span class="text-[10px] font-black text-slate-400 uppercase">Reported By: {{ issue.reportedBy }}</span>
+                          </div>
+                          <div v-if="issue.resolvedDate" class="flex items-center gap-2">
+                             <i class="mdi mdi-check-circle text-emerald-500"></i>
+                             <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
+                          </div>
+                       </div>
+                    </div>
 
-                     <div class="flex gap-2">
-                        <button
-                          @click="showEscalationModal(issue)"
-                          class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center gap-2"
-                          title="Escalate Issue"
-                        >
-                          <i class="mdi mdi-arrow-up-bold-circle-outline text-lg"></i>
-                          <span class="text-[10px] font-black uppercase tracking-widest">Escalate</span>
-                        </button>
-                        <button
-                          @click="deleteIssue(issue.id)"
-                          class="w-12 h-12 bg-white dark:bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 border border-slate-100 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center shadow-sm"
-                          title="Archive Log"
-                        >
-                          <i class="mdi mdi-delete-outline text-xl"></i>
-                        </button>
-                     </div>
+                    <!-- Status Control Panel -->
+                    <div class="flex flex-col sm:flex-row xl:flex-col gap-3 justify-center xl:min-w-[200px]">
+                       <div class="relative group/select">
+                          <select
+                            v-model="issue.status"
+                            @change="updateIssueStatus(issue.id, issue.status)"
+                            class="w-full appearance-none px-5 py-3.5 text-[10px] font-black uppercase tracking-widest border-2 rounded-2xl bg-white dark:bg-slate-900 transition-all cursor-pointer shadow-sm hover:shadow-md outline-none"
+                            :class="getIssueStatusSelectClass(issue.status)"
+                          >
+                            <option value="open">⚠️ Open Ticket</option>
+                            <option value="in_progress">⚙️ In Progress</option>
+                            <option value="resolved">✅ Resolved</option>
+                          </select>
+                          <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                       </div>
+
+                       <div class="flex gap-2">
+                          <button
+                            @click="showEscalationModal(issue)"
+                            class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center gap-2"
+                            title="Escalate Issue"
+                          >
+                            <i class="mdi mdi-arrow-up-bold-circle-outline text-lg"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest">Escalate</span>
+                          </button>
+                          <button
+                            @click="deleteIssue(issue.id)"
+                            class="w-12 h-12 bg-white dark:bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 border border-slate-100 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center shadow-sm"
+                            title="Archive Log"
+                          >
+                            <i class="mdi mdi-delete-outline text-xl"></i>
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              <!-- Optional Expansion (if has nested comments/logs) -->
+              <div v-if="isIssueDetailsExpanded(issue.id)" class="px-8 pb-8 animate-slide-down">
+                 <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                     <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Fix History</h5>
+                    <div class="space-y-4">
+                       <p class="text-sm font-medium italic text-slate-500">No logs reported yet...</p>
+                    </div>
                   </div>
-               </div>
+                </div>
             </div>
+          </template>
+        </div><div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+           <!-- Premium Empty State for Issues -->
 
-            <!-- Optional Expansion (if has nested comments/logs) -->
-            <div v-if="isIssueDetailsExpanded(issue.id)" class="px-8 pb-8 animate-slide-down">
-               <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-                   <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Fix History</h5>
-                  <div class="space-y-4">
-                     <p class="text-sm font-medium italic text-slate-500">No logs reported yet...</p>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-        <!-- Premium Empty State for Issues -->
-        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-           
            <div class="text-center max-w-md px-6">
               <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">
                  {{ selectedIssueCategory ? 'No Category Match' : 'Line Operating Smoothly' }}
@@ -803,7 +581,7 @@
                    : 'Outstanding! No production issues are currently blocking your fabrication pipeline.'
                  }}
               </p>
-              
+
               <button
                 @click="showAddIssueModal = true"
                 class="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-3 mx-auto"
@@ -912,11 +690,9 @@
           </div>
         </div>
       </div>
+    </div>
 
-
-
-      <!-- Design Files Tab -->
-      <!-- Design Assets Tab -->
+    <!-- Precise Design Assets Tab -->
       <div
         v-show="activeTab === 'design'"
         class="design-section tab-panel"
@@ -925,137 +701,84 @@
         :aria-labelledby="`tab-design`"
         :class="{ 'animate-fade-in': activeTab === 'design' }"
       >
-         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
-            <div class="flex items-center gap-5">
-               <div class="w-14 h-14 rounded-3xl bg-indigo-500 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 rotate-2 group-hover:rotate-0 transition-transform">
-                  <i class="mdi mdi-palette-swatch-outline text-3xl"></i>
+         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
+            <div class="flex items-center gap-4">
+               <div class="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                  <i class="mdi mdi-palette-swatch text-2xl"></i>
                </div>
                <div>
-                  <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Technical Blueprints</h3>
-                  <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Validated Artworks & Design Assets</p>
+                  <h3 class="text-sm font-black text-slate-900 dark:text-white tracking-widest uppercase">Technical Assets</h3>
+                  <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Validated Blueprints & Artworks</p>
                </div>
             </div>
-            
-            <button 
+
+            <button
                @click="fetchDesignAssets"
-               class="p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-indigo-600 transition-all shadow-sm group"
+               class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-indigo-600 transition-all group"
                title="Refresh Assets"
             >
-               <i class="mdi mdi-refresh text-xl group-hover:rotate-180 transition-transform duration-500"></i>
+               <i class="mdi mdi-refresh text-lg group-hover:rotate-180 transition-transform duration-500"></i>
             </button>
          </div>
 
-         <!-- Loading State -->
-         <div v-if="isLoadingDesignAssets" class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem]">
-            <div class="relative w-16 h-16">
-               <div class="absolute inset-0 border-4 border-indigo-100 dark:border-indigo-900/30 rounded-full"></div>
-               <div class="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <span class="mt-6 text-xs font-black uppercase tracking-widest text-slate-400">Syncing Cloud Assets...</span>
-         </div>
-
-         <!-- Error State -->
-         <div v-else-if="designAssetsError" class="p-8 bg-red-50 dark:bg-red-900/10 border-2 border-dashed border-red-200 dark:border-red-900/30 rounded-[3rem] text-center">
-            <div class="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
-               <i class="mdi mdi-cloud-off-outline text-3xl"></i>
-            </div>
-            <h4 class="text-lg font-black text-slate-800 dark:text-white mb-2">Connection Interrupted</h4>
-            <p class="text-sm text-red-600 dark:text-red-400 mb-6 font-medium">{{ designAssetsError }}</p>
-            <button @click="fetchDesignAssets" class="px-8 py-3 bg-red-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-500/20">Reconnect Now</button>
-         </div>
-
-         <!-- Empty State -->
-         <div v-else-if="designAssets.length === 0" class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-            <div class="w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 text-slate-300">
-               <i class="mdi mdi-folder-zip-outline text-4xl"></i>
-            </div>
-            <p class="text-slate-500 dark:text-slate-400 mb-0 font-medium tracking-tight">No design components have been pushed to this task yet.</p>
-         </div>
-
          <!-- Assets Grid -->
-         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+         <div v-if="designAssets.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             <div
               v-for="asset in designAssets"
               :key="asset.id"
-              class="group bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col"
+              class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden hover:border-indigo-500 transition-all cursor-pointer flex flex-col"
               @click="openPreview(asset)"
             >
               <!-- Asset Preview -->
-              <div class="h-56 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden shrink-0">
-                <!-- Image Preview -->
+              <div class="h-32 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden shrink-0 border-b border-slate-100 dark:border-slate-800">
                 <template v-if="isImageAsset(asset)">
-                  <img
-                    :src="getAssetUrl(asset)"
-                    :alt="asset.file_name"
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
+                  <img :src="getAssetUrl(asset)" :alt="asset.file_name" class="w-full h-full object-cover" />
                 </template>
-                
-                <!-- PDF Preview Icon -->
-                <div v-else-if="isPdfAsset(asset)" class="flex flex-col items-center">
-                   <div class="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 mb-3 shadow-sm border border-red-100 dark:border-red-800/30">
-                      <i class="mdi mdi-file-pdf-box text-4xl"></i>
-                   </div>
-                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Technical PDF</span>
-                </div>
-                
-                <!-- Other Files -->
                 <div v-else class="flex flex-col items-center">
-                   <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3 border border-slate-200 dark:border-slate-700">
-                      <i class="mdi mdi-file-document-outline text-4xl"></i>
-                   </div>
-                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ asset.category || 'ASSET' }}</span>
+                   <i :class="[isPdfAsset(asset) ? 'mdi-file-pdf-box text-red-500' : 'mdi-file-document-outline text-slate-400', 'mdi text-3xl mb-1']"></i>
+                   <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{{ asset.category || 'FILE' }}</span>
                 </div>
 
                 <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-indigo-600/60 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
-                  <div class="w-14 h-14 rounded-full bg-white text-indigo-600 flex items-center justify-center shadow-2xl transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
-                    <i class="mdi mdi-eye-outline text-2xl"></i>
-                  </div>
+                <div class="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                   <div class="w-8 h-8 rounded-full bg-white text-indigo-600 flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
+                     <i class="mdi mdi-eye-outline"></i>
+                   </div>
                 </div>
               </div>
 
               <!-- Asset Info -->
-              <div class="p-6 flex flex-col flex-1">
-                <div class="flex-1">
-                   <div class="flex items-center gap-2 mb-3">
-                      <span 
-                         class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter"
-                         :class="getAssetStatusClass(asset.status)"
-                      >
-                         {{ asset.status }}
-                      </span>
-                      <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">{{ asset.category }}</span>
-                   </div>
-                   <h4 class="font-black text-slate-900 dark:text-white truncate text-sm leading-tight mb-2" :title="asset.file_name">
-                     {{ asset.file_name || asset.name }}
-                   </h4>
-                </div>
-                
-                <div class="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
-                   <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      {{ asset.created_at ? formatDate(asset.created_at) : 'NO DATE' }}
-                   </span>
-                   <div class="flex -space-x-1">
-                      <div class="w-5 h-5 rounded-full border-2 border-white dark:border-slate-800 bg-slate-200 dark:bg-slate-700"></div>
-                   </div>
-                </div>
-              </div>
+              <div class="p-3 flex flex-col flex-1">
+                 <h4 class="font-bold text-slate-800 dark:text-gray-200 truncate text-[10px] leading-tight mb-1" :title="asset.file_name">
+                   {{ asset.file_name || asset.name }}
+                 </h4>
+                 <div class="flex items-center justify-between mt-auto">
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{{ formatDate(asset.created_at) }}</span>
+                    <span class="px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter" :class="getAssetStatusClass(asset.status)">
+                       {{ asset.status }}
+                     </span>
+                  </div>
+               </div>
             </div>
+          </div>
+        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/20 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+            <!-- Empty/Loading/Error handled similarly with minimal design -->
+            <span v-if="isLoadingDesignAssets" class="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Assets...</span>
+            <span v-else class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No design assets found</span>
          </div>
       </div>
     </div>
 
     <!-- Save Status Indicator -->
     <div v-if="saveError || isSaving || lastSaveTime" class="mb-4 p-3 rounded-lg border">
-      <!-- Saving State -->
       <div v-if="isSaving" class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
+        <!-- Saving State -->
         <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
         <span class="text-sm font-medium">Saving production data...</span>
       </div>
 
-      <!-- Save Error State -->
       <div v-else-if="saveError" class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+        <!-- Save Error State -->
         <div class="flex items-start justify-between">
           <div class="flex items-start space-x-3">
             <span class="text-lg mt-0.5"></span>
@@ -1084,8 +807,8 @@
         </div>
       </div>
 
-      <!-- Save Success State -->
       <div v-else-if="lastSaveTime" class="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+        <!-- Save Success State -->
         <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
           <span class="text-lg"></span>
           <div>
@@ -1282,14 +1005,14 @@
                      </div>
                      <div class="flex flex-col gap-1">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Added On</span>
-                        <span class="font-bold text-gray-900 dark:text-white">{{ previewAsset.created_at ? new Date(previewAsset.created_at).toLocaleString() : 'N/A' }}</span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                         <span class="font-bold text-gray-900 dark:text-white">{{ previewAsset.created_at ? new Date(previewAsset.created_at).toLocaleString() : 'N/A' }}</span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+           </div>
+         </div>
+       </div>
     </Transition>
 
     <!-- Skip Task Modal -->

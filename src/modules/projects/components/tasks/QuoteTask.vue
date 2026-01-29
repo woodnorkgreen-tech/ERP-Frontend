@@ -1,5 +1,5 @@
 <template>
-  <div class="quote-task-content relative -m-8 p-8 min-h-full">
+  <div class="quote-task-content bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased min-h-full">
     <div v-if="!showQuoteViewer" class="animate-in fade-in duration-300">
       <!-- Premium Project Information Section -->
       <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl p-8 border border-slate-100 dark:border-slate-800 mb-8 group">
@@ -281,7 +281,7 @@
       </div>
 
       <!-- Tab Content -->
-      <div class="bg-white dark:bg-gray-800 rounded-b-lg rounded-tr-lg border border-cyan-500 dark:border-cyan-700 shadow-sm relative z-0">
+      <div class="bg-white dark:bg-slate-950 rounded-b-lg rounded-tr-lg border border-cyan-500 dark:border-cyan-700 shadow-sm relative z-0">
         <!-- Materials Tab -->
         <div v-if="activeTab === 'materials'" class="p-8">
           <div class="flex items-center justify-between mb-6 pb-2 border-b border-gray-50 dark:border-gray-700/50">
@@ -299,7 +299,7 @@
           <div v-if="quoteData.materials.length > 0" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                <thead class="bg-gray-50/50 dark:bg-slate-950 border-b border-gray-100 dark:border-gray-600">
                   <tr>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Item</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
@@ -314,7 +314,7 @@
                 <tbody>
                   <template v-for="element in quoteData.materials" :key="element.id">
                     <!-- Element Header Row -->
-                    <tr class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                    <tr class="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-gray-700">
                       <td colspan="9" class="py-2 px-4">
                         <div class="flex items-center justify-between">
                           <div class="flex items-center gap-3 flex-1 mr-4">
@@ -430,7 +430,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                <thead class="bg-gray-50/50 dark:bg-slate-950 border-b border-gray-100 dark:border-gray-600">
                   <tr>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Labour Item</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Unit</th>
@@ -526,7 +526,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                <thead class="bg-gray-50/50 dark:bg-slate-950 border-b border-gray-100 dark:border-gray-600">
                   <tr>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Expense Allocation</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Category</th>
@@ -611,7 +611,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm border border-gray-200 dark:border-gray-700 rounded-lg">
-                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-600">
+                <thead class="bg-gray-50/50 dark:bg-slate-950 border-b border-gray-100 dark:border-gray-600">
                   <tr>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Logistics Protocol</th>
                     <th class="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Vehicle Reg</th>
@@ -795,7 +795,7 @@
             <h6 class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-4">Strategic Cost breakdown</h6>
             <div class="overflow-hidden border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
+                <thead class="bg-gray-50/50 dark:bg-slate-950 border-b border-gray-100 dark:border-gray-700">
                   <tr>
                     <th class="text-left py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Operational Category</th>
                     <th class="text-right py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Base Allocation</th>
@@ -874,7 +874,7 @@
                     <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">{{ formatCurrency(quoteData.totals.logisticsTotal) }}</td>
                   </tr>
                 </tbody>
-                <tfoot class="bg-gray-100 dark:bg-gray-600">
+                <tfoot class="bg-gray-100 dark:bg-slate-950">
                   <tr>
                     <td class="py-3 px-4 font-bold text-gray-900 dark:text-white">SUBTOTAL</td>
                     <td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">{{ formatCurrency(getBaseTotalAll()) }}</td>
