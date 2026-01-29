@@ -54,7 +54,7 @@
 
         <!-- Approve Button -->
         <button
-          v-if="purchaseOrder.status === 'pending_approval'"
+          v-if="purchaseOrder.status === 'pending_approval' && canApprove"
           @click="approvePO"
           :disabled="submitting"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
@@ -188,8 +188,27 @@ const loading = ref(true)
 const submitting = ref(false)
 const purchaseOrder = ref<any>({})
 const billId = ref<number | null>(null)
+const currentUser = ref<any>(null)
 
 const hasBill = computed(() => billId.value !== null)
+
+// Check if user can approve based on their roles
+const canApprove = computed(() => {
+  if (!currentUser.value?.roles) return false
+  
+  const allowedRoles = ['Super Admin', 'Admin', 'Accounts']
+  return currentUser.value.roles.some((role: any) => allowedRoles.includes(role.name))
+})
+
+// Fetch current user
+const fetchCurrentUser = async () => {
+  try {
+    const response = await axios.get('/api/user')
+    currentUser.value = response.data
+  } catch (err) {
+    console.error('Failed to fetch user:', err)
+  }
+}
 
 const fetchPurchaseOrder = async () => {
   loading.value = true
@@ -270,5 +289,8 @@ const getStatusClass = (status: string) => {
   return classes[status] || classes.pending
 }
 
-onMounted(() => fetchPurchaseOrder())
+onMounted(async () => {
+  await fetchCurrentUser()
+  await fetchPurchaseOrder()
+})
 </script>

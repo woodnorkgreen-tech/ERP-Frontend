@@ -277,8 +277,25 @@ const errorMessage = ref('')
 const requisition = ref<any>({})
 const showRejectModal = ref(false)
 const rejectReason = ref('')
+const currentUser = ref<any>(null)
 
-const canApprove = computed(() => true)
+// Check if user can approve based on their roles
+const canApprove = computed(() => {
+  if (!currentUser.value?.roles) return false
+  
+  const allowedRoles = ['Super Admin', 'Admin', 'Accounts']
+  return currentUser.value.roles.some((role: any) => allowedRoles.includes(role.name))
+})
+
+// Fetch current user
+const fetchCurrentUser = async () => {
+  try {
+    const response = await axios.get('/api/user')
+    currentUser.value = response.data
+  } catch (err) {
+    console.error('Failed to fetch user:', err)
+  }
+}
 
 const fetchRequisition = async () => {
   loading.value = true
@@ -391,6 +408,7 @@ const getStatusClass = (status: string) => {
 }
 
 onMounted(async () => {
+  await fetchCurrentUser()
   await fetchRequisition()
 })
 </script>
