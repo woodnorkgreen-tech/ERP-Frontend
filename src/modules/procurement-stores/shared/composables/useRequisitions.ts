@@ -91,7 +91,19 @@ export function useRequisitions() {
     error.value = null
     
     try {
-      const response = await api.post('/api/procurement-stores/requisitions', data)
+      // Transform items to handle custom purpose
+      const transformedData = {
+        ...data,
+        items: data.items.map(item => ({
+          material_id: item.material_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          purpose: item.purpose === 'custom' ? item.custom_purpose : item.purpose,
+          reason: item.reason
+        }))
+      }
+      
+      const response = await api.post('/api/procurement-stores/requisitions', transformedData)
       
       if (response.data.error) {
         throw new Error(JSON.stringify(response.data.error))
@@ -128,7 +140,19 @@ export function useRequisitions() {
     error.value = null
     
     try {
-      const response = await api.put(`/api/procurement-stores/requisitions/${id}`, data)
+      // Transform items to handle custom purpose
+      const transformedData = {
+        ...data,
+        items: data.items?.map(item => ({
+          material_id: item.material_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          purpose: item.purpose === 'custom' ? item.custom_purpose : item.purpose,
+          reason: item.reason
+        }))
+      }
+      
+      const response = await api.put(`/api/procurement-stores/requisitions/${id}`, transformedData)
       
       if (response.data.error) {
         throw new Error(JSON.stringify(response.data.error))

@@ -43,6 +43,7 @@ export interface RequisitionItem {
   unit_price: number
   total: number
   purpose: string
+  custom_purpose?: string  // For custom purpose when "Other (Custom)" is selected
   reason?: string
   
   // UI helper fields
