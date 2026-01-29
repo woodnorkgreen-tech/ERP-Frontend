@@ -196,12 +196,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { useBills } from '../../shared/composables/useBills.ts'
 import axios from '@/plugins/axios'
 
 const router = useRouter()
-const authStore = useAuthStore()
 const { bills, loading, error, fetchBills, searchBills, getStats } = useBills()
 
 const searchTerm = ref('')
@@ -217,14 +215,25 @@ const stats = ref({
   overdue_count: 0
 })
 
-// Check if user can delete - matching your exact pattern
+const currentUser = ref<any>(null)
+
+// Check if user can delete based on their roles
 const canDelete = computed(() => {
-  const user = authStore.user
-  if (!user?.roles) return false
+  if (!currentUser.value?.roles) return false
   
   const allowedRoles = ['Super Admin', 'Admin', 'Accounts']
-  return user.roles.some((role: any) => allowedRoles.includes(role.name))
+  return currentUser.value.roles.some((role: any) => allowedRoles.includes(role.name))
 })
+
+// Fetch current user
+const fetchCurrentUser = async () => {
+  try {
+    const response = await axios.get('/api/user')
+    currentUser.value = response.data
+  } catch (err) {
+    console.error('Failed to fetch user:', err)
+  }
+}
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -283,6 +292,7 @@ const getStatusClass = (status: string) => {
 }
 
 onMounted(async () => {
+  await fetchCurrentUser()
   await fetchBills()
   await loadStats()
 })
