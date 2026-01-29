@@ -177,21 +177,26 @@ const isValid = computed(() => {
 const submitBatch = async () => {
   submitting.value = true
   try {
-    const promises = rows.value.map(row => 
-      api.post('/api/procurement-stores/check-out', {
-        ...row,
-        project_id: batchProject.value,
-        warehouse_code: 'MAIN'
-      })
-    )
+    // Use the new batch-check-out endpoint with unified batch number
+    const response = await api.post('/api/procurement-stores/batch-check-out', {
+      items: rows.value.map(row => ({
+        material_id: row.material_id,
+        quantity: row.quantity,
+        requestor: row.requestor,
+        reference_no: row.reference_no,
+        notes: row.notes || 'Batch check-out'
+      })),
+      project_id: batchProject.value,
+      warehouse_code: 'MAIN'
+    })
     
-    await Promise.all(promises)
-    
-    alert('Batch issuance processed successfully!')
+    const batchNumber = response.data.batch_number
+    alert(`✅ Batch issuance processed successfully!\n\nBatch Number: ${batchNumber}\nItems Processed: ${rows.value.length}`)
     router.push('/stores/materials-library')
-  } catch (err) {
+  } catch (err: any) {
     console.error('Batch processing failed:', err)
-    alert('Failed to process some items in the batch. Check available stock.')
+    const errorMsg = err.response?.data?.message || 'Failed to process batch. Check available stock.'
+    alert(`❌ ${errorMsg}`)
   } finally {
     submitting.value = false
   }

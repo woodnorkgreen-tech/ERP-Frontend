@@ -215,7 +215,9 @@ const submitCheckOut = async () => {
         ...form.value
     })
     
-    alert('Stock issued successfully!')
+    const batchNumber = response.data.batch_number
+    alert(`✅ Stock issued successfully!\n\nBatch Number: ${batchNumber}`)
+    
     // Reset form
     form.value = {
       material_id: '',

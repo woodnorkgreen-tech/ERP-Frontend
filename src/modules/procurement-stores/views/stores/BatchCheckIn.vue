@@ -130,25 +130,25 @@ const isValid = computed(() => {
 const submitBatch = async () => {
   submitting.value = true
   try {
-    // We'll need to update the backend to handle batch if not already there, 
-    // or just loop for now. Loop is safer if backend only has single.
-    // However, usually we should have a batch endpoint.
-    // For now, let's assume we can hit the single endpoint multiple times or look for a batch one.
+    // Use the new batch-check-in endpoint with unified batch number
+    const response = await api.post('/api/procurement-stores/batch-check-in', {
+      items: rows.value.map(row => ({
+        material_id: row.material_id,
+        quantity: row.quantity,
+        location: row.location,
+        reference_no: row.reference_no,
+        notes: row.notes || 'Batch check-in'
+      })),
+      warehouse_code: 'MAIN'
+    })
     
-    const promises = rows.value.map(row => 
-      api.post('/api/procurement-stores/check-in', {
-        ...row,
-        warehouse_code: 'MAIN'
-      })
-    )
-    
-    await Promise.all(promises)
-    
-    alert('Batch check-in processed successfully!')
+    const batchNumber = response.data.batch_number
+    alert(`✅ Batch check-in processed successfully!\n\nBatch Number: ${batchNumber}\nItems Processed: ${rows.value.length}`)
     router.push('/stores/materials-library')
-  } catch (err) {
+  } catch (err: any) {
     console.error('Batch processing failed:', err)
-    alert('Failed to process some items in the batch.')
+    const errorMsg = err.response?.data?.message || 'Failed to process batch check-in.'
+    alert(`❌ ${errorMsg}`)
   } finally {
     submitting.value = false
   }

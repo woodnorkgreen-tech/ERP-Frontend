@@ -205,10 +205,12 @@ const selectedMaterial = computed(() => {
 const submitCheckIn = async () => {
   submitting.value = true
   try {
-    await api.post('/api/procurement-stores/check-in', {
+    const response = await api.post('/api/procurement-stores/check-in', {
         ...form.value,
         warehouse_code: 'MAIN'
     })
+    
+    const batchNumber = response.data.batch_number
     
     // Clear form and refresh data
     form.value = {
@@ -220,10 +222,11 @@ const submitCheckIn = async () => {
       type: 'check_in'
     }
     await fetchInventory()
-    alert('Stock checked in successfully!')
-  } catch (err) {
+    alert(`✅ Stock checked in successfully!\n\nBatch Number: ${batchNumber}`)
+  } catch (err: any) {
     console.error('Check-in failed:', err)
-    alert('Verification error. Please check batch details.')
+    const errorMsg = err.response?.data?.message || 'Verification error. Please check batch details.'
+    alert(`❌ ${errorMsg}`)
   } finally {
     submitting.value = false
   }
