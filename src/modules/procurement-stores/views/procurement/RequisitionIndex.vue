@@ -222,11 +222,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import axios from '@/plugins/axios'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 const requisitions = ref<any[]>([])
 const loading = ref(false)
@@ -240,15 +238,25 @@ const filters = ref({
 const showRejectModal = ref(false)
 const requisitionToReject = ref<any>(null)
 const rejectionReason = ref('')
+const currentUser = ref<any>(null)
 
-// Check if user can approve/delete - matching your bills pattern
+// Check if user can approve/delete based on their roles
 const canApproveOrDelete = computed(() => {
-  const user = authStore.user
-  if (!user?.roles) return false
+  if (!currentUser.value?.roles) return false
   
   const allowedRoles = ['Super Admin', 'Admin', 'Accounts']
-  return user.roles.some((role: any) => allowedRoles.includes(role.name))
+  return currentUser.value.roles.some((role: any) => allowedRoles.includes(role.name))
 })
+
+// Fetch current user
+const fetchCurrentUser = async () => {
+  try {
+    const response = await axios.get('/api/user')
+    currentUser.value = response.data
+  } catch (err) {
+    console.error('Failed to fetch user:', err)
+  }
+}
 
 const loadRequisitions = async () => {
   loading.value = true
@@ -363,6 +371,7 @@ const getStatusClass = (status: string) => {
 }
 
 onMounted(async () => {
+  await fetchCurrentUser()
   await loadRequisitions()
 })
 </script>
