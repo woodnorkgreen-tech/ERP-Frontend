@@ -34,42 +34,32 @@
 
     <!-- Right: Action -->
     <div class="flex-shrink-0 ml-2">
-      <div v-if="!approved && canApprove">
-         <!-- Two-state Action: Button -> Input -->
-         <button 
-           v-if="!showInput"
-           @click="showInput = true"
-           class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded shadow-sm transition-colors"
-         >
-           Approve
-         </button>
-         <div v-else class="flex items-center bg-white dark:bg-gray-700 rounded border border-blue-300 dark:border-blue-500 shadow-sm p-0.5 animate-fade-in-right">
+      <div v-if="!approved && canApprove" class="flex items-center gap-2">
+         <div class="flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm px-2 py-1 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
             <input 
               v-model="localComments"
-              ref="commentInput"
-              class="w-24 md:w-32 px-2 py-0.5 text-xs text-gray-700 dark:text-gray-200 bg-transparent border-0 focus:ring-0 placeholder-gray-400"
-              placeholder="Comment..."
+              class="w-32 md:w-48 px-1 py-0.5 text-xs text-gray-700 dark:text-gray-200 bg-transparent border-0 focus:ring-0 placeholder-gray-400"
+              placeholder="Rationale/Comments..."
               @keyup.enter="handleApprove"
-              @keydown.esc="showInput = false"
             />
-            <button 
-              @click="handleApprove"
-              class="ml-1 p-1 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
-              title="Confirm Approval"
-            >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            </button>
-            <button 
-              @click="showInput = false"
-              class="ml-0.5 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
          </div>
+         <button 
+           @click="handleApprove"
+           class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center gap-1"
+         >
+           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+           Approve
+         </button>
       </div>
       
-      <div v-else-if="approved" class="text-green-500">
-         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div v-else-if="approved" class="flex flex-col items-end">
+         <div class="flex items-center gap-1 text-emerald-500">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Approved</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+         </div>
+         <p v-if="approvalData.comments" class="text-[10px] text-gray-500 italic max-w-[150px] truncate" :title="approvalData.comments">
+           "{{ approvalData.comments }}"
+         </p>
       </div>
     </div>
   </div>

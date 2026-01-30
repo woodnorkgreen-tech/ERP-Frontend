@@ -100,7 +100,7 @@ export class MaterialsService {
   /**
     * Save materials data for a task
     */
-  static async saveMaterialsData(taskId: number, data: MaterialsTaskData): Promise<MaterialsTaskData> {
+  static async saveMaterialsData(taskId: number, data: MaterialsTaskData, editReason?: string): Promise<MaterialsTaskData> {
     // Validate data before sending
     const validation = this.validateMaterialsData(data)
     if (!validation.isValid) {
@@ -108,7 +108,10 @@ export class MaterialsService {
     }
 
     // Transform data for backend
-    const transformedData = this.transformDataForBackend(data)
+    const transformedData = this.transformDataForBackend(data) as any
+    if (editReason) {
+      transformedData.editReason = editReason
+    }
 
     const response = await axios.post(`/api/projects/tasks/${taskId}/materials`, transformedData)
     return response.data.data

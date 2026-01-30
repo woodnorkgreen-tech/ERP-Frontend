@@ -5,7 +5,11 @@ export interface Version {
     id: number;
     version_number: number;
     label: string;
+    reason?: string;
+    change_log?: string | Array<{ type: 'addition' | 'removal' | 'modification', message: string }>;
+    is_base?: boolean;
     created_at: string;
+    created_by?: number;
     created_by_name: string;
     source_updated_at?: string;
     materials_version_id?: number;
@@ -79,13 +83,14 @@ export function useVersioning(taskId: Ref<number> | number, type: VersionType) {
     /**
      * Create a new version
      */
-    const createVersion = async (label?: string): Promise<VersionResponse<Version>> => {
+    const createVersion = async (label?: string, reason?: string): Promise<VersionResponse<Version>> => {
         isLoading.value = true;
         error.value = null;
 
         try {
             const response = await api.post(`${getBasePath()}/versions`, {
                 label: label || undefined,
+                reason: reason || undefined,
             });
 
             // Refresh the versions list

@@ -23,17 +23,42 @@
                   </span>
                </div>
                
-               <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
-                  <span class="text-gray-500 font-medium">{{ enquiry.enquiry_number }}</span>
-                  <span class="text-gray-300 dark:text-gray-700">|</span>
-                  <span :class="getStatusColor(enquiry.status)" class="px-2 py-0.5 rounded text-sm font-bold">
-                    {{ getStatusLabel(enquiry.status) }}
-                  </span>
-                  <span class="text-gray-300 dark:text-gray-700">|</span>
-                  <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded text-sm font-bold uppercase">
-                    {{ enquiry.priority }}
-                  </span>
-               </div>
+                <div v-if="enquiry" class="flex items-center flex-wrap gap-3 text-sm">
+                   <span class="text-gray-500 font-medium">{{ enquiry.enquiry_number }}</span>
+                   <span class="text-gray-300 dark:text-gray-700">|</span>
+                   
+                   <!-- Manual Status Update Dropdown -->
+                   <div class="relative">
+                     <button 
+                       @click.stop="toggleStatusDropdown"
+                       :class="getStatusColor(enquiry.status)" 
+                       class="px-2 py-0.5 rounded text-sm font-bold flex items-center gap-1.5 hover:opacity-90 transition-all border border-transparent shadow-sm"
+                     >
+                       {{ getStatusLabel(enquiry.status) }}
+                       <i class="mdi mdi-chevron-down text-xs opacity-70"></i>
+                     </button>
+                     
+                     <div v-if="showStatusDropdown" class="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-[120] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                        <div class="fixed inset-0 z-[-1]" @click.stop="showStatusDropdown = false"></div>
+                        <div class="relative z-10 py-1 max-h-64 overflow-y-auto custom-scrollbar">
+                            <button 
+                              v-for="(label, key) in ENQUIRY_STATUS_LABELS"
+                              :key="key"
+                              @click.stop="updateEnquiryStatus(key)"
+                              class="w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 border-l-4 border-transparent hover:border-l-blue-500 transition-all"
+                              :class="key === enquiry.status ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-gray-300'"
+                            >
+                              {{ label }}
+                            </button>
+                        </div>
+                     </div>
+                   </div>
+
+                   <span class="text-gray-300 dark:text-gray-700">|</span>
+                   <span v-if="enquiry.priority" :class="getPriorityColor(enquiry.priority)" class="px-2 py-0.5 rounded text-sm font-bold uppercase">
+                     {{ enquiry.priority }}
+                   </span>
+                </div>
             </div>
           </div>
 
@@ -282,10 +307,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { ProjectEnquiry, EnquiryTask } from '../types/enquiry'
 import { useAuth } from '@/composables/useAuth'
 import { useProjectPDF } from '../composables/useProjectPDF'
+import { useProjectsEnquiries } from '../composables/useProjectsEnquiries'
+import { ENQUIRY_STATUS_LABELS } from '../constants/enquiryConstants'
 
 const props = defineProps<{
   show: boolean
@@ -294,6 +321,30 @@ const props = defineProps<{
 
 const { user } = useAuth()
 const { isGenerating: isGeneratingPDF, generateProjectPDF } = useProjectPDF()
+const { updateEnquiry } = useProjectsEnquiries()
+
+const showStatusDropdown = ref(false)
+
+const toggleStatusDropdown = () => {
+  showStatusDropdown.value = !showStatusDropdown.value
+}
+
+const updateEnquiryStatus = async (newStatus: string) => {
+  if (!props.enquiry) return
+  
+  const oldStatus = props.enquiry.status
+  // Optimistic update
+  props.enquiry.status = newStatus as any
+  showStatusDropdown.value = false
+  
+  try {
+    await updateEnquiry(props.enquiry.id, { status: newStatus } as any)
+  } catch (error) {
+    console.error('Failed to update status:', error)
+    props.enquiry.status = oldStatus
+    alert('Failed to update status')
+  }
+}
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer'].includes(role))

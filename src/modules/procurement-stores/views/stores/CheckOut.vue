@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 space-y-8 max-w-5xl mx-auto">
+  <div class="p-8 space-y-6 max-w-[1800px] mx-auto">
     <!-- Premium Header -->
     <div class="flex justify-between items-center">
       <div>
@@ -14,143 +14,253 @@
       </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Form Section -->
-      <div class="lg:col-span-2 space-y-6">
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-          <div class="p-10 space-y-8">
+    <!-- Main Content: Form + Transaction History Side by Side -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column: Check-Out Form (1/3 width) -->
+      <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden sticky top-6">
+          <div class="p-8 space-y-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                <i class="mdi mdi-truck-delivery-outline text-rose-500 text-xl"></i>
+              </div>
+              <h2 class="text-lg font-black text-slate-900 dark:text-white">Issue Material</h2>
+            </div>
             
             <!-- Project Link -->
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">1. Assign to Project</label>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Project</label>
               <div class="relative group">
-                <i class="mdi mdi-briefcase-outline absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-rose-500 transition-colors"></i>
+                <i class="mdi mdi-briefcase-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-rose-500 transition-colors"></i>
                 <select 
                   v-model="form.project_id"
-                  class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
+                  class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
                 >
                   <option value="" disabled>Select Project...</option>
                   <option v-for="project in relevantProjects" :key="project.id" :value="project.id">
                     {{ project.project_id }} - {{ project.enquiry?.title }}
                   </option>
                 </select>
-                <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <i class="mdi mdi-chevron-down text-slate-400 text-xl"></i>
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <i class="mdi mdi-chevron-down text-slate-400"></i>
                 </div>
               </div>
             </div>
 
             <!-- Material Selection -->
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">2. Select Material</label>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Material</label>
               <div class="relative group">
-                <i class="mdi mdi-package-variant absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-rose-500 transition-colors"></i>
+                <i class="mdi mdi-package-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-rose-500 transition-colors"></i>
                 <select 
                   v-model="form.material_id"
-                  class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
+                  class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
                 >
                   <option value="" disabled>Search Materials...</option>
                   <option v-for="item in inventory" :key="item.id" :value="item.id">
-                    {{ item.material_code }} - {{ item.material_name }} (Avail: {{ item.available }} {{ item.unit_of_measure }})
+                    {{ item.material_code }} - {{ item.material_name }} ({{ item.available }})
                   </option>
                 </select>
-                <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <i class="mdi mdi-chevron-down text-slate-400 text-xl"></i>
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <i class="mdi mdi-chevron-down text-slate-400"></i>
                 </div>
               </div>
             </div>
 
             <!-- Quantity -->
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">3. Quantity to Issue</label>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Quantity</label>
               <div class="relative">
                 <input 
                   type="number" 
                   v-model.number="form.quantity"
                   placeholder="0.00"
-                  class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xl font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all"
+                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-lg font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all"
                 />
-                <div class="absolute right-6 top-1/2 -translate-y-1/2 h-8 px-3 flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg text-[10px] font-black uppercase text-slate-500">
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 h-6 px-2 flex items-center bg-slate-200 dark:bg-slate-700 rounded text-[9px] font-black uppercase text-slate-500">
                   {{ selectedMaterial?.unit_of_measure || 'Units' }}
                 </div>
               </div>
-              <p v-if="selectedMaterial && (form.quantity || 0) > selectedMaterial.available" class="text-[10px] font-bold text-rose-500 mt-2 uppercase tracking-widest">
-                Insufficient stock available
+              <p v-if="selectedMaterial && (form.quantity || 0) > selectedMaterial.available" class="text-[9px] font-bold text-rose-500 uppercase tracking-wider">
+                ⚠️ Insufficient stock
               </p>
             </div>
 
             <!-- Notes -->
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">4. Notes</label>
+            <div class="space-y-2">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Notes</label>
               <textarea 
                 v-model="form.notes"
-                rows="3"
-                placeholder="Person receiving materials or task details..."
-                class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all"
+                rows="2"
+                placeholder="Add notes..."
+                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all"
               ></textarea>
+            </div>
+
+            <!-- Stock Info Card -->
+            <div v-if="selectedMaterial" class="p-4 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl text-white">
+              <p class="text-[8px] font-black uppercase tracking-wider text-white/40 mb-2">Stock Impact</p>
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-white/60">Current</span>
+                  <span class="font-bold">{{ selectedMaterial.available }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-white/60">Issuing</span>
+                  <span class="font-bold text-rose-400">-{{ form.quantity || 0 }}</span>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div class="flex justify-between">
+                  <span class="text-white/60">Remaining</span>
+                  <span class="font-black text-emerald-400">{{ selectedMaterial.available - (form.quantity || 0) }}</span>
+                </div>
+              </div>
             </div>
 
             <!-- Submit -->
             <button 
               @click="submitCheckOut"
               :disabled="submitting || !form.material_id || !form.quantity || (selectedMaterial && (form.quantity || 0) > selectedMaterial.available)"
-              class="w-full py-6 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-2xl shadow-xl shadow-rose-500/20 transition-all font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
+              class="w-full py-4 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-xl shadow-lg transition-all font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2"
             >
               <div v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <i v-else class="mdi mdi-truck-delivery-outline text-xl transition-transform group-hover:translate-x-2"></i>
-              {{ submitting ? 'Processing...' : 'Issue to Project' }}
+              <i v-else class="mdi mdi-truck-delivery-outline text-lg"></i>
+              {{ submitting ? 'Processing...' : 'Issue Stock' }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Live Pipeline Summary -->
-      <div class="space-y-6">
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 h-full rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10 space-y-8">
+      <!-- Right Column: Transaction History (2/3 width) -->
+      <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+          <!-- Header -->
+          <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Operation</p>
-              <h3 class="text-xl font-black">ISSUE STOCK</h3>
+              <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Recent Issuances</h2>
+              <p class="text-[10px] text-slate-500 dark:text-gray-400 mt-1">Track all stock check-out transactions</p>
             </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="fetchRecentLogs"
+                class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5"
+              >
+                <i class="mdi mdi-refresh text-sm" :class="{'animate-spin': loadingLogs}"></i>
+                Refresh
+              </button>
+              <button
+                @click="exportToCSV"
+                class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5"
+              >
+                <i class="mdi mdi-download text-sm"></i>
+                CSV
+              </button>
+            </div>
+          </div>
 
-            <div v-if="selectedMaterial" class="space-y-6 animate-fade-in">
-              <div class="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">Stock Impact</p>
-                <div class="space-y-4">
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">Current Stock</span>
-                    <span class="text-xs font-black">{{ selectedMaterial.available }} {{ selectedMaterial.unit_of_measure }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">Issuing</span>
-                    <span class="text-xs font-black text-rose-400">- {{ form.quantity || 0 }} {{ selectedMaterial.unit_of_measure }}</span>
-                  </div>
-                  <div class="h-px bg-white/10 my-4"></div>
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">Remaining</span>
-                    <span class="text-base font-black text-blue-400">{{ selectedMaterial.available - (form.quantity || 0) }}</span>
-                  </div>
-                </div>
+          <!-- Search & Filters -->
+          <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div class="relative">
+                <i class="mdi mdi-magnify absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Search batch, material..."
+                  class="w-full pl-8 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-medium focus:ring-2 focus:ring-rose-500 transition-all"
+                />
               </div>
-
-               <div class="p-6 bg-white/5 rounded-3xl border border-white/10">
-                 <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">Destination</p>
-                 <div class="flex items-center gap-4">
-                   <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center">
-                     <i class="mdi mdi-briefcase-variant text-xl"></i>
-                   </div>
-                   <div>
-                     <p class="text-xs font-black truncate max-w-[150px]">{{ selectedProject?.enquiry?.title || 'Select Project' }}</p>
-                     <p class="text-[9px] text-white/40 uppercase font-black">Ref: {{ selectedProject?.project_id || '---' }}</p>
-                   </div>
-                 </div>
-               </div>
+              <select
+                v-model="filterProject"
+                class="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-medium focus:ring-2 focus:ring-rose-500 transition-all"
+              >
+                <option value="">All Projects</option>
+                <option v-for="project in relevantProjects" :key="project.id" :value="project.id">
+                  {{ project.project_id }}
+                </option>
+              </select>
+              <input
+                v-model="filterDateFrom"
+                type="date"
+                class="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-medium focus:ring-2 focus:ring-rose-500 transition-all"
+              />
+              <input
+                v-model="filterDateTo"
+                type="date"
+                class="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-medium focus:ring-2 focus:ring-rose-500 transition-all"
+              />
             </div>
+          </div>
 
-            <div v-else class="p-12 text-center opacity-30 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center">
-              <i class="mdi mdi-exit-to-app text-5xl mb-4"></i>
-              <p class="text-[10px] font-black uppercase tracking-widest">Select material to see summary</p>
+          <!-- Transaction Table -->
+          <div class="overflow-x-auto max-h-[calc(100vh-400px)]">
+            <div v-if="loadingLogs" class="p-12 text-center">
+              <i class="mdi mdi-loading mdi-spin text-3xl text-slate-400"></i>
+              <p class="text-xs text-slate-500 mt-3">Loading...</p>
+            </div>
+            <table v-else-if="filteredLogs.length > 0" class="w-full">
+              <thead class="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Batch #</th>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Material</th>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Qty</th>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Project</th>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Date</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                      <span class="text-[10px] font-bold text-slate-900 dark:text-white font-mono">{{ log.batch_number }}</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="text-[10px] font-bold text-slate-900 dark:text-white">{{ log.material?.material_name || 'N/A' }}</p>
+                    <p class="text-[9px] text-slate-500 dark:text-gray-400">{{ log.material?.material_code }}</p>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded text-[10px] font-bold">
+                      <i class="mdi mdi-minus-circle-outline text-xs"></i>
+                      {{ Math.abs(log.quantity) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="text-[10px] text-slate-600 dark:text-slate-300">{{ getProjectName(log.project_id) }}</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="text-[10px] text-slate-600 dark:text-slate-300">{{ formatDateTime(log.created_at) }}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else class="p-12 text-center">
+              <i class="mdi mdi-package-variant-closed-remove text-4xl text-slate-300 dark:text-slate-600"></i>
+              <p class="text-xs text-slate-500 dark:text-gray-400 mt-3">No check-out transactions found</p>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="filteredLogs.length > logsPerPage" class="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <p class="text-[10px] text-slate-500 dark:text-gray-400">
+              {{ ((currentPage - 1) * logsPerPage) + 1 }}-{{ Math.min(currentPage * logsPerPage, filteredLogs.length) }} of {{ filteredLogs.length }}
+            </p>
+            <div class="flex gap-2">
+              <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              >
+                Prev
+              </button>
+              <button
+                @click="currentPage++"
+                :disabled="currentPage >= totalPages"
+                class="px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -208,6 +318,118 @@ const relevantProjects = computed(() => {
     )
 })
 
+// Transaction History State
+const recentLogs = ref<any[]>([])
+const loadingLogs = ref(false)
+const searchQuery = ref('')
+const filterProject = ref('')
+const filterDateFrom = ref('')
+const filterDateTo = ref('')
+const currentPage = ref(1)
+const logsPerPage = 10
+
+// Fetch recent check-out logs
+const fetchRecentLogs = async () => {
+  loadingLogs.value = true
+  try {
+    const response = await api.get('/api/procurement-stores/inventory-logs', {
+      params: { type: 'check_out' }
+    })
+    recentLogs.value = response.data.data || []
+  } catch (err) {
+    console.error('Failed to fetch logs:', err)
+  } finally {
+    loadingLogs.value = false
+  }
+}
+
+// Computed: Filtered logs
+const filteredLogs = computed(() => {
+  let logs = recentLogs.value
+
+  // Search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    logs = logs.filter(log => 
+      log.batch_number?.toLowerCase().includes(query) ||
+      log.material?.material_name?.toLowerCase().includes(query) ||
+      log.material?.material_code?.toLowerCase().includes(query)
+    )
+  }
+
+  // Project filter
+  if (filterProject.value) {
+    logs = logs.filter(log => log.project_id == filterProject.value)
+  }
+
+  // Date range filter
+  if (filterDateFrom.value) {
+    logs = logs.filter(log => new Date(log.created_at) >= new Date(filterDateFrom.value))
+  }
+  if (filterDateTo.value) {
+    logs = logs.filter(log => new Date(log.created_at) <= new Date(filterDateTo.value + 'T23:59:59'))
+  }
+
+  return logs
+})
+
+// Computed: Paginated logs
+const paginatedLogs = computed(() => {
+  const start = (currentPage.value - 1) * logsPerPage
+  const end = start + logsPerPage
+  return filteredLogs.value.slice(start, end)
+})
+
+// Computed: Total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredLogs.value.length / logsPerPage)
+})
+
+// Get project name helper
+const getProjectName = (projectId: number | null) => {
+  if (!projectId) return 'N/A'
+  const project = projects.value.find(p => p.id === projectId)
+  return project ? `${project.project_id}` : `Project #${projectId}`
+}
+
+// Format date time helper
+const formatDateTime = (dateStr: string) => {
+  if (!dateStr) return 'N/A'
+  const date = new Date(dateStr)
+  return date.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Export to CSV
+const exportToCSV = () => {
+  const headers = ['Batch Number', 'Material', 'Code', 'Quantity', 'Unit', 'Project', 'Issued By', 'Date', 'Notes']
+  const rows = filteredLogs.value.map(log => [
+    log.batch_number || '',
+    log.material?.material_name || '',
+    log.material?.material_code || '',
+    Math.abs(log.quantity),
+    log.material?.unit_of_measure || '',
+    getProjectName(log.project_id),
+    log.user?.name || 'System',
+    formatDateTime(log.created_at),
+    log.notes || ''
+  ])
+  
+  const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `check-out-report-${new Date().toISOString().split('T')[0]}.csv`
+  link.click()
+  window.URL.revokeObjectURL(url)
+}
+
 const submitCheckOut = async () => {
   submitting.value = true
   try {
@@ -227,6 +449,7 @@ const submitCheckOut = async () => {
       type: 'check_out'
     }
     await fetchInventory()
+    await fetchRecentLogs() // Refresh transaction history
   } catch (err: any) {
     console.error('Check-out failed:', err)
     alert(err.response?.data?.message || 'Transaction failed. Check stock levels.')
@@ -238,5 +461,6 @@ const submitCheckOut = async () => {
 onMounted(() => {
   fetchInventory()
   fetchProjects()
+  fetchRecentLogs()
 })
 </script>

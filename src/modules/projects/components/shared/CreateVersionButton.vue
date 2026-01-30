@@ -6,15 +6,8 @@
       :disabled="disabled"
       class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white rounded-lg transition-colors flex items-center space-x-1"
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M5 13l4 4L19 7"
-        />
-      </svg>
-      <span>Create Version</span>
+      <i class="mdi mdi-database-plus text-lg"></i>
+      <span>Archive Version</span>
     </button>
 
     <!-- Create Version Dialog -->
@@ -65,8 +58,21 @@
                 </div>
               </div>
               <p class="mt-3 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider ml-1 italic opacity-80">
-                Auto-timestamp active if left null
+                System will generate a timestamped label if left empty
               </p>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">
+                Context / Reason for Archival
+              </label>
+              <div class="relative group">
+                <textarea
+                  v-model="versionReason"
+                  placeholder="e.g., Client requested change in dimensions, Budget reconciliation..."
+                  class="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-[1.25rem] text-sm focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all dark:text-white min-h-[100px]"
+                ></textarea>
+              </div>
             </div>
 
             <!-- Strategic Context Panel -->
@@ -138,11 +144,12 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  create: [label: string | undefined];
+  create: [label: string | undefined, reason: string | undefined];
 }>();
 
 const showDialog = ref(false);
 const versionLabel = ref('');
+const versionReason = ref('');
 const isCreating = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
@@ -151,6 +158,7 @@ const labelInput = ref<HTMLInputElement | null>(null);
 const openDialog = () => {
   showDialog.value = true;
   versionLabel.value = '';
+  versionReason.value = '';
   successMessage.value = '';
   errorMessage.value = '';
 
@@ -164,6 +172,7 @@ const closeDialog = () => {
   if (!isCreating.value) {
     showDialog.value = false;
     versionLabel.value = '';
+    versionReason.value = '';
     successMessage.value = '';
     errorMessage.value = '';
   }
@@ -175,10 +184,10 @@ const handleCreate = async () => {
   successMessage.value = '';
 
   try {
-    emit('create', versionLabel.value.trim() || undefined);
+    emit('create', versionLabel.value.trim() || undefined, versionReason.value.trim() || undefined);
 
     // Show success message
-    successMessage.value = 'Version created successfully!';
+    successMessage.value = 'Version archived successfully!';
 
     // Close dialog after a short delay
     setTimeout(() => {

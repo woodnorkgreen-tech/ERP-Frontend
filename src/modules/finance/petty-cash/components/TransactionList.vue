@@ -328,6 +328,17 @@
             <!-- Actions -->
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end space-x-1">
+                <button
+                  @click="viewTransaction(transaction)"
+                  class="p-1.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-full transition-colors"
+                  title="View full details"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                </button>
+
                 <!-- Group Actions (on Top-up) -->
                 <button
                   v-if="transaction.type === 'top_up' && !transaction.is_archived"
@@ -468,6 +479,7 @@ import { usePettyCashStore } from '../stores/pettyCashStore'
 import type { PettyCashDisbursement, TransactionFilters } from '../types/pettyCash'
 
 interface Emits {
+  (e: 'view-transaction', transaction: any): void
   (e: 'edit-disbursement', disbursement: PettyCashDisbursement): void
   (e: 'void-disbursement', disbursement: PettyCashDisbursement): void
   (e: 'delete-disbursement', disbursement: PettyCashDisbursement): void
@@ -666,7 +678,9 @@ const getClassificationBadgeClass = (classification: string): string => {
 }
 
 
-
+const viewTransaction = (transaction: any) => {
+  emit('view-transaction', transaction)
+}
 const editDisbursement = (transaction: any) => {
   // Pass the transaction with original_id properly set
   const disbursementToEdit = {

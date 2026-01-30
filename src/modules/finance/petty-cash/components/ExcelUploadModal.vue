@@ -40,8 +40,8 @@
                 </h3>
                 <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                   <ul class="list-disc pl-5 space-y-1">
-                    <li>Required columns: <strong>Date, Receiver, Account, Amount, Description, Classification, Tax</strong></li>
-                    <li>Optional columns: <strong>Project Name, Job No.</strong></li>
+                    <li>Required columns: <strong>Date, Receiver, Account, Amount, Description, Tax, Classification</strong></li>
+                    <li>Optional columns: <strong>Project Name, Job No., Transaction Code</strong></li>
                     <li>Accepted classification values: <strong>Admin, Agencies, Operations, Other</strong></li>
                     <li>Tax values: <strong>ETR, NO ETR</strong></li>
                   </ul>
@@ -104,6 +104,7 @@
                 <label
                   for="file-upload"
                   class="relative cursor-pointer bg-transparent rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                  @click.stop
                 >
                   <span>Upload a file</span>
                   <input
@@ -298,6 +299,8 @@ const onFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     validateAndSetFile(target.files[0])
+    // Reset input value so it can pick up the same file again if selected
+    target.value = ''
   }
 }
 

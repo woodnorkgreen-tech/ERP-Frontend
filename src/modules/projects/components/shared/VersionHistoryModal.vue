@@ -74,6 +74,42 @@
                   <h4 class="text-base font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {{ version.label }}
                   </h4>
+                  <span
+                    v-if="version.is_base"
+                    class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                  >
+                    BASE VERSION
+                  </span>
+                </div>
+
+                <div v-if="version.reason" class="mb-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border-l-4 border-blue-500/50">
+                   <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                     <i class="mdi mdi-information-outline mr-1"></i>
+                     {{ version.reason }}
+                   </p>
+                </div>
+
+                <div v-if="shouldShowAuditLog(version)" class="mb-4 space-y-2">
+                   <h5 class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <i class="mdi mdi-pulse text-blue-500"></i>
+                      System Audit Log
+                   </h5>
+                   <div v-if="Array.isArray(version.change_log)" class="space-y-1.5">
+                      <div 
+                        v-for="(change, idx) in version.change_log" 
+                        :key="idx"
+                        class="flex items-start gap-2.5 p-2 rounded-lg border text-[10px] leading-tight transition-colors"
+                        :class="getChangeTypeClasses(change)"
+                      >
+                        <i class="mdi" :class="getChangeTypeIcon(change)"></i>
+                        <span class="font-medium">{{ change.message || change }}</span>
+                      </div>
+                   </div>
+                   <div v-else-if="typeof version.change_log === 'string'" class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 p-2.5 rounded-xl shadow-sm">
+                      <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                        {{ version.change_log }}
+                      </p>
+                   </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -288,6 +324,34 @@ const handleRestore = async () => {
     console.error('Error in restore handler:', error);
   } finally {
     isRestoring.value = false;
+  }
+};
+
+const shouldShowAuditLog = (version: Version) => {
+  if (!version.change_log) return false;
+  if (Array.isArray(version.change_log)) return version.change_log.length > 0;
+  return typeof version.change_log === 'string' && version.change_log.length > 0;
+};
+
+const getChangeTypeClasses = (change: any) => {
+  if (typeof change === 'string') return 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400';
+  
+  switch (change.type) {
+    case 'addition': return 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400';
+    case 'removal': return 'bg-red-50/50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400';
+    case 'modification': return 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30 text-blue-700 dark:text-blue-400';
+    default: return 'bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400';
+  }
+};
+
+const getChangeTypeIcon = (change: any) => {
+  if (typeof change === 'string') return 'mdi-information-outline text-slate-400';
+  
+  switch (change.type) {
+    case 'addition': return 'mdi-plus-circle-outline text-emerald-500';
+    case 'removal': return 'mdi-minus-circle-outline text-red-500';
+    case 'modification': return 'mdi-pencil-outline text-blue-500';
+    default: return 'mdi-information-outline text-slate-400';
   }
 };
 

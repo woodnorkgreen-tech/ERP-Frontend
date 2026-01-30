@@ -6,7 +6,7 @@
         <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
           Batch <span class="text-emerald-500 text-3xl opacity-50">/</span> Receive Stock
         </h1>
-        <p class="text-slate-500 dark:text-gray-400 font-medium mt-1">Efficiently record multiple incoming material batches.</p>
+        <p class="text-slate-500 dark:text-gray-400 font-medium mt-1">Bulk material receipt and stock addition.</p>
       </div>
       <div class="flex gap-4">
         <button @click="$router.push('/stores/check-in')" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 text-slate-500 rounded-2xl hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest">
@@ -20,6 +20,7 @@
       </div>
     </div>
 
+    <!-- Table Section -->
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -29,6 +30,7 @@
               <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] w-32">Quantity</th>
               <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] w-48">Location</th>
               <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] w-48">Ref / LPO</th>
+              <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Notes</th>
               <th class="px-1 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] w-16"></th>
             </tr>
           </thead>
@@ -41,7 +43,7 @@
                 >
                   <option value="" disabled>Select Material...</option>
                   <option v-for="item in inventory" :key="item.id" :value="item.id">
-                    {{ item.material_code }} - {{ item.material_name }}
+                    {{ item.material_code }} - {{ item.material_name }} (Current: {{ item.quantity_on_hand }})
                   </option>
                 </select>
               </td>
@@ -57,7 +59,7 @@
                 <input 
                   type="text" 
                   v-model="row.location"
-                  placeholder="e.g. A-12"
+                  placeholder="Bin / Shelf"
                   class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
                 />
               </td>
@@ -69,10 +71,18 @@
                   class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
                 />
               </td>
+              <td class="px-6 py-4">
+                <input 
+                  type="text" 
+                  v-model="row.notes"
+                  placeholder="Optional notes..."
+                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 focus:ring-2 focus:ring-emerald-500 transition-all"
+                />
+              </td>
               <td class="px-4 py-4 text-center">
                 <button 
                   @click="removeRow(index)" 
-                  class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                  class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
                 >
                   <i class="mdi mdi-delete-outline text-lg"></i>
                 </button>
@@ -91,7 +101,7 @@
         >
           <div v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
           <i v-else class="mdi mdi-check-all text-xl"></i>
-          {{ submitting ? 'Processing...' : 'Post Batch to Ledger' }}
+          {{ submitting ? 'Processing...' : 'Post Batch Receipt' }}
         </button>
       </div>
     </div>
@@ -108,13 +118,13 @@ const router = useRouter()
 const { inventory, fetchInventory } = useInventory()
 
 const rows = ref([
-  { material_id: '', quantity: null as number | null, location: '', reference_no: '', notes: 'Batch check-in', type: 'check_in' }
+  { material_id: '', quantity: null as number | null, location: '', reference_no: '', notes: '', type: 'check_in' }
 ])
 
 const submitting = ref(false)
 
 const addRow = () => {
-  rows.value.push({ material_id: '', quantity: null, location: '', reference_no: '', notes: 'Batch check-in', type: 'check_in' })
+  rows.value.push({ material_id: '', quantity: null, location: '', reference_no: '', notes: '', type: 'check_in' })
 }
 
 const removeRow = (index: number) => {
@@ -130,24 +140,24 @@ const isValid = computed(() => {
 const submitBatch = async () => {
   submitting.value = true
   try {
-    // Use the new batch-check-in endpoint with unified batch number
+    // Attempt batch check-in
     const response = await api.post('/api/procurement-stores/batch-check-in', {
       items: rows.value.map(row => ({
         material_id: row.material_id,
         quantity: row.quantity,
         location: row.location,
         reference_no: row.reference_no,
-        notes: row.notes || 'Batch check-in'
-      })),
-      warehouse_code: 'MAIN'
+        notes: row.notes || 'Batch check-in',
+        warehouse_code: 'MAIN'
+      }))
     })
     
     const batchNumber = response.data.batch_number
-    alert(`✅ Batch check-in processed successfully!\n\nBatch Number: ${batchNumber}\nItems Processed: ${rows.value.length}`)
+    alert(`✅ Batch receipt processed successfully!\n\nBatch Number: ${batchNumber}\nItems Processed: ${rows.value.length}`)
     router.push('/stores/materials-library')
   } catch (err: any) {
     console.error('Batch processing failed:', err)
-    const errorMsg = err.response?.data?.message || 'Failed to process batch check-in.'
+    const errorMsg = err.response?.data?.message || 'Failed to process batch. Please check inputs.'
     alert(`❌ ${errorMsg}`)
   } finally {
     submitting.value = false

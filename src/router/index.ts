@@ -94,9 +94,8 @@ router.beforeEach(async (to, from, next) => {
       // Instead, redirect to a safe route based on user permissions
       const token = localStorage.getItem('auth_token')
       if (token) {
-        // For now, redirect to HR dashboard as a safe fallback
-        // In a real app, you'd determine the appropriate dashboard
-        next('/hr')
+        // Redirect to access-denied as a safe fallback
+        next('/access-denied')
       } else {
         next('/login')
       }
@@ -125,8 +124,8 @@ router.beforeEach(async (to, from, next) => {
       console.log('Access denied to finance - redirecting to appropriate dashboard')
       const token = localStorage.getItem('auth_token')
       if (token) {
-        // Redirect to HR dashboard as safe fallback
-        next('/hr')
+        // Redirect to access-denied as safe fallback
+        next('/access-denied')
       } else {
         next('/login')
       }

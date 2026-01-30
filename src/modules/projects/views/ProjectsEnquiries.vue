@@ -1436,6 +1436,7 @@ const activeTab = computed({
   set: (val) => { filters.value.sub_status = val }
 })
 const showCreateModal = ref(false)
+const editingEnquiry = ref<ProjectEnquiry | null>(null) // Tracks enquiry being edited
 const titleInputRef = ref<HTMLInputElement | null>(null)
 
 const filteredEnquiries = computed(() => {

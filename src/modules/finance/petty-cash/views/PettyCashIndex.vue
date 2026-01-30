@@ -250,6 +250,7 @@
           @retry="handleTransactionListRetry"
         >
           <TransactionList 
+            @view-transaction="viewTransaction"
             @edit-disbursement="editDisbursement"
             @void-disbursement="voidDisbursement"
             @delete-disbursement="deleteDisbursement"
@@ -440,6 +441,12 @@
           </div>
         </div>
     </div>
+    <TransactionDetailModal 
+      v-if="showDetailModal && selectedTransaction"
+      :is-open="showDetailModal"
+      :transaction="selectedTransaction"
+      @close="closeDetailModal"
+    />
   </ErrorBoundary>
 </template>
 
@@ -454,6 +461,7 @@ import TransactionList from '../components/TransactionList.vue'
 import TopUpForm from '../components/TopUpForm.vue'
 import DisbursementForm from '../components/DisbursementForm.vue'
 import ExcelUploadModal from '../components/ExcelUploadModal.vue'
+import TransactionDetailModal from '../components/TransactionDetailModal.vue'
 import ErrorBoundary from '../components/ErrorBoundary.vue'
 
 
@@ -470,9 +478,11 @@ const showTopUpModal = ref(false)
 const showDisbursementModal = ref(false)
 const showEditDisbursementModal = ref(false)
 const showUploadModal = ref(false)
+const showDetailModal = ref(false)
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
+const selectedTransaction = ref<any>(null)
 const voidReason = ref('')
 const isVoiding = ref(false)
 const isDeleting = ref(false)
@@ -789,6 +799,20 @@ const onUploadSuccess = async () => {
     await store.refreshAll()
   } catch (error) {
     console.error('Error handling upload success:', error)
+  }
+}
+
+const viewTransaction = (transaction: any) => {
+  selectedTransaction.value = transaction
+  showDetailModal.value = true
+  activeModal.value = 'detail'
+}
+
+const closeDetailModal = () => {
+  showDetailModal.value = false
+  selectedTransaction.value = null
+  if (activeModal.value === 'detail') {
+    activeModal.value = null
   }
 }
 

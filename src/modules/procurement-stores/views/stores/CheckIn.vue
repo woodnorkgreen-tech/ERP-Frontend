@@ -168,6 +168,150 @@
         </div>
       </div>
     </div>
+
+    <!-- Transaction History Section -->
+    <div class="mt-12">
+      <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="p-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Recent Receipts</h2>
+            <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Track all stock check-in transactions with batch numbers</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              @click="fetchRecentLogs"
+              class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+            >
+              <i class="mdi mdi-refresh" :class="{'animate-spin': loadingLogs}"></i>
+              Refresh
+            </button>
+            <button
+              @click="exportToCSV"
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+            >
+              <i class="mdi mdi-download"></i>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="relative">
+              <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search batch number, material..."
+                class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+              />
+            </div>
+            <input
+              v-model="filterReference"
+              type="text"
+              placeholder="Filter by Reference/LPO"
+              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+            />
+            <input
+              v-model="filterDateFrom"
+              type="date"
+              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+            />
+            <input
+              v-model="filterDateTo"
+              type="date"
+              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Transaction Table -->
+        <div class="overflow-x-auto">
+          <div v-if="loadingLogs" class="p-12 text-center">
+            <i class="mdi mdi-loading mdi-spin text-4xl text-slate-400"></i>
+            <p class="text-sm text-slate-500 mt-4">Loading transaction history...</p>
+          </div>
+          <table v-else-if="filteredLogs.length > 0" class="w-full">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Batch #</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Material</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Quantity</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Location</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Reference</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Received By</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Date & Time</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Notes</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <span class="text-xs font-bold text-slate-900 dark:text-white font-mono">{{ log.batch_number }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <p class="text-xs font-bold text-slate-900 dark:text-white">{{ log.material?.material_name || 'N/A' }}</p>
+                  <p class="text-[10px] text-slate-500 dark:text-gray-400">{{ log.material?.material_code }}</p>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold">
+                    <i class="mdi mdi-plus-circle-outline"></i>
+                    {{ Math.abs(log.quantity) }} {{ log.material?.unit_of_measure || 'units' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-xs text-slate-600 dark:text-slate-300">{{ log.location || 'N/A' }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-xs text-slate-600 dark:text-slate-300 font-mono">{{ log.reference_no || '-' }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-xs text-slate-600 dark:text-slate-300">{{ log.user?.name || 'System' }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <p class="text-xs text-slate-600 dark:text-slate-300">{{ formatDateTime(log.created_at) }}</p>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="text-xs text-slate-500 dark:text-gray-400 italic">{{ log.notes || '-' }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else class="p-12 text-center">
+            <i class="mdi mdi-package-variant-closed-plus text-5xl text-slate-300 dark:text-slate-600"></i>
+            <p class="text-sm text-slate-500 dark:text-gray-400 mt-4">No check-in transactions found</p>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="filteredLogs.length > logsPerPage" class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <p class="text-xs text-slate-500 dark:text-gray-400">
+            Showing {{ ((currentPage - 1) * logsPerPage) + 1 }} to {{ Math.min(currentPage * logsPerPage, filteredLogs.length) }} of {{ filteredLogs.length }} transactions
+          </p>
+          <div class="flex gap-2">
+            <button
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+              class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+            >
+              Previous
+            </button>
+            <button
+              @click="currentPage++"
+              :disabled="currentPage >= totalPages"
+              class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -202,6 +346,112 @@ const selectedMaterial = computed(() => {
   return inventory.value.find(i => i.id === form.value.material_id)
 })
 
+// Transaction History State
+const recentLogs = ref<any[]>([])
+const loadingLogs = ref(false)
+const searchQuery = ref('')
+const filterReference = ref('')
+const filterDateFrom = ref('')
+const filterDateTo = ref('')
+const currentPage = ref(1)
+const logsPerPage = 10
+
+// Fetch recent check-in logs
+const fetchRecentLogs = async () => {
+  loadingLogs.value = true
+  try {
+    const response = await api.get('/api/procurement-stores/inventory-logs', {
+      params: { type: 'check_in' }
+    })
+    recentLogs.value = response.data.data || []
+  } catch (err) {
+    console.error('Failed to fetch logs:', err)
+  } finally {
+    loadingLogs.value = false
+  }
+}
+
+// Computed: Filtered logs
+const filteredLogs = computed(() => {
+  let logs = recentLogs.value
+
+  // Search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    logs = logs.filter(log => 
+      log.batch_number?.toLowerCase().includes(query) ||
+      log.material?.material_name?.toLowerCase().includes(query) ||
+      log.material?.material_code?.toLowerCase().includes(query)
+    )
+  }
+
+  // Reference filter
+  if (filterReference.value) {
+    logs = logs.filter(log => log.reference_no?.toLowerCase().includes(filterReference.value.toLowerCase()))
+  }
+
+  // Date range filter
+  if (filterDateFrom.value) {
+    logs = logs.filter(log => new Date(log.created_at) >= new Date(filterDateFrom.value))
+  }
+  if (filterDateTo.value) {
+    logs = logs.filter(log => new Date(log.created_at) <= new Date(filterDateTo.value + 'T23:59:59'))
+  }
+
+  return logs
+})
+
+// Computed: Paginated logs
+const paginatedLogs = computed(() => {
+  const start = (currentPage.value - 1) * logsPerPage
+  const end = start + logsPerPage
+  return filteredLogs.value.slice(start, end)
+})
+
+// Computed: Total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredLogs.value.length / logsPerPage)
+})
+
+// Format date time helper
+const formatDateTime = (dateStr: string) => {
+  if (!dateStr) return 'N/A'
+  const date = new Date(dateStr)
+  return date.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Export to CSV
+const exportToCSV = () => {
+  const headers = ['Batch Number', 'Material', 'Code', 'Quantity', 'Unit', 'Location', 'Reference', 'Received By', 'Date', 'Notes']
+  const rows = filteredLogs.value.map(log => [
+    log.batch_number || '',
+    log.material?.material_name || '',
+    log.material?.material_code || '',
+    Math.abs(log.quantity),
+    log.material?.unit_of_measure || '',
+    log.location || '',
+    log.reference_no || '',
+    log.user?.name || 'System',
+    formatDateTime(log.created_at),
+    log.notes || ''
+  ])
+  
+  const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `check-in-report-${new Date().toISOString().split('T')[0]}.csv`
+  link.click()
+  window.URL.revokeObjectURL(url)
+}
+
 const submitCheckIn = async () => {
   submitting.value = true
   try {
@@ -222,6 +472,7 @@ const submitCheckIn = async () => {
       type: 'check_in'
     }
     await fetchInventory()
+    await fetchRecentLogs() // Refresh transaction history
     alert(`✅ Stock checked in successfully!\n\nBatch Number: ${batchNumber}`)
   } catch (err: any) {
     console.error('Check-in failed:', err)
@@ -234,5 +485,6 @@ const submitCheckIn = async () => {
 
 onMounted(() => {
   fetchInventory()
+  fetchRecentLogs()
 })
 </script>

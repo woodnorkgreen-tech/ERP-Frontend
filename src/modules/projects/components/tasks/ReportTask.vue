@@ -299,12 +299,54 @@
                     <input v-model="item.deliverable_item" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter item name" />
                   </td>
                   <td class="px-3 py-2">
-                    <select v-model="item.assigned_technician" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                        <option value="">Select Technician</option>
-                        <option v-for="labour in technicalLabour" :key="labour.id" :value="labour.full_name">
-                            {{ labour.full_name }} ({{ labour.specialization || 'N/A' }})
-                        </option>
-                    </select>
+                    <div class="relative min-w-[200px]">
+                        <!-- Selected Technicians Display -->
+                        <div class="flex flex-wrap gap-1 mb-1">
+                            <span 
+                                v-for="name in (item.assigned_technician ? item.assigned_technician.split(', ').filter(Boolean) : [])" 
+                                :key="name" 
+                                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            >
+                                {{ name }}
+                                <button 
+                                    @click="() => {
+                                        const current = item.assigned_technician ? item.assigned_technician.split(', ') : []
+                                        const updated = current.filter(n => n !== name)
+                                        item.assigned_technician = updated.join(', ')
+                                    }"
+                                    class="ml-1 text-blue-400 hover:text-blue-600 focus:outline-none"
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        </div>
+                        
+                        <!-- Technician Selector -->
+                        <select 
+                            @change="(e: Event) => {
+                                const target = e.target as HTMLSelectElement
+                                if (!target.value) return
+                                
+                                const current = item.assigned_technician ? item.assigned_technician.split(', ').filter(Boolean) : []
+                                if (!current.includes(target.value)) {
+                                    current.push(target.value)
+                                    item.assigned_technician = current.join(', ')
+                                }
+                                target.value = '' // Reset select
+                            }"
+                            class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        >
+                            <option value="">+ Add Technician</option>
+                            <option 
+                                v-for="labour in technicalLabour" 
+                                :key="labour.id" 
+                                :value="labour.full_name"
+                                :disabled="item.assigned_technician?.includes(labour.full_name)"
+                            >
+                                {{ labour.full_name }} ({{ labour.specialization || 'N/A' }})
+                            </option>
+                        </select>
+                    </div>
                   </td>
                   <td class="px-3 py-2">
                     <input v-model="item.site_section" type="text" class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Section" />
@@ -1153,11 +1195,29 @@ const autoFillBrandingTeam = async () => {
 const autoFillMaterialsData = async () => {
     try {
         const response = await autoPopulate(props.task.id)
-        if (response && response.materials_used_in_production) {
-            formData.materials_used_in_production = response.materials_used_in_production
-            alert('Materials data auto-filled successfully!')
+        let filled = false
+        
+        if (response) {
+            if (response.materials_used_in_production) {
+                formData.materials_used_in_production = response.materials_used_in_production
+                filled = true
+            }
+            
+            if (response.setup_items && response.setup_items.length > 0) {
+                formData.setup_items = response.setup_items
+                filled = true
+            }
+
+            if (response.item_placements && response.item_placements.length > 0) {
+                formData.item_placements = response.item_placements
+                filled = true
+            }
+        }
+
+        if (filled) {
+            alert('Materials and Setup items auto-filled successfully!')
         } else {
-            alert('No materials data found to auto-fill.')
+            alert('No materials or setup data found to auto-fill.')
         }
     } catch (error) {
         console.error('Failed to auto-fill materials:', error)
