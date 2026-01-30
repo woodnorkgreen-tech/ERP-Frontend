@@ -304,6 +304,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
+import { useAuth } from '@/composables/useAuth'
 import { useVersioning } from '@/composables/useVersioning'
 import { useBudgetState } from '../../composables/useBudgetState'
 import { useBudgetOperations } from '../../composables/useBudgetOperations'
@@ -332,8 +333,19 @@ const props = withDefaults(defineProps<Props>(), {
   readonly: false,
 })
 
-// For completed tasks, default to readonly mode
-const readonly = ref(props.readonly || props.task.status === 'completed')
+const { user: authUser } = useAuth()
+
+const hasAuthRole = (role: string) => {
+  return authUser.value?.roles?.some((r: string) => r.toLowerCase() === role.toLowerCase()) || false
+}
+
+// Check if user is Production (should be readonly by default)
+const isProductionUser = computed(() => {
+  return hasAuthRole('Production') && !hasAuthRole('Admin') && !hasAuthRole('Super Admin')
+})
+
+// For completed tasks or Production users, default to readonly mode
+const readonly = ref(props.readonly || props.task.status === 'completed' || isProductionUser.value)
 
 const projectInfo = computed(() => {
   const enquiry = props.task.enquiry

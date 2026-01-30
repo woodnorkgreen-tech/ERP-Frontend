@@ -1476,6 +1476,15 @@ const getUserPendingTaskCount = (enquiry: any) => {
     // Only if task is strictly unassigned
     const isUnassigned = !task.assigned_to && !task.assigned_user_id && (!assignedUsers || assignedUsers.length === 0)
     if (isUnassigned && myDeptId && task.department_id === myDeptId) return true
+
+    // 3. Role-Based Visibility (Even if unassigned and department doesn't match)
+    const userRoles = user.value?.roles || []
+    if (userRoles.includes('Production') && ['materials', 'teams', 'production', 'budget'].includes(task.type)) return true
+    if (userRoles.includes('Designer') && ['design', 'site-survey', 'site_survey'].includes(task.type)) return true
+    if (userRoles.includes('Stores') && ['materials', 'stores'].includes(task.type)) return true
+    if (userRoles.includes('Procurement') && ['materials', 'procurement'].includes(task.type)) return true
+    if (userRoles.includes('Costing') && ['materials', 'budget', 'quote'].includes(task.type)) return true
+    if (userRoles.includes('Accounts') && ['budget', 'quote', 'quote_approval'].includes(task.type)) return true
     
     return false
   }).length
@@ -1498,6 +1507,15 @@ const getUserNextAction = (enquiry: any) => {
     // Departmental Pool
     const isUnassigned = !task.assigned_to && !task.assigned_user_id && (!assignedUsers || assignedUsers.length === 0)
     if (isUnassigned && myDeptId && task.department_id === myDeptId) return true
+
+    // Role-Based Visibility
+    const userRoles = user.value?.roles || []
+    if (userRoles.includes('Production') && ['materials', 'teams', 'production', 'budget'].includes(task.type)) return true
+    if (userRoles.includes('Designer') && ['design', 'site-survey', 'site_survey'].includes(task.type)) return true
+    if (userRoles.includes('Stores') && ['materials', 'stores'].includes(task.type)) return true
+    if (userRoles.includes('Procurement') && ['materials', 'procurement'].includes(task.type)) return true
+    if (userRoles.includes('Costing') && ['materials', 'budget', 'quote'].includes(task.type)) return true
+    if (userRoles.includes('Accounts') && ['budget', 'quote', 'quote_approval'].includes(task.type)) return true
     
     return false
   })
@@ -2420,6 +2438,16 @@ const getUserTaskCount = (enquiry: any) => {
     // Check multi-user assignment (handle both camelCase and snake_case)
     const assignedUsers = task.assignedUsers || task.assigned_users
     if (assignedUsers?.some((u: any) => u.id === user.value!.id)) return true
+
+    // Check Role-Based Visibility
+    const userRoles = user.value?.roles || []
+    if (userRoles.includes('Production') && ['materials', 'teams', 'production', 'budget'].includes(task.type)) return true
+    if (userRoles.includes('Designer') && ['design', 'site-survey', 'site_survey'].includes(task.type)) return true
+    if (userRoles.includes('Stores') && ['materials', 'stores'].includes(task.type)) return true
+    if (userRoles.includes('Procurement') && ['materials', 'procurement'].includes(task.type)) return true
+    if (userRoles.includes('Costing') && ['materials', 'budget', 'quote'].includes(task.type)) return true
+    if (userRoles.includes('Accounts') && ['budget', 'quote', 'quote_approval'].includes(task.type)) return true
+
     return false
   }).length
 }

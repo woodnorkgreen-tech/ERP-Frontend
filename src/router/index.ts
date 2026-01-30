@@ -148,11 +148,13 @@ router.beforeEach(async (to, from, next) => {
   // Check budget access for project budget tasks
   if (to.path.includes('/budget') && to.path.includes('/tasks/')) {
     const { fetchUserData } = await import('@/utils/routerGuards')
-    const { userPermissions } = await fetchUserData()
+    const { user, userPermissions } = await fetchUserData()
 
-    // Check if user has budget read permission
+    // Check if user has budget read permission OR is Production/Super Admin
     const hasBudgetAccess = userPermissions?.includes('finance.budget.read') ||
-      userPermissions?.includes('finance.budget.update')
+      userPermissions?.includes('finance.budget.update') ||
+      user?.roles?.includes('Production') ||
+      user?.roles?.includes('Super Admin')
 
     if (!hasBudgetAccess) {
       console.log('Access denied to budget functionality - user lacks budget permissions')
