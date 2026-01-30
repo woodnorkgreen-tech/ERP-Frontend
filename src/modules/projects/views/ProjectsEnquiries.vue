@@ -41,7 +41,7 @@
                 ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm' 
                 : 'bg-white dark:bg-slate-800 text-slate-600 border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
             >
-              {{ filters.assigned_to_me ? 'My Requests' : 'All Requests' }}
+              {{ filters.assigned_to_me ? 'All Enquiries' : 'My Assigned Enquiries' }}
             </button>
 
             <button
@@ -56,7 +56,7 @@
               @click="showCreateModal = true"
               class="h-10 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
             >
-              New Request
+              New Enquiry
             </button>
           </div>
         </div>
@@ -1800,7 +1800,7 @@ if (!enquiryFormData.value.selected_workflow_tasks || enquiryFormData.value.sele
 const currentView = ref<'enquiries' | 'projects' | 'completed'>('enquiries')
 
 const dashboardTabs = [
-  { id: 'enquiries', label: 'New Requests', desc: 'New pipeline' },
+  { id: 'enquiries', label: 'New Enquiries', desc: 'In the pipeline' },
   { id: 'projects', label: 'In Progress', desc: 'Active projects' },
   { id: 'completed', label: 'Completed', desc: 'Finished projects' }
 ]
