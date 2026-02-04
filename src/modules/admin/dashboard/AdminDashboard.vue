@@ -114,6 +114,22 @@
             <p class="text-sm text-gray-600 dark:text-gray-400">Organize departments and assign users</p>
           </div>
         </router-link>
+
+        <button
+          @click="handleSystemRefresh"
+          :disabled="refreshing"
+          class="flex items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors w-full text-left"
+        >
+          <div class="p-2 bg-red-500 rounded-lg mr-3">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" :class="{ 'animate-spin': refreshing }">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900 dark:text-white">Refresh System</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Force reload for all users</p>
+          </div>
+        </button>
       </div>
     </div>
 
@@ -155,6 +171,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import api from '@/plugins/axios'
 
 // Mock stats - in real app, fetch from API
 const stats = ref({
@@ -162,6 +179,25 @@ const stats = ref({
   totalDepartments: 2,
   totalRoles: 3
 })
+
+const refreshing = ref(false)
+
+const handleSystemRefresh = async () => {
+    if (!confirm('Are you sure you want to trigger a system refresh? This will force all active users to reload their pages.')) {
+        return
+    }
+
+    refreshing.value = true
+    try {
+        await api.post('/api/system/refresh')
+        alert('System refresh triggered successfully!')
+    } catch (err) {
+        console.error('Failed to trigger refresh', err)
+        alert('Failed to trigger system refresh')
+    } finally {
+        refreshing.value = false
+    }
+}
 
 onMounted(() => {
   // Could fetch real stats here

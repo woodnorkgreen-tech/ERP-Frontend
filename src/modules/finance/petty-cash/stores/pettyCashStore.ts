@@ -56,6 +56,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
     const summary = ref<TransactionSummary>(defaultSummary)
     const analytics = ref<SpendingAnalytics>(defaultAnalytics)
     const recentTransactions = ref<RecentTransaction[]>([])
+    const voucherData = ref<any>(null)
 
     // Enhanced loading states with safe defaults
     const loading = ref({
@@ -66,6 +67,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         summary: false,
         analytics: false,
         recent: false,
+        voucher: false,
         creating: false,
         updating: false,
         voiding: false
@@ -80,6 +82,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         summary: null as string | null,
         analytics: null as string | null,
         recent: null as string | null,
+        voucher: null as string | null,
         creating: null as string | null,
         updating: null as string | null,
         voiding: null as string | null
@@ -451,7 +454,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                             label: item.classification === 'admin' ? 'Admin' :
                                 item.classification === 'agencies' ? 'Agencies' :
                                     item.classification === 'operations' ? 'Operations' :
-                                        (item.classification || 'Other')
+                                        item.classification === 'event_planners' ? 'Event Planners' :
+                                            item.classification === 'corporates' ? 'Corporates' :
+                                                item.classification === 'crs' ? 'CRS' :
+                                                    (item.classification || 'Other')
                         },
                         status: {
                             value: (item.status as unknown as DisbursementStatus) || 'active',
@@ -512,6 +518,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+
     const createDisbursement = async (data: CreateDisbursementFormData) => {
         const operation = async () => {
             loading.value.creating = true
@@ -546,7 +553,10 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                         label: rawData.classification === 'admin' ? 'Admin' :
                             rawData.classification === 'agencies' ? 'Agencies' :
                                 rawData.classification === 'operations' ? 'Operations' :
-                                    'Other'
+                                    rawData.classification === 'event_planners' ? 'Event Planners' :
+                                        rawData.classification === 'corporates' ? 'Corporates' :
+                                            rawData.classification === 'crs' ? 'CRS' :
+                                                'Other'
                     },
                     status: {
                         value: (rawData.status as unknown as DisbursementStatus) || 'active',
@@ -1439,6 +1449,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             summary.value = defaultSummary
             analytics.value = defaultAnalytics
             recentTransactions.value = []
+            voucherData.value = null
 
             // Reset pagination
             pagination.value = {
@@ -1474,7 +1485,8 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
                 recent: false,
                 creating: false,
                 updating: false,
-                voiding: false
+                voiding: false,
+                voucher: false
             }
 
             // Reset filters
@@ -1553,6 +1565,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         summary,
         analytics,
         recentTransactions,
+        voucherData,
         loading,
         errors,
         pagination,

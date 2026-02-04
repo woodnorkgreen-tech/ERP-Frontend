@@ -51,7 +51,7 @@ export const isValidPaymentMethod = (value: unknown): value is PaymentMethod => 
 
 export const isValidClassification = (value: unknown): value is Classification => {
     return typeof value === 'string' &&
-        (['agencies', 'admin', 'operations', 'other'] as const).includes(value as Classification)
+        (['agencies', 'admin', 'operations', 'event_planners', 'corporates', 'crs', 'other'] as const).includes(value as Classification)
 }
 
 export const isValidBalanceStatus = (value: unknown): value is BalanceStatus => {

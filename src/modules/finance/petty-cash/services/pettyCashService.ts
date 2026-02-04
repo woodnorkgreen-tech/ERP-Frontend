@@ -40,6 +40,7 @@ import type {
   AvailableBalanceResponse,
   ValidationResponse,
   RecalculateBalanceResponse,
+  VoucherDataResponse,
   TrendsResponse,
   ApiError,
   ApiResult,
@@ -637,6 +638,28 @@ class PettyCashService {
     this.validatePermission('finance.petty_cash.view_reports', 'get payment method breakdown')
 
     return this.makeRequest<PaymentMethodsResponse>('GET', '/payment-methods', null, { params: filters as Record<string, unknown> })
+  }
+
+  async getVoucherData(filters?: DisbursementFilters): Promise<VoucherDataResponse> {
+    this.validateAnyPermission(['finance.petty_cash.view', 'finance.petty_cash.view_reports'], 'get voucher data')
+
+    return this.makeRequest<VoucherDataResponse>('GET', '/voucher', null, { params: filters as Record<string, unknown> })
+  }
+
+  async downloadVoucherPdf(filters?: DisbursementFilters): Promise<void> {
+    this.validateAnyPermission(['finance.petty_cash.view', 'finance.petty_cash.view_reports'], 'download PDF voucher')
+
+    try {
+      const response = await api.get(`${this.baseUrl}/voucher/pdf`, {
+        params: filters,
+        responseType: 'blob'
+      })
+
+      const date = new Date().toISOString().split('T')[0]
+      this.downloadFile(response.data, `petty-cash-voucher-${date}.pdf`, 'application/pdf')
+    } catch (error: any) {
+      throw this.transformError(error, { operation: 'download PDF voucher' })
+    }
   }
 
   // Projects Integration

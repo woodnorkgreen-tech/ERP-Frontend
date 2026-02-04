@@ -99,6 +99,24 @@
                 </svg>
                 Clear All
               </button>
+
+              <!-- Download Voucher Button -->
+              <button
+                v-if="permissions.canView"
+                @click="handlePrintVoucher"
+                :disabled="isRefreshing || store.loading.voucher"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                title="Download standardized petty cash voucher as PDF"
+              >
+                <svg v-if="store.loading.voucher" class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg v-else class="-ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
+                </svg>
+                {{ store.loading.voucher ? 'Preparing...' : 'Download Voucher' }}
+              </button>
             </div>
           </div>
 
@@ -447,6 +465,10 @@
       :transaction="selectedTransaction"
       @close="closeDetailModal"
     />
+
+      :transaction="selectedTransaction"
+      @close="closeDetailModal"
+    />
   </ErrorBoundary>
 </template>
 
@@ -455,6 +477,7 @@ import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { usePettyCashStore } from '../stores/pettyCashStore'
 import { usePermissions } from '../composables/usePermissions'
 import { useErrorHandler } from '../composables/useErrorHandler'
+import { pettyCashService } from '../services/pettyCashService'
 import type { PettyCashDisbursement } from '../types/pettyCash'
 import BalanceCard from '../components/BalanceCard.vue'
 import TransactionList from '../components/TransactionList.vue'
@@ -609,6 +632,22 @@ const handleRefreshAll = async () => {
   } finally {
     isRefreshing.value = false
   }
+}
+
+const handlePrintVoucher = async () => {
+    try {
+        store.loading.voucher = true
+        // Use current filters from the store
+        const filters = {
+            ...store.activeFilters.disbursements
+        }
+        
+        await pettyCashService.downloadVoucherPdf(filters)
+    } catch (error) {
+        handleError(error, { context: 'handlePrintVoucher' })
+    } finally {
+        store.loading.voucher = false
+    }
 }
 
 

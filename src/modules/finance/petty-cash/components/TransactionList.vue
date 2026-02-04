@@ -257,6 +257,7 @@
             </td>
 
             <!-- Details -->
+            <td class="px-6 py-4">
               <div class="flex flex-col max-w-md">
                 <div class="flex items-center space-x-2 overflow-hidden">
                   <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -280,6 +281,7 @@
                   </span>
                 </div>
               </div>
+            </td>
 
             <!-- Classification -->
             <td class="px-6 py-4 whitespace-nowrap">

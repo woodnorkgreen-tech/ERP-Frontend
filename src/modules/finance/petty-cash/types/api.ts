@@ -111,6 +111,20 @@ export interface RecalculateBalanceResponse extends ApiResponse<{
   readonly transactions_processed: number
 }> { }
 
+export interface VoucherDataResponse extends ApiResponse<{
+  readonly opening_balance: number
+  readonly top_ups: ReadonlyArray<PettyCashTopUp>
+  readonly disbursements: ReadonlyArray<PettyCashDisbursement>
+  readonly total_in: number
+  readonly total_out: number
+  readonly closing_balance: number
+  readonly filters: Record<string, unknown>
+  readonly period: {
+    readonly start: string
+    readonly end: string
+  }
+}> { }
+
 export interface TrendsResponse extends ApiResponse<{
   readonly current: PettyCashBalance
   readonly trend: 'increasing' | 'decreasing' | 'stable'

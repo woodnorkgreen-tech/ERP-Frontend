@@ -10,6 +10,18 @@
         </h3>
         <p class="text-xs text-slate-500 font-medium mt-1 uppercase tracking-widest pl-1">Inventory Management & Procurement Tracking</p>
       </div>
+
+      <div class="flex items-center gap-3">
+        <button 
+          @click="downloadPdf"
+          :disabled="isDownloading"
+          class="group flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl transition-all shadow-md hover:shadow-xl active:scale-95 disabled:opacity-50"
+        >
+          <span v-if="isDownloading" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+          <i v-else class="mdi mdi-file-pdf-box text-lg text-red-400"></i>
+          <span class="text-xs font-black uppercase tracking-widest">Download PDF</span>
+        </button>
+      </div>
     </div>
 
       <!-- Loading/Error States remain same... -->
@@ -1033,6 +1045,35 @@ const handleSkipTask = async () => {
         alert(err.response?.data?.message || 'Failed to skip task')
     } finally {
         isSkipping.value = false
+    }
+}
+
+// PDF Download Logic
+const isDownloading = ref(false)
+const downloadPdf = async () => {
+    isDownloading.value = true
+    try {
+        const response = await api.get(`/api/projects/tasks/${props.task.id}/procurement/pdf`, {
+            responseType: 'blob'
+        })
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        
+        // Get job number or ID for filename
+        const jobNumber = procurementData.projectInfo?.projectId || props.task.id
+        link.setAttribute('download', `procurement-${jobNumber}.pdf`)
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+    } catch (err) {
+        console.error('Failed to download PDF:', err)
+        alert('Failed to generate procurement PDF. Please try again.')
+    } finally {
+        isDownloading.value = false
     }
 }
 

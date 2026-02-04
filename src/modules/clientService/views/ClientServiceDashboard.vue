@@ -54,7 +54,7 @@
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Active Projects</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ projectsStore.activeProjects.length }}</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ activeProjects.length }}</p>
         </div>
       </div>
 
@@ -307,8 +307,7 @@ import Chart from 'chart.js/auto'
 const router = useRouter()
 const { totalClients, activeClients, fetchClients, clients } = useClients()
 const { totalEnquiries, newEnquiries, convertedEnquiries, enquiries, loading, fetchEnquiries } = useEnquiries()
-const { fetchProjects } = useProjects()
-const projectsStore = useProjectsStore()
+const { fetchProjects, activeProjects } = useProjects()
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 let leadChart: Chart | null = null
