@@ -381,12 +381,12 @@ const formatStatus = (status?: string) => {
   return status?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || ''
 }
 
-const formatDate = (dateString?: string) => {
+const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'Not set'
   return new Date(dateString).toLocaleDateString()
 }
 
-const formatDateTime = (dateString?: string) => {
+const formatDateTime = (dateString?: string | null) => {
   if (!dateString) return 'Not set'
   return new Date(dateString).toLocaleString()
 }

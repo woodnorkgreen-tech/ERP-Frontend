@@ -450,9 +450,21 @@ const closeForm = () => {
   editingJobCard.value = null
 }
 
-const handleSaved = () => {
+const handleSaved = async () => {
   closeForm()
-  fetchJobCards()
+  await fetchJobCards()
+  
+  // If we're currently viewing a job card, refresh its data
+  if (viewingJobCard.value) {
+    try {
+      const response = await jobCardsService.getJobCard(viewingJobCard.value.id)
+      if (response.success) {
+        viewingJobCard.value = response.data
+      }
+    } catch (error) {
+      console.error('Error refreshing job card view:', error)
+    }
+  }
 }
 
 const prevPage = () => {

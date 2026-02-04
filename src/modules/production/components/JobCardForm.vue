@@ -598,7 +598,7 @@ const editTask = (index: number) => {
     description: task.description || '',
     work_order_search: task.selected_work_order?.title || '',
     work_order_results: [],
-    selected_work_order: task.selected_work_order || null,
+    selected_work_order: task.selected_work_order ? { ...task.selected_work_order } : null,
     start_time: task.start_time || '',
     end_time: task.end_time || '',
     notes: task.notes || ''
@@ -633,7 +633,7 @@ const saveTask = () => {
     id: editingTaskIndex.value !== null ? form.value.tasks[editingTaskIndex.value].id : undefined,
     description: taskForm.value.description,
     work_order_id: taskForm.value.selected_work_order?.id || null,
-    selected_work_order: taskForm.value.selected_work_order,
+    selected_work_order: taskForm.value.selected_work_order ? { ...taskForm.value.selected_work_order } : null,
     start_time: taskForm.value.start_time,
     end_time: taskForm.value.end_time,
     notes: taskForm.value.notes,
@@ -785,8 +785,8 @@ const handleSubmit = async () => {
 
   // Validate clock in/out times - support overnight shifts
   if (form.value.clock_in_time && form.value.clock_out_time) {
-    const clockIn = new Date(`1970-01-01T${form.value.clock_in_time}:00`)
-    const clockOut = new Date(`1970-01-01T${form.value.clock_out_time}:00`)
+    const clockIn = new Date(`1970-01-01T${toHHmmss(form.value.clock_in_time)}`)
+    const clockOut = new Date(`1970-01-01T${toHHmmss(form.value.clock_out_time)}`)
     
     // Calculate total hours worked (accounting for overnight)
     let hoursWorked = (clockOut.getTime() - clockIn.getTime()) / (1000 * 60 * 60)
@@ -804,8 +804,8 @@ const handleSubmit = async () => {
   // Validate task times - support overnight shifts
   for (const task of form.value.tasks) {
     if (task.start_time && task.end_time) {
-      const start = new Date(`1970-01-01T${task.start_time}:00`)
-      const end = new Date(`1970-01-01T${task.end_time}:00`)
+      const start = new Date(`1970-01-01T${toHHmmss(task.start_time)}`)
+      const end = new Date(`1970-01-01T${toHHmmss(task.end_time)}`)
       
       let hoursWorked = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
       if (hoursWorked < 0) {
@@ -833,37 +833,78 @@ const handleSubmit = async () => {
       // Helper function to format time for backend (H:i format)
       const formatTimeForBackend = (timeStr: string): string => {
         if (!timeStr) return ''
-        // Return time in H:i format (24-hour without seconds)
-        return timeStr
+        
+        // Handle different time formats and convert to HH:mm
+        try {
+          // If it's already in HH:mm format, return as-is
+          if (/^\d{2}:\d{2}$/.test(timeStr)) {
+            return timeStr
+          }
+          // If it's HH:mm:ss, trim seconds
+          if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) {
+            return timeStr.slice(0, 5)
+          }
+          
+          // If it's in ISO format or has seconds, extract HH:mm
+          const date = new Date(timeStr)
+          if (!isNaN(date.getTime())) {
+            const hours = date.getHours().toString().padStart(2, '0')
+            const minutes = date.getMinutes().toString().padStart(2, '0')
+            return `${hours}:${minutes}`
+          }
+          
+          // If it's a time string with AM/PM, convert to 24-hour format
+          if (/\d{1,2}:\d{2}\s*[AP]M/i.test(timeStr)) {
+            const [time, period] = timeStr.trim().split(' ')
+            let [hours, minutes] = time.split(':').map(Number)
+            if (period.toUpperCase() === 'PM' && hours !== 12) {
+              hours += 12
+            } else if (period.toUpperCase() === 'AM' && hours === 12) {
+              hours = 0
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+          }
+          
+          return timeStr // Fallback
+        } catch (error) {
+          console.error('Error formatting time:', timeStr, error)
+          return ''
+        }
       }
+      
+      // Preserve original clock times to prevent them from being changed when only tasks are added
+      const originalClockIn = form.value.clock_in_time
+      const originalClockOut = form.value.clock_out_time
+      
+      console.log('Original clock times preserved:', { originalClockIn, originalClockOut })
       
       // Determine if clock out is on the next day
       let isClockOutNextDay = false
       if (form.value.clock_in_time && form.value.clock_out_time) {
-        const clockIn = new Date(`1970-01-01T${form.value.clock_in_time}:00`)
-        const clockOut = new Date(`1970-01-01T${form.value.clock_out_time}:00`)
+        const clockIn = new Date(`1970-01-01T${toHHmmss(form.value.clock_in_time)}`)
+        const clockOut = new Date(`1970-01-01T${toHHmmss(form.value.clock_out_time)}`)
         isClockOutNextDay = clockOut < clockIn
       }
       
       const updateData = {
         worker_id: Number(form.value.worker_id) || 0, // Ensure it's always a number
         date: form.value.date,
-        clock_in_time: formatTimeForBackend(form.value.clock_in_time),
-        clock_out_time: formatTimeForBackend(form.value.clock_out_time),
+        clock_in_time: originalClockIn, // Use original value
+        clock_out_time: originalClockOut, // Use original value
         notes: form.value.notes,
         tasks: form.value.tasks.map(task => {
           // Determine if task end time is on the next day
           let isTaskEndNextDay = false
           if (task.start_time && task.end_time) {
-            const start = new Date(`1970-01-01T${task.start_time}:00`)
-            const end = new Date(`1970-01-01T${task.end_time}:00`)
+            const start = new Date(`1970-01-01T${toHHmmss(task.start_time)}`)
+            const end = new Date(`1970-01-01T${toHHmmss(task.end_time)}`)
             isTaskEndNextDay = end < start
           }
           
           return {
             id: task.id,
             description: task.description,
-            work_order_id: task.selected_work_order?.id || undefined,
+            work_order_id: task.selected_work_order?.id || null,
             start_time: formatTimeForBackend(task.start_time),
             end_time: formatTimeForBackend(task.end_time),
             notes: task.notes,
@@ -873,7 +914,7 @@ const handleSubmit = async () => {
         issues: form.value.issues.map(issue => ({
           description: issue.description,
           resolution: issue.resolution,
-          status: issue.status as 'open' | 'resolved'
+          status: issue.status
         }))
       }
       console.log('Update data:', JSON.stringify(updateData, null, 2))
@@ -882,15 +923,51 @@ const handleSubmit = async () => {
       // Helper function to format time for backend (H:i format)
       const formatTimeForBackend = (timeStr: string): string => {
         if (!timeStr) return ''
-        // Return time in H:i format (24-hour without seconds)
-        return timeStr
+        
+        // Handle different time formats and convert to HH:mm
+        try {
+          // If it's already in HH:mm format, return as-is
+          if (/^\d{2}:\d{2}$/.test(timeStr)) {
+            return timeStr
+          }
+          
+          // If it's HH:mm:ss, trim seconds
+          if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) {
+            return timeStr.slice(0, 5)
+          }
+          
+          // If it's in ISO format or has seconds, extract HH:mm
+          const date = new Date(timeStr)
+          if (!isNaN(date.getTime())) {
+            const hours = date.getHours().toString().padStart(2, '0')
+            const minutes = date.getMinutes().toString().padStart(2, '0')
+            return `${hours}:${minutes}`
+          }
+          
+          // If it's a time string with AM/PM, convert to 24-hour format
+          if (/\d{1,2}:\d{2}\s*[AP]M/i.test(timeStr)) {
+            const [time, period] = timeStr.trim().split(' ')
+            let [hours, minutes] = time.split(':').map(Number)
+            if (period.toUpperCase() === 'PM' && hours !== 12) {
+              hours += 12
+            } else if (period.toUpperCase() === 'AM' && hours === 12) {
+              hours = 0
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+          }
+          
+          return timeStr // Fallback
+        } catch (error) {
+          console.error('Error formatting time:', timeStr, error)
+          return ''
+        }
       }
       
       // Determine if clock out is on the next day
       let isClockOutNextDay = false
       if (form.value.clock_in_time && form.value.clock_out_time) {
-        const clockIn = new Date(`1970-01-01T${form.value.clock_in_time}:00`)
-        const clockOut = new Date(`1970-01-01T${form.value.clock_out_time}:00`)
+        const clockIn = new Date(`1970-01-01T${toHHmmss(form.value.clock_in_time)}`)
+        const clockOut = new Date(`1970-01-01T${toHHmmss(form.value.clock_out_time)}`)
         isClockOutNextDay = clockOut < clockIn
       }
       
@@ -904,14 +981,14 @@ const handleSubmit = async () => {
           // Determine if task end time is on the next day
           let isTaskEndNextDay = false
           if (task.start_time && task.end_time) {
-            const start = new Date(`1970-01-01T${task.start_time}:00`)
-            const end = new Date(`1970-01-01T${task.end_time}:00`)
+            const start = new Date(`1970-01-01T${toHHmmss(task.start_time)}`)
+            const end = new Date(`1970-01-01T${toHHmmss(task.end_time)}`)
             isTaskEndNextDay = end < start
           }
           
           return {
             description: task.description,
-            work_order_id: task.selected_work_order?.id || undefined,
+            work_order_id: task.selected_work_order?.id || null,
             start_time: formatTimeForBackend(task.start_time),
             end_time: formatTimeForBackend(task.end_time),
             notes: task.notes,
@@ -921,7 +998,7 @@ const handleSubmit = async () => {
         issues: form.value.issues.map(issue => ({
           description: issue.description,
           resolution: issue.resolution,
-          status: issue.status as 'open' | 'resolved'
+          status: issue.status
         }))
       })
     }
@@ -932,17 +1009,22 @@ const handleSubmit = async () => {
       console.log('Save successful, updating form data')
       
       // Update the form data with the response from backend
+      // Preserve original clock times to prevent them from being changed
+      const originalClockIn = form.value.clock_in_time
+      const originalClockOut = form.value.clock_out_time
+      
       if (response.data && isEditing.value) {
         console.log('Backend response data:', response.data)
         console.log('Backend tasks:', response.data.tasks)
         
         // Update the job card data
         const updatedJobCard = response.data
-        form.value.worker_id = updatedJobCard.worker_id
+        form.value.worker_id = updatedJobCard.worker_id.toString()
         form.value.date = updatedJobCard.date ? new Date(updatedJobCard.date).toISOString().split('T')[0] : ''
-        form.value.clock_in_time = updatedJobCard.clock_in_time ? new Date(updatedJobCard.clock_in_time).toTimeString().slice(0, 5) : ''
-        form.value.clock_out_time = updatedJobCard.clock_out_time ? new Date(updatedJobCard.clock_out_time).toTimeString().slice(0, 5) : ''
-        form.value.notes = updatedJobCard.notes
+        // Preserve original clock times - don't overwrite with backend response
+        // form.value.clock_in_time = toHHmm(updatedJobCard.clock_in_time)
+        // form.value.clock_out_time = toHHmm(updatedJobCard.clock_out_time)
+        form.value.notes = updatedJobCard.notes || ''
         
         // Update tasks with work order data
         form.value.tasks = updatedJobCard.tasks?.map((task: any) => {
@@ -959,8 +1041,8 @@ const handleSubmit = async () => {
               work_order_number: task.work_order.work_order_number,
               status: task.work_order.status
             } : null,
-            start_time: task.start_time ? new Date(task.start_time).toTimeString().slice(0, 5) : '',
-            end_time: task.end_time ? new Date(task.end_time).toTimeString().slice(0, 5) : '',
+            start_time: toHHmm(task.start_time),
+            end_time: toHHmm(task.end_time),
             notes: task.notes,
             work_order_search: task.work_order?.title || '',
             work_order_results: []
@@ -977,11 +1059,11 @@ const handleSubmit = async () => {
         // Update selected employee
         if (updatedJobCard.worker) {
           selectedEmployee.value = {
-            id: updatedJobCard.worker.id,
+            id: Number(updatedJobCard.worker.id),
             first_name: updatedJobCard.worker.first_name,
             last_name: updatedJobCard.worker.last_name,
             employee_number: updatedJobCard.worker.employee_number,
-            department: updatedJobCard.worker.department?.name || 'Production'
+            department: updatedJobCard.worker.department || 'Production'
           }
           employeeSearch.value = `${updatedJobCard.worker.first_name} ${updatedJobCard.worker.last_name}`
         }
@@ -1058,7 +1140,7 @@ const searchEmployees = async (query: string) => {
 
 const selectEmployee = (employee: any) => {
   selectedEmployee.value = employee
-  form.value.worker_id = Number(employee.id) // Ensure it's always a number
+  form.value.worker_id = String(employee.id) // Keep as string in form state
   // Handle both full_name (technical labour) and first_name/last_name (legacy employee)
   if (employee.full_name) {
     employeeSearch.value = employee.full_name
@@ -1091,11 +1173,41 @@ const getSourceLabel = (source?: string) => {
   }
 }
 
+// Time normalization helpers
+const toHHmm = (timeStr?: string): string => {
+  if (!timeStr) return ''
+  if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr
+  if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) return timeStr.slice(0, 5)
+  const ampm = timeStr.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i)
+  if (ampm) {
+    let h = parseInt(ampm[1], 10)
+    const m = ampm[2]
+    const p = ampm[3].toUpperCase()
+    if (p === 'PM' && h !== 12) h += 12
+    if (p === 'AM' && h === 12) h = 0
+    return `${h.toString().padStart(2, '0')}:${m}`
+  }
+  const d = new Date(timeStr)
+  if (!isNaN(d.getTime())) {
+    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
+  }
+  return ''
+}
+
+const toHHmmss = (timeStr?: string): string => {
+  if (!timeStr) return ''
+  if (/^\d{2}:\d{2}:\d{2}$/.test(timeStr)) return timeStr
+  if (/^\d{2}:\d{2}$/.test(timeStr)) return `${timeStr}:00`
+  const hhmm = toHHmm(timeStr)
+  return hhmm ? `${hhmm}:00` : ''
+}
+
 const calculateHoursWorked = (startTime: string, endTime: string): number => {
   if (!startTime || !endTime) return 0
   
-  const start = new Date(`1970-01-01T${startTime}:00`)
-  const end = new Date(`1970-01-01T${endTime}:00`)
+  // Parse time strings (supports both ISO datetime and time-only formats)
+  const start = new Date(`1970-01-01T${toHHmmss(startTime)}`)
+  const end = new Date(`1970-01-01T${toHHmmss(endTime)}`)
   
   let diffMs = end.getTime() - start.getTime()
   
@@ -1112,19 +1224,23 @@ const calculateHoursWorked = (startTime: string, endTime: string): number => {
 onMounted(() => {
   if (isEditing.value && props.jobCard) {
     // Load existing job card data
+    // Preserve original clock times to prevent them from being changed
+    const originalClockIn = toHHmm(props.jobCard.clock_in_time)
+    const originalClockOut = toHHmm(props.jobCard.clock_out_time)
+    
     form.value = {
       worker_id: props.jobCard.worker_id,
       date: props.jobCard.date ? new Date(props.jobCard.date).toISOString().split('T')[0] : '',
-      clock_in_time: props.jobCard.clock_in_time ? new Date(props.jobCard.clock_in_time).toTimeString().slice(0, 5) : '',
-      clock_out_time: props.jobCard.clock_out_time ? new Date(props.jobCard.clock_out_time).toTimeString().slice(0, 5) : '',
+      clock_in_time: originalClockIn, // Preserve original
+      clock_out_time: originalClockOut, // Preserve original
       notes: props.jobCard.notes,
       tasks: props.jobCard.tasks?.map((task: any) => ({
         id: task.id,
         description: task.description,
         work_order_id: task.work_order_id,
-        selected_work_order: task.selected_work_order || task.work_order || null,
-        start_time: task.start_time ? new Date(task.start_time).toTimeString().slice(0, 5) : '',
-        end_time: task.end_time ? new Date(task.end_time).toTimeString().slice(0, 5) : '',
+        selected_work_order: task.selected_work_order || task.work_order ? { ...task.selected_work_order || task.work_order } : null,
+        start_time: toHHmm(task.start_time),
+        end_time: toHHmm(task.end_time),
         notes: task.notes,
         work_order_search: task.selected_work_order?.title || task.work_order?.title || '',
         work_order_results: []
@@ -1141,12 +1257,12 @@ onMounted(() => {
                       `${props.jobCard.worker?.first_name || ''} ${props.jobCard.worker?.last_name || ''}`.trim()
     
     selectedEmployee.value = {
-      id: props.jobCard.worker?.id,
+      id: Number(props.jobCard.worker?.id),
       first_name: props.jobCard.worker?.first_name || '',
       last_name: props.jobCard.worker?.last_name || '',
       full_name: props.jobCard.worker?.full_name || workerName,
       employee_number: props.jobCard.worker?.employee_number,
-      department: props.jobCard.worker?.department?.name || 'Production'
+      department: props.jobCard.worker?.department || 'Production'
     }
     employeeSearch.value = workerName
   }

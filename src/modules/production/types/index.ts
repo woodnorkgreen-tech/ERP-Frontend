@@ -4,6 +4,18 @@ export interface User {
   email: string
 }
 
+// Time tracking entry for production job cards
+export interface TimeEntry {
+  id: number
+  job_card_id?: number
+  technician_id?: number
+  work_description?: string
+  clock_in: string
+  clock_out?: string | null
+  hours_worked?: number
+  break_minutes?: number
+}
+
 export interface Project {
   id: number
   project_id: string
@@ -153,7 +165,7 @@ export interface DailyTask {
   id: number
   job_card_id: number
   description: string
-  work_order_id?: number
+  work_order_id?: number | null
   start_time: string
   end_time: string
   hours_worked: number
@@ -169,7 +181,7 @@ export interface DailyIssue {
   description: string
   resolution?: string
   resolved_at?: string
-  status: 'open' | 'resolved'
+  status: string
   created_at: string
   updated_at: string
 }
@@ -227,7 +239,7 @@ export interface ProductionJobCard {
   actual_hours?: number
   scheduled_start_date?: string
   scheduled_end_date?: string
-  time_entries?: any[]
+  time_entries?: TimeEntry[]
   quality_checks?: any[]
   material_requirements?: MaterialRequirement[]
 }
