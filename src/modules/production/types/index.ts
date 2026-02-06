@@ -203,6 +203,7 @@ export interface MaterialRequirement {
 // Daily Job Card (for time tracking)
 export interface JobCard {
   id: number
+  public_token?: string
   job_card_number?: string
   worker_id: number
   date: string
@@ -255,6 +256,8 @@ export interface CreateJobCardPayload {
 }
 
 export interface UpdateJobCardPayload {
+  worker_id?: number
+  date?: string
   clock_in_time?: string
   clock_out_time?: string
   notes?: string

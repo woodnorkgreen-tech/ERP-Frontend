@@ -30,6 +30,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/public/ClientHandoverView.vue'),
     meta: { requiresAuth: false }
   },
+  {
+    path: '/public/job-cards',
+    name: 'public-job-cards',
+    component: () => import('../modules/production/views/PublicJobCardEntryView.vue'),
+    meta: { requiresAuth: false, title: 'Daily Job Card' }
+  },
+  {
+    path: '/public/job-cards/:token',
+    name: 'public-job-card-by-token',
+    component: () => import('../modules/production/views/PublicJobCardEntryView.vue'),
+    meta: { requiresAuth: false, title: 'Daily Job Card' }
+  },
 
   ...mainRoutes,
   ...adminRoutes,
