@@ -19,6 +19,7 @@ export interface CreateDisbursementFormData {
   job_number?: NullableString
   payment_method: PaymentMethod
   transaction_code?: NullableString
+  transaction_cost?: number | string
   tax?: string // Optional tax field for UI purposes
   date_disbursed?: string | null
 }
@@ -34,6 +35,7 @@ export interface UpdateDisbursementFormData {
   job_number?: NullableString
   payment_method?: PaymentMethod | null
   transaction_code?: NullableString
+  transaction_cost?: number | string | null
   date_disbursed?: string | null
 }
 

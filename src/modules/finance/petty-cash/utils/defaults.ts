@@ -253,7 +253,8 @@ export const defaultDisbursementFormData: CreateDisbursementFormData = {
   classification: 'admin',
   job_number: '',
   payment_method: 'cash',
-  transaction_code: ''
+  transaction_code: '',
+  transaction_cost: 0
 }
 
 export const defaultVoidFormData: VoidDisbursementFormData = {

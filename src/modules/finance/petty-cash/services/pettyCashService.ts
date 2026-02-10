@@ -572,12 +572,6 @@ class PettyCashService {
     return this.makeRequest<BalanceCheckResponse>('POST', '/balance/check', { amount })
   }
 
-  async getBalanceTrends(days: number = 30): Promise<TrendsResponse> {
-    this.validateAnyPermission(['finance.petty_cash.view_balance', 'finance.petty_cash.view_reports'], 'get balance trends')
-
-    return this.makeRequest<TrendsResponse>('GET', '/balance/trends', null, { params: { days } as Record<string, unknown> })
-  }
-
   async recalculateBalance(): Promise<RecalculateBalanceResponse> {
     this.validatePermission('finance.petty_cash.recalculate_balance', 'recalculate balance')
 
@@ -620,30 +614,6 @@ class PettyCashService {
     this.validateAnyPermission(['finance.petty_cash.view', 'finance.petty_cash.view_reports'], 'get summary')
 
     return this.makeRequest<SummaryResponse>('GET', '/summary', null, { params: filters as Record<string, unknown> })
-  }
-
-  async getAnalytics(filters?: DisbursementFilters): Promise<AnalyticsResponse> {
-    this.validatePermission('finance.petty_cash.view_reports', 'get analytics')
-
-    return this.makeRequest<AnalyticsResponse>('GET', '/analytics', null, { params: filters as Record<string, unknown> })
-  }
-
-  async getStatistics(filters?: TopUpFilters): Promise<StatisticsResponse> {
-    this.validatePermission('finance.petty_cash.view_reports', 'get statistics')
-
-    return this.makeRequest<StatisticsResponse>('GET', '/statistics', null, { params: filters as Record<string, unknown> })
-  }
-
-  async getPaymentMethodBreakdown(filters?: TopUpFilters): Promise<PaymentMethodsResponse> {
-    this.validatePermission('finance.petty_cash.view_reports', 'get payment method breakdown')
-
-    return this.makeRequest<PaymentMethodsResponse>('GET', '/payment-methods', null, { params: filters as Record<string, unknown> })
-  }
-
-  async getVoucherData(filters?: DisbursementFilters): Promise<VoucherDataResponse> {
-    this.validateAnyPermission(['finance.petty_cash.view', 'finance.petty_cash.view_reports'], 'get voucher data')
-
-    return this.makeRequest<VoucherDataResponse>('GET', '/voucher', null, { params: filters as Record<string, unknown> })
   }
 
   async downloadVoucherPdf(filters?: DisbursementFilters): Promise<void> {
@@ -719,53 +689,6 @@ class PettyCashService {
   }
 
   // Export and reporting with permission validation
-  async exportData(
-    type: 'disbursements' | 'top_ups' | 'summary',
-    filters?: DisbursementFilters,
-    format: 'excel' | 'csv' = 'excel'
-  ): Promise<Blob> {
-    this.validatePermission('finance.petty_cash.export_data', 'export data')
-
-    try {
-      const response = await api.get(`${this.baseUrl}/export`, {
-        params: { type, format, ...filters },
-        responseType: 'blob'
-      })
-      return response.data
-    } catch (error: any) {
-      throw this.transformError(error, { operation: 'export data', type, format })
-    }
-  }
-
-  async generatePDFReport(filters?: DisbursementFilters): Promise<Blob> {
-    this.validatePermission('finance.petty_cash.export_data', 'generate PDF report')
-
-    try {
-      const response = await api.get(`${this.baseUrl}/report`, {
-        params: { format: 'pdf', ...filters },
-        responseType: 'blob'
-      })
-      return response.data
-    } catch (error: any) {
-      throw this.transformError(error, { operation: 'generate PDF report' })
-    }
-  }
-
-  // Generate summary report with charts (for PDF)
-  async generateSummaryReport(filters?: DisbursementFilters): Promise<Blob> {
-    this.validatePermission('finance.petty_cash.export_data', 'generate summary report')
-
-    try {
-      const response = await api.get(`${this.baseUrl}/reports/summary`, {
-        params: { format: 'pdf', ...filters },
-        responseType: 'blob'
-      })
-      return response.data
-    } catch (error: any) {
-      throw this.transformError(error, { operation: 'generate summary report' })
-    }
-  }
-
   // File download helpers
   downloadFile(blob: Blob, filename: string, mimeType?: string) {
     const url = window.URL.createObjectURL(new Blob([blob], { type: mimeType }))
@@ -776,30 +699,6 @@ class PettyCashService {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-  }
-
-  async downloadExcelExport(
-    type: 'disbursements' | 'top_ups' | 'summary',
-    filters?: DisbursementFilters
-  ) {
-    const blob = await this.exportData(type, filters, 'excel')
-    const date = new Date().toISOString().split('T')[0]
-    this.downloadFile(blob, `petty-cash-${type}-${date}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-  }
-
-  async downloadCSVExport(
-    type: 'disbursements' | 'top_ups' | 'summary',
-    filters?: DisbursementFilters
-  ) {
-    const blob = await this.exportData(type, filters, 'csv')
-    const date = new Date().toISOString().split('T')[0]
-    this.downloadFile(blob, `petty-cash-${type}-${date}.csv`, 'text/csv')
-  }
-
-  async downloadPDFReport(filters?: DisbursementFilters) {
-    const blob = await this.generatePDFReport(filters)
-    const date = new Date().toISOString().split('T')[0]
-    this.downloadFile(blob, `petty-cash-report-${date}.pdf`, 'application/pdf')
   }
 
   // Utility methods

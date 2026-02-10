@@ -136,8 +136,31 @@
               </div>
             </div>
 
-            <!-- Receiver and Account Row -->
+            <!-- Payment Method and Receiver Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Payment Method -->
+              <div>
+                <label for="payment_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Payment Method <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="payment_method"
+                  v-model="form.payment_method"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                >
+                  <option value="cash">Cash</option>
+                  <option value="mpesa">M-Pesa</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="equity">Equity</option>
+                  <option value="stanbic">Stanbic</option>
+                  <option value="ncba">NCBA</option>
+                  <option value="kcb">KCB</option>
+                  <option value="family">Family Bank</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
               <!-- Receiver -->
               <div>
                 <label for="receiver" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -158,7 +181,47 @@
                   {{ errors.receiver[0] }}
                 </p>
               </div>
+            </div>
 
+            <!-- Transaction Cost and Code Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Transaction Cost -->
+              <div>
+                <label for="transaction_cost" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Transaction Cost
+                </label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-500 dark:text-gray-400 sm:text-sm">KES</span>
+                  </div>
+                  <input
+                    id="transaction_cost"
+                    v-model="form.transaction_cost"
+                    type="number"
+                    step="0.01"
+                    class="block w-full pl-12 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <!-- Transaction Code -->
+              <div>
+                <label for="transaction_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Transaction Code
+                </label>
+                <input
+                  id="transaction_code"
+                  v-model="form.transaction_code"
+                  type="text"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  :placeholder="getTransactionCodePlaceholder()"
+                />
+              </div>
+            </div>
+
+            <!-- Account Row -->
+            <div class="grid grid-cols-1 gap-6">
               <!-- Account with Autocomplete -->
               <div>
                 <label for="account" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -397,6 +460,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { debounce } from 'lodash'
 import { usePettyCashStore } from '../stores/pettyCashStore'
 import { pettyCashService } from '../services/pettyCashService'
@@ -412,6 +476,7 @@ interface Props {
   isOpen: boolean
   editMode?: boolean
   disbursement?: PettyCashDisbursement
+  requisition?: any
 }
 
 interface Emits {
@@ -438,8 +503,11 @@ const form = reactive({
   ...defaultDisbursementFormData,
   tax: '',
   date_disbursed: new Date().toISOString().split('T')[0],
-  account_id: null as number | null // Store account ID for backend
+  account_id: null as number | null, // Store account ID for backend
+  requisition_id: null as number | null
 } as any)
+
+const route = useRoute()
 
 // Form validation
 const errors = ref<Record<string, string[]>>({})
@@ -460,8 +528,8 @@ const selectedProject = ref<any>(null)
 
 // Computed properties for current balance
 const currentBalance = computed(() => {
-  // Use the actual available balance (top-ups minus disbursements)
-  const baseBalance = store.actualAvailableBalance || 0
+  // Use the actual available balance from backend (more reliable than frontend calc)
+  const baseBalance = (store.safeCurrentBalance as any).current_balance?.raw || 0
   
   // If editing, add back the original amount to show true available funds for re-allocation
   if (props.editMode && props.disbursement) {
@@ -517,9 +585,10 @@ const isFormValid = computed(() => {
          form.amount &&
          form.description &&
          form.classification &&
+         form.payment_method &&
          form.tax &&
          form.date_disbursed &&
-         currentBalance.value >= Number(form.amount) && // Ensure there's balance available
+         currentBalance.value >= (Number(form.amount) + Number(form.transaction_cost || 0)) && // Ensure there's balance available
          (!requiresProject.value || form.project_name)
 })
 
@@ -632,10 +701,12 @@ const validateForm = (): boolean => {
 
     // Validate amount
     const amount = Number(form.amount)
+    const cost = Number(form.transaction_cost || 0)
+    const total = amount + cost
     if (!form.amount || isNaN(amount) || amount <= 0) {
       errors.value.amount = ['Amount must be a positive number']
-    } else if (amount > currentBalance.value) {
-      errors.value.amount = [`Amount exceeds available balance of ${formatAmount(currentBalance.value)}`]
+    } else if (total > currentBalance.value) {
+      errors.value.amount = [`Total amount (KES ${total.toLocaleString()}) with transaction cost exceeds available balance of ${formatAmount(currentBalance.value)}`]
     }
 
     // Validate description
@@ -763,6 +834,9 @@ const loadDisbursementData = () => {
         job_number: d.job_number || '',
         date_disbursed: dateValue,
         tax: d.tax || 'etr',
+        payment_method: (d.payment_method as any)?.value || d.payment_method || 'cash',
+        transaction_cost: d.transaction_cost?.raw || d.transaction_cost || 0,
+        transaction_code: d.transaction_code || '',
         top_up_id: d.top_up_id
       })
 
@@ -800,12 +874,22 @@ const initializeModal = async () => {
     
     if (props.editMode && props.disbursement) {
       loadDisbursementData()
+    } else if (props.requisition) {
+      prefillFromRequisition(props.requisition)
     } else {
       resetForm()
+      // Pre-fill from route if coming from a requisition
+      if (route.query.action === 'new_disbursement' && route.query.requisition_id) {
+        form.requisition_id = Number(route.query.requisition_id)
+        form.amount = route.query.amount ? String(route.query.amount) : ''
+        form.receiver = route.query.receiver ? String(route.query.receiver) : ''
+        form.description = route.query.description ? String(route.query.description) : ''
+      }
     }
     
     await Promise.all([
       store.fetchAvailableTopUps(),
+      store.fetchCurrentBalance(),
       fetchProjects()
     ])
     isInitialized.value = true
@@ -852,9 +936,11 @@ const handleSubmit = async () => {
       classification: form.classification, // This needs to match backend validation
       job_number: form.job_number || '',
       date_disbursed: form.date_disbursed,
-      payment_method: 'cash', // Default payment method since we removed the field
-      transaction_code: undefined, // No transaction code needed for cash
+      payment_method: form.payment_method,
+      transaction_code: form.transaction_code,
+      transaction_cost: Number(form.transaction_cost || 0),
       tax: form.tax, // Include tax in the payload
+      requisition_id: form.requisition_id, // Add requisition_id to payload
       // Let backend auto-allocate from available top-ups if not specified
       // Or we can try to find one here if availableTopUps is loaded
       top_up_id: form.top_up_id || (store.availableTopUps.length > 0 ? store.availableTopUps[0].id : undefined)
@@ -962,6 +1048,61 @@ onMounted(async () => {
     await initializeModal()
   }
 })
+
+const prefillFromRequisition = (req: any) => {
+  if (!req) return
+  
+  console.log('🔥 Prefilling from requisition:', req)
+  
+  const receiver = req.payee 
+    ? `${req.payee.first_name} ${req.payee.last_name}`
+    : (req.payee_name || req.requester?.name || '')
+
+  // Determine classification based on project/enquiry
+  let defaultClassification = 'other'
+  let defaultProjectName = ''
+  let defaultJobNumber = ''
+  
+  if (req.project) {
+    defaultClassification = 'operations'
+    defaultProjectName = req.project.enquiry?.title || req.project.project_id || ''
+    defaultJobNumber = req.project.enquiry?.job_number || req.project.project_id || ''
+  } else if (req.enquiry) {
+    defaultClassification = 'operations'
+    defaultProjectName = req.enquiry.title || ''
+    defaultJobNumber = req.enquiry.job_number || ''
+  }
+
+  // Auto-select Petty Cash account
+  const pettyCashAccount = accounts.value.find(acc => acc.id === 12) // Petty cash account
+  if (pettyCashAccount) {
+    selectedAccount.value = pettyCashAccount
+    accountSearch.value = pettyCashAccount.name
+  }
+
+  Object.assign(form, {
+    requisition_id: req.id,
+    amount: req.total_amount,
+    receiver: receiver,
+    account: pettyCashAccount?.name || '',
+    account_id: pettyCashAccount?.id || null,
+    description: `Disbursement for ${req.requisition_number}: ${req.purpose}`,
+    classification: defaultClassification,
+    project_name: defaultProjectName,
+    job_number: defaultJobNumber,
+    tax: 'etr',
+    date_disbursed: new Date().toISOString().split('T')[0]
+  })
+}
+
+watch(() => props.requisition, (newReq) => {
+  console.log('🔥 Requisition prop changed:', newReq, 'isOpen:', props.isOpen)
+  if (newReq && props.isOpen && !props.editMode) {
+    nextTick(() => {
+      prefillFromRequisition(newReq)
+    })
+  }
+}, { deep: true, immediate: true })
 
 // Proper modal state management
 watch(() => props.isOpen, async (newValue, oldValue) => {

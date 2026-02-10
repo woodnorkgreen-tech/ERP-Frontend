@@ -240,7 +240,7 @@ export function useRouteGuard() {
 
     // Finance goes to finance dashboard
     if (userRoles.includes('Accounts') || userRoles.includes('Costing')) {
-      router.push('/finance')
+      router.push('/finance/petty-cash')
       return
     }
 
@@ -314,9 +314,7 @@ export function useRouteGuard() {
         {
           department: 'Finance',
           routes: [
-            { name: 'finance-dashboard', path: '/finance', label: 'Petty Cash Dashboard', icon: 'mdi-wallet' },
-            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' },
-            { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
+            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' }
           ]
         },
         {
@@ -340,11 +338,8 @@ export function useRouteGuard() {
             { name: 'procurement-purchase-orders', path: '/procurement/purchase-orders', label: 'Purchase Orders (LPOs)', icon: 'mdi-file-sign' },
             { name: 'procurement-goods-receipt-notes', path: '/procurement/goods-receipt-notes', label: 'Goods Receipt Notes', icon: 'mdi-clipboard-check-outline' },
             { name: 'procurement-billing', path: '/procurement/billing', label: 'Billing', icon: 'mdi-clipboard-check-outline' },
-           
-
-
           ]
-        }
+        },
       )
     }
     // Admin gets admin routes
@@ -421,9 +416,7 @@ export function useRouteGuard() {
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'finance-dashboard', path: '/finance', label: 'Finance Dashboard', icon: 'mdi-wallet' },
-        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash', icon: 'mdi-cash-multiple' },
-        { name: 'finance-petty-cash-reports', path: '/finance/petty-cash/reports', label: 'Petty Cash Reports', icon: 'mdi-file-chart' }
+        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash', icon: 'mdi-cash-multiple' }
       )
     }
 

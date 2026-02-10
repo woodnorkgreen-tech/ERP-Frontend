@@ -31,6 +31,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: false }
   },
   {
+<<<<<<< HEAD
+    path: '/pcr/confirm/:token',
+    name: 'pcr-sign-off',
+    component: () => import('../modules/finance/petty-cash/views/requisitions/PublicSignOff.vue'),
+    meta: { requiresAuth: false }
+=======
     path: '/public/job-cards',
     name: 'public-job-cards',
     component: () => import('../modules/production/views/PublicJobCardEntryView.vue'),
@@ -41,6 +47,7 @@ const routes: RouteRecordRaw[] = [
     name: 'public-job-card-by-token',
     component: () => import('../modules/production/views/PublicJobCardEntryView.vue'),
     meta: { requiresAuth: false, title: 'Daily Job Card' }
+>>>>>>> 71d5835c4acc828248cd98929f0a9dd16bde5d9a
   },
 
   ...mainRoutes,

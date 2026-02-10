@@ -39,11 +39,11 @@
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ bill.bill_number }}</p>
       </div>
       <div class="flex gap-2">
-        <button @click="handlePrint" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
+        <button @click="downloadPdf" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          Print
+          Download PDF
         </button>
         <button
           v-if="totalSelectedBalance > 0"
@@ -971,7 +971,24 @@ const loadPaymentMethods = async () => {
   }
 }
 
-const handlePrint = () => window.print()
+const downloadPdf = async () => {
+  try {
+    const response = await axios.get(`/api/procurement-stores/bills/${id}/download`, {
+      responseType: 'blob'
+    })
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `Bill-${bill.value.bill_number}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (error) {
+    console.error('Failed to download PDF:', error)
+    alert('Failed to download PDF')
+  }
+}
 
 const formatDate = (date: string) => {
   if (!date) return 'N/A'
