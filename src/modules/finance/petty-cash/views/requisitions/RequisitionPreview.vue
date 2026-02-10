@@ -60,14 +60,18 @@
           <!-- Perforated Top Edge -->
           <div class="h-3 bg-repeat-x" style="background-image: repeating-linear-gradient(90deg, #e5e7eb 0px, #e5e7eb 8px, transparent 8px, transparent 16px);"></div>
           
-          <!-- Receipt Header -->
-          <div class="px-8 pt-8 pb-4 text-center border-b-2 border-dashed border-slate-300">
-            <div class="mb-2">
-              <i class="mdi mdi-domain text-4xl text-slate-700"></i>
+          <div class="px-8 pt-8 pb-6 text-center border-b-2 border-dashed border-slate-300">
+            <div class="flex items-center justify-center gap-4 mb-4">
+              <img src="/logo-outline.png" alt="WNG" class="h-10 object-contain" />
+              <div class="h-8 w-px bg-slate-200"></div>
+              <div class="text-left">
+                <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 leading-none">Woodnork Green</h2>
+                <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">KRA PIN: P051451468C</p>
+              </div>
             </div>
             <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1 uppercase">Petty Cash Voucher</h1>
             <p class="text-xs text-slate-600 font-bold tracking-widest">{{ requisition.requisition_number }}</p>
-            <div class="mt-3">
+            <div class="mt-4">
               <span :class="getStatusClass(requisition.status)" class="inline-block px-4 py-1 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
                 {{ requisition.status }}
               </span>
@@ -129,29 +133,39 @@
                 <span>Amount</span>
               </div>
               
-              <div v-for="(item, idx) in requisition.items" :key="item.id" class="mb-2">
+              <div v-for="(item, idx) in requisition.items" :key="item.id" class="mb-4">
                 <div class="flex justify-between items-start text-xs">
-                  <div class="flex-1 pr-4">
-                    <p class="font-bold text-slate-900 leading-tight">
-                      <template v-if="item.payee || item.payee_name">
-                        {{ item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : item.payee_name }}
-                      </template>
-                      <template v-else>
-                        <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
-                        <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
-                        <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
-                      </template>
-                    </p>
-                    <p class="text-[10px] text-slate-500 mt-0.5 font-bold italic">
-                      {{ item.description }}
-                    </p>
+                  <div class="flex-grow flex items-start gap-2 pr-4">
+                    <span class="text-[10px] font-black text-slate-400 mt-0.5">{{ Number(idx) + 1 }}.</span>
+                    <div>
+                      <p class="font-black text-slate-900 leading-tight uppercase tracking-tighter">
+                        <template v-if="item.payee || item.payee_name">
+                          {{ item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : item.payee_name }}
+                        </template>
+                        <template v-else>
+                          <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
+                          <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
+                          <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
+                        </template>
+                      </p>
+                      <p class="text-[10px] text-slate-500 mt-1 font-bold italic">
+                        {{ item.description }}
+                      </p>
+                    </div>
                   </div>
-                  <div class="text-right">
-                    <span class="font-black text-slate-900 tabular-nums tracking-tighter">{{ formatReceiptAmount(item.amount) }}</span>
-                    <div v-if="item.received_at" class="text-[9px] text-emerald-600 font-bold mt-0.5">✓ RECV'D</div>
+                  <div class="flex items-center gap-4">
+                    <div class="text-right">
+                      <span class="font-black text-slate-900 tabular-nums tracking-tighter block">{{ formatReceiptAmount(item.amount) }}</span>
+                      <div v-if="item.received_at" class="text-[9px] text-emerald-600 font-black mt-0.5 tracking-tighter uppercase">✓ Confirmed</div>
+                    </div>
+                    
+                    <!-- Itemized Signature on Receipt -->
+                    <div v-if="item.digital_signature" class="shrink-0 h-10 w-24 border border-slate-200 p-0.5 bg-white flex items-center justify-center overflow-hidden">
+                       <img :src="item.digital_signature" alt="Signature" class="max-h-full max-w-full opacity-100 brightness-0" />
+                    </div>
                   </div>
                 </div>
-                <div v-if="Number(idx) < requisition.items.length - 1" class="border-b border-dotted border-slate-200 mt-2"></div>
+                <div v-if="Number(idx) < requisition.items.length - 1" class="border-b border-dotted border-slate-200 mt-4"></div>
               </div>
             </div>
 

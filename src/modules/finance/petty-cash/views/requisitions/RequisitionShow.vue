@@ -1,24 +1,36 @@
 <template>
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-full mx-auto px-4 md:px-8 space-y-6">
     <!-- Header Area -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <router-link
           to="/finance/petty-cash/requisitions"
-          class="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
+          class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
         >
           <i class="mdi mdi-arrow-left text-2xl"></i>
         </router-link>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-              {{ requisition.requisition_number || 'Loading...' }}
-            </h1>
-            <span :class="getStatusClass(requisition.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-              {{ requisition.status }}
-            </span>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <img src="/logo-outline.png" alt="WNG" class="h-6 object-contain" />
+              <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+              <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest">
+                <span class="text-slate-500 dark:text-slate-400">Woodnork Green</span>
+                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                <span class="text-slate-400 dark:text-slate-500">PIN: P051451468C</span>
+              </div>
+            </div>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
+                {{ requisition.requisition_number || 'Loading...' }}
+              </h1>
+              <span :class="getStatusClass(requisition.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                {{ requisition.status }}
+              </span>
+            </div>
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 px-1">
             Submitted on {{ formatDate(requisition.created_at) }} by {{ requisition.requester?.name }}
           </p>
         </div>
@@ -52,9 +64,9 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- Left Column: Details -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-3 space-y-6">
         <!-- Main Details Card -->
         <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 p-8 shadow-sm">
           <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
@@ -83,16 +95,26 @@
               <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ requisition.purpose }}</p>
             </div>
             <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Associated Project / Enquiry</span>
-              <span class="text-sm font-bold text-slate-900 dark:text-white">
-                <span v-if="requisition.project" class="text-blue-600 dark:text-blue-400">
-                  <i class="mdi mdi-briefcase-outline mr-1"></i> {{ requisition.project.job_number }} - {{ requisition.project.title }}
-                </span>
-                <span v-else-if="requisition.enquiry" class="text-amber-600 dark:text-amber-400">
-                  <i class="mdi mdi-file-search-outline mr-1"></i> {{ requisition.enquiry.title }} (Enquiry)
-                </span>
-                <span v-else class="text-slate-400 italic">None (General)</span>
-              </span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Project / Enquiry Reference</span>
+              <div v-if="requisition.project" class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Project Code</p>
+                <p class="text-sm font-black text-slate-900 dark:text-white uppercase leading-tight">
+                  {{ requisition.project.job_number || requisition.project.project_id }}
+                </p>
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                   {{ requisition.project.enquiry?.title || requisition.project.title }}
+                </p>
+              </div>
+              <div v-else-if="requisition.enquiry" class="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-100 dark:border-amber-800/50">
+                <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">Enquiry Reference</p>
+                <p class="text-sm font-black text-slate-900 dark:text-white uppercase leading-tight">
+                  {{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}
+                </p>
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                   {{ requisition.enquiry.title }}
+                </p>
+              </div>
+              <span v-else class="text-slate-400 italic text-sm">None (General Expense)</span>
             </div>
           </div>
 
@@ -104,35 +126,40 @@
               {{ isBulkPayee ? 'Payees & Distributions' : 'Breakdown of Items' }}
             </h3>
             <div class="space-y-4">
-              <div v-for="item in requisition.items" :key="item.id" class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+              <div v-for="(item, index) in requisition.items" :key="item.id" class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700/50">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div class="flex-grow">
-                    <span class="block text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                      <template v-if="item.payee || item.payee_name">
-                        {{ item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : item.payee_name }}
-                      </template>
-                      <template v-else>
-                        <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
-                        <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
-                        <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
-                      </template>
-                    </span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block">{{ item.description }}</span>
-                  </div>
-                  <div class="text-right">
-                    <span class="text-lg font-black text-slate-900 dark:text-white">{{ formatCurrency(item.amount) }}</span>
-                    
-                    <!-- Confirmation Status -->
-                    <div v-if="item.received_at" class="flex items-center gap-1 justify-end text-emerald-500 mt-1">
-                      <i class="mdi mdi-check-decagram text-sm"></i>
-                      <span class="text-[10px] font-black uppercase tracking-widest">Received {{ formatDate(item.received_at) }}</span>
+                  <div class="flex-grow flex items-start gap-3">
+                    <span class="text-xs font-black text-slate-300 dark:text-slate-600 mt-0.5">{{ Number(index) + 1 }}.</span>
+                    <div>
+                      <span class="block text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                        <template v-if="item.payee || item.payee_name">
+                          {{ item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : item.payee_name }}
+                        </template>
+                        <template v-else>
+                          <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
+                          <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
+                          <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
+                        </template>
+                      </span>
+                      <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block">{{ item.description }}</span>
                     </div>
                   </div>
-                </div>
+                  <div class="flex items-center gap-6">
+                    <div class="text-right">
+                      <span class="text-lg font-black text-slate-900 dark:text-white block">{{ formatCurrency(item.amount) }}</span>
+                      
+                      <!-- Confirmation Status -->
+                      <div v-if="item.received_at" class="flex items-center gap-1 justify-end text-emerald-500 mt-1">
+                        <i class="mdi mdi-check-decagram text-sm"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Received</span>
+                      </div>
+                    </div>
 
-                <!-- Signature Display -->
-                <div v-if="item.digital_signature" class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
-                   <img :src="item.digital_signature" alt="Signature" class="max-h-12 opacity-80" />
+                    <!-- Signature Display Next to Amount -->
+                    <div v-if="item.digital_signature" class="shrink-0 h-14 w-32 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 flex items-center justify-center p-1 shadow-sm overflow-hidden">
+                       <img :src="item.digital_signature" alt="Signature" class="max-h-full max-w-full opacity-100 dark:brightness-110 dark:invert" />
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Sign Action / Canvas -->
@@ -258,8 +285,8 @@
         <!-- Digital Signature Display -->
         <div v-if="requisition.digital_signature" class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 p-6 shadow-sm">
           <h3 class="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white mb-4">Recipient Signature</h3>
-          <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
-            <img :src="requisition.digital_signature" alt="Signature" class="max-h-24 mx-auto" />
+          <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+            <img :src="requisition.digital_signature" alt="Signature" class="max-h-24 mx-auto opacity-100 dark:brightness-110 dark:invert" />
           </div>
         </div>
 
