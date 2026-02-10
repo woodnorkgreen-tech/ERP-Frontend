@@ -87,8 +87,11 @@
           View Bill
         </router-link>
 
-        <button @click="handlePrint" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-          Print
+        <button @click="downloadPdf" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Download PDF
         </button>
 
         <router-link
@@ -273,7 +276,24 @@ const approvePO = async () => {
   }
 }
 
-const handlePrint = () => window.print()
+const downloadPdf = async () => {
+  try {
+    const response = await axios.get(`/api/procurement-stores/purchase-orders/${id}/download`, {
+      responseType: 'blob'
+    })
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `LPO-${purchaseOrder.value.po_number}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (error) {
+    console.error('Failed to download PDF:', error)
+    alert('Failed to download PDF')
+  }
+}
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
 const formatNumber = (num: number) => new Intl.NumberFormat().format(num)
 const formatStatus = (status: string) => status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')

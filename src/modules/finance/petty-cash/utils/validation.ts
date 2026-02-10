@@ -705,7 +705,7 @@ export const validateApiResponseData = <T>(
 
 // Batch validation for arrays
 export const validateArrayData = <T>(
-    dataArray: unknown[],
+    dataArray: ReadonlyArray<unknown>,
     validator: (data: unknown) => ValidationResult<T>
 ): { validItems: T[], invalidItems: unknown[], errors: Record<string, string[]> } => {
     const validItems: T[] = []

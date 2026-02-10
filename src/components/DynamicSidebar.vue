@@ -30,6 +30,57 @@
 
     <!-- Navigation Area -->
     <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 custom-scrollbar relative z-10">
+      <!-- Self Service Group (Strategic Entry Point) -->
+      <div class="mb-8">
+        <div 
+          v-if="!collapsed" 
+          class="flex items-center gap-3 px-5 mb-4 transition-opacity duration-300"
+          :class="collapsed ? 'opacity-0' : 'opacity-100'"
+        >
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500 whitespace-nowrap drop-shadow-sm">
+            Self Service
+          </span>
+          <div class="h-[1px] w-full bg-slate-100 dark:bg-slate-800/80"></div>
+        </div>
+
+        <div class="space-y-1.5 px-1">
+          <RouterLink
+            to="/finance/petty-cash/requisitions"
+            :class="[
+              'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+              route.path.startsWith('/finance/petty-cash/requisitions')
+                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
+                : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
+            ]"
+            :title="collapsed ? 'Petty Cash Requisition' : ''"
+          >
+            <!-- Active Indicator Bar -->
+            <div 
+              class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+              :class="route.path.startsWith('/finance/petty-cash/requisitions') ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+            ></div>
+
+            <!-- Icon Wrapper -->
+            <div class="w-14 flex items-center justify-center shrink-0">
+              <i 
+                :class="[
+                  'mdi mdi-cash-plus text-2xl transition-all duration-300 drop-shadow-md',
+                  route.path.startsWith('/finance/petty-cash/requisitions') ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                ]"
+              ></i>
+            </div>
+
+            <!-- Label -->
+            <span 
+              class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
+              :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+            >
+              Petty Cash
+            </span>
+          </RouterLink>
+        </div>
+      </div>
+
       <div v-for="group in navigationItems" :key="group.department" class="mb-8 last:mb-2">
         <!-- Group Header -->
         <div 

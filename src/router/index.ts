@@ -30,6 +30,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/public/ClientHandoverView.vue'),
     meta: { requiresAuth: false }
   },
+  {
+    path: '/pcr/confirm/:token',
+    name: 'pcr-sign-off',
+    component: () => import('../modules/finance/petty-cash/views/requisitions/PublicSignOff.vue'),
+    meta: { requiresAuth: false }
+  },
 
   ...mainRoutes,
   ...adminRoutes,

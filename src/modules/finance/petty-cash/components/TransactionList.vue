@@ -1,22 +1,23 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+  <div class="h-full flex flex-col">
     <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+    <div class="px-6 py-5 border-b border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/50">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <i class="mdi mdi-history text-slate-400"></i>
           Transaction History
         </h3>
-        <div class="mt-3 sm:mt-0 flex space-x-3">
+        <div class="flex flex-wrap items-center gap-3">
           <!-- Search -->
-          <div class="relative">
+          <div class="relative group">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Search transactions..."
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              class="block w-64 pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700/60 rounded-xl leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
             />
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
@@ -25,16 +26,19 @@
           <!-- Filters Toggle -->
           <button
             @click="showFilters = !showFilters"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            :class="[
+              'inline-flex items-center px-4 py-2 border rounded-xl text-sm font-bold transition-all shadow-sm',
+              showFilters 
+                ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+            ]"
           >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z"></path>
-            </svg>
+            <i class="mdi mdi-filter-variant mr-2 text-lg"></i>
             Filters
           </button>
 
-          <!-- Bulk Actions Button (New) -->
-          <div v-if="selectedIds.length > 0" class="flex items-center space-x-2 animate-fade-in">
+          <!-- Bulk Actions Button -->
+          <div v-if="selectedIds.length > 0" class="flex items-center space-x-2 animate-fade-in bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 shadow-sm">
             <button
               @click="confirmBulkDelete"
               class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
@@ -263,11 +267,32 @@
                   <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">
                     {{ transaction.type === 'top_up' ? 'Wallet Top-up' : (transaction.receiver || 'General Disbursement') }}
                   </span>
+                  <!-- Receipt Status Badges -->
+                  <span 
+                    v-if="transaction.received_at" 
+                    class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    title="Recipient has confirmed receipt"
+                  >
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Received
+                  </span>
+                  <span 
+                    v-else-if="transaction.requisition_id && !transaction.received_at" 
+                    class="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                    title="Waiting for recipient confirmation"
+                  >
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Pending Receipt
+                  </span>
                 </div>
                 <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-1 italic mb-1">
                   "{{ transaction.description }}"
                 </p>
                 <div class="flex flex-wrap gap-2 items-center mt-1">
+                  <span v-if="transaction.transaction_code" class="inline-flex items-center text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded" title="Transaction Code">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 7h.01M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
+                    {{ transaction.transaction_code }}
+                  </span>
                   <span v-if="transaction.account" class="inline-flex items-center text-[10px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                     {{ transaction.account }}
@@ -311,6 +336,13 @@
                   :class="transaction.type === 'top_up' ? 'text-green-600 dark:text-green-400' : getDisbursementAmountColor(transaction.status?.value)"
                 >
                   {{ transaction.type === 'top_up' ? '+' : '-' }}{{ transaction.amount.formatted.replace('KES ', '') }}
+                </span>
+                
+                <span 
+                  v-if="transaction.type === 'disbursement' && transaction.transaction_cost && transaction.transaction_cost.raw > 0"
+                  class="text-[10px] text-gray-500 dark:text-gray-400 mt-1"
+                >
+                  Cost: KES {{ transaction.transaction_cost.formatted.replace('KES ', '') }}
                 </span>
                 
                 <!-- Previous Balance for Top-ups -->

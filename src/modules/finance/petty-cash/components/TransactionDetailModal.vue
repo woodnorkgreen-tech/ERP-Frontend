@@ -171,6 +171,46 @@
           </div>
         </div>
 
+        <!-- Receipt Confirmation -->
+        <div v-if="transaction.type === 'disbursement'" class="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
+            Receipt Confirmation
+          </label>
+          
+          <div v-if="transaction.received_at" class="bg-green-50 dark:bg-green-900/10 rounded-lg p-4 border border-green-100 dark:border-green-900/30">
+            <div class="flex items-center text-green-700 dark:text-green-400 font-medium mb-3">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Confirmed on {{ formatDate(transaction.received_at) }}
+            </div>
+            
+            <div v-if="transaction.signature" class="bg-white dark:bg-white/5 p-3 rounded border border-gray-200 dark:border-gray-600/50 inline-block">
+              <label class="text-[10px] uppercase tracking-widest text-gray-400 block mb-2">Signature</label>
+              <img :src="transaction.signature" alt="Digital Signature" class="max-h-16 opacity-90" />
+            </div>
+          </div>
+          
+          <div v-else-if="transaction.requisition_id" class="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-4 border border-amber-100 dark:border-amber-900/30">
+            <div class="flex items-center text-amber-700 dark:text-amber-400 font-medium">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path></svg>
+              Pending Confirmation
+            </div>
+            <p class="text-xs text-amber-600 dark:text-amber-500 mt-1 ml-7">
+              The recipient has not yet signed for this disbursement.
+            </p>
+          </div>
+          
+          <!-- Requisition Link -->
+          <div v-if="transaction.requisition_id" class="mt-2">
+            <router-link 
+              :to="`/finance/petty-cash/requisitions/${transaction.requisition_id}`"
+              class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              View Linked Requisition
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </router-link>
+          </div>
+        </div>
+        
         <!-- Audit Trail -->
         <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
           <div class="flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">

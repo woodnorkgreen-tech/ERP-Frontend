@@ -115,6 +115,7 @@ export interface PettyCashDisbursement {
   readonly receiver: string
   readonly account: string
   readonly amount: AmountData
+  readonly transaction_cost?: AmountData | null
   readonly description: string
   readonly project_name?: NullableString
   readonly classification: ClassificationData

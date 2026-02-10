@@ -6,129 +6,62 @@
     @retry="handleRetry"
     @reset="handleReset"
   >
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-
-      
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="space-y-8">
-          <!-- Page Header -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                Petty Cash Management
-              </h1>
-              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Monitor balances, manage transactions, and track petty cash disbursements
-              </p>
-            </div>
-            <div class="mt-4 sm:mt-0 flex space-x-3">
-              <!-- Permission-based action buttons -->
-              <button
-                v-if="permissions.canCreateTopUp"
-                @click="openTopUpModal"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Add Top-up
-              </button>
-              <button
-                v-if="permissions.canCreateDisbursement"
-                @click="openDisbursementModal"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z"></path>
-                </svg>
-                New Disbursement
-              </button>
-              <button
-                v-if="permissions.canUploadExcel"
-                @click="openUploadModal"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                </svg>
-                Upload Excel
-              </button>
-              <button
-                v-if="permissions.canView"
-                @click="handleRefreshAll"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg v-if="isRefreshing" class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <svg v-else class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                {{ isRefreshing ? 'Refreshing...' : 'Refresh All' }}
-              </button>
-              
-              <!-- Recalculate Balance Button -->
-              <button
-                v-if="permissions.canAdmin"
-                @click="handleRecalculate"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-blue-300 dark:border-blue-900/50 rounded-md shadow-sm text-sm font-medium text-blue-700 dark:text-blue-400 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-                title="Sync balance with transactions"
-              >
-                <svg class="-ml-1 mr-2 h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>
-                Recalculate
-              </button>
-
-              <!-- Clear All Button (New) -->
-              <button
-                v-if="permissions.canManageSettings"
-                @click="handleClearAll"
-                :disabled="isRefreshing"
-                class="inline-flex items-center px-4 py-2 border border-red-300 dark:border-red-900/50 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
-                title="Reset all petty cash data"
-              >
-                <svg class="-ml-1 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                Clear All
-              </button>
-
-              <!-- Download Voucher Button -->
-              <button
-                v-if="permissions.canView"
-                @click="handlePrintVoucher"
-                :disabled="isRefreshing || store.loading.voucher"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-                title="Download standardized petty cash voucher as PDF"
-              >
-                <svg v-if="store.loading.voucher" class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <svg v-else class="-ml-1 mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
-                </svg>
-                {{ store.loading.voucher ? 'Preparing...' : 'Download Voucher' }}
-              </button>
-            </div>
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans pb-12">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Dashboard Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Petty Cash Management
+            </h1>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+              {{ activeDashboardTab === 'overview' ? 'Overview of financial status and transactions' : 'Manage and track petty cash requests' }}
+            </p>
           </div>
+          
+          <!-- System Status / Last Updated -->
+          <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700/60 shadow-sm">
+             <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+             <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+               System Active
+             </span>
+             <span class="text-slate-300 dark:text-slate-600">|</span>
+             <button @click="handleRefreshAll" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1">
+               <span v-if="isRefreshing" class="animate-spin">⟳</span>
+               <span v-else>Refresh Data</span>
+             </button>
+          </div>
+        </div>
 
-        <!-- Dashboard Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Balance Card with Error Boundary -->
-          <div class="lg:col-span-1">
+        <!-- Main Navigation Tabs -->
+        <div class="flex items-center gap-2 p-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-700/60 w-fit">
+          <button 
+            v-for="tab in dashboardTabs" 
+            :key="tab.id"
+            @click="activeDashboardTab = tab.id"
+            class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all transition-all duration-300"
+            :class="activeDashboardTab === tab.id 
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-lg shadow-slate-900/20 scale-105' 
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/50'"
+          >
+             <i class="mdi mr-2" :class="activeDashboardTab === tab.id ? tab.activeIcon : tab.icon"></i>
+             {{ tab.name }}
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div v-show="activeDashboardTab === 'overview'" class="space-y-8 animate-in fade-in duration-500">
+          <!-- Metric & Action Grid -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          
+          <!-- Left Col: Balance & Primary Actions (4 cols) -->
+          <div class="xl:col-span-4 flex flex-col gap-4">
+            <!-- Balance Card -->
             <ErrorBoundary 
               type="component" 
               :can-retry="true"
-              title="Balance Card Error"
-              message="Unable to load balance information"
+              title="Balance Error"
               @retry="handleBalanceRetry"
             >
               <BalanceCard 
@@ -141,140 +74,156 @@
                 @retry="handleBalanceRetry"
               />
             </ErrorBoundary>
+
+            <!-- Primary Actions -->
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                v-if="permissions.canCreateDisbursement"
+                @click="openDisbursementModal"
+                :disabled="isRefreshing"
+                class="flex flex-col items-center justify-center p-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5"
+              >
+                <i class="mdi mdi-cash-fast text-2xl mb-1"></i>
+                <span class="text-xs font-black uppercase tracking-wider">New Payout</span>
+              </button>
+              
+              <button
+                v-if="permissions.canCreateTopUp"
+                @click="openTopUpModal"
+                :disabled="isRefreshing"
+                class="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-lg shadow-slate-900/20 transition-all hover:-translate-y-0.5"
+              >
+                <i class="mdi mdi-wallet-plus text-2xl mb-1"></i>
+                <span class="text-xs font-black uppercase tracking-wider">Add Top-up</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Summary Cards with Error Boundary -->
-          <div class="lg:col-span-2">
-            <ErrorBoundary 
-              type="component" 
-              :can-retry="true"
-              title="Summary Cards Error"
-              message="Unable to load summary information"
-              @retry="handleSummaryRetry"
-            >
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Total Top-ups -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                  <div class="p-5">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                            Total Top-ups
-                          </dt>
-                          <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ safeSummary?.total_top_ups ? formatAmount(safeSummary.total_top_ups) : formatAmount(store.totalTopUpAmount) }}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
+          <!-- Right Col: Conslidated Stats & Tools (8 cols) -->
+          <div class="xl:col-span-8 flex flex-col gap-6">
+            
+            <!-- Stats Grid -->
+            <ErrorBoundary type="component" :can-retry="true" @retry="handleSummaryRetry">
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Stat: Total Top-ups -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm relative overflow-hidden group">
+                   <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <i class="mdi mdi-arrow-up-bold-circle text-4xl text-emerald-500"></i>
+                   </div>
+                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total In</p>
+                   <p class="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                     {{ safeSummary?.total_top_ups ? formatAmount(safeSummary.total_top_ups) : formatAmount(store.totalTopUpAmount) }}
+                   </p>
                 </div>
 
-                <!-- Total Disbursements -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                  <div class="p-5">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                            Total Disbursements
-                          </dt>
-                          <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ safeSummary?.total_disbursements ? formatAmount(safeSummary.total_disbursements) : formatAmount(store.totalDisbursementAmount) }}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
+                <!-- Stat: Total Disbursements -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm relative overflow-hidden group">
+                   <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <i class="mdi mdi-arrow-down-bold-circle text-4xl text-rose-500"></i>
+                   </div>
+                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Out</p>
+                   <p class="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                     {{ safeSummary?.total_disbursements ? formatAmount(safeSummary.total_disbursements) : formatAmount(store.totalDisbursementAmount) }}
+                   </p>
                 </div>
 
-                <!-- Transaction Count -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                  <div class="p-5">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                            Total Transactions
-                          </dt>
-                          <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ totalTransactions }}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
+                <!-- Stat: Transactions -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm relative overflow-hidden group">
+                   <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <i class="mdi mdi-swap-horizontal-bold text-4xl text-blue-500"></i>
+                   </div>
+                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Transactions</p>
+                   <p class="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                     {{ totalTransactions }}
+                   </p>
                 </div>
 
-                <!-- Average Disbursement -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                  <div class="p-5">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                            Avg. Disbursement
-                          </dt>
-                          <dd class="text-lg font-medium text-gray-900 dark:text-white">
-                            {{ safeSummary?.average_disbursement ? formatAmount(safeSummary.average_disbursement) : 'KES 0.00' }}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
+                <!-- Stat: Avg Disbursement -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm relative overflow-hidden group">
+                   <div class="absolute right-0 top-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <i class="mdi mdi-chart-line text-4xl text-purple-500"></i>
+                   </div>
+                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Avg Payout</p>
+                   <p class="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                     {{ safeSummary?.average_disbursement ? formatAmount(safeSummary.average_disbursement) : 'KES 0.00' }}
+                   </p>
                 </div>
               </div>
             </ErrorBoundary>
+
+            <!-- Tools Bar -->
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex flex-wrap items-center justify-between gap-4">
+               <div class="flex items-center gap-3 overflow-x-auto no-scrollbar">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2 shrink-0">Tools</span>
+                  <div class="h-6 w-px bg-slate-100 dark:bg-slate-700 shrink-0"></div>
+                  
+                  <button
+                    v-if="permissions.canUploadExcel"
+                    @click="openUploadModal"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap"
+                  >
+                    <i class="mdi mdi-microsoft-excel text-green-600"></i>
+                    Details Upload
+                  </button>
+
+                  <button
+                    v-if="permissions.canView"
+                    @click="handlePrintVoucher"
+                    :disabled="store.loading.voucher"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap"
+                  >
+                    <i class="mdi mdi-file-pdf-box text-red-500"></i>
+                    {{ store.loading.voucher ? 'Generating...' : 'Report Voucher' }}
+                  </button>
+               </div>
+               
+               <!-- Admin Tools -->
+               <div class="flex items-center gap-2 shrink-0">
+                  <button
+                    v-if="permissions.canAdmin"
+                    @click="handleRecalculate"
+                    class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    title="Audit & Recalculate Balance"
+                  >
+                    <i class="mdi mdi-calculator-variant text-lg"></i>
+                  </button>
+                  <button
+                    v-if="permissions.canManageSettings"
+                    @click="handleClearAll"
+                    class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    title="Reset System Data"
+                  >
+                    <i class="mdi mdi-database-remove text-lg"></i>
+                  </button>
+               </div>
+            </div>
+
           </div>
         </div>
 
-
-
-        <!-- Transaction List with Error Boundary -->
+        <!-- Transaction History List -->
         <ErrorBoundary 
           type="component" 
           :can-retry="true"
           title="Transaction List Error"
-          message="Unable to load transaction list"
           @retry="handleTransactionListRetry"
         >
-          <TransactionList 
-            @view-transaction="viewTransaction"
-            @edit-disbursement="editDisbursement"
-            @void-disbursement="voidDisbursement"
-            @delete-disbursement="deleteDisbursement"
-          />
-        </ErrorBoundary>
+          <div class="bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-200/60 dark:border-slate-700/60 shadow-sm overflow-hidden">
+            <TransactionList 
+              @view-transaction="viewTransaction"
+              @edit-disbursement="editDisbursement"
+              @void-disbursement="voidDisbursement"
+              @delete-disbursement="deleteDisbursement"
+            />
+          </div>
+          </ErrorBoundary>
         </div>
+
+        <!-- Requisitions Tab Content -->
+        <div v-show="activeDashboardTab === 'requisitions'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <RequisitionIndex :is-embedded="true" />
+        </div>
+
       </div>
     </div>
 
@@ -465,15 +414,12 @@
       :transaction="selectedTransaction"
       @close="closeDetailModal"
     />
-
-      :transaction="selectedTransaction"
-      @close="closeDetailModal"
-    />
   </ErrorBoundary>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, nextTick, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { usePettyCashStore } from '../stores/pettyCashStore'
 import { usePermissions } from '../composables/usePermissions'
 import { useErrorHandler } from '../composables/useErrorHandler'
@@ -485,10 +431,19 @@ import TopUpForm from '../components/TopUpForm.vue'
 import DisbursementForm from '../components/DisbursementForm.vue'
 import ExcelUploadModal from '../components/ExcelUploadModal.vue'
 import TransactionDetailModal from '../components/TransactionDetailModal.vue'
+import RequisitionIndex from './requisitions/RequisitionIndex.vue'
 import ErrorBoundary from '../components/ErrorBoundary.vue'
+
+const activeDashboardTab = ref('overview')
+const dashboardTabs = [
+  { id: 'overview', name: 'Financial Overview', icon: 'mdi-view-dashboard-outline', activeIcon: 'mdi-view-dashboard' },
+  { id: 'requisitions', name: 'Requisitions', icon: 'mdi-clipboard-list-outline', activeIcon: 'mdi-clipboard-list' }
+]
 
 
 const store = usePettyCashStore()
+const route = useRoute()
+const router = useRouter()
 const permissions = usePermissions()
 const { handleError, clearError, withErrorHandling } = useErrorHandler()
 
@@ -602,6 +557,32 @@ const modalStates = computed(() => {
     void: showVoidModal.value
   }
 })
+
+// Watch for query parameters to initiate disbursement from requisition
+watch(() => route.query, async (newQuery) => {
+  if (newQuery.action === 'new_disbursement' && newQuery.requisition_id) {
+    console.log('🚀 Initiating disbursement from requisition:', newQuery.requisition_id)
+    
+    // Clear the query params after reading them so they don't stick around
+    const cleanQuery = { ...route.query }
+    delete cleanQuery.action
+    delete cleanQuery.requisition_id
+    delete cleanQuery.amount
+    delete cleanQuery.receiver
+    delete cleanQuery.description
+    
+    router.replace({ query: cleanQuery })
+    
+    // Open modal
+    await openDisbursementModal()
+    
+    // We'll use a globally accessible ref or event to pass this to the form
+    // Since we're in the same component, we can wait for form to mount or use a store
+    nextTick(() => {
+      // Logic handled in DisbursementForm.vue via shared state or props
+    })
+  }
+}, { immediate: true })
 
 // Watch modal states for debugging (disabled in production)
 // watch(modalStates, (newStates) => {
