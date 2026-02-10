@@ -81,30 +81,30 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/procurement/Dashboard.vue'),
                         meta: { requiresAuth: true, title: 'Procurement Dashboard' }
                     },
-                  {
-    path: 'goods-receipt-notes',
-    name: 'procurement-goods-receipt-notes',
-    component: () => import('./views/procurement/GoodsReceiptNoteIndex.vue'),
-    meta: { requiresAuth: true, title: 'Goods Receipt Notes' }
-},
-{
-    path: 'goods-receipt-notes/create',  
-    name: 'procurement-grn-create',
-    component: () => import('./views/procurement/GoodsReceiptNoteCreate.vue'),
-    meta: { requiresAuth: true, title: 'Create Goods Receipt Note' }
-},
-{
-    path: 'goods-receipt-notes/:id',  
-    name: 'procurement-grn-show',
-    component: () => import('./views/procurement/GoodsReceiptNoteShow.vue'),
-    meta: { requiresAuth: true, title: 'GRN Details' }
-},
-{
-    path: 'goods-receipt-notes/:id/edit',  
-    name: 'procurement-grn-edit',
-    component: () => import('./views/procurement/GoodsReceiptNoteEdit.vue'),
-    meta: { requiresAuth: true, title: 'Edit Goods Receipt Note' }
-},     {
+                    {
+                        path: 'goods-receipt-notes',
+                        name: 'procurement-goods-receipt-notes',
+                        component: () => import('./views/procurement/GoodsReceiptNoteIndex.vue'),
+                        meta: { requiresAuth: true, title: 'Goods Receipt Notes' }
+                    },
+                    {
+                        path: 'goods-receipt-notes/create',
+                        name: 'procurement-grn-create',
+                        component: () => import('./views/procurement/GoodsReceiptNoteCreate.vue'),
+                        meta: { requiresAuth: true, title: 'Create Goods Receipt Note' }
+                    },
+                    {
+                        path: 'goods-receipt-notes/:id',
+                        name: 'procurement-grn-show',
+                        component: () => import('./views/procurement/GoodsReceiptNoteShow.vue'),
+                        meta: { requiresAuth: true, title: 'GRN Details' }
+                    },
+                    {
+                        path: 'goods-receipt-notes/:id/edit',
+                        name: 'procurement-grn-edit',
+                        component: () => import('./views/procurement/GoodsReceiptNoteEdit.vue'),
+                        meta: { requiresAuth: true, title: 'Edit Goods Receipt Note' }
+                    }, {
                         path: 'suppliers',
                         name: 'procurement-suppliers',
                         component: () => import('./views/procurement/SupplierIndex.vue'),
@@ -170,15 +170,7 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('./views/procurement/PurchaseOrderShow.vue'),
                         meta: { requiresAuth: true, title: 'Purchase Order Details' }
                     },
-                    {
-  path: "/verify-po/:serial",
-  name: "VerifyPO",
-  component: () => import("./views/procurement//VerifyPO.vue"),  // ✅ CORRECT (relative path)
-  meta: {
-    title: "Verify Purchase Order",
-    requiresAuth: false  // Allow public access
-  }
-},
+
                     {
                         path: 'purchase-order/:id/edit',
                         name: 'procurement-purchase-order-edit',
@@ -209,7 +201,7 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         component: () => import('@/modules/procurement-stores/views/procurement/PurchaseOrderCreate.vue'),
                         meta: { requiresAuth: true }
                     }
-                    
+
                 ]
             }
         ]

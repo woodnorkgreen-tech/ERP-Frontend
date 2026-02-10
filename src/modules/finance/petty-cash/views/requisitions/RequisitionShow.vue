@@ -798,7 +798,8 @@ const balanceStatusLabel = computed(() => {
 
 const publicSignOffUrl = computed(() => {
   if (!requisition.value?.signing_token) return ''
-  return `${window.location.origin}/pcr/confirm/${requisition.value.signing_token}`
+  const appUrl = (import.meta as any).env.VITE_APP_URL || window.location.origin
+  return `${appUrl}/pcr/confirm/${requisition.value.signing_token}`
 })
 
 const filteredAccounts = computed(() => {

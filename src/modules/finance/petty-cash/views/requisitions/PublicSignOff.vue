@@ -111,7 +111,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios' // Using generic axios for non-auth requests
+import axios from '@/plugins/axios' // Use configured axios plugin
 
 const route = useRoute()
 const token = route.params.token as string
