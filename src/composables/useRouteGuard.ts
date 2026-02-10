@@ -416,7 +416,7 @@ export function useRouteGuard() {
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash', icon: 'mdi-cash-multiple' }
+        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Requisition', icon: 'mdi-cash-multiple' }
       )
     }
 

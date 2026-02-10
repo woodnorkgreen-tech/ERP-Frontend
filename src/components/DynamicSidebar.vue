@@ -75,7 +75,7 @@
               class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
               :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
             >
-              Petty Cash
+              Petty Cash Requisition
             </span>
           </RouterLink>
         </div>
