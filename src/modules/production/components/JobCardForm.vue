@@ -29,7 +29,7 @@
                 v-model="employeeSearch"
                 type="text"
                 :required="!props.readOnly"
-                :readonly="props.readOnly"
+                :readonly="props.readOnly || props.lockWorker"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Type to search employees..."
                 @input="(e: Event) => { const target = e.target as HTMLInputElement; console.log('Input event fired, value:', target.value); searchEmployees(target.value); }"
@@ -88,7 +88,7 @@
               v-model="form.date"
               type="date"
               :required="!props.readOnly"
-              :readonly="props.readOnly"
+              :readonly="props.readOnly || props.lockDate"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -523,12 +523,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { jobCardsService } from '../services/jobCards'
+import { publicJobCardsService } from '../services/publicJobCards'
 import { workOrderService } from '../services/workOrderService'
 
 interface Props {
-  jobCard?: any
-  readOnly?: boolean
-}
+    jobCard?: any
+    readOnly?: boolean
+    publicMode?: boolean
+    publicToken?: string
+    lockWorker?: boolean
+    lockDate?: boolean
+  }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
@@ -918,7 +923,16 @@ const handleSubmit = async () => {
         }))
       }
       console.log('Update data:', JSON.stringify(updateData, null, 2))
-      response = await jobCardsService.updateJobCard(props.jobCard.id, updateData)
+      if (props.publicMode) {
+        const token = props.publicToken || props.jobCard?.public_token
+        if (!token) {
+          alert('Missing public job card token.')
+          return
+        }
+        response = await publicJobCardsService.updateJobCardByToken(token, updateData)
+      } else {
+        response = await jobCardsService.updateJobCard(props.jobCard.id, updateData)
+      }
     } else {
       // Helper function to format time for backend (H:i format)
       const formatTimeForBackend = (timeStr: string): string => {
@@ -971,7 +985,7 @@ const handleSubmit = async () => {
         isClockOutNextDay = clockOut < clockIn
       }
       
-      response = await jobCardsService.createJobCard({
+      const createPayload = {
         worker_id: Number(form.value.worker_id),
         date: form.value.date,
         clock_in_time: formatTimeForBackend(form.value.clock_in_time),
@@ -1000,7 +1014,13 @@ const handleSubmit = async () => {
           resolution: issue.resolution,
           status: issue.status
         }))
-      })
+      }
+
+      if (props.publicMode) {
+        response = await publicJobCardsService.createJobCard(createPayload)
+      } else {
+        response = await jobCardsService.createJobCard(createPayload)
+      }
     }
 
     console.log('API Response:', response)
@@ -1107,7 +1127,9 @@ const searchEmployees = async (query: string) => {
   }
 
   try {
-    const response = await jobCardsService.getTechnicians()
+    const response = props.publicMode
+      ? await publicJobCardsService.getTechnicians()
+      : await jobCardsService.getTechnicians()
     console.log('Response data:', response)
     if (response.success) {
       // Filter technicians based on search query
