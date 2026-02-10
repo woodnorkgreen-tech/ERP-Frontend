@@ -171,6 +171,15 @@ export const procurementStoresRoutes: RouteRecordRaw[] = [
                         meta: { requiresAuth: true, title: 'Purchase Order Details' }
                     },
                     {
+  path: "/verify-po/:serial",
+  name: "VerifyPO",
+  component: () => import("./views/procurement//VerifyPO.vue"),  // ✅ CORRECT (relative path)
+  meta: {
+    title: "Verify Purchase Order",
+    requiresAuth: false  // Allow public access
+  }
+},
+                    {
                         path: 'purchase-order/:id/edit',
                         name: 'procurement-purchase-order-edit',
                         component: () => import('./views/procurement/PurchaseOrderEdit.vue'),
