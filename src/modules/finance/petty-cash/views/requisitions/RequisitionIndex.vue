@@ -235,18 +235,27 @@
               >
                 {{ req.purpose }}
               </h4>
-              <div v-if="req.project || req.enquiry" class="flex items-center gap-1.5">
+              <div v-if="req.project || req.enquiry || req.project_name || req.venue" class="flex items-center gap-1.5">
                 <i class="mdi mdi-folder-network text-[10px] text-slate-400"></i>
                 <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
                   <template v-if="req.project">
-                    <span class="font-mono font-bold text-slate-400 mr-1">{{ req.project.project_id }}</span>
+                    <span class="font-mono font-bold text-slate-400 mr-1">{{ req.project.project_id || req.project.job_number }}</span>
                     {{ req.project.enquiry?.title || 'Untitled Project' }}
                   </template>
                   <template v-else-if="req.enquiry">
                     <span class="font-mono font-bold text-slate-400 mr-1">ENQ</span>
                     {{ req.enquiry.title }}
                   </template>
+                  <template v-else-if="req.project_name">
+                    <span class="font-mono font-bold text-slate-400 mr-1">MNL</span>
+                    {{ req.project_name }}
+                  </template>
+                  <template v-else-if="req.venue">General - {{ req.venue }}</template>
                   <template v-else>General Expense</template>
+                </span>
+                <span v-if="(req.project || req.project_name) && req.venue" class="text-[10px] text-slate-400">•</span>
+                <span v-if="(req.project || req.project_name) && req.venue" class="text-[10px] text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-900/20 px-1 py-px rounded">
+                  <i class="mdi mdi-map-marker text-[8px] mr-1"></i>{{ req.venue }}
                 </span>
               </div>
             </div>

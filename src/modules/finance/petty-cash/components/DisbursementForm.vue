@@ -341,6 +341,23 @@
                   Project name is required for selected classification
                 </p>
               </div>
+
+              <!-- Venue / Location -->
+              <div>
+                <label for="venue" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Venue / Site Location
+                </label>
+                <input
+                  id="venue"
+                  v-model="form.venue"
+                  type="text"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="E.g., Westlands Site, Factory Floor..."
+                />
+                <p v-if="errors.venue" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ errors.venue[0] }}
+                </p>
+              </div>
             </div>
 
             <!-- Tax Field and Job Number Row -->

@@ -250,6 +250,7 @@ export const defaultDisbursementFormData: CreateDisbursementFormData = {
   amount: '',
   description: '',
   project_name: '',
+  venue: '',
   classification: 'admin',
   job_number: '',
   payment_method: 'cash',

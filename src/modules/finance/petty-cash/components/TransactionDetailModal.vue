@@ -152,13 +152,21 @@
         </div>
 
         <!-- Project Integration Info -->
-        <div v-if="transaction.project_name || transaction.job_number" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div v-if="transaction.project_name || transaction.venue || transaction.job_number" class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div v-if="transaction.project_name">
             <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
               Project
             </label>
             <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">
               {{ transaction.project_name }}
+            </p>
+          </div>
+          <div v-if="transaction.venue">
+            <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">
+              Venue / Site Location
+            </label>
+            <p class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+              {{ transaction.venue }}
             </p>
           </div>
           <div v-if="transaction.job_number">

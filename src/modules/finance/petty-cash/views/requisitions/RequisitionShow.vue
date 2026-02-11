@@ -12,12 +12,12 @@
         <div class="flex flex-col">
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <img src="/logo-outline.png" alt="WNG" class="h-6 object-contain" />
+              <img :src="logoOutline" alt="WNG" class="h-6 object-contain" />
               <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
               <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest">
                 <span class="text-slate-500 dark:text-slate-400">Woodnork Green</span>
                 <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-                <span class="text-slate-400 dark:text-slate-500">PIN: P051451468C</span>
+                <span class="text-slate-900 dark:text-white">KRA PIN: P051451468C</span>
               </div>
             </div>
             <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
@@ -37,8 +37,18 @@
       </div>
 
       <!-- Actions for Admins/Accounts -->
-      <div v-if="canManage" class="flex items-center gap-2">
-        <template v-if="requisition.status === 'pending'">
+      <div v-if="canManage || true" class="flex items-center gap-2">
+        <button
+          @click="downloadVoucher"
+          :disabled="downloading"
+          class="px-5 py-2.5 rounded-xl font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 hover:text-blue-600 flex items-center gap-2 shadow-sm"
+        >
+          <i class="mdi" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-file-pdf-box'"></i>
+          <span class="hidden sm:inline">Download Voucher</span>
+        </button>
+        <div class="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+        
+        <template v-if="requisition.status === 'pending' && canManage">
           <button
             @click="showRejectModal = true"
             class="px-5 py-2.5 rounded-xl font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-red-200 dark:border-red-900/30"
@@ -125,15 +135,31 @@
                   <p class="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Project Code</p>
                   <p class="text-xs font-black text-slate-900 dark:text-white uppercase leading-tight">
                     {{ requisition.project.job_number || requisition.project.project_id }}
+                    <span v-if="requisition.project_name" class="block text-slate-500 text-[10px] mt-0.5 italic">({{ requisition.project_name }})</span>
                   </p>
                 </div>
                 <div v-else-if="requisition.enquiry" class="mt-1">
                   <p class="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">Enquiry Ref</p>
                   <p class="text-xs font-black text-slate-900 dark:text-white uppercase leading-tight">
                     {{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}
+                    <span v-if="requisition.project_name" class="block text-slate-500 text-[10px] mt-0.5 italic">({{ requisition.project_name }})</span>
+                  </p>
+                </div>
+                <div v-else-if="requisition.project_name" class="mt-1">
+                  <p class="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-0.5">Reference Name</p>
+                  <p class="text-xs font-black text-slate-900 dark:text-white uppercase leading-tight">
+                    {{ requisition.project_name }}
                   </p>
                 </div>
                 <span v-else class="text-slate-400 italic text-xs block mt-1">General (No Project)</span>
+
+                <!-- Venue display -->
+                <div v-if="requisition.venue" class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Venue / Location</p>
+                  <p class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase leading-tight">
+                    <i class="mdi mdi-map-marker text-amber-500 mr-0.5"></i> {{ requisition.venue }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -642,6 +668,25 @@
                 </div>
               </div>
 
+              <!-- Venue Row -->
+              <div class="grid grid-cols-1 gap-6">
+                <div>
+                  <label for="venue" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Venue / Site Location
+                  </label>
+                  <input
+                    id="venue"
+                    v-model="approvalForm.venue"
+                    type="text"
+                    :class="[
+                      'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                      errors.venue ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                    ]"
+                    placeholder="E.g., Westlands Site, Factory Floor, Client Office..."
+                  />
+                </div>
+              </div>
+
               <!-- Tax Field and Date Row -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Tax Field -->
@@ -752,6 +797,7 @@ import { usePettyCashStore } from '../../stores/pettyCashStore'
 import { pettyCashService } from '../../services/pettyCashService'
 import QrcodeVue from 'qrcode.vue'
 import accountsData from '../../../../../data/accounts.json'
+import logoOutline from '@/../public/logo-outline.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -776,6 +822,7 @@ const approvalForm = reactive({
   description: '',
   classification: '',
   project_name: '',
+  venue: '',
   tax: 'etr',
   date_disbursed: new Date().toISOString().split('T')[0],
   job_number: '',
@@ -895,6 +942,34 @@ const onProjectSelect = (event: Event) => {
   }
 }
 
+const downloading = ref(false)
+
+const downloadVoucher = async () => {
+    if (!requisition.value?.id) return
+    
+    downloading.value = true
+    try {
+        const response = await axios.get(`/api/finance/petty-cash/requisitions/${requisition.value.id}/voucher`, {
+            responseType: 'blob'
+        })
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `Voucher-${requisition.value.requisition_number}.pdf`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        toast.success('Voucher download started')
+    } catch (error) {
+        console.error('Download failed', error)
+        toast.error('Failed to download voucher')
+    } finally {
+        downloading.value = false
+    }
+}
+
 const fetchFormData = async () => {
   try {
     const response = await pettyCashService.getProjects()
@@ -954,6 +1029,7 @@ const initiateDisbursement = async () => {
     description: `Disbursement for ${requisition.value.requisition_number}: ${requisition.value.purpose}`,
     classification: '',
     project_name: '',
+    venue: requisition.value.venue || '',
     tax: 'etr',
     date_disbursed: new Date().toISOString().split('T')[0],
     job_number: requisition.value.project?.job_number || '',

@@ -7,12 +7,12 @@
           <div class="flex items-center gap-4">
             <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/20 flex items-center gap-4">
               <div class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center p-2">
-                <img src="/logo-outline.png" alt="WNG" class="w-full h-full object-contain" />
+                <img :src="logoOutline" alt="WNG" class="w-full h-full object-contain" />
               </div>
               <div class="w-px h-6 bg-white/20"></div>
               <div class="flex flex-col">
                 <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-white">Woodnork Green</h2>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-blue-100 mt-0.5">PIN: P051451468C</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-white mt-1">KRA PIN: P051451468C</p>
               </div>
             </div>
             <div>
@@ -73,15 +73,23 @@
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Expenditure Type</span>
             <span class="text-sm font-bold text-slate-900 dark:text-white block uppercase">{{ requisition.category }}</span>
           </div>
-          <div v-if="requisition.project || requisition.enquiry" class="col-span-2 sm:col-span-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Project / Reference</span>
+          <div v-if="requisition.project || requisition.enquiry || requisition.project_name || requisition.venue" class="col-span-2 sm:col-span-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Project Assignment & Location</span>
              <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter">
                 <template v-if="requisition.project">
                   {{ requisition.project.job_number || requisition.project.project_id }} - {{ requisition.project.enquiry?.title || requisition.project.title }}
+                  <span v-if="requisition.project_name" class="block text-slate-400 text-[10px] mt-0.5 italic normal-case tracking-wide">({{ requisition.project_name }})</span>
                 </template>
-                <template v-else>
+                <template v-else-if="requisition.enquiry">
                   {{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }} - {{ requisition.enquiry.title }}
+                  <span v-if="requisition.project_name" class="block text-slate-400 text-[10px] mt-0.5 italic normal-case tracking-wide">({{ requisition.project_name }})</span>
                 </template>
+                <template v-else-if="requisition.project_name">
+                  {{ requisition.project_name }}
+                </template>
+                <span v-if="requisition.venue" class="text-slate-400 ml-1">
+                   | <i class="mdi mdi-map-marker ml-1"></i> {{ requisition.venue }}
+                </span>
              </p>
           </div>
           <div class="col-span-2 sm:col-span-3">
@@ -89,6 +97,63 @@
              <p class="text-sm text-slate-600 dark:text-slate-400 font-bold leading-relaxed italic uppercase">
                {{ requisition.purpose }}
              </p>
+          </div>
+        </div>
+
+        <!-- Disbursement Items (Mirroring Preview) -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 mb-2">
+            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Itemized Breakdown</h3>
+            <div class="grow h-px bg-slate-100 dark:bg-slate-800"></div>
+          </div>
+          
+          <div class="bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <div v-for="(item, idx) in requisition.items" :key="item.id" class="p-4">
+              <div class="flex justify-between items-start">
+                <div class="flex-grow pr-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-black text-slate-400 opacity-50">{{ Number(idx) + 1 }}.</span>
+                    <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                      {{ getPayeeName(item) }}
+                    </span>
+                  </div>
+                  <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase leading-snug">{{ item.description }}</h4>
+                </div>
+                <div class="text-right shrink-0">
+                  <span class="text-sm font-black text-slate-900 dark:text-white tabular-nums">{{ formatCurrency(item.amount) }}</span>
+                  <div v-if="item.received_at" class="text-[8px] text-emerald-600 font-black mt-1 uppercase tracking-tighter">
+                    <i class="mdi mdi-check-decagram mr-0.5"></i> Confirmed
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Footer Tools (Audit Trail) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <div class="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Transaction Timeline</p>
+              
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-[10px]">
+                  <span class="font-bold text-slate-500 uppercase">Requested</span>
+                  <span class="font-black text-slate-900 dark:text-slate-300">{{ formatDate(requisition.created_at) }}</span>
+                </div>
+                <div v-if="requisition.approved_at" class="flex items-center justify-between text-[10px]">
+                  <span class="font-bold text-slate-500 uppercase">Approved</span>
+                  <span class="font-black text-slate-900 dark:text-slate-300">{{ formatDate(requisition.approved_at) }}</span>
+                </div>
+                <div v-if="requisition.disbursement" class="flex items-center justify-between text-[10px]">
+                  <span class="font-bold text-slate-500 uppercase">Disbursed</span>
+                  <span class="font-black text-slate-900 dark:text-slate-300">{{ formatDate(requisition.disbursement.created_at) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center gap-3">
+              <QrcodeVue :value="publicSignOffUrl" :size="70" level="H" class="opacity-80 dark:opacity-100" />
+              <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em]">Verified System Ref</p>
+            </div>
           </div>
         </div>
 
@@ -229,6 +294,8 @@
 import { ref, onMounted, onUnmounted, computed, reactive, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
+import logoOutline from '@/../public/logo-outline.png'
+import QrcodeVue from 'qrcode.vue'
 
 const route = useRoute()
 const token = route.params.token as string
@@ -270,6 +337,12 @@ const getPayeeName = (item: any) => {
     ? `${requisition.value.payee.first_name} ${requisition.value.payee.last_name}`
     : (requisition.value.payee_name || requisition.value.requester?.name || 'Self')
 }
+
+const publicSignOffUrl = computed(() => {
+  if (!requisition.value?.signing_token) return ''
+  const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL.slice(0, -1) : import.meta.env.BASE_URL
+  return `${window.location.origin}${base}/pcr/confirm/${requisition.value.signing_token}`
+})
 
 const fetchRequisition = async () => {
   loading.value = true

@@ -118,6 +118,7 @@ export interface PettyCashDisbursement {
   readonly transaction_cost?: AmountData | null
   readonly description: string
   readonly project_name?: NullableString
+  readonly venue?: NullableString
   readonly classification: ClassificationData
   readonly job_number?: NullableString
   readonly payment_method: PaymentMethodData

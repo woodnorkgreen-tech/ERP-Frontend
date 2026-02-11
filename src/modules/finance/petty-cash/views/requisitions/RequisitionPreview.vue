@@ -12,7 +12,16 @@
       <!-- Action Buttons (Outside Receipt) -->
       <div v-if="canManage" class="flex flex-wrap items-center justify-center gap-3 mb-6 sticky top-0 z-10 py-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md">
         <!-- Edit & Delete Actions (Available for pending/approved/disbursed) -->
-        <div class="flex gap-2 mr-auto" v-if="['pending', 'approved', 'disbursed'].includes(requisition.status)">
+        <div class="flex gap-2 mr-auto" v-if="['pending', 'approved', 'disbursed', 'received'].includes(requisition.status) || true">
+           <button
+            @click="downloadVoucher"
+            :disabled="downloading"
+            class="p-2.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+            title="Download PDF Voucher"
+          >
+            <i class="mdi text-xl" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-file-pdf-box'"></i>
+          </button>
+           <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto mx-1"></div>
            <button
             @click="$emit('edit', requisition)"
             class="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
@@ -62,11 +71,14 @@
           
           <div class="px-8 pt-8 pb-6 text-center border-b-2 border-dashed border-slate-300">
             <div class="flex items-center justify-center gap-4 mb-4">
-              <img src="/logo-outline.png" alt="WNG" class="h-10 object-contain" />
+              <img :src="logoOutline" alt="WNG" class="h-10 object-contain" />
               <div class="h-8 w-px bg-slate-200"></div>
               <div class="text-left">
                 <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 leading-none">Woodnork Green</h2>
-                <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">KRA PIN: P051451468C</p>
+                <div class="flex flex-col mt-1">
+                  <p class="text-[9px] font-black text-slate-900 uppercase tracking-widest">KRA PIN: P051451468C</p>
+                  <p class="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Verified Official Document</p>
+                </div>
               </div>
             </div>
             <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-0 uppercase">Petty Cash Voucher</h1>
@@ -108,21 +120,32 @@
               <p class="text-xs font-bold text-slate-900 leading-tight uppercase">{{ requisition.purpose }}</p>
             </div>
 
-            <!-- Project Link (if exists) -->
-            <div v-if="requisition.project || requisition.enquiry" class="bg-slate-50/50 p-3 rounded border border-slate-200 border-dashed">
-              <p class="text-[9px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Linked Project:</p>
-              <div class="flex items-center gap-2">
-                <i class="mdi mdi-link-variant text-slate-400"></i>
-                <p class="text-xs font-black text-slate-900 tracking-tighter">
-                  <span v-if="requisition.project">
-                    <span class="font-bold">{{ requisition.project.enquiry?.job_number || requisition.project.project_id }}</span>
-                    - {{ requisition.project.enquiry?.title || 'Untitled Project' }}
-                  </span>
-                  <span v-else-if="requisition.enquiry">
-                    <span class="font-bold">{{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}</span>
-                    - {{ requisition.enquiry.title }}
-                  </span>
-                </p>
+            <!-- Project & Venue Link -->
+            <div v-if="requisition.project || requisition.enquiry || requisition.project_name || requisition.venue" class="bg-slate-50/50 p-3 rounded border border-slate-200 border-dashed">
+              <p class="text-[9px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Project Assignment & Location:</p>
+              <div class="space-y-2">
+                <div v-if="requisition.project || requisition.enquiry || requisition.project_name" class="flex items-center gap-2">
+                  <i class="mdi mdi-office-building text-slate-400"></i>
+                  <p class="text-xs font-black text-slate-900 tracking-tighter">
+                    <span v-if="requisition.project">
+                      <span class="font-bold">{{ requisition.project.enquiry?.job_number || requisition.project.project_id || 'System Project' }}</span>
+                      - {{ requisition.project.enquiry?.title || requisition.project.title || 'Untitled Project' }}
+                    </span>
+                    <span v-else-if="requisition.enquiry">
+                      <span class="font-bold">{{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}</span>
+                      - {{ requisition.enquiry.title }}
+                    </span>
+                    <span v-else-if="requisition.project_name">
+                      {{ requisition.project_name }}
+                    </span>
+                  </p>
+                </div>
+                <div v-if="requisition.venue" class="flex items-center gap-2">
+                  <i class="mdi mdi-map-marker text-slate-400 text-sm"></i>
+                  <p class="text-xs font-bold text-slate-800 uppercase tracking-tight">
+                    Venue: {{ requisition.venue }}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -269,6 +292,38 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import QrcodeVue from 'qrcode.vue'
+import logoOutline from '@/../public/logo-outline.png'
+import axios from '@/plugins/axios'
+import { useToast } from '@/modules/universal-task/composables/useToast'
+
+const toast = useToast()
+const downloading = ref(false)
+
+const downloadVoucher = async () => {
+  if (!props.requisition?.id) return
+  
+  downloading.value = true
+  try {
+    const response = await axios.get(`/api/finance/petty-cash/requisitions/${props.requisition.id}/voucher`, {
+      responseType: 'blob'
+    })
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `Voucher-${props.requisition.requisition_number}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    toast.success('Voucher download started')
+  } catch (error) {
+    console.error('Download failed', error)
+    toast.error('Failed to download voucher')
+  } finally {
+    downloading.value = false
+  }
+}
 
 const props = defineProps<{
   requisition: any

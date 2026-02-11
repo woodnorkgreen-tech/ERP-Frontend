@@ -15,6 +15,7 @@ export interface CreateDisbursementFormData {
   amount: number | string
   description: string
   project_name?: NullableString
+  venue?: NullableString
   classification: Classification
   job_number?: NullableString
   payment_method: PaymentMethod
@@ -31,6 +32,7 @@ export interface UpdateDisbursementFormData {
   amount?: number | string | null
   description?: NullableString
   project_name?: NullableString
+  venue?: NullableString
   classification?: Classification | null
   job_number?: NullableString
   payment_method?: PaymentMethod | null
@@ -134,6 +136,7 @@ export interface FilterFormData {
   readonly classification?: Classification | null
   readonly payment_method?: PaymentMethod | null
   readonly project_name?: NullableString
+  readonly venue?: NullableString
   readonly creator_id?: NullableNumber
   readonly start_date?: NullableString
   readonly end_date?: NullableString

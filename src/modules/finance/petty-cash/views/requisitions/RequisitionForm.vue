@@ -87,7 +87,7 @@
               v-model="projectSelection"
               class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all"
             >
-              <option :value="null">None (General Office Expense)</option>
+              <option :value="null">None (General Office / Manual Entry)</option>
               <optgroup label="Approved Projects">
                 <option v-for="p in formData.projects" :key="'p'+p.id" :value="'p'+p.id">
                   {{ p.label }}
@@ -99,6 +99,30 @@
                 </option>
               </optgroup>
             </select>
+          </div>
+
+          <!-- Manual Project Name (Shown if no project selected) -->
+          <div v-if="!projectSelection" class="md:col-span-1 space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
+            <label class="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
+              Project Name (Manual Entry)
+            </label>
+            <input
+              v-model="form.project_name"
+              placeholder="Enter project name if not listed..."
+              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all"
+            />
+          </div>
+
+          <!-- Venue / Location -->
+          <div :class="!projectSelection ? 'md:col-span-1' : 'md:col-span-2'" class="space-y-2">
+            <label class="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
+              Venue / Site Location
+            </label>
+            <input
+              v-model="form.venue"
+              placeholder="E.g., Westlands Site, Factory Floor, Client Office..."
+              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all"
+            />
           </div>
 
           <div class="md:col-span-2 space-y-2">
@@ -310,6 +334,8 @@ const form = reactive({
   category: '',
   purpose: '',
   project_id: null as number | null,
+  project_name: '',
+  venue: '',
   enquiry_id: null as number | null,
   items: [
     { description: '', amount: 0, payee_id: null as number | null, payee_name: '', is_external: false }
@@ -362,6 +388,9 @@ const fetchRequisition = async () => {
       projectSelection.value = 'e' + data.enquiry_id
     }
 
+    form.project_name = data.project_name || ''
+    form.venue = data.venue || ''
+
     form.items = data.items.map((item: any) => ({
       description: item.description,
       amount: parseFloat(item.amount),
@@ -379,6 +408,10 @@ const fetchRequisition = async () => {
 watch(projectSelection, async (newVal) => {
   if (!newVal) {
     projectTeams.value = {}
+    // Clear venue when no project is selected (only if not manually entered)
+    if (!editMode.value && !form.venue) {
+      form.venue = ''
+    }
     return
   }
 
@@ -393,6 +426,26 @@ watch(projectSelection, async (newVal) => {
 
     const response = await axios.get('/api/finance/petty-cash/requisitions/project-team-members', { params })
     const members = response.data.members || []
+
+    // Auto-fill venue from project/enquiry data
+    // Venue is stored in the enquiry, not directly on the project
+    let venueValue = null
+    const project = response.data.project
+    const enquiry = response.data.enquiry
+
+    if (project?.enquiry?.venue) {
+      venueValue = project.enquiry.venue
+    } else if (enquiry?.venue) {
+      venueValue = enquiry.venue
+    } else if (project?.venue) {
+      // Fallback if venue was moved directly to project in future
+      venueValue = project.venue
+    }
+    
+    if (venueValue && !editMode.value) {
+      form.venue = venueValue
+      console.log('Auto-filled venue:', venueValue)
+    }
 
     // Group by category
     const grouped: Record<string, any[]> = {}
@@ -524,6 +577,8 @@ const resetForm = () => {
   form.category = ''
   form.purpose = ''
   form.project_id = null
+  form.project_name = ''
+  form.venue = ''
   form.enquiry_id = null
   form.items = [{ description: '', amount: 0, payee_id: null, payee_name: '', is_external: false }]
   projectSelection.value = null
