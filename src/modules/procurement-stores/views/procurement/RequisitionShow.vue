@@ -144,7 +144,7 @@
           <div v-if="requisition.project">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Project</label>
             <p class="text-base font-medium text-gray-900 dark:text-white">
-              {{ requisition.project.project_id }} - {{ requisition.project.enquiry?.title }}
+              {{ requisition.project.project_id }} - {{ requisition.project.name }}
             </p>
           </div>
           <div v-if="requisition.employee">
