@@ -16,9 +16,9 @@
               </div>
             </div>
             <div>
-              <h1 class="text-xl font-black uppercase tracking-tight">Confirm Receipt</h1>
-              <p class="text-blue-100 text-[10px] uppercase font-black tracking-widest opacity-80">
-                {{ requisition?.requisition_number || 'Petty Cash Requisition' }}
+              <h1 class="text-xl font-black uppercase tracking-tight">Acknowledge Cash Distribution</h1>
+              <p class="text-blue-100 text-[10px] uppercase font-black tracking-widest opacity-80 mt-0.5">
+                Ref No: {{ requisition?.requisition_number || 'Petty Cash Requisition' }}
               </p>
             </div>
           </div>
@@ -62,15 +62,15 @@
         <!-- Core Details -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
           <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Total Requisition</span>
-            <span class="text-sm font-black text-blue-600 dark:text-blue-400 block">{{ formatCurrency(requisition.total_amount) }}</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Grand Total Issued</span>
+            <span class="text-lg font-black text-blue-600 dark:text-blue-400 block tabular-nums">{{ formatCurrency(requisition.total_amount) }}</span>
           </div>
           <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Department</span>
-            <span class="text-sm font-bold text-slate-900 dark:text-white block">{{ requisition.department?.name }}</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Cost Center</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-white block uppercase">{{ requisition.department?.name }}</span>
           </div>
           <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Category</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Expenditure Type</span>
             <span class="text-sm font-bold text-slate-900 dark:text-white block uppercase">{{ requisition.category }}</span>
           </div>
           <div v-if="requisition.project || requisition.enquiry" class="col-span-2 sm:col-span-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
@@ -85,19 +85,26 @@
              </p>
           </div>
           <div class="col-span-2 sm:col-span-3">
-             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Purpose</span>
-             <p class="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1 text-xs">Disbursement Narrative</span>
+             <p class="text-sm text-slate-600 dark:text-slate-400 font-bold leading-relaxed italic uppercase">
                {{ requisition.purpose }}
              </p>
           </div>
         </div>
 
-        <hr class="border-slate-100 dark:border-slate-800" />
+        <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 p-4 rounded-2xl flex items-start gap-3">
+          <i class="mdi mdi-information-outline text-amber-600 mt-0.5"></i>
+          <p class="text-xs text-amber-800 dark:text-amber-400 font-bold leading-relaxed">
+            Please verify the details above. By signing below, you acknowledge the physical receipt of the funds as itemized in this distribution.
+          </p>
+        </div>
 
+        <hr class="border-slate-100 dark:border-slate-800" />
+        
         <!-- Multi-Recipient Mode (Items Sign-off) -->
         <div v-if="isBulkMode" class="space-y-6">
            <div class="flex items-center justify-between">
-              <h3 class="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">Recipient Breakdown</h3>
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">Authorized Recipients</h3>
               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 {{ signedCount }} of {{ requisition.items.length }} Signed
               </span>

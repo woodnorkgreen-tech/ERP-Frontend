@@ -69,8 +69,8 @@
                 <p class="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">KRA PIN: P051451468C</p>
               </div>
             </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1 uppercase">Petty Cash Voucher</h1>
-            <p class="text-xs text-slate-600 font-bold tracking-widest">{{ requisition.requisition_number }}</p>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-0 uppercase">Petty Cash Voucher</h1>
+            <p class="text-[10px] text-slate-500 font-black tracking-widest uppercase">Ref No: {{ requisition.requisition_number }}</p>
             <div class="mt-4">
               <span :class="getStatusClass(requisition.status)" class="inline-block px-4 py-1 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
                 {{ requisition.status }}
@@ -82,30 +82,30 @@
           <div class="px-8 py-6 space-y-4">
             <!-- Date & Time -->
             <div class="flex justify-between text-xs border-b border-dashed border-slate-200 pb-3">
-              <span class="font-bold text-slate-500 uppercase tracking-widest">Date:</span>
-              <span class="font-black text-slate-900 tabular-nums">{{ formatReceiptDate(requisition.created_at) }}</span>
+              <span class="font-bold text-slate-500 uppercase tracking-widest">Voucher Date:</span>
+              <span class="font-black text-slate-900 tabular-nums uppercase">{{ formatReceiptDate(requisition.created_at) }}</span>
             </div>
 
             <!-- Payee Info -->
             <div class="space-y-2 border-b border-dashed border-slate-200 pb-3">
               <div class="flex justify-between text-xs">
-                <span class="font-bold text-slate-500 uppercase tracking-widest">Payee:</span>
-                <span class="font-black text-slate-900 text-right max-w-[60%] truncate">
+                <span class="font-bold text-slate-500 uppercase tracking-widest">Authorized Payee:</span>
+                <span class="font-black text-slate-900 text-right max-w-[60%] uppercase tracking-tighter">
                   <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
                   <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
                   <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
                 </span>
               </div>
               <div class="flex justify-between text-xs">
-                <span class="font-bold text-slate-500 uppercase tracking-widest">Dept:</span>
+                <span class="font-bold text-slate-500 uppercase tracking-widest">Cost Center:</span>
                 <span class="font-black text-slate-900 uppercase tracking-tighter">{{ requisition.department?.name || 'N/A' }}</span>
               </div>
             </div>
 
             <!-- Purpose -->
             <div class="border-b border-dashed border-slate-200 pb-3">
-              <p class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Purpose:</p>
-              <p class="text-xs font-bold text-slate-900 leading-tight">{{ requisition.purpose }}</p>
+              <p class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Payment Purpose:</p>
+              <p class="text-xs font-bold text-slate-900 leading-tight uppercase">{{ requisition.purpose }}</p>
             </div>
 
             <!-- Project Link (if exists) -->
@@ -128,8 +128,8 @@
 
             <!-- Items List -->
             <div class="border-t-2 border-slate-900 pt-4">
-              <div class="flex justify-between text-[10px] font-black text-slate-500 mb-3 pb-1 border-b border-slate-300 tracking-widest uppercase">
-                <span>Recipient / Item</span>
+              <div class="flex justify-between text-[10px] font-black text-slate-500 mb-3 pb-1 border-b border-slate-300 tracking-[.2em] uppercase">
+                <span>Distribution Detail</span>
                 <span>Amount</span>
               </div>
               
@@ -171,9 +171,9 @@
 
             <!-- Total -->
             <div class="border-t-2 border-double border-slate-900 pt-3 mt-4">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-black text-slate-900 tracking-widest uppercase">Total:</span>
-                <span class="text-xl font-black text-slate-900 tabular-nums tracking-tighter">{{ formatReceiptAmount(requisition.total_amount) }}</span>
+              <div class="flex justify-between items-center bg-slate-900 text-white p-3 border border-slate-900">
+                <span class="text-xs font-black tracking-widest uppercase">Total Disbursed:</span>
+                <span class="text-xl font-black tabular-nums tracking-tighter">{{ formatReceiptAmount(requisition.total_amount) }}</span>
               </div>
             </div>
 

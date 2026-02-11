@@ -70,52 +70,73 @@
         <!-- Main Details Card -->
         <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 p-8 shadow-sm">
           <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Payee / Recipient</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-white">
-                <span v-if="requisition.payee">
-                  {{ requisition.payee.first_name }} {{ requisition.payee.last_name }}
-                </span>
-                <span v-else-if="requisition.payee_name">
-                  {{ requisition.payee_name }}
-                </span>
-                <span v-else class="text-slate-900 dark:text-white">{{ requisition.requester?.name || 'Self' }}</span>
-              </span>
-            </div>
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Department</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-white">{{ requisition.department?.name }}</span>
-            </div>
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Category</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-white">{{ requisition.category }}</span>
-            </div>
-            <div class="md:col-span-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Purpose</span>
-              <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ requisition.purpose }}</p>
-            </div>
-            <div>
-              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Project / Enquiry Reference</span>
-              <div v-if="requisition.project" class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
-                <p class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Project Code</p>
-                <p class="text-sm font-black text-slate-900 dark:text-white uppercase leading-tight">
-                  {{ requisition.project.job_number || requisition.project.project_id }}
-                </p>
-                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1 leading-snug">
-                   {{ requisition.project.enquiry?.title || requisition.project.title }}
-                </p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800">
+                <i class="mdi mdi-account-tie text-slate-500 text-lg"></i>
               </div>
-              <div v-else-if="requisition.enquiry" class="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-100 dark:border-amber-800/50">
-                <p class="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">Enquiry Reference</p>
-                <p class="text-sm font-black text-slate-900 dark:text-white uppercase leading-tight">
-                  {{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}
-                </p>
-                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1 leading-snug">
-                   {{ requisition.enquiry.title }}
-                </p>
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Target Beneficiary</span>
+                <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  <span v-if="requisition.payee">
+                    {{ requisition.payee.first_name }} {{ requisition.payee.last_name }}
+                  </span>
+                  <span v-else-if="requisition.payee_name">
+                    {{ requisition.payee_name }}
+                  </span>
+                  <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
+                </span>
               </div>
-              <span v-else class="text-slate-400 italic text-sm">None (General Expense)</span>
             </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800">
+                <i class="mdi mdi-office-building text-slate-500 text-lg"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Allocated Department</span>
+                <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ requisition.department?.name }}</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800">
+                <i class="mdi mdi-tag-outline text-slate-500 text-lg"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Expense Category</span>
+                <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ requisition.category }}</span>
+              </div>
+            </div>
+            <div class="md:col-span-2 flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-800">
+                <i class="mdi mdi-text-long text-blue-600 dark:text-blue-400 text-lg"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Requisition Narrative</span>
+                <p class="text-slate-700 dark:text-slate-300 font-medium leading-relaxed max-w-2xl">{{ requisition.purpose }}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-800">
+                <i class="mdi mdi-briefcase-variant-outline text-amber-600 dark:text-amber-400 text-lg"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Project Assignment</span>
+                <div v-if="requisition.project" class="mt-1">
+                  <p class="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-0.5">Project Code</p>
+                  <p class="text-xs font-black text-slate-900 dark:text-white uppercase leading-tight">
+                    {{ requisition.project.job_number || requisition.project.project_id }}
+                  </p>
+                </div>
+                <div v-else-if="requisition.enquiry" class="mt-1">
+                  <p class="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-0.5">Enquiry Ref</p>
+                  <p class="text-xs font-black text-slate-900 dark:text-white uppercase leading-tight">
+                    {{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}
+                  </p>
+                </div>
+                <span v-else class="text-slate-400 italic text-xs block mt-1">General (No Project)</span>
+              </div>
+            </div>
+          </div>
           </div>
 
           <hr class="border-slate-100 dark:border-slate-700 my-8" />
@@ -141,7 +162,7 @@
                           <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
                         </template>
                       </span>
-                      <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block">{{ item.description }}</span>
+                      <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block italic">{{ item.description }}</span>
                     </div>
                   </div>
                   <div class="flex items-center gap-6">
@@ -151,7 +172,7 @@
                       <!-- Confirmation Status -->
                       <div v-if="item.received_at" class="flex items-center gap-1 justify-end text-emerald-500 mt-1">
                         <i class="mdi mdi-check-decagram text-sm"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Received</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Handover Confirmed</span>
                       </div>
                     </div>
 
@@ -197,11 +218,18 @@
               </div>
 
               <!-- Grand Total -->
-              <div class="flex items-center justify-between px-4 pt-4 border-t-2 border-slate-100 dark:border-slate-700">
-                <span class="font-black uppercase tracking-widest text-slate-400 text-xs">Total Requisition</span>
-                <span class="text-xl font-black text-blue-600 dark:text-blue-400">
-                  {{ formatCurrency(requisition.total_amount) }}
-                </span>
+              <div class="flex items-center justify-between px-6 py-4 bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden relative">
+                <div class="relative z-10">
+                  <span class="font-black uppercase tracking-widest text-slate-500 text-[10px] block mb-0.5">Grand Total Payable</span>
+                  <span class="text-2xl font-black text-white tracking-tighter tabular-nums">
+                    {{ formatCurrency(requisition.total_amount) }}
+                  </span>
+                </div>
+                <div class="relative z-10 w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                   <i class="mdi mdi-cash-multiple text-blue-500 text-xl"></i>
+                </div>
+                <!-- Glass Flare -->
+                <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-blue-600/10 rounded-full blur-xl"></div>
               </div>
             </div>
           </div>

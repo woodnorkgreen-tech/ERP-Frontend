@@ -38,7 +38,7 @@
           </button>
 
           <!-- Bulk Actions Button -->
-          <div v-if="selectedIds.length > 0" class="flex items-center space-x-2 animate-fade-in bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 shadow-sm">
+          <div v-if="selectedIds.length > 0 && isSuperAdmin" class="flex items-center space-x-2 animate-fade-in bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 shadow-sm">
             <button
               @click="confirmBulkDelete"
               class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
@@ -375,7 +375,7 @@
 
                 <!-- Group Actions (on Top-up) -->
                 <button
-                  v-if="transaction.type === 'top_up' && !transaction.is_archived"
+                  v-if="transaction.type === 'top_up' && !transaction.is_archived && isSuperAdmin"
                   @click="archiveGroup(transaction.original_id)"
                   class="flex items-center px-2 py-1 text-[10px] font-bold text-primary-600 hover:text-primary-700 border border-primary-200 hover:border-primary-400 rounded bg-white dark:bg-gray-800 transition-colors mr-2"
                   title="Archive top-up and all its related disbursements"
@@ -387,7 +387,7 @@
                 </button>
 
                 <button
-                  v-if="transaction.type === 'disbursement' && transaction.can_edit"
+                  v-if="transaction.type === 'disbursement' && transaction.can_edit && isSuperAdmin"
                   @click="editDisbursement(transaction)"
                   class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
                   title="Edit transaction"
@@ -397,7 +397,7 @@
                   </svg>
                 </button>
                 <button
-                  v-if="transaction.type === 'disbursement' && transaction.can_void"
+                  v-if="transaction.type === 'disbursement' && transaction.can_void && isSuperAdmin"
                   @click="voidDisbursement(transaction.original_data)"
                   class="p-1.5 text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30 rounded-full transition-colors"
                   title="Void disbursement"
@@ -407,7 +407,7 @@
                   </svg>
                 </button>
                 <button
-                  v-if="!transaction.is_archived"
+                  v-if="!transaction.is_archived && isSuperAdmin"
                   @click="archiveTransaction(transaction.original_id, transaction.type)"
                   class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/30 rounded-full transition-colors"
                   :title="transaction.type === 'top_up' ? 'Archive only this top-up' : 'Archive this disbursement'"
@@ -417,7 +417,7 @@
                   </svg>
                 </button>
                 <button
-                  v-if="transaction.type === 'disbursement' && transaction.can_delete"
+                  v-if="transaction.type === 'disbursement' && transaction.can_delete && isSuperAdmin"
                   @click="deleteDisbursement(transaction.original_data)"
                   class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
                   title="Delete disbursement"
@@ -510,6 +510,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch, onMounted, nextTick } from 'vue'
 import { usePettyCashStore } from '../stores/pettyCashStore'
+import { useAuth } from '@/composables/useAuth'
 import type { PettyCashDisbursement, TransactionFilters } from '../types/pettyCash'
 
 interface Emits {
@@ -522,6 +523,12 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 const store = usePettyCashStore()
+const { user } = useAuth()
+
+const isSuperAdmin = computed(() => {
+  return user.value?.roles?.includes('Super Admin') || false
+})
+
 const showFilters = ref(false)
 const searchQuery = ref('')
 const editingTransaction = ref<string | null>(null)

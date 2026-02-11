@@ -20,8 +20,7 @@ export type PettyCashPermission =
 export const PERMISSION_GROUPS = {
   VIEW: ['finance.petty_cash.view', 'finance.petty_cash.view_balance'],
   CREATE: ['finance.petty_cash.create_top_up', 'finance.petty_cash.create_disbursement'],
-  EDIT: ['finance.petty_cash.edit_disbursement', 'finance.petty_cash.void_disbursement', 'finance.petty_cash.delete_disbursement'],
-  ADMIN: ['finance.petty_cash.recalculate_balance', 'finance.petty_cash.manage_settings'],
+  // EDIT explicitly restricted to Super Admin role in the component logic
   REPORTS: ['finance.petty_cash.view_reports', 'finance.petty_cash.export_data']
 } as const
 
@@ -55,6 +54,20 @@ export function usePermissions() {
   // Permission checking methods
   const hasPermission = (permission: string): boolean => {
     if (!isAuthenticated.value) return false
+
+    // Destructive/History-modifying actions are strictly for Super Admin
+    const sensitivePermissions = [
+      'finance.petty_cash.edit_disbursement',
+      'finance.petty_cash.void_disbursement',
+      'finance.petty_cash.delete_disbursement',
+      'finance.petty_cash.recalculate_balance',
+      'finance.petty_cash.manage_settings'
+    ]
+
+    if (sensitivePermissions.includes(permission)) {
+      return userRoles.value.includes('Super Admin')
+    }
+
     if (userRoles.value.includes('Super Admin')) return true
     return userPermissions.value.includes(permission)
   }
@@ -74,21 +87,21 @@ export function usePermissions() {
   // Permission group checks
   const canView = computed(() => hasAnyPermission(PERMISSION_GROUPS.VIEW))
   const canCreate = computed(() => hasAnyPermission(PERMISSION_GROUPS.CREATE))
-  const canEdit = computed(() => hasAnyPermission(PERMISSION_GROUPS.EDIT))
-  const canAdmin = computed(() => hasAnyPermission(PERMISSION_GROUPS.ADMIN))
+  const canEdit = computed(() => userRoles.value.includes('Super Admin'))
+  const canAdmin = computed(() => userRoles.value.includes('Super Admin'))
   const canViewReports = computed(() => hasAnyPermission(PERMISSION_GROUPS.REPORTS))
 
-  // Specific permission checks
+  // Specific permission checks - Strictly Super Admin for destructive/history-modifying actions
   const canCreateTopUp = computed(() => hasPermission('finance.petty_cash.create_top_up'))
   const canCreateDisbursement = computed(() => hasPermission('finance.petty_cash.create_disbursement'))
-  const canEditDisbursement = computed(() => hasPermission('finance.petty_cash.edit_disbursement'))
-  const canVoidDisbursement = computed(() => hasPermission('finance.petty_cash.void_disbursement'))
-  const canDeleteDisbursement = computed(() => hasPermission('finance.petty_cash.delete_disbursement'))
+  const canEditDisbursement = computed(() => userRoles.value.includes('Super Admin'))
+  const canVoidDisbursement = computed(() => userRoles.value.includes('Super Admin'))
+  const canDeleteDisbursement = computed(() => userRoles.value.includes('Super Admin'))
   const canViewBalance = computed(() => hasPermission('finance.petty_cash.view_balance'))
-  const canRecalculateBalance = computed(() => hasPermission('finance.petty_cash.recalculate_balance'))
+  const canRecalculateBalance = computed(() => userRoles.value.includes('Super Admin'))
   const canExportData = computed(() => hasPermission('finance.petty_cash.export_data'))
   const canUploadExcel = computed(() => hasPermission('finance.petty_cash.upload_excel'))
-  const canManageSettings = computed(() => hasPermission('finance.petty_cash.manage_settings'))
+  const canManageSettings = computed(() => userRoles.value.includes('Super Admin'))
 
   // Permission validation with error handling
   const requirePermission = (permission: string): void => {
