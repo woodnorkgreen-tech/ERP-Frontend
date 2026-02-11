@@ -2,12 +2,12 @@
   <TransitionGroup
     name="notification-popup"
     tag="div"
-    class="fixed top-4 right-4 z-50 space-y-2"
+    class="fixed bottom-4 right-4 z-50 space-y-2 flex flex-col-reverse"
   >
     <div
       v-for="popup in activePopups"
       :key="popup.id"
-      class="max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 transform transition-all duration-300 ease-in-out"
+      class="max-w-sm bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/30 p-4 transform transition-all duration-300 ease-in-out"
       :class="{ 'translate-x-full opacity-0': popup.exiting }"
     >
       <div class="flex items-start space-x-3">
@@ -17,8 +17,17 @@
             class="w-8 h-8 rounded-full flex items-center justify-center"
             :class="getIconClass(popup.type)"
           >
-            <svg v-if="popup.type === 'task_assigned'" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg v-if="popup.type.includes('assigned')" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+            <svg v-else-if="popup.type.includes('approved') || popup.type.includes('completed')" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <svg v-else-if="popup.type.includes('rejected')" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <svg v-else-if="popup.type.includes('disbursed')" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <svg v-else class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -61,7 +70,7 @@
           @click="handleViewAction(popup)"
           class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
         >
-          View Task
+          {{ popup.type.includes('requisition') ? 'View Requisition' : 'View Task' }}
         </button>
         <button
           @click="dismissPopup(popup.id)"
@@ -151,31 +160,64 @@ const handleViewAction = (popup: NotificationPopup) => {
   dismissPopup(popup.id)
 
   // Navigate based on notification type
-  if (popup.type === 'task_assigned' && popup.data?.enquiry_id) {
+  if (popup.type.includes('requisition')) {
+    const requisitionId = popup.data?.requisition_id
+    if (requisitionId) {
+      router.push({
+        name: 'finance-petty-cash-requisition-show',
+        params: { id: String(requisitionId) }
+      })
+    } else {
+      router.push('/finance/petty-cash/requisitions')
+    }
+  } 
+  else if (popup.type.includes('task') && popup.data?.task_id) {
     const enquiryId = popup.data.enquiry_id
     const taskId = popup.data.task_id
 
-    router.push({
-      path: '/projects/enquiries',
-      query: {
-        open_tasks: String(enquiryId),
-        highlight_task: String(taskId)
-      }
-    })
+    if (enquiryId) {
+      router.push({
+        path: '/projects/enquiries',
+        query: {
+          open_tasks: String(enquiryId),
+          highlight_task: String(taskId)
+        }
+      })
+    } else {
+        router.push({
+            path: '/universal-tasks',
+            query: { task: String(taskId) }
+        })
+    }
   } else {
-    router.push('/projects/enquiries')
+    router.push('/notifications')
   }
 }
 
 const getIconClass = (type: string): string => {
   const classes: Record<string, string> = {
     task_assigned: 'bg-blue-500',
+    enquiry_task_assigned: 'bg-blue-500',
+    universal_task_assigned: 'bg-blue-500',
+    requisition_submitted: 'bg-amber-500',
+    requisition_approved: 'bg-emerald-500',
+    requisition_rejected: 'bg-rose-500',
+    requisition_disbursed: 'bg-purple-500',
     task_completed: 'bg-green-500',
     task_due_soon: 'bg-orange-500',
     task_overdue: 'bg-red-500',
     default: 'bg-gray-500'
   }
-  return classes[type] || classes.default
+  
+  // Try exact match first, then partial match
+  if (classes[type]) return classes[type]
+  
+  if (type.includes('assigned')) return classes.task_assigned
+  if (type.includes('approved')) return classes.requisition_approved
+  if (type.includes('rejected')) return classes.requisition_rejected
+  if (type.includes('disbursed')) return classes.requisition_disbursed
+  
+  return classes.default
 }
 
 const getPriorityClass = (priority: string): string => {
@@ -213,17 +255,16 @@ const playNotificationSound = () => {
   }
 }
 
-// Listen for new task assignment notifications
+// Listen for all new notifications
 const handleNewNotification = (event: CustomEvent) => {
   const notification = event.detail
-  if (notification.type === 'task_assigned') {
-    showPopup({
-      type: notification.type,
-      title: notification.title,
-      message: notification.message,
-      data: notification.data
-    })
-  }
+  // We show popups for all unread notifications now
+  showPopup({
+    type: notification.type,
+    title: notification.title,
+    message: notification.message,
+    data: notification.data
+  })
 }
 
 onMounted(() => {

@@ -25,7 +25,19 @@ export function useNotifications() {
 
     try {
       const response = await api.get('/api/projects/notifications')
-      notifications.value = response.data.data || []
+      const newData = response.data.data || []
+
+      // Detect new notifications (those not in current list by ID)
+      const existingIds = new Set(notifications.value.map((notif: Notification) => notif.id))
+      const newNotifs = newData.filter((notif: Notification) => !existingIds.has(notif.id) && !notif.is_read)
+
+      notifications.value = newData
+
+      // Fire events for new unread notifications so UI can show popups
+      newNotifs.forEach((notif: Notification) => {
+        window.dispatchEvent(new CustomEvent('new-notification', { detail: notif }))
+      })
+
       return notifications.value
     } catch (err) {
       error.value = 'Failed to fetch notifications'
