@@ -95,7 +95,7 @@
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Requisition #</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Department</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Requested By</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Items</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
@@ -116,7 +116,7 @@
                 {{ formatDate(req.date) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ req.department?.name || 'N/A' }}
+                {{ getRequestedBy(req) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ req.items?.length || 0 }}
@@ -354,6 +354,17 @@ const deleteRequisition = async (id: number) => {
   } catch (err: any) {
     alert(err.response?.data?.error || 'Failed to delete requisition')
   }
+}
+
+const getRequestedBy = (req: any) => {
+  if (req.requested_by_type === 'project' && req.project) {
+    return `${req.project.project_id} - ${req.project.enquiry?.title || 'Project'}`
+  } else if (req.requested_by_type === 'employee' && req.employee) {
+    return req.employee.name
+  } else if (req.requested_by_type === 'office' && req.department) {
+    return req.department.name
+  }
+  return 'N/A'
 }
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString()
