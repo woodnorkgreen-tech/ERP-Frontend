@@ -10,6 +10,7 @@ import { clientServiceRoutes } from './clientService'
 import { productionRoutes } from './production'
 
 import { financeRoutes } from './finance'
+import logisticsRoutes from '@/modules/logistics/routes'
 import materialsLibraryRoutes from '@/modules/materials-library/routes'
 import procurementStoresRoutes from '@/modules/procurement-stores/routes'
 
@@ -57,6 +58,7 @@ const routes: RouteRecordRaw[] = [
   ...productionRoutes,
 
   ...financeRoutes,
+  ...logisticsRoutes,
   ...materialsLibraryRoutes,
   ...procurementStoresRoutes,
 ]

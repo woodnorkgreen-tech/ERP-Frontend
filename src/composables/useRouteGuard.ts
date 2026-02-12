@@ -77,6 +77,14 @@ const PERMISSIONS = {
   DASHBOARD_HR: 'dashboard.hr',
   DASHBOARD_FINANCE: 'dashboard.finance',
   DASHBOARD_PROJECTS: 'dashboard.projects',
+
+  // Logistics
+  LOGISTICS_VIEW: 'logistics.view',
+  LOGISTICS_DELIVERIES_MANAGE: 'logistics.deliveries.manage',
+  LOGISTICS_DRIVERS_MANAGE: 'logistics.drivers.manage',
+  LOGISTICS_FLEET_MANAGE: 'logistics.fleet.manage',
+  LOGISTICS_ROUTES_MANAGE: 'logistics.routes.manage',
+  LOGISTICS_TRACKING_VIEW: 'logistics.tracking.view',
 }
 
 export function useRouteGuard() {
@@ -174,6 +182,20 @@ export function useRouteGuard() {
     return hasPermission(PERMISSIONS.FINANCE_VIEW) ||
       hasPermission(PERMISSIONS.FINANCE_BUDGET_READ) ||
       hasPermission(PERMISSIONS.FINANCE_BUDGET_UPDATE)
+  }
+
+  const canAccessLogistics = (): boolean => {
+    if (!isLoggedIn.value || !user.value) {
+      return false
+    }
+
+    // Super Admin can access everything
+    if (user.value.roles?.includes('Super Admin')) {
+      return true
+    }
+
+    // Check logistics read permission
+    return hasPermission(PERMISSIONS.LOGISTICS_VIEW)
   }
 
   const redirectToAppropriateRoute = () => {
@@ -340,6 +362,17 @@ export function useRouteGuard() {
             { name: 'procurement-billing', path: '/procurement/billing', label: 'Billing', icon: 'mdi-clipboard-check-outline' },
           ]
         },
+        {
+          department: 'Logistics',
+          routes: [
+            { name: 'logistics-dashboard', path: '/logistics/dashboard', label: 'Logistics Dashboard', icon: 'mdi-truck-cargo-container' },
+            { name: 'logistics-deliveries', path: '/logistics/deliveries', label: 'Deliveries', icon: 'mdi-truck-delivery' },
+            { name: 'logistics-drivers', path: '/logistics/drivers', label: 'Drivers', icon: 'mdi-account-tie' },
+            { name: 'logistics-fleet', path: '/logistics/fleet', label: 'Fleet', icon: 'mdi-van-passenger' },
+            { name: 'logistics-routes', path: '/logistics/routes', label: 'Routes', icon: 'mdi-map-marker-path' },
+            { name: 'logistics-tracking', path: '/logistics/tracking', label: 'Tracking', icon: 'mdi-crosshairs-gps' }
+          ]
+        },
       )
     }
     // Admin gets admin routes
@@ -417,6 +450,18 @@ export function useRouteGuard() {
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
         { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Requisition', icon: 'mdi-cash-multiple' }
+      )
+    }
+
+    // Add logistics routes for authorized users (skip for Super Admin)
+    if (canAccessLogistics() && !userRoles.includes('Super Admin')) {
+      routes.push(
+        { name: 'logistics-dashboard', path: '/logistics/dashboard', label: 'Logistics Dashboard', icon: 'mdi-truck-cargo-container' },
+        { name: 'logistics-deliveries', path: '/logistics/deliveries', label: 'Deliveries', icon: 'mdi-truck-delivery' },
+        { name: 'logistics-drivers', path: '/logistics/drivers', label: 'Drivers', icon: 'mdi-account-tie' },
+        { name: 'logistics-fleet', path: '/logistics/fleet', label: 'Fleet', icon: 'mdi-van-passenger' },
+        { name: 'logistics-routes', path: '/logistics/routes', label: 'Routes', icon: 'mdi-map-marker-path' },
+        { name: 'logistics-tracking', path: '/logistics/tracking', label: 'Tracking', icon: 'mdi-crosshairs-gps' }
       )
     }
 

@@ -203,45 +203,106 @@ const handleNotificationClick = async (notification: any) => {
     await markAsRead(notification.id)
 
     // Route based on notification type
-    if (notification.type.startsWith('enquiry_task_')) {
-      // Project/Enquiry task notification
-      const enquiryId = notification.data?.enquiry_id
-      const taskId = notification.data?.task_id
+    switch (notification.type) {
+      // ========== PRIORITY 1: ENQUIRY & PROJECT NOTIFICATIONS ==========
+      case 'project_officer_assigned':
+      case 'enquiry_created':
+      case 'enquiry_status_changed':
+        if (notification.data?.enquiry_id) {
+          router.push({
+            name: 'EnquiryDetails',
+            params: { id: notification.data.enquiry_id }
+          })
+        }
+        closePanel()
+        break
 
-      if (enquiryId && taskId) {
-        // Navigate to enquiries management page with task dashboard open
-        router.push({
-          path: '/projects/tasks',
-          query: {
-            enquiry_id: String(enquiryId),
-            highlight_task: String(taskId)
-          }
-        })
-      } else {
-        // Fallback - just go to enquiries page
-        router.push('/projects/tasks')
-      }
-      closePanel()
-    } 
-    else if (notification.type.startsWith('universal_task_')) {
-      // Universal task notification
-      const taskId = notification.data?.task_id
+      case 'quote_approved':
+        // Quote approved - navigate to now-active project/enquiry
+        if (notification.data?.enquiry_id) {
+          router.push({
+            name: 'EnquiryDetails',
+            params: { id: notification.data.enquiry_id }
+          })
+        }
+        closePanel()
+        break
 
-      if (taskId) {
-        router.push({
-          path: '/universal-tasks',
-          query: {
-            task: String(taskId)
-          }
-        })
-      } else {
-        router.push('/universal-tasks')
-      }
-      closePanel()
-    }
-    else {
-      // Generic notification - just close panel
-      closePanel()
+      case 'project_activated':
+        if (notification.data?.id) {
+          router.push({
+            name: 'ProjectDetails',
+            params: { id: notification.data.id }
+          })
+        }
+        closePanel()
+        break
+
+      // ========== ENQUIRY TASK NOTIFICATIONS ==========
+      case 'enquiry_task_assigned':
+      case 'enquiry_task_reassigned':
+      case 'enquiry_task_unassigned':
+      case 'enquiry_task_completed':
+      case 'enquiry_task_due_soon':
+      case 'enquiry_task_overdue':
+        const enquiryId = notification.data?.enquiry_id
+        const taskId = notification.data?.task_id
+
+        if (enquiryId && taskId) {
+          router.push({
+            path: '/projects/tasks',
+            query: {
+              enquiry_id: String(enquiryId),
+              highlight_task: String(taskId)
+            }
+          })
+        } else {
+          router.push('/projects/tasks')
+        }
+        closePanel()
+        break
+
+      // ========== UNIVERSAL TASK NOTIFICATIONS ==========
+      case 'universal_task_assigned':
+      case 'universal_task_completed':
+      case 'universal_task_due_soon':
+      case 'universal_task_overdue':
+        const universalTaskId = notification.data?.task_id
+        if (universalTaskId) {
+          router.push({
+            path: '/universal-tasks',
+            query: {
+              task: String(universalTaskId)
+            }
+          })
+        } else {
+          router.push('/universal-tasks')
+        }
+        closePanel()
+        break
+
+      // ========== PRIORITY 2: PETTY CASH NOTIFICATIONS ==========
+      case 'requisition_submitted':
+      case 'requisition_approved':
+      case 'requisition_rejected':
+      case 'requisition_disbursed':
+        const requisitionId = notification.data?.requisition_id
+        if (requisitionId) {
+          router.push({
+            name: 'RequisitionDetails',
+            params: { id: requisitionId }
+          })
+        } else {
+          router.push('/finance/petty-cash')
+        }
+        closePanel()
+        break
+
+      // ========== DEFAULT ==========
+      default:
+        // Generic notification - just close panel
+        closePanel()
+        break
     }
   } catch (err) {
     console.error('Failed to mark notification as read:', err)

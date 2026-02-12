@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useNotifications } from '@/modules/projects/composables/useNotifications'
 
 interface NotificationPopup {
   id: number
@@ -98,14 +99,15 @@ interface NotificationPopup {
 
 const activePopups = ref<NotificationPopup[]>([])
 const router = useRouter()
+const { markAsRead } = useNotifications()
 
 // Auto-dismiss timer
 const dismissTimers = ref<Map<number, number>>(new Map())
 
-const showPopup = (notification: Omit<NotificationPopup, 'id' | 'exiting'>) => {
+const showPopup = (notification: any) => {
   const popup: NotificationPopup = {
     ...notification,
-    id: Date.now(),
+    id: notification.id || Date.now(),
     exiting: false
   }
 
@@ -134,10 +136,17 @@ const showPopup = (notification: Omit<NotificationPopup, 'id' | 'exiting'>) => {
   playNotificationSound()
 }
 
-const dismissPopup = (id: number) => {
+const dismissPopup = async (id: number) => {
   const popup = activePopups.value.find(p => p.id === id)
   if (popup) {
     popup.exiting = true
+
+    // Mark as read in backend
+    try {
+      await markAsRead(id)
+    } catch (err) {
+      console.warn('Failed to mark notification as read from popup:', err)
+    }
 
     // Remove after animation
     setTimeout(() => {
@@ -156,8 +165,19 @@ const dismissPopup = (id: number) => {
   }
 }
 
-const handleViewAction = (popup: NotificationPopup) => {
-  dismissPopup(popup.id)
+const handleViewAction = async (popup: NotificationPopup) => {
+  // Mark as read immediately when viewed
+  try {
+    await markAsRead(popup.id)
+  } catch (err) {
+    console.warn('Failed to mark notification as read from popup view:', err)
+  }
+
+  // Hide the popup immediately
+  const index = activePopups.value.findIndex(p => p.id === popup.id)
+  if (index !== -1) {
+    activePopups.value.splice(index, 1)
+  }
 
   // Navigate based on notification type
   if (popup.type.includes('requisition')) {
@@ -184,10 +204,10 @@ const handleViewAction = (popup: NotificationPopup) => {
         }
       })
     } else {
-        router.push({
-            path: '/universal-tasks',
-            query: { task: String(taskId) }
-        })
+      router.push({
+        path: '/universal-tasks',
+        query: { task: String(taskId) }
+      })
     }
   } else {
     router.push('/notifications')
@@ -209,14 +229,11 @@ const getIconClass = (type: string): string => {
     default: 'bg-gray-500'
   }
   
-  // Try exact match first, then partial match
   if (classes[type]) return classes[type]
-  
   if (type.includes('assigned')) return classes.task_assigned
   if (type.includes('approved')) return classes.requisition_approved
   if (type.includes('rejected')) return classes.requisition_rejected
   if (type.includes('disbursed')) return classes.requisition_disbursed
-  
   return classes.default
 }
 
@@ -231,56 +248,39 @@ const getPriorityClass = (priority: string): string => {
 }
 
 const playNotificationSound = () => {
-  // Create a simple notification sound
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
     const audioContext = new AudioContextClass()
     const oscillator = audioContext.createOscillator()
     const gainNode = audioContext.createGain()
-
     oscillator.connect(gainNode)
     gainNode.connect(audioContext.destination)
-
     oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
     oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1)
-
     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
-
     oscillator.start(audioContext.currentTime)
     oscillator.stop(audioContext.currentTime + 0.3)
   } catch {
-    // Silently fail if Web Audio API is not supported
     console.debug('Notification sound not supported')
   }
 }
 
-// Listen for all new notifications
 const handleNewNotification = (event: CustomEvent) => {
   const notification = event.detail
-  // We show popups for all unread notifications now
-  showPopup({
-    type: notification.type,
-    title: notification.title,
-    message: notification.message,
-    data: notification.data
-  })
+  showPopup(notification)
 }
 
 onMounted(() => {
-  // Listen for custom events from other components
   window.addEventListener('new-notification', handleNewNotification as EventListener)
 })
 
 onUnmounted(() => {
   window.removeEventListener('new-notification', handleNewNotification as EventListener)
-
-  // Clear all timers
   dismissTimers.value.forEach(timer => clearTimeout(timer))
   dismissTimers.value.clear()
 })
 
-// Expose showPopup method for external use
 defineExpose({
   showPopup
 })
