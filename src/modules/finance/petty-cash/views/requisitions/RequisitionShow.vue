@@ -36,55 +36,56 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="flex items-center gap-3 mb-2">
-             <div class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
-               DEBUG: Roles: {{ user?.roles }} | Can Manage: {{ canManage }}
-             </div>
-             <div class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
-               {{ requisition.requisition_number }}
-             </div>
-             <div :class="getStatusClass(requisition.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80">
-               {{ requisition.status }}
-             </div>
+      <div class="flex flex-col md:flex-row items-center gap-4">
+        <!-- Status Badges -->
+        <div class="flex items-center gap-3">
+          <div class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
+            DEBUG: Roles: {{ user?.roles }} | Can Manage: {{ canManage }}
           </div>
+          <div class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+            {{ requisition.requisition_number }}
+          </div>
+          <div :class="getStatusClass(requisition.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80">
+            {{ requisition.status }}
+          </div>
+        </div>
 
-      <!-- Actions for Admins/Accounts -->
-      <div v-if="canManage" class="flex items-center gap-2">
-        <button
-          @click="downloadVoucher"
-          :disabled="downloading"
-          class="px-5 py-2.5 rounded-xl font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 hover:text-blue-600 flex items-center gap-2 shadow-sm"
-        >
-          <i class="mdi" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-file-pdf-box'"></i>
-          <span class="hidden sm:inline">Download Voucher</span>
-        </button>
-        <div class="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block"></div>
-        
-        <template v-if="requisition.status === 'pending' && canManage">
+        <!-- Actions for Admins/Accounts -->
+        <div v-if="canManage" class="flex items-center gap-2">
           <button
-            @click="showRejectModal = true"
-            class="px-5 py-2.5 rounded-xl font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-red-200 dark:border-red-900/30"
+            @click="downloadVoucher"
+            :disabled="downloading"
+            class="px-5 py-2.5 rounded-xl font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 hover:text-blue-600 flex items-center gap-2 shadow-sm"
           >
-            Reject
+            <i class="mdi" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-file-pdf-box'"></i>
+            <span class="hidden sm:inline">Download Voucher</span>
           </button>
+          <div class="w-px h-8 bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+          
+          <template v-if="requisition.status === 'pending' && canManage">
+            <button
+              @click="showRejectModal = true"
+              class="px-5 py-2.5 rounded-xl font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-red-200 dark:border-red-900/30"
+            >
+              Reject
+            </button>
+            <button
+              @click="approveRequisition"
+              class="px-5 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-lg shadow-blue-500/20"
+            >
+              Approve Request
+            </button>
+          </template>
+          
           <button
-            @click="approveRequisition"
-            class="px-5 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-lg shadow-blue-500/20"
+            v-if="requisition.status === 'approved'"
+            @click="initiateDisbursement"
+            class="px-5 py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
           >
-            Approve Request
+            <i class="mdi mdi-cash-register"></i>
+            Disburse Cash
           </button>
-        </template>
-        
-        <button
-          v-if="requisition.status === 'approved'"
-          @click="initiateDisbursement"
-          class="px-5 py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
-        >
-          <i class="mdi mdi-cash-register"></i>
-          Disburse Cash
-        </button>
+        </div>
       </div>
     </div>
 
@@ -93,7 +94,6 @@
       <div class="lg:col-span-3 space-y-6">
         <!-- Main Details Card -->
         <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 p-8 shadow-sm">
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
           <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
             <div class="flex items-start gap-3">
               <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800">
@@ -175,9 +175,8 @@
                   </p>
                 </div>
               </div>
-            </div>
           </div>
-          </div>
+        </div>
 
           <hr class="border-slate-100 dark:border-slate-700 my-8" />
 

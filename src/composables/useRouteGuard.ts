@@ -336,7 +336,7 @@ export function useRouteGuard() {
         {
           department: 'Finance',
           routes: [
-            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Management', icon: 'mdi-cash-multiple' }
+            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' }
           ]
         },
         {
@@ -449,7 +449,7 @@ export function useRouteGuard() {
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Petty Cash Requisition', icon: 'mdi-cash-multiple' }
+        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' }
       )
     }
 
@@ -503,7 +503,7 @@ export function useRouteGuard() {
     }
 
     if (canAccessFinance()) {
-      return 'Finance Panel'
+      return 'Finance & Accounts'
     }
 
 
@@ -550,7 +550,7 @@ export function useRouteGuard() {
     }
 
     if (canAccessFinance()) {
-      return 'Financial Management'
+      return 'Finance & Accounts Management'
     }
 
 

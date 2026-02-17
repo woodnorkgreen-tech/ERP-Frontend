@@ -4,7 +4,7 @@
     <div v-if="!isEmbedded" class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div>
         <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          PETTY CASH REQUISITIONS
+          FINANCE & ACCOUNTS REQUISITIONS
         </h1>
         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">
           Internal Expense Management Portal

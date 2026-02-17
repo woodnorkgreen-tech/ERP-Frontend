@@ -160,7 +160,7 @@
             </div>
             <div>
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Finance</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Petty Cash Management</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Finance & Accounts</p>
             </div>
           </div>
           <p class="text-sm text-gray-700 dark:text-gray-300">Manage petty cash transactions, top-ups, disbursements, and generate detailed reports</p>

@@ -52,7 +52,7 @@
                 ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
                 : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
             ]"
-            :title="collapsed ? 'Petty Cash Requisition' : ''"
+            :title="collapsed ? 'Financial Requisition' : ''"
           >
             <!-- Active Indicator Bar -->
             <div 
@@ -75,7 +75,7 @@
               class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
               :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
             >
-              Petty Cash Requisition
+              Financial Requisition
             </span>
           </RouterLink>
         </div>

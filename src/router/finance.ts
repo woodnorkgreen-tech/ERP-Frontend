@@ -18,7 +18,7 @@ export const financeRoutes: RouteRecordRaw[] = [
         name: 'finance-petty-cash',
         component: () => import('../modules/finance/petty-cash/views/PettyCashIndex.vue'),
         meta: {
-          title: 'Petty Cash Management',
+          title: 'Finance & Accounts',
           requiresFinanceAccess: true
         }
       },
