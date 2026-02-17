@@ -321,7 +321,7 @@ const itemSignatures = reactive<Record<number, { isEmpty: boolean }>>({})
 
 const isBulkMode = computed(() => {
   if (!requisition.value) return false
-  return ['Travel & Subsistence', 'Entertainment & Meals'].includes(requisition.value.category) && requisition.value.items?.length > 1
+  return ['Transport', 'Meals', 'Transport and Meals'].includes(requisition.value.category) && requisition.value.items?.length > 1
 })
 
 const signedCount = computed(() => {

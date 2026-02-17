@@ -36,8 +36,22 @@
         </div>
       </div>
 
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+             <div class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
+               DEBUG: Roles: {{ user?.roles }} | Can Manage: {{ canManage }}
+             </div>
+             <div class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+               {{ requisition.requisition_number }}
+             </div>
+             <div :class="getStatusClass(requisition.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80">
+               {{ requisition.status }}
+             </div>
+          </div>
+
       <!-- Actions for Admins/Accounts -->
-      <div v-if="canManage || true" class="flex items-center gap-2">
+      <div v-if="canManage" class="flex items-center gap-2">
         <button
           @click="downloadVoucher"
           :disabled="downloading"
@@ -843,11 +857,12 @@ const signatureContexts: Record<number, CanvasRenderingContext2D | null> = {}
 const isDrawing = ref(false)
 
 const isBulkPayee = computed(() => {
-  return ['Travel & Subsistence', 'Entertainment & Meals'].includes(requisition.value?.category)
+  return ['Transport', 'Meals', 'Transport and Meals'].includes(requisition.value?.category)
 })
 
 const canManage = computed(() => {
-  return user.value?.roles?.some((role: string) => ['Super Admin', 'Admin', 'Accounts', 'Finance Manager'].includes(role))
+  console.log('User Roles:', user.value?.roles)
+  return user.value?.roles?.some((role: string) => ['Super Admin', 'Accounts'].includes(role))
 })
 
 const isRequester = computed(() => {

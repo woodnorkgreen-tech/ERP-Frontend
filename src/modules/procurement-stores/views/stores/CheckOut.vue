@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column: Check-Out Form (1/3 width) -->
       <div class="lg:col-span-1">
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden sticky top-6">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl sticky top-6">
           <div class="p-8 space-y-6">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
@@ -48,21 +48,67 @@
             </div>
 
             <!-- Material Selection -->
-            <div class="space-y-2">
-              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Material</label>
-              <div class="relative group">
-                <i class="mdi mdi-package-variant absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-rose-500 transition-colors"></i>
-                <select 
-                  v-model="form.material_id"
-                  class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all appearance-none"
-                >
-                  <option value="" disabled>Search Materials...</option>
-                  <option v-for="item in inventory" :key="item.id" :value="item.id">
-                    {{ item.material_code }} - {{ item.material_name }} ({{ item.available }})
-                  </option>
-                </select>
-                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <i class="mdi mdi-chevron-down text-slate-400"></i>
+            <div class="space-y-4">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Material Selection</label>
+              
+              <div class="relative group" ref="materialSearchContainer">
+                <div class="relative">
+                  <i v-if="searching" class="mdi mdi-loading mdi-spin absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-lg transition-colors"></i>
+                  <i v-else class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-rose-500 transition-colors"></i>
+                  <input 
+                    v-model="materialSearch"
+                    type="text"
+                    placeholder="Search inventory..."
+                    @input="onSearchInput"
+                    @focus="showResults = true"
+                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-rose-500 transition-all font-mono"
+                  />
+                  <!-- Selection Indicator -->
+                  <div v-if="selectedMaterial" class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 py-1 bg-rose-500/10 text-rose-600 rounded-lg border border-rose-500/20 animate-in fade-in zoom-in duration-200">
+                    <i class="mdi mdi-check-circle text-[10px]"></i>
+                    <span class="text-[9px] font-black uppercase tracking-tighter">Selected</span>
+                  </div>
+                </div>
+
+                <!-- Floating Results Dropdown -->
+                <div v-if="showResults" 
+                     class="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] z-[500] max-h-[350px] overflow-y-auto ring-1 ring-black/5 animate-in slide-in-from-top-2 duration-200">
+                  
+                  <!-- Searching State -->
+                  <div v-if="searching" class="p-6 flex flex-col items-center justify-center text-slate-400">
+                    <div class="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <span class="text-[9px] font-black uppercase tracking-widest">Scanning Stock...</span>
+                  </div>
+
+                  <!-- Results List -->
+                  <ul v-else class="p-1.5">
+                    <li v-for="item in displayInventory" :key="item.id"
+                        @click="selectMaterial(item)"
+                        class="p-3 hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer rounded-xl transition-all border border-transparent hover:border-rose-500/20 group flex items-center justify-between"
+                    >
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-rose-500 group-hover:bg-rose-100 dark:group-hover:bg-rose-500/10 transition-colors">
+                          <i class="mdi mdi-package-variant text-lg"></i>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400">{{ item.material_name }}</span>
+                          <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{{ item.material_code }}</span>
+                        </div>
+                      </div>
+                      <div class="text-right flex flex-col items-end">
+                        <span class="text-[9px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded uppercase group-hover:bg-rose-100 dark:group-hover:bg-rose-900/40 group-hover:text-rose-600 transition-colors">
+                          {{ item.available }} {{ item.unit_of_measure }}
+                        </span>
+                        <span class="text-[8px] font-bold text-slate-300 mt-1">{{ item.location || 'No Location' }}</span>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <!-- No Results -->
+                  <div v-if="inventory.length === 0 && !searching" class="p-8 text-center text-slate-400">
+                    <i class="mdi mdi-package-variant text-3xl mb-2 block opacity-20"></i>
+                    <p class="text-[9px] font-bold uppercase tracking-widest">Material not in inventory</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -206,6 +252,7 @@
                   <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Qty</th>
                   <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Project</th>
                   <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Date</th>
+                  <th class="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -231,6 +278,15 @@
                   </td>
                   <td class="px-4 py-3">
                     <p class="text-[10px] text-slate-600 dark:text-slate-300">{{ formatDateTime(log.created_at) }}</p>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button 
+                      @click="deleteLog(log.id)"
+                      class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                      title="Delete Log"
+                    >
+                      <i class="mdi mdi-delete-outline text-lg"></i>
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -270,7 +326,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import { useInventory } from '../../composables/useInventory'
 import api from '@/plugins/axios'
 
@@ -294,9 +351,62 @@ const form = ref<CheckOutForm>({
 })
 
 const submitting = ref(false)
+const materialSearch = ref('')
+const searching = ref(false)
+let searchTimeout: any = null
 
-const selectedMaterial = computed(() => {
-  return inventory.value.find(i => i.id === form.value.material_id)
+const onSearchInput = (event: any) => {
+  const query = event.target.value
+  showResults.value = true
+  if (searchTimeout) clearTimeout(searchTimeout)
+  
+  searchTimeout = setTimeout(async () => {
+    searching.value = true
+    try {
+      await fetchInventory({ search: query })
+    } finally {
+      searching.value = false
+    }
+  }, 300)
+}
+
+const selectedMaterial = ref<any>(null)
+const showResults = ref(false)
+const materialSearchContainer = ref<HTMLElement | null>(null)
+
+onClickOutside(materialSearchContainer, () => {
+  showResults.value = false
+})
+
+const selectMaterial = (item: any) => {
+  form.value.material_id = item.id
+  selectedMaterial.value = item
+  materialSearch.value = item.material_name
+  showResults.value = false
+}
+
+watch([() => form.value.material_id, inventory], () => {
+  if (!form.value.material_id) {
+    selectedMaterial.value = null
+    return
+  }
+  const found = (inventory.value || []).find(i => i.id === form.value.material_id)
+  if (found) {
+    selectedMaterial.value = found
+    // Update search box if empty or just an ID
+    if (!materialSearch.value || materialSearch.value === found.id.toString()) {
+      materialSearch.value = found.material_name
+    }
+  }
+}, { immediate: true })
+
+const displayInventory = computed(() => {
+  const list = Array.isArray(inventory.value) ? [...inventory.value] : []
+  // Only include selected material at the top if we are NOT actively searching
+  if (!searching.value && !materialSearch.value && selectedMaterial.value && !list.find(i => i.id === selectedMaterial.value.id)) {
+    list.unshift(selectedMaterial.value)
+  }
+  return list
 })
 
 const selectedProject = computed(() => {
@@ -455,6 +565,22 @@ const submitCheckOut = async () => {
     alert(err.response?.data?.message || 'Transaction failed. Check stock levels.')
   } finally {
     submitting.value = false
+  }
+}
+
+const deleteLog = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this log entry? This will revert the stock adjustment.')) return
+  
+  loadingLogs.value = true
+  try {
+    await api.delete(`/api/procurement-stores/inventory-logs/${id}`)
+    await fetchRecentLogs()
+    await fetchInventory()
+  } catch (err) {
+    console.error('Failed to delete log:', err)
+    alert('Failed to delete log. Please try again.')
+  } finally {
+    loadingLogs.value = false
   }
 }
 

@@ -212,6 +212,7 @@
             <TransactionList 
               @view-transaction="viewTransaction"
               @edit-disbursement="editDisbursement"
+              @edit-top-up="editTopUp"
               @void-disbursement="voidDisbursement"
               @delete-disbursement="deleteDisbursement"
             />
@@ -222,6 +223,11 @@
         <!-- Requisitions Tab Content -->
         <div v-show="activeDashboardTab === 'requisitions'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
            <RequisitionIndex :is-embedded="true" />
+        </div>
+
+        <!-- Project Budgets Tab Content -->
+        <div v-show="activeDashboardTab === 'budgets'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <ProjectBudgetsTab />
         </div>
 
       </div>
@@ -240,6 +246,24 @@
       <TopUpForm 
         :is-open="showTopUpModal" 
         @close="closeTopUpModal"
+        @success="onTopUpSuccess"
+      />
+    </ErrorBoundary>
+
+    <ErrorBoundary 
+      v-if="selectedTopUp && showEditTopUpModal"
+      type="component" 
+      :can-retry="true"
+      title="Edit Top-up Form Error"
+      message="Unable to load edit top-up form"
+      @retry="handleEditTopUpModalRetry"
+      @reset="closeEditTopUpModal"
+    >
+      <TopUpForm 
+        :is-open="showEditTopUpModal" 
+        :mode="'edit'"
+        :top-up="selectedTopUp"
+        @close="closeEditTopUpModal"
         @success="onTopUpSuccess"
       />
     </ErrorBoundary>
@@ -432,11 +456,13 @@ import DisbursementForm from '../components/DisbursementForm.vue'
 import ExcelUploadModal from '../components/ExcelUploadModal.vue'
 import TransactionDetailModal from '../components/TransactionDetailModal.vue'
 import RequisitionIndex from './requisitions/RequisitionIndex.vue'
+import ProjectBudgetsTab from '../components/ProjectBudgetsTab.vue'
 import ErrorBoundary from '../components/ErrorBoundary.vue'
 
 const activeDashboardTab = ref('overview')
 const dashboardTabs = [
   { id: 'overview', name: 'Financial Overview', icon: 'mdi-view-dashboard-outline', activeIcon: 'mdi-view-dashboard' },
+  { id: 'budgets', name: 'Project Budgets', icon: 'mdi-calculator-variant-outline', activeIcon: 'mdi-calculator-variant' },
   { id: 'requisitions', name: 'Requisitions', icon: 'mdi-clipboard-list-outline', activeIcon: 'mdi-clipboard-list' }
 ]
 
@@ -453,6 +479,7 @@ const isRefreshing = ref(false)
 
 // Modal states - Initialize with explicit values to prevent Vue reactivity issues
 const showTopUpModal = ref(false)
+const showEditTopUpModal = ref(false)
 const showDisbursementModal = ref(false)
 const showEditDisbursementModal = ref(false)
 const showUploadModal = ref(false)
@@ -460,6 +487,7 @@ const showDetailModal = ref(false)
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
+const selectedTopUp = ref<any>(null)
 const selectedTransaction = ref<any>(null)
 const voidReason = ref('')
 const isVoiding = ref(false)
@@ -551,6 +579,7 @@ const totalTransactions = computed(() => {
 const modalStates = computed(() => {
   return {
     topUp: showTopUpModal.value,
+    editTopUp: showEditTopUpModal.value,
     disbursement: showDisbursementModal.value,
     edit: showEditDisbursementModal.value,
     upload: showUploadModal.value,
@@ -797,6 +826,7 @@ const closeUploadModal = async () => {
 const onTopUpSuccess = async () => {
   try {
     await closeTopUpModal()
+    await closeEditTopUpModal()
     // Store will automatically refresh data
   } catch (error) {
     console.error('Error handling top-up success:', error)
@@ -857,6 +887,27 @@ const editDisbursement = async (disbursement: PettyCashDisbursement) => {
   }
 }
 
+const editTopUp = async (topUp: any) => {
+  try {
+    // Check permissions before opening edit modal
+    permissions.requirePermission('finance.petty_cash.edit_top_up')
+    
+    // Prevent modal conflicts
+    if (activeModal.value && activeModal.value !== 'edit_top_up') {
+      console.warn('Another modal is already open:', activeModal.value)
+      return
+    }
+    
+    activeModal.value = 'edit_top_up'
+    selectedTopUp.value = topUp
+    showEditTopUpModal.value = true
+    await nextTick()
+  } catch (error: any) {
+    console.error('Error opening edit top-up modal:', error)
+    handleError(error, { context: 'open_edit_top_up_modal' })
+  }
+}
+
 const voidDisbursement = async (disbursement: PettyCashDisbursement) => {
   try {
     // Check permissions before opening void modal
@@ -910,6 +961,20 @@ const closeEditModal = async () => {
   } catch (error: any) {
     console.error('Error closing edit modal:', error)
     handleError(error, { context: 'close_edit_modal' })
+  }
+}
+
+const closeEditTopUpModal = async () => {
+  try {
+    showEditTopUpModal.value = false
+    selectedTopUp.value = null
+    if (activeModal.value === 'edit_top_up') {
+      activeModal.value = null
+    }
+    await nextTick() // Ensure DOM is updated
+  } catch (error: any) {
+    console.error('Error closing edit top-up modal:', error)
+    handleError(error, { context: 'close_edit_top_up_modal' })
   }
 }
 
@@ -1005,6 +1070,15 @@ const handleEditModalRetry = async () => {
   }
 }
 
+const handleEditTopUpModalRetry = async () => {
+  try {
+    await nextTick()
+    // Modal should automatically re-render after error boundary retry
+  } catch (error: any) {
+    handleError(error, { context: 'edit_top_up_modal_retry' })
+  }
+}
+
 // Main component error boundary handlers
 const handleRetry = async () => {
   try {
@@ -1022,10 +1096,12 @@ const handleReset = async () => {
   try {
     // Reset all modal states
     showTopUpModal.value = false
+    showEditTopUpModal.value = false
     showDisbursementModal.value = false
     showEditDisbursementModal.value = false
     showVoidModal.value = false
     selectedDisbursement.value = null
+    selectedTopUp.value = null
     voidReason.value = ''
     activeModal.value = null
     

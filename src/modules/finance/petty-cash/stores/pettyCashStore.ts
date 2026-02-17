@@ -673,6 +673,37 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+    const updateTopUp = async (id: number, data: Partial<CreateTopUpFormData>) => {
+        const operation = async () => {
+            loading.value.updating = true
+            errors.value.updating = null
+            const response = await pettyCashService.updateTopUp(id, data)
+            if ('success' in response && response.success) {
+                const validationResult = validateTopUpData(response.data)
+                if (validationResult.isValid && validationResult.data) {
+                    const index = topUps.value.findIndex(t => t.id === id)
+                    if (index !== -1) topUps.value[index] = validationResult.data
+                    await Promise.all([fetchCurrentBalance(), fetchSummary(), fetchAvailableTopUps(), fetchTransactions()])
+                    dataIntegrity.value.lastValidated = new Date()
+                    return validationResult.data
+                } else {
+                    const index = topUps.value.findIndex(t => t.id === id)
+                    if (index !== -1) topUps.value[index] = response.data as any
+                    return response.data
+                }
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+        const result = await withErrorHandling(operation, { context: 'updateTopUp', topUpId: id, formData: data })
+        if (!result) {
+            errors.value.updating = 'Failed to update top-up'
+            throw new Error('Failed to update top-up')
+        }
+        loading.value.updating = false
+        return result
+    }
+
     const uploadExcel = async (formData: FormData) => {
         const operation = async () => {
             loading.value.creating = true
@@ -985,7 +1016,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         clearAllPettyCashData, fetchTopUps, fetchTransactions,
         fetchAvailableTopUps, createTopUp, uploadExcel, fetchCurrentBalance,
         recalculateBalance, fetchSummary, fetchRecentTransactions, archiveTransaction,
-        bulkArchiveTransactions, archiveTransactionGroup,
+        bulkArchiveTransactions, archiveTransactionGroup, updateTopUp,
         clearError, clearData, resetStore, validateDataIntegrity,
         refreshDashboard, refreshAll,
         debugStoreState: () => {

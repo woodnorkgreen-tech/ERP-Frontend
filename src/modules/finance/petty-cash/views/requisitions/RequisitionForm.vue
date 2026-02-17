@@ -199,34 +199,68 @@
                   
                   <template v-if="isPayeeCategory">
                     <div class="flex gap-2">
-                      <select
-                        v-if="!item.is_external"
-                        v-model="item.payee_id"
-                        :disabled="isFinancialLocked"
-                        required
-                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
-                      >
-                        <option :value="null" disabled>Select Employee</option>
-                        <option v-for="emp in formData.employees" :key="emp.id" :value="emp.id">
-                          {{ emp.first_name }} {{ emp.last_name }}
-                        </option>
-                      </select>
-                      <input
-                        v-else
-                        v-model="item.payee_name"
-                        :disabled="isFinancialLocked"
-                        required
-                        placeholder="Full Name"
-                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
-                      />
+                      <div class="relative w-full">
+                        <!-- Payee Search Input -->
+                        <div class="relative">
+                          <input
+                            type="text"
+                            v-model="item.payee_search"
+                            @input="onPayeeSearch($event, index)"
+                            @focus="item.show_results = true"
+                            @blur="hidePayeeResults(index)"
+                            :placeholder="item.payee_name || 'Search Employee or Tech Labour...'"
+                            class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
+                            :disabled="isFinancialLocked || item.is_external"
+                          />
+                          <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
+                          <button
+                            v-if="item.payee_id || (item.payee_name && !item.is_external)"
+                            @click="clearPayee(index)"
+                            type="button"
+                            class="absolute right-3 top-2.5 text-slate-400 hover:text-red-500"
+                          >
+                            <i class="mdi mdi-close"></i>
+                          </button>
+                        </div>
+                        
+                        <!-- Search Results Dropdown -->
+                        <div
+                          v-if="item.show_results && item.search_results && item.search_results.length > 0"
+                          class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto"
+                        >
+                          <button
+                            v-for="result in item.search_results"
+                            :key="result.type + result.id"
+                            type="button"
+                            @mousedown.prevent="selectPayee(index, result)"
+                            class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-between group border-b border-slate-50 dark:border-slate-700/50 last:border-0"
+                          >
+                            <div>
+                              <div class="font-bold text-slate-900 dark:text-white text-sm">{{ result.name }}</div>
+                              <div class="text-[10px] uppercase font-black tracking-wider" 
+                                :class="result.type === 'employee' ? 'text-blue-500' : 'text-amber-500'">
+                                {{ result.detail }}
+                              </div>
+                            </div>
+                            <i v-if="result.type === 'employee'" class="mdi mdi-account-tie text-slate-300 group-hover:text-blue-500"></i>
+                            <i v-else class="mdi mdi-hammer-wrench text-slate-300 group-hover:text-amber-500"></i>
+                          </button>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div v-if="item.searching" class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+                           <i class="mdi mdi-loading mdi-spin text-blue-500 mr-2"></i> <span class="text-xs font-bold text-slate-500">Searching...</span>
+                        </div>
+                      </div>
+
                       <button 
-                        v-if="!isFinancialLocked"
-                        type="button"
-                        @click="item.is_external = !item.is_external"
-                        class="p-2 text-slate-400 hover:text-blue-500"
-                        title="Toggle Internal/External"
+                         v-if="!isFinancialLocked"
+                         type="button"
+                         @click="toggleExternal(index)"
+                         class="p-2 text-slate-400 hover:text-blue-500 shrink-0"
+                         :title="item.is_external ? 'Switch to Search' : 'Switch to Manual Entry'"
                       >
-                        <i :class="item.is_external ? 'mdi mdi-account-check' : 'mdi mdi-account-plus'"></i>
+                         <i :class="item.is_external ? 'mdi mdi-account-search' : 'mdi mdi-account-edit'"></i>
                       </button>
                     </div>
                   </template>
@@ -338,12 +372,22 @@ const form = reactive({
   venue: '',
   enquiry_id: null as number | null,
   items: [
-    { description: '', amount: 0, payee_id: null as number | null, payee_name: '', is_external: false }
+    { 
+      description: '', 
+      amount: 0, 
+      payee_id: null as number | null, 
+      payee_name: '', 
+      is_external: false,
+      payee_search: '',
+      show_results: false,
+      search_results: [] as any[],
+      searching: false
+    }
   ]
 })
 
 const isPayeeCategory = computed(() => {
-  return ['Travel & Subsistence', 'Entertainment & Meals'].includes(form.category)
+  return ['Transport', 'Meals', 'Transport and Meals'].includes(form.category)
 })
 
 const totalAmount = computed(() => {
@@ -396,7 +440,11 @@ const fetchRequisition = async () => {
       amount: parseFloat(item.amount),
       payee_id: item.payee_id,
       payee_name: item.payee_name,
-      is_external: !!item.payee_name && !item.payee_id
+      is_external: !!item.payee_name && !item.payee_id,
+      payee_search: item.payee_name || (item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : ''),
+      show_results: false,
+      search_results: [],
+      searching: false
     }))
   } catch (error) {
     console.error('Failed to fetch requisition:', error)
@@ -467,11 +515,15 @@ watch(projectSelection, async (newVal) => {
 
       if (isBlank && members.length > 0) {
         form.items = members.map((m: any) => ({
-          description: '',
+          description: isPayeeCategory.value ? form.category : '',
           amount: 0,
           payee_id: m.payee_id,
           payee_name: m.is_internal ? '' : m.name,
-          is_external: !m.is_internal
+          is_external: !m.is_internal,
+          payee_search: m.is_internal ? m.name : '',
+          show_results: false,
+          search_results: [],
+          searching: false
         }))
         toast.success(`Auto-filled ${members.length} total team members`)
       }
@@ -492,11 +544,15 @@ const addTeamToItems = (category: string) => {
   const isOnlyBlank = form.items.length === 1 && !form.items[0].description && !form.items[0].payee_id && !form.items[0].payee_name
   
   const newItems = members.map((m: any) => ({
-    description: '',
+    description: isPayeeCategory.value ? form.category : '',
     amount: 0,
     payee_id: m.payee_id,
     payee_name: m.is_internal ? '' : m.name,
-    is_external: !m.is_internal
+    is_external: !m.is_internal,
+    payee_search: m.is_internal ? m.name : '',
+    show_results: false,
+    search_results: [],
+    searching: false
   }))
 
   if (isOnlyBlank) {
@@ -527,7 +583,98 @@ const handlePayeeToggle = () => {
 }
 
 const addItem = () => {
-  form.items.push({ description: '', amount: 0, payee_id: null, payee_name: '', is_external: false })
+  form.items.push({ 
+    description: '', 
+    amount: 0, 
+    payee_id: null, 
+    payee_name: '', 
+    is_external: false,
+    payee_search: '',
+    show_results: false,
+    search_results: [],
+    searching: false
+  })
+}
+
+// Debounce timer
+let debounceTimer: any = null
+
+const onPayeeSearch = (event: Event, index: number) => {
+  const query = (event.target as HTMLInputElement).value
+  const item = form.items[index]
+  
+  // Clear any existing timer immediately
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+    debounceTimer = null
+  }
+  
+  if (query.length < 2) {
+    item.search_results = []
+    item.show_results = false
+    item.searching = false // Reset searching state
+    return
+  }
+
+  // Indicate searching immediately
+  item.searching = true
+  item.show_results = true 
+
+  debounceTimer = setTimeout(async () => {
+    try {
+      const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
+        params: { query }
+      })
+      item.search_results = response.data.data
+    } catch (error) {
+      console.error('Search failed', error)
+      item.search_results = []
+    } finally {
+      item.searching = false
+    }
+  }, 400) // 400ms debounce
+}
+
+const hidePayeeResults = (index: number) => {
+  setTimeout(() => {
+    form.items[index].show_results = false
+  }, 200)
+}
+
+const selectPayee = (index: number, result: any) => {
+  const item = form.items[index]
+  if (result.type === 'employee') {
+    item.payee_id = result.id
+    item.payee_name = '' // Backend uses ID
+    item.payee_search = result.name
+  } else {
+    // Technical Labour or other
+    // Treat as external/manual for now, but pre-fill name
+    item.payee_id = null
+    item.payee_name = result.name + ' (Tech Labour)'
+    item.payee_search = result.name
+    // Optionally: store technical_labour_id if backend supports it
+  }
+  item.show_results = false
+}
+
+const clearPayee = (index: number) => {
+  const item = form.items[index]
+  item.payee_id = null
+  item.payee_name = ''
+  item.payee_search = ''
+}
+
+const toggleExternal = (index: number) => {
+  const item = form.items[index]
+  item.is_external = !item.is_external
+  // Clear search/selection when toggling
+  if (item.is_external) {
+    item.payee_id = null
+    item.payee_search = ''
+  } else {
+    item.payee_name = ''
+  }
 }
 
 const removeItem = (index: number) => {
@@ -580,7 +727,17 @@ const resetForm = () => {
   form.project_name = ''
   form.venue = ''
   form.enquiry_id = null
-  form.items = [{ description: '', amount: 0, payee_id: null, payee_name: '', is_external: false }]
+  form.items = [{ 
+    description: '', 
+    amount: 0, 
+    payee_id: null, 
+    payee_name: '', 
+    is_external: false,
+    payee_search: '',
+    show_results: false,
+    search_results: [],
+    searching: false
+  }]
   projectSelection.value = null
   projectTeams.value = {}
 }

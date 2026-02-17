@@ -50,7 +50,7 @@
           <!-- Modal header -->
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-              Add Top-up
+              {{ mode === 'edit' ? 'Edit Top-up' : 'Add Top-up' }}
             </h3>
             <button
               @click="closeModal"
@@ -204,7 +204,7 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {{ isSubmitting ? 'Creating...' : 'Create Top-up' }}
+                {{ isSubmitting ? (mode === 'edit' ? 'Updating...' : 'Creating...') : (mode === 'edit' ? 'Update Top-up' : 'Create Top-up') }}
               </button>
             </div>
           </form>
@@ -223,6 +223,8 @@ import type { CreateTopUpFormData } from '../types/forms'
 
 interface Props {
   isOpen: boolean
+  topUp?: any | null
+  mode?: 'create' | 'edit'
 }
 
 interface Emits {
@@ -281,7 +283,7 @@ const getTransactionCodePlaceholder = (): string => {
 const validateForm = (): boolean => {
   try {
     const result = validateTopUpFormData(form)
-    errors.value = result.errors
+    errors.value = result.errors as Record<string, string[]>
     return result.isValid
   } catch (error) {
     console.error('Form validation error:', error)
@@ -343,10 +345,18 @@ const handleSubmit = async () => {
   const result = await withErrorHandling(async () => {
     isSubmitting.value = true
     
-    const topUp = await store.createTopUp({
-      ...form,
-      amount: Number(form.amount)
-    })
+    let topUp;
+    if (props.mode === 'edit' && props.topUp) {
+      topUp = await store.updateTopUp(props.topUp.id, {
+        ...form,
+        amount: Number(form.amount)
+      })
+    } else {
+      topUp = await store.createTopUp({
+        ...form,
+        amount: Number(form.amount)
+      })
+    }
 
     emit('success', topUp)
     await closeModal()
@@ -379,6 +389,21 @@ watch(() => form.payment_method, (newMethod) => {
     form.transaction_code = ''
   }
 })
+
+// Watch for topUp change to populate form in edit mode
+watch(() => props.topUp, (newTopUp) => {
+  if (props.mode === 'edit' && newTopUp) {
+    Object.assign(form, {
+      amount: newTopUp.amount?.raw ?? newTopUp.amount,
+      payment_method: newTopUp.payment_method?.value ?? newTopUp.payment_method,
+      transaction_code: newTopUp.transaction_code || '',
+      date_topped_up: (newTopUp.date_topped_up?.raw || newTopUp.date_topped_up || '').split('T')[0],
+      description: newTopUp.description || ''
+    })
+  } else if (props.mode !== 'edit' && !props.isOpen) {
+    resetForm()
+  }
+}, { immediate: true })
 
 // Clear errors when form values change
 watch(() => form.amount, () => {

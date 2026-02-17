@@ -1,175 +1,129 @@
 <template>
   <div class="space-y-6">
     <!-- Header Area -->
-    <div v-if="!isEmbedded" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div v-if="!isEmbedded" class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div>
-        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
-          Petty Cash Requisitions
+        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          PETTY CASH REQUISITIONS
         </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Manage and track your petty cash requests
+        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+          Internal Expense Management Portal
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <button
           @click="fetchRequisitions"
-          class="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+          class="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-50 transition-all font-bold rounded-lg"
           title="Refresh Data"
         >
-          <i class="mdi mdi-refresh text-xl" :class="{ 'animate-spin': loading }"></i>
+          <i class="mdi mdi-refresh text-lg" :class="{ 'animate-spin': loading }"></i>
         </button>
         <button
           @click="openNewRequisition"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20 inline-flex items-center gap-2"
+          class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-lg font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-slate-800 dark:hover:bg-slate-100 shadow-sm"
         >
-          <i class="mdi mdi-plus text-xl"></i>
           New Requisition
         </button>
       </div>
     </div>
 
     <!-- Dynamic Filter & Status Hub -->
-    <div class="bg-white dark:bg-slate-800 p-4 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-700/60 shadow-xl shadow-slate-200/10 dark:shadow-none">
-      <div class="flex flex-col xl:flex-row gap-6">
+    <div class="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+      <div class="flex flex-col xl:flex-row gap-8 items-start xl:items-center">
         
         <!-- Section: Search & Chronology -->
-        <div class="flex flex-col sm:flex-row gap-3 shrink-0 xl:w-[450px]">
-          <div class="relative flex-grow pointer-events-auto">
-            <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 pointer-events-none">
-              <i class="mdi mdi-magnify text-xl"></i>
-            </span>
+        <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+          <div class="relative w-full sm:w-80">
             <input
               v-model="filters.search"
               type="text"
-              placeholder="Search by purpose or payee..."
-              class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-blue-500/20 focus:bg-white dark:focus:bg-slate-900 rounded-2xl focus:ring-4 focus:ring-blue-500/5 text-slate-900 dark:text-white font-bold text-sm transition-all placeholder:text-slate-400"
+              placeholder="SEARCH PURPOSE OR PAYEE..."
+              class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest outline-none focus:border-slate-900 dark:focus:border-white transition-all shadow-sm"
               @input="debounceSearch"
             />
           </div>
           
-          <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-1.5 border border-slate-100 dark:border-slate-800 shrink-0">
-             <div class="flex items-center px-2 text-slate-400">
-               <i class="mdi mdi-calendar-range text-lg"></i>
+          <div class="flex items-center gap-2 shrink-0">
+             <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <span class="text-[9px] font-black text-slate-400 mr-2 uppercase">FROM</span>
+                <input
+                  v-model="filters.start_date"
+                  type="date"
+                  class="bg-transparent border-none text-[10px] font-black text-slate-900 dark:text-slate-200 w-24 focus:ring-0 p-0"
+                  @change="fetchRequisitions"
+                />
              </div>
-             <input
-              v-model="filters.start_date"
-              type="date"
-              class="bg-transparent border-none text-[10px] uppercase font-black text-slate-700 dark:text-slate-300 w-28 focus:ring-0 p-1"
-              @change="fetchRequisitions"
-            />
-            <div class="w-1.5 h-px bg-slate-300 dark:bg-slate-600"></div>
-            <input
-              v-model="filters.end_date"
-              type="date"
-              class="bg-transparent border-none text-[10px] uppercase font-black text-slate-700 dark:text-slate-300 w-28 focus:ring-0 p-1"
-              @change="fetchRequisitions"
-            />
-            <button 
-              v-if="filters.start_date || filters.end_date"
-              @click="clearDates"
-              class="w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:shadow-sm transition-all"
-            >
-              <i class="mdi mdi-close-circle text-lg"></i>
-            </button>
+             <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <span class="text-[9px] font-black text-slate-400 mr-2 uppercase">TO</span>
+                <input
+                  v-model="filters.end_date"
+                  type="date"
+                  class="bg-transparent border-none text-[10px] font-black text-slate-900 dark:text-slate-200 w-24 focus:ring-0 p-0"
+                  @change="fetchRequisitions"
+                />
+             </div>
+             <button 
+                v-if="filters.start_date || filters.end_date"
+                @click="clearDates"
+                class="px-3 py-2 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-black text-[10px] uppercase tracking-widest"
+              >
+                Clear
+              </button>
           </div>
         </div>
 
-        <!-- Vertical Divider (Desktop) -->
-        <div class="hidden xl:block w-px bg-slate-100 dark:bg-slate-800 h-10 my-auto"></div>
-
-        <!-- Section: Interactive Status Badges -->
-        <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 xl:pb-0 flex-grow">
-          <!-- All -->
+        <!-- Section: Interactive Status Tabs -->
+        <div class="flex items-center gap-6 overflow-x-auto no-scrollbar w-full xl:w-auto">
           <button
             @click="setStatus('')"
             :class="[
-              'flex items-center justify-center px-6 py-3 rounded-2xl border-2 transition-all shrink-0 font-black uppercase tracking-widest text-[10px]',
-              filters.status === ''
-                ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 shadow-lg shadow-slate-900/20'
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-slate-300 hover:text-slate-600'
+              'pb-1 border-b-2 font-black text-[10px] uppercase tracking-[0.2em] transition-all shrink-0',
+              filters.status === '' ? 'text-slate-900 dark:text-white border-slate-900 dark:border-white' : 'text-slate-400 border-transparent hover:text-slate-600'
             ]"
           >
-             All
+            All
           </button>
 
-          <!-- Pending -->
           <button
-            @click="setStatus('pending')"
+            v-for="status in ['pending', 'approved', 'disbursed']"
+            :key="status"
+            @click="setStatus(status)"
             :class="[
-              'flex items-center gap-4 px-5 py-2.5 rounded-2xl border-2 transition-all shrink-0 group',
-              filters.status === 'pending'
-                ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/30'
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 hover:border-amber-200'
+              'flex items-center gap-3 transition-all px-4 py-2 rounded-xl shrink-0 group border-2',
+              filters.status === status 
+                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                : 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30'
             ]"
           >
-             <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 text-current">
-                <i class="mdi mdi-clock-fast text-xl"></i>
-             </div>
-             <div class="flex flex-col items-start pt-0.5">
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-80">Pending</span>
-                <div class="flex items-baseline gap-2">
-                   <span class="text-sm font-black">{{ requisitionStats?.pending?.count || 0 }}</span>
-                   <span class="text-[10px] font-bold opacity-60 font-mono">{{ formatCurrency(requisitionStats?.pending?.amount || 0) }}</span>
-                </div>
-             </div>
-          </button>
-
-          <!-- Approved -->
-          <button
-            @click="setStatus('approved')"
-            :class="[
-              'flex items-center gap-4 px-5 py-2.5 rounded-2xl border-2 transition-all shrink-0 group',
-              filters.status === 'approved'
-                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30'
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 hover:border-blue-200'
-            ]"
-          >
-             <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 text-current">
-                <i class="mdi mdi-check-decagram text-xl"></i>
-             </div>
-             <div class="flex flex-col items-start pt-0.5">
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-80">Approved</span>
-                <div class="flex items-baseline gap-2">
-                   <span class="text-sm font-black">{{ requisitionStats?.approved?.count || 0 }}</span>
-                   <span class="text-[10px] font-bold opacity-60 font-mono">{{ formatCurrency(requisitionStats?.approved?.amount || 0) }}</span>
-                </div>
-             </div>
-          </button>
-
-          <!-- Disbursed -->
-          <button
-            @click="setStatus('disbursed')"
-            :class="[
-              'flex items-center gap-4 px-5 py-2.5 rounded-2xl border-2 transition-all shrink-0 group',
-              filters.status === 'disbursed'
-                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 hover:border-emerald-200'
-            ]"
-          >
-             <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 text-current">
-                <i class="mdi mdi-cash-check text-xl"></i>
-             </div>
-             <div class="flex flex-col items-start pt-0.5">
-                <span class="text-[9px] font-black uppercase tracking-widest opacity-80">Paid</span>
-                <div class="flex items-baseline gap-2">
-                   <span class="text-sm font-black">{{ requisitionStats?.disbursed?.count || 0 }}</span>
-                   <span class="text-[10px] font-bold opacity-60 font-mono">{{ formatCurrency(requisitionStats?.disbursed?.amount || 0) }}</span>
-                </div>
-             </div>
+             <span 
+               :class="[
+                 'text-[10px] font-black uppercase tracking-[0.2em]',
+                 filters.status === status 
+                    ? 'text-white' 
+                    : (status === 'pending' ? 'text-amber-600' : status === 'approved' ? 'text-blue-600' : 'text-emerald-600')
+               ]"
+             >
+               {{ status === 'disbursed' ? 'Paid' : status }}
+             </span>
+             <span 
+               :class="[
+                 'text-[10px] font-black font-mono px-2 py-0.5 rounded-lg border',
+                 filters.status === status 
+                    ? 'bg-white/20 border-white/20 text-white' 
+                    : 'bg-white dark:bg-slate-800 border-blue-100 dark:border-blue-800 text-slate-500'
+               ]"
+             >
+                {{ requisitionStats?.[status]?.count || 0 }}
+             </span>
           </button>
 
           <!-- Divider -->
-          <div class="h-8 w-px bg-slate-100 dark:bg-slate-700 shrink-0"></div>
+          <div class="hidden xl:block h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
 
-          <!-- Summary Metric -->
-          <div class="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/50 shrink-0">
-             <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-100 dark:bg-indigo-800 text-indigo-600 dark:text-indigo-400">
-                <i class="mdi mdi-finance text-xl"></i>
-             </div>
-             <div class="flex flex-col items-start pt-0.5">
-                <span class="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em]">Monthly Volume</span>
-                <span class="text-sm font-black text-indigo-900 dark:text-indigo-200">{{ formatCurrency(requisitionStats?.monthly?.amount || 0) }}</span>
-             </div>
+          <!-- Monthly Volume Metric (Minimalist) -->
+          <div class="flex items-center gap-2">
+             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Monthly Vol:</span>
+             <span class="text-xs font-black text-slate-900 dark:text-white font-mono">{{ formatCurrency(requisitionStats?.monthly?.amount || 0) }}</span>
           </div>
         </div>
       </div>
@@ -184,9 +138,9 @@
         ]"
       >
         <!-- List Header (Search/Filters integrated or summarized) -->
-        <div class="p-4 border-b border-slate-50 dark:border-slate-700/50 flex items-center justify-between rounded-t-[2.5rem] overflow-hidden">
-          <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Claims Inbox</span>
-          <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-900 text-slate-500 rounded-md text-[9px] font-black uppercase tracking-wider">{{ meta.total }}</span>
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900 border-t border-x rounded-t-2xl">
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white">CLAIMS INBOX</span>
+          <span class="text-[10px] font-black font-mono text-slate-400">{{ meta.total }}</span>
         </div>
 
         <!-- Scrollable List -->
@@ -208,21 +162,26 @@
             :key="req.id"
             @click="selectRequisition(req)"
             :class="[
-              'w-full text-left p-3 rounded-2xl transition-all border group relative flex flex-col gap-1.5',
+              'w-full text-left p-5 transition-all border-b last:border-b-0 relative group flex flex-col gap-3',
               selectedId === req.id 
-                ? 'bg-blue-50/80 border-blue-200 dark:bg-blue-900/20 dark:border-blue-500/30 ring-1 ring-blue-500/20 z-20 translate-x-1 shadow-md' 
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600'
+                ? 'bg-slate-900 border-slate-900 dark:bg-blue-600/20 dark:border-blue-500/50 z-10' 
+                : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-blue-900/40'
             ]"
           >
             <!-- Header: ID + Status + Date -->
             <div class="flex justify-between items-center w-full">
-              <div class="flex items-center gap-2">
-                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 font-mono">{{ req.requisition_number }}</span>
-                <span v-if="req.items_count > 1" class="text-[8px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-700 px-1.5 py-px rounded-md">
-                  {{ req.items_count }} ITEMS
-                </span>
-              </div>
-              <span :class="getStatusClass(req.status)" class="px-1.5 py-px rounded-full text-[8px] font-black uppercase tracking-wider shadow-sm border border-transparent">
+              <span 
+                class="text-[9px] font-black uppercase tracking-widest font-mono"
+                :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-400'"
+              >
+                {{ req.requisition_number }}
+              </span>
+              <span 
+                :class="[
+                  'px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border',
+                  selectedId === req.id ? 'bg-white/10 border-white/20 text-white' : getStatusClass(req.status)
+                ]"
+              >
                 {{ req.status }}
               </span>
             </div>
@@ -230,33 +189,26 @@
             <!-- Main Content: Purpose + Project -->
             <div>
               <h4 
-                class="text-xs font-bold leading-tight mb-0.5 line-clamp-1"
-                :class="selectedId === req.id ? 'text-blue-700 dark:text-blue-400' : 'text-slate-800 dark:text-slate-100'"
+                class="text-xs font-black uppercase tracking-wider leading-tight mb-2 line-clamp-1 h-3"
+                :class="selectedId === req.id ? 'text-white dark:text-white' : 'text-slate-900 dark:text-slate-100'"
               >
                 {{ req.purpose }}
               </h4>
-              <div v-if="req.project || req.enquiry || req.project_name || req.venue" class="flex items-center gap-1.5">
-                <i class="mdi mdi-folder-network text-[10px] text-slate-400"></i>
-                <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
-                  <template v-if="req.project">
-                    <span class="font-mono font-bold text-slate-400 mr-1">{{ req.project.project_id || req.project.job_number }}</span>
-                    {{ req.project.enquiry?.title || 'Untitled Project' }}
-                  </template>
-                  <template v-else-if="req.enquiry">
-                    <span class="font-mono font-bold text-slate-400 mr-1">ENQ</span>
-                    {{ req.enquiry.title }}
-                  </template>
-                  <template v-else-if="req.project_name">
-                    <span class="font-mono font-bold text-slate-400 mr-1">MNL</span>
-                    {{ req.project_name }}
-                  </template>
-                  <template v-else-if="req.venue">General - {{ req.venue }}</template>
-                  <template v-else>General Expense</template>
-                </span>
-                <span v-if="(req.project || req.project_name) && req.venue" class="text-[10px] text-slate-400">•</span>
-                <span v-if="(req.project || req.project_name) && req.venue" class="text-[10px] text-emerald-500 font-bold bg-emerald-50 dark:bg-emerald-900/20 px-1 py-px rounded">
-                  <i class="mdi mdi-map-marker text-[8px] mr-1"></i>{{ req.venue }}
-                </span>
+              <div class="flex flex-wrap items-center gap-3">
+                 <span 
+                   class="text-[9px] font-black uppercase tracking-tighter"
+                   :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
+                 >
+                   {{ req.project?.enquiry?.title || req.project_name || 'GENERAL EXP' }}
+                 </span>
+                 <span v-if="req.venue" class="w-1 h-1 rounded-full bg-slate-300"></span>
+                 <span 
+                   v-if="req.venue"
+                   class="text-[9px] font-black uppercase tracking-tighter"
+                   :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-400'"
+                 >
+                   {{ req.venue }}
+                 </span>
               </div>
             </div>
 
@@ -271,34 +223,25 @@
             </div>
 
             <!-- Footer: Requester + Amount -->
-            <div class="flex justify-between items-end mt-0.5 pt-2 border-t border-slate-100 dark:border-slate-700/50 w-full">
-               <div class="flex items-center gap-1.5">
-                 <div class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
-                    {{ req.requester?.name?.charAt(0) || 'U' }}
-                 </div>
-                 <div class="flex flex-col">
-                   <span class="text-[9px] font-bold text-slate-700 dark:text-slate-300">
-                     {{ req.requester?.name || 'Unknown User' }}
-                   </span>
-                   <span class="text-[8px] text-slate-400 font-medium leading-none mt-0.5">
-                     {{ formatDate(req.created_at) }}
-                   </span>
-                 </div>
-               </div>
-
-               <div class="flex flex-col items-end mr-2">
-                 <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-px">Total</span>
-                 <span class="text-sm font-black tracking-tight text-slate-900 dark:text-white leading-none">
-                   {{ formatCurrency(req.total_amount) }}
-                 </span>
-               </div>
+            <div class="flex justify-between items-center mt-auto pt-3 border-t w-full" :class="selectedId === req.id ? 'border-white/10' : 'border-slate-50 dark:border-slate-700'">
+               <span 
+                 class="text-[9px] font-black uppercase tracking-tighter"
+                 :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
+               >
+                 {{ req.requester?.name || 'USER' }}
+               </span>
+               <span 
+                 class="text-xs font-black font-mono tracking-tighter"
+                 :class="selectedId === req.id ? 'text-white dark:text-white' : 'text-slate-900 dark:text-slate-100'"
+               >
+                 {{ formatCurrency(req.total_amount) }}
+               </span>
             </div>
             
-            <!-- Right Status/Selection Line -->
+            <!-- Dark Mode Indicator (Selected State) -->
             <div 
-              :class="getStatusColor(req.status)" 
-              class="absolute right-0 top-0 bottom-0 w-1.5 transition-all duration-300 rounded-r-2xl"
-              :style="{ opacity: selectedId === req.id ? '1' : '0.6' }"
+              v-if="selectedId === req.id"
+              class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400"
             ></div>
 
             <!-- Connection Link Arrow (Selected State) -->
@@ -306,8 +249,8 @@
               v-if="selectedId === req.id"
               class="hidden md:flex absolute -right-9 top-1/2 -translate-y-1/2 z-50 items-center justify-start pointer-events-none"
             >
-               <div :class="getStatusColor(req.status)" class="h-[3px] w-9 shadow-sm rounded-l-full"></div>
-               <div :class="getStatusColor(req.status)" class="w-2.5 h-2.5 rotate-45 -ml-1.5 shadow-sm transform origin-center rounded-sm"></div>
+               <div :class="getStatusColor(req.status)" class="h-[3px] w-9 rounded-l-full"></div>
+               <div :class="getStatusColor(req.status)" class="w-2.5 h-2.5 rotate-45 -ml-1.5 transform origin-center rounded-sm"></div>
             </div>
           </button>
         </div>
@@ -671,12 +614,12 @@ const getStatusColor = (status: string) => {
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-    case 'approved': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-    case 'rejected': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-    case 'disbursed': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-    case 'received': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-    default: return 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400'
+    case 'pending': return 'bg-blue-50/80 text-amber-700 border-blue-200 dark:bg-blue-900/20 dark:text-amber-400 dark:border-blue-800'
+    case 'approved': return 'bg-blue-50/80 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'
+    case 'rejected': return 'bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+    case 'disbursed': return 'bg-blue-50/80 text-emerald-700 border-blue-200 dark:bg-blue-900/20 dark:text-emerald-400 dark:border-blue-800'
+    case 'received': return 'bg-blue-50/80 text-emerald-700 border-blue-200 dark:bg-blue-900/20 dark:text-emerald-400 dark:border-blue-800'
+    default: return 'bg-slate-50 text-slate-900 border-slate-200 dark:bg-slate-900/20 dark:text-slate-400 dark:border-slate-800'
   }
 }
 

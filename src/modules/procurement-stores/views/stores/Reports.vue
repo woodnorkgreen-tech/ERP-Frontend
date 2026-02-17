@@ -97,6 +97,7 @@
                 <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Quantity</th>
                 <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Entity / Project</th>
                 <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">User</th>
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -137,6 +138,15 @@
                 </td>
                 <td class="px-8 py-5">
                   <span class="text-xs font-bold text-slate-600">{{ log.user?.name || 'System' }}</span>
+                </td>
+                <td class="px-8 py-5 text-right">
+                  <button 
+                    @click="deleteLog(log.id)"
+                    class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                    title="Delete Log"
+                  >
+                    <i class="mdi mdi-delete-outline text-lg"></i>
+                  </button>
                 </td>
               </tr>
               <tr v-if="logs.length === 0 && !loading" class="text-center py-20">
@@ -348,6 +358,22 @@ const formatDate = (date: string) => {
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+const deleteLog = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this log entry? This will revert the stock adjustment.')) return
+  
+  loading.value = true
+  try {
+    await api.delete(`/api/procurement-stores/inventory-logs/${id}`)
+    await fetchLogs()
+    await fetchInventory()
+  } catch (err) {
+    console.error('Failed to delete log:', err)
+    alert('Failed to delete log. Please try again.')
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {

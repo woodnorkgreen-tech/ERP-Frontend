@@ -61,16 +61,24 @@
                 </div>
               </div>
 
-              <!-- SKU -->
-              <div>
+              <div class="relative group">
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Material Code / SKU</label>
-                <input 
-                  type="text" 
-                  v-model="form.material_code" 
-                  required 
-                  placeholder="e.g. WOOD-MDF-018"
-                  class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white placeholder-gray-400"
-                >
+                <div class="relative">
+                  <input 
+                    type="text" 
+                    v-model="form.material_code" 
+                    @input="handleSkuInput"
+                    required 
+                    placeholder="e.g. WOOD-MDF-018"
+                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white placeholder-gray-400 font-mono"
+                  >
+                  <div v-if="!isSkuManuallyEdited && form.category && !isEditing" 
+                       class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-black text-blue-500 uppercase tracking-tighter bg-blue-50 dark:bg-blue-900/40 px-2 py-1 rounded-lg border border-blue-200 dark:border-blue-800 animate-pulse cursor-help"
+                       title="Auto-generated based on Classification">
+                    <i class="mdi mdi-auto-fix"></i>
+                    <span>Auto</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -291,6 +299,45 @@ const form = reactive({
   attributes: {} as Record<string, any>
 });
 
+const isSkuManuallyEdited = ref(false);
+
+const handleSkuInput = (event: any) => {
+  const value = event.target.value;
+  if (!value) {
+    // If user clears the field, we resume auto-generation
+    isSkuManuallyEdited.value = false;
+    generateSku();
+  } else {
+    isSkuManuallyEdited.value = true;
+  }
+};
+
+// SKU Auto-generation Logic
+const generateSku = () => {
+  if (isEditing.value || isSkuManuallyEdited.value) return;
+
+  const cat = (form.category || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+  const name = (form.material_name || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+  
+  if (!cat) {
+    form.material_code = '';
+    return;
+  }
+
+  // Proactive generation: suggest [CAT]-0001 even before name is entered
+  // and [CAT]-[NAME]-0001 once both are available
+  let code = cat;
+  if (name) {
+    code += `-${name}`;
+  }
+  form.material_code = `${code}-0001`;
+};
+
+// Use standard Vue 3 multi-source watcher for better reactivity
+watch([() => form.category, () => form.material_name], () => {
+  generateSku();
+});
+
 // Initialize form
 onMounted(async () => {
     // Fetch workstations if necessary
@@ -356,7 +403,7 @@ const handleSubmit = async () => {
 
         let saved: LibraryMaterial;
 
-        if (isEditing && props.material) {
+        if (isEditing.value && props.material) {
             saved = await updateMaterial(props.material.id, payload);
         } else {
             saved = await createMaterial(payload);

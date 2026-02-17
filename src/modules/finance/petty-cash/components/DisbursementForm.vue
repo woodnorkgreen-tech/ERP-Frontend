@@ -447,6 +447,37 @@
                   {{ errors.job_number[0] }}
                 </p>
               </div>
+
+              <!-- Budget Category -->
+              <div v-if="availableBudgetItems.length > 0">
+                <label for="budget_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Budget category <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="budget_category"
+                  v-model="form.budget_category"
+                  :class="[
+                    'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                    errors.budget_category ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  ]"
+                  :required="availableBudgetItems.length > 0"
+                >
+                  <option value="">Select category</option>
+                  <option 
+                    v-for="item in availableBudgetItems" 
+                    :key="item.id" 
+                    :value="item.id"
+                  >
+                    {{ item.name }}
+                  </option>
+                </select>
+                <p v-if="errors.budget_category" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {{ errors.budget_category[0] }}
+                </p>
+                <p class="mt-1 text-[10px] text-indigo-500 font-bold uppercase tracking-widest">
+                  Link to Project Budget Task
+                </p>
+              </div>
             </div>
        <!-- Form Actions -->
             <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -521,7 +552,8 @@ const form = reactive({
   tax: '',
   date_disbursed: new Date().toISOString().split('T')[0],
   account_id: null as number | null, // Store account ID for backend
-  requisition_id: null as number | null
+  requisition_id: null as number | null,
+  budget_category: ''
 } as any)
 
 const route = useRoute()
@@ -542,6 +574,8 @@ const selectedAccount = ref<Account | null>(null)
 const projects = ref<any[]>([])
 const projectSearch = ref('')
 const selectedProject = ref<any>(null)
+const availableBudgetItems = ref<any[]>([])
+const isLoadingBudgetItems = ref(false)
 
 // Computed properties for current balance
 const currentBalance = computed(() => {
@@ -606,7 +640,8 @@ const isFormValid = computed(() => {
          form.tax &&
          form.date_disbursed &&
          currentBalance.value >= (Number(form.amount) + Number(form.transaction_cost || 0)) && // Ensure there's balance available
-         (!requiresProject.value || form.project_name)
+         (!requiresProject.value || form.project_name) &&
+         (availableBudgetItems.value.length === 0 || form.budget_category)
 })
 
 
@@ -670,9 +705,35 @@ const onProjectSelect = (event: Event) => {
     if (!form.classification || form.classification === 'admin') {
       form.classification = 'operations'
     }
+
+    // Fetch budget categories
+    fetchBudgetCategories(form.job_number)
   } else {
     // Just update the manual entry
     form.job_number = value
+    availableBudgetItems.value = []
+    form.budget_category = ''
+  }
+}
+
+const fetchBudgetCategories = async (jobNumber: string) => {
+  if (!jobNumber) return
+  
+  isLoadingBudgetItems.value = true
+  try {
+    const response = await pettyCashService.getProjectBudgetItems(jobNumber)
+    if (response.success) {
+      availableBudgetItems.value = response.data
+      
+      // If editing and have a budget category, keep it if it's in the list
+      if (!props.editMode) {
+        form.budget_category = ''
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch budget categories:', error)
+  } finally {
+    isLoadingBudgetItems.value = false
   }
 }
 
@@ -765,6 +826,11 @@ const validateForm = (): boolean => {
     // Validate job number length if provided
     if (form.job_number && form.job_number.length > 100) {
       errors.value.job_number = ['Job number cannot exceed 100 characters']
+    }
+
+    // Validate budget category if items are available
+    if (availableBudgetItems.value.length > 0 && !form.budget_category) {
+      errors.value.budget_category = ['Please select a budget category']
     }
 
     return Object.keys(errors.value).length === 0

@@ -90,6 +90,13 @@
                       <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Balance</p>
                       <p class="text-sm font-black text-slate-900 dark:text-white">{{ log.balance_after }}</p>
                    </div>
+                   <button 
+                     @click.stop="deleteLog(log.id)"
+                     class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all opacity-0 group-hover:opacity-100"
+                     title="Delete Log & Revert Stock"
+                   >
+                     <i class="mdi mdi-delete-outline text-xl"></i>
+                   </button>
                 </div>
              </div>
           </div>
@@ -229,6 +236,19 @@ const getLogIconClass = (type: string) => {
 const getTimeAgo = (date: string) => {
     const d = new Date(date)
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const deleteLog = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this log entry? This will revert the stock adjustment.')) return
+    
+    try {
+        await api.delete(`/api/procurement-stores/inventory-logs/${id}`)
+        await fetchLogs()
+        await fetchInventory()
+    } catch (err) {
+        console.error('Failed to delete log:', err)
+        alert('Failed to delete log. Please try again.')
+    }
 }
 
 onMounted(() => {

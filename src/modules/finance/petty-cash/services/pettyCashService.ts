@@ -41,6 +41,7 @@ import type {
   ValidationResponse,
   RecalculateBalanceResponse,
   VoucherDataResponse,
+  ProjectBudgetSummaryResponse,
   TrendsResponse,
   ApiError,
   ApiResult,
@@ -532,6 +533,12 @@ class PettyCashService {
     })
   }
 
+  async updateTopUp(id: number, data: Partial<CreateTopUpFormData>): Promise<TopUpResponse> {
+    this.validatePermission('finance.petty_cash.edit_top_up' as any, 'update top-up')
+
+    return this.makeRequest<TopUpResponse>('PUT', `/top-ups/${id}`, data)
+  }
+
   async getAvailableTopUps(): Promise<AvailableTopUpsResponse> {
     this.validatePermission('finance.petty_cash.view', 'get available top-ups')
 
@@ -648,10 +655,14 @@ class PettyCashService {
     }
   }
 
-  // Validation
-  async validateTopUp(data: CreateTopUpFormData): Promise<ValidationResponse> {
-    return this.makeRequest<ValidationResponse>('POST', '/validate/top-up', data)
+  async getProjectBudgetsSummary(filters?: { start_date?: string; end_date?: string; page?: number; per_page?: number }): Promise<ProjectBudgetSummaryResponse> {
+    return this.makeRequest<ProjectBudgetSummaryResponse>('GET', '/budgets/summary', null, { params: filters as Record<string, unknown> })
   }
+
+  async getProjectBudgetItems(jobNumber: string): Promise<ApiResponse<any[]>> {
+    return this.makeRequest<ApiResponse<any[]>>('GET', `/projects/${jobNumber}/budget-items`)
+  }
+
 
   // Excel upload functionality
   async uploadExcel(formData: FormData): Promise<ApiResponse<any>> {

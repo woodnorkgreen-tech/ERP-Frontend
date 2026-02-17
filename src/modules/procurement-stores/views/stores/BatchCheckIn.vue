@@ -21,8 +21,8 @@
     </div>
 
     <!-- Table Section -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-      <div class="overflow-x-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl">
+      <div class="overflow-visible">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50">
@@ -35,25 +35,77 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr v-for="(row, index) in rows" :key="index" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+            <tr v-for="(row, index) in rows" :key="index" 
+                class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors relative"
+                :style="{ zIndex: row.showResults ? 50 : 1 }">
               <td class="px-6 py-4">
-                <select 
-                  v-model="row.material_id"
-                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all appearance-none"
-                >
-                  <option value="" disabled>Select Material...</option>
-                  <option v-for="item in inventory" :key="item.id" :value="item.id">
-                    {{ item.material_code }} - {{ item.material_name }} (Current: {{ item.quantity_on_hand }})
-                  </option>
-                </select>
+                <div class="relative" :ref="el => { if (el) rowRefs[index] = el }">
+                  <!-- Search Input -->
+                  <div class="relative">
+                    <i v-if="searchingRow === index" class="mdi mdi-loading mdi-spin absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-sm"></i>
+                    <i v-else class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input 
+                      v-model="row.search"
+                      type="text"
+                      placeholder="Search material..."
+                      @input="onSearchInput(index)"
+                      @focus="openResults(index)"
+                      class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all font-mono"
+                    />
+                    <!-- Selection Indicator -->
+                    <div v-if="row.material_id" class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-md border border-emerald-500/20">
+                      <i class="mdi mdi-check-circle text-[10px]"></i>
+                    </div>
+                  </div>
+
+                  <!-- Floating Results -->
+                  <div v-if="row.showResults" 
+                       class="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] z-[500] max-h-[300px] overflow-y-auto ring-1 ring-black/5 animate-in slide-in-from-top-2 duration-200">
+                    
+                    <div v-if="searchingRow === index" class="p-4 flex flex-col items-center justify-center text-slate-400">
+                      <div class="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                      <span class="text-[8px] font-black uppercase">Searching...</span>
+                    </div>
+
+                    <ul v-else-if="inventory.length > 0" class="p-1.5">
+                      <li v-for="item in inventory" :key="item.id"
+                          @click="selectMaterial(index, item)"
+                          class="p-2.5 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 cursor-pointer rounded-xl transition-all border border-transparent hover:border-emerald-500/20 group flex items-center justify-between"
+                      >
+                        <div class="flex items-center gap-2">
+                          <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600">{{ item.material_name }}</span>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{{ item.material_code }}</span>
+                          </div>
+                        </div>
+                        <span class="text-[8px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                          {{ item.quantity_on_hand }} {{ item.unit_of_measure }}
+                        </span>
+                      </li>
+                    </ul>
+
+                    <!-- No Results -->
+                    <div v-else class="p-6 text-center text-slate-400">
+                      <i class="mdi mdi-package-variant text-2xl mb-2 block opacity-20"></i>
+                      <p class="text-[8px] font-black uppercase tracking-widest">No materials found</p>
+                    </div>
+                  </div>
+                </div>
               </td>
               <td class="px-6 py-4">
-                <input 
-                  type="number" 
-                  v-model.number="row.quantity"
-                  placeholder="0.00"
-                  class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all"
-                />
+                  <div class="space-y-1">
+                    <input 
+                      type="number" 
+                      v-model.number="row.quantity"
+                      placeholder="0.00"
+                      class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all font-mono"
+                    />
+                    <div v-if="row.current_stock !== undefined" class="flex justify-between items-center px-1">
+                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
+                        Current Stock: {{ row.current_stock }} {{ row.unit }}
+                      </span>
+                    </div>
+                  </div>
               </td>
               <td class="px-6 py-4">
                 <input 
@@ -111,6 +163,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { onClickOutside } from '@vueuse/core'
 import { useInventory } from '../../composables/useInventory'
 import api from '@/plugins/axios'
 
@@ -118,13 +171,16 @@ const router = useRouter()
 const { inventory, fetchInventory } = useInventory()
 
 const rows = ref([
-  { material_id: '', quantity: null as number | null, location: '', reference_no: '', notes: '', type: 'check_in' }
+  { material_id: '', quantity: null as number | null, location: '', reference_no: '', notes: 'Batch check-in', type: 'check_in', search: '', showResults: false, current_stock: undefined as number | undefined, unit: '' }
 ])
 
 const submitting = ref(false)
+const searchingRow = ref<number | null>(null)
+let searchTimeout: any = null
+const rowRefs = ref<any[]>([])
 
 const addRow = () => {
-  rows.value.push({ material_id: '', quantity: null, location: '', reference_no: '', notes: '', type: 'check_in' })
+  rows.value.push({ material_id: '', quantity: null, location: '', reference_no: '', notes: 'Batch check-in', type: 'check_in', search: '', showResults: false, current_stock: undefined, unit: '' })
 }
 
 const removeRow = (index: number) => {
@@ -132,6 +188,47 @@ const removeRow = (index: number) => {
     rows.value.splice(index, 1)
   }
 }
+
+const openResults = (index: number) => {
+  rows.value.forEach((r, i) => r.showResults = i === index)
+  // Refresh inventory for this row's specific search term on focus
+  onSearchInput(index)
+}
+
+const selectMaterial = (index: number, item: any) => {
+  const row = rows.value[index]
+  row.material_id = item.id
+  row.search = item.material_name // Update search box with name
+  row.showResults = false
+  row.current_stock = item.quantity_on_hand
+  row.unit = item.unit_of_measure
+}
+
+const onSearchInput = (index: number) => {
+  const query = rows.value[index].search
+  if (searchTimeout) clearTimeout(searchTimeout)
+  
+  searchTimeout = setTimeout(async () => {
+    searchingRow.value = index
+    try {
+      await fetchInventory({ search: query })
+    } finally {
+      searchingRow.value = null
+    }
+  }, 300)
+}
+
+// Handle clicking outside for all rows
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    rows.value.forEach((row, index) => {
+      const el = rowRefs.value[index]
+      if (el && !el.contains(e.target)) {
+        row.showResults = false
+      }
+    })
+  })
+})
 
 const isValid = computed(() => {
   return rows.value.every(row => row.material_id && row.quantity && row.quantity > 0)

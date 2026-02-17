@@ -391,10 +391,10 @@
                 </button>
 
                 <button
-                  v-if="transaction.type === 'disbursement' && transaction.can_edit && isSuperAdmin"
-                  @click="editDisbursement(transaction)"
+                  v-if="(transaction.type === 'disbursement' && transaction.can_edit && isSuperAdmin) || (transaction.type === 'top_up' && isSuperAdmin)"
+                  @click="transaction.type === 'top_up' ? editTopUp(transaction) : editDisbursement(transaction)"
                   class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
-                  title="Edit transaction"
+                  :title="transaction.type === 'top_up' ? 'Edit top-up' : 'Edit disbursement'"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -520,6 +520,7 @@ import type { PettyCashDisbursement, TransactionFilters } from '../types/pettyCa
 interface Emits {
   (e: 'view-transaction', transaction: any): void
   (e: 'edit-disbursement', disbursement: PettyCashDisbursement): void
+  (e: 'edit-top-up', topUp: any): void
   (e: 'void-disbursement', disbursement: PettyCashDisbursement): void
   (e: 'delete-disbursement', disbursement: PettyCashDisbursement): void
 }
@@ -734,6 +735,15 @@ const editDisbursement = (transaction: any) => {
     ...transaction.original_data
   }
   emit('edit-disbursement', disbursementToEdit)
+}
+
+const editTopUp = (transaction: any) => {
+  const topUpToEdit = {
+    ...transaction,
+    id: transaction.original_id || transaction.id,
+    ...transaction.original_data
+  }
+  emit('edit-top-up', topUpToEdit)
 }
 
 const voidDisbursement = (disbursement: PettyCashDisbursement) => {

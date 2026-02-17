@@ -43,6 +43,15 @@ export interface PaginatedResponse<T> {
     readonly field: string
     readonly direction: 'asc' | 'desc'
   } | null
+  readonly stats?: any // Allow optional stats for custom paginated responses
+}
+
+export interface ProjectBudgetSummaryResponse extends PaginatedResponse<any> {
+  readonly stats: {
+    readonly total_budget: number
+    readonly total_spent: number
+    readonly avg_utilization: number
+  }
 }
 
 export interface SearchResponse<T> extends PaginatedResponse<T> {
