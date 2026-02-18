@@ -43,7 +43,6 @@ production/
 │   └── useProductionReports.ts # HR analytics
 ├── components/          # Reusable Vue components
 │   ├── WorkOrderForm.vue      # Create/Edit work order modal
-│   ├── WorkOrderDetails.vue   # View work order details
 │   ├── JobCardForm.vue        # Create/Edit job card modal
 │   └── JobCardDetails.vue     # View job card details with time tracking
 └── views/              # Page components

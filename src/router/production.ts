@@ -16,6 +16,12 @@ export const productionRoutes: RouteRecordRaw[] = [
         meta: { title: 'Work Orders' }
       },
       {
+        path: 'work-orders/:id',
+        name: 'production-work-order-details',
+        component: () => import('../modules/production/views/WorkOrderDetailsView.vue'),
+        meta: { title: 'Work Order Details' }
+      },
+      {
         path: 'job-cards',
         name: 'production-job-cards',
         component: () => import('../modules/production/views/JobCardsView.vue'),

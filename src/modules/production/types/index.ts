@@ -69,6 +69,7 @@ export interface WorkOrder {
   completed_at?: string | null
   assigned_to?: number | null
   created_by?: number | null
+  workflow_completed_steps?: string[] | null
   created_at?: string
   updated_at?: string
   client_name?: string
@@ -104,6 +105,7 @@ export interface UpdateWorkOrderPayload {
   started_at?: string | null
   completed_at?: string | null
   assigned_to?: number | null
+  workflow_completed_steps?: string[]
 }
 
 export interface WorkOrderFilters {

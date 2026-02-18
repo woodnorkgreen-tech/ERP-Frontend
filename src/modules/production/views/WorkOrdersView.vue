@@ -210,22 +210,18 @@
       @saved="handleFormSaved"
     />
 
-    <!-- View Details Modal -->
-    <WorkOrderDetails
-      v-if="viewingId"
-      :workOrderId="viewingId"
-      @close="viewingId = null"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useWorkOrders } from '../composables'
 import { useAuth } from '../../../composables/useAuth'
 import api from '../../../plugins/axios'
 import WorkOrderForm from '../components/WorkOrderForm.vue'
-import WorkOrderDetails from '../components/WorkOrderDetails.vue'
+
+const router = useRouter()
 
 const {
   workOrders,
@@ -250,7 +246,6 @@ const searchQuery = ref('')
 const selectedStatus = ref('')
 const showCreateForm = ref(false)
 const editingId = ref<number | null>(null)
-const viewingId = ref<number | null>(null)
 const syncing = ref(false)
 const activeTab = ref('approved')
 const searchTimeout = ref<number | null>(null)
@@ -375,7 +370,7 @@ const handleStatusFilter = async () => {
 }
 
 const viewWorkOrder = (id: number) => {
-  viewingId.value = id
+  router.push({ name: 'production-work-order-details', params: { id } })
 }
 
 const editWorkOrder = (id: number) => {
