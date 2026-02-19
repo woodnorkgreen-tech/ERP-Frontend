@@ -215,6 +215,7 @@
               @edit-top-up="editTopUp"
               @void-disbursement="voidDisbursement"
               @delete-disbursement="deleteDisbursement"
+              @delete-top-up="deleteTopUp"
             />
           </div>
           </ErrorBoundary>
@@ -399,11 +400,14 @@
             </div>
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
               <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="delete-modal-title">
-                Delete Disbursement
+                Delete {{ deleteType === 'top_up' ? 'Top-up' : 'Disbursement' }}
               </h3>
               <div class="mt-2">
                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Are you sure you want to <strong>delete</strong> this disbursement? This will permanently remove it from the system and restore the amount to the available balance. 
+                  Are you sure you want to <strong>delete</strong> this {{ deleteType === 'top_up' ? 'top-up' : 'disbursement' }}? This will permanently remove it from the system and restore the amount to the available balance. 
+                </p>
+                <p v-if="deleteType === 'top_up'" class="mt-2 text-sm text-amber-600 dark:text-amber-400 font-medium">
+                  Note: You can only delete top-ups that have no active disbursements linked to them.
                 </p>
                 <p class="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">
                   This action cannot be undone.
@@ -486,6 +490,7 @@ const showUploadModal = ref(false)
 const showDetailModal = ref(false)
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
+const deleteType = ref<'disbursement' | 'top_up'>('disbursement')
 const selectedDisbursement = ref<PettyCashDisbursement | null>(null)
 const selectedTopUp = ref<any>(null)
 const selectedTransaction = ref<any>(null)
@@ -941,7 +946,30 @@ const deleteDisbursement = async (disbursement: PettyCashDisbursement) => {
     }
     
     activeModal.value = 'delete'
+    deleteType.value = 'disbursement'
     selectedDisbursement.value = disbursement
+    showDeleteModal.value = true
+    await nextTick()
+  } catch (error: any) {
+    console.error('Error opening delete modal:', error)
+    handleError(error, { context: 'open_delete_modal' })
+  }
+}
+
+const deleteTopUp = async (topUp: any) => {
+  try {
+    // Check permissions before opening delete modal
+    permissions.requirePermission('finance.petty_cash.delete_top_up')
+    
+    // Prevent modal conflicts
+    if (activeModal.value && activeModal.value !== 'delete') {
+      console.warn('Another modal is already open:', activeModal.value)
+      return
+    }
+    
+    activeModal.value = 'delete'
+    deleteType.value = 'top_up'
+    selectedTopUp.value = topUp
     showDeleteModal.value = true
     await nextTick()
   } catch (error: any) {
@@ -997,6 +1025,7 @@ const closeDeleteModal = async () => {
   try {
     showDeleteModal.value = false
     selectedDisbursement.value = null
+    selectedTopUp.value = null
     if (activeModal.value === 'delete') {
       activeModal.value = null
     }
@@ -1025,18 +1054,23 @@ const confirmVoid = async () => {
 }
 
 const confirmDelete = async () => {
-  if (!selectedDisbursement.value) return
+  if (deleteType.value === 'disbursement' && !selectedDisbursement.value) return
+  if (deleteType.value === 'top_up' && !selectedTopUp.value) return
   
   isDeleting.value = true
   try {
     await withErrorHandling(async () => {
-      await store.deleteDisbursement(selectedDisbursement.value!.id)
-    }, { context: 'delete_disbursement' })
+      if (deleteType.value === 'top_up') {
+        await store.deleteTopUp(selectedTopUp.value!.id)
+      } else {
+        await store.deleteDisbursement(selectedDisbursement.value!.id)
+      }
+    }, { context: `delete_${deleteType.value}` })
     
     await closeDeleteModal()
     // Data refresh is handled by the store
   } catch (error: any) {
-    handleError(error, { context: 'delete_disbursement' })
+    handleError(error, { context: `delete_${deleteType.value}` })
   } finally {
     isDeleting.value = false
   }

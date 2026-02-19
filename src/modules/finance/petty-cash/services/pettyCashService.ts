@@ -539,6 +539,12 @@ class PettyCashService {
     return this.makeRequest<TopUpResponse>('PUT', `/top-ups/${id}`, data)
   }
 
+  async deleteTopUp(id: number): Promise<ApiResponse<null>> {
+    this.validatePermission('finance.petty_cash.delete_top_up' as any, 'delete top-up')
+
+    return this.makeRequest<ApiResponse<null>>('DELETE', `/top-ups/${id}`)
+  }
+
   async getAvailableTopUps(): Promise<AvailableTopUpsResponse> {
     this.validatePermission('finance.petty_cash.view', 'get available top-ups')
 

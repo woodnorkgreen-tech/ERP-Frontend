@@ -309,7 +309,7 @@
                   <option value="operations">Operations</option>
                   <option value="event_planners">Event Planners</option>
                   <option value="corporates">Corporates</option>
-                  <option value="crs">CRS</option>
+                  <option value="csr">CSR</option>
                   <option value="other">Other</option>
                 </select>
                 <p v-if="errors.classification" class="mt-2 text-sm text-red-600 dark:text-red-400">

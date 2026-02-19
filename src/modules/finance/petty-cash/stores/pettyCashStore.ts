@@ -704,6 +704,25 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return result
     }
 
+    const deleteTopUp = async (id: number) => {
+        const operation = async () => {
+            loading.value.updating = true
+            const response = await pettyCashService.deleteTopUp(id)
+            if (response && response.success) {
+                const index = topUps.value.findIndex(t => t.id === id)
+                if (index !== -1) topUps.value.splice(index, 1)
+                await Promise.all([fetchCurrentBalance(), fetchSummary(), fetchAvailableTopUps(), fetchTransactions()])
+                dataIntegrity.value.lastValidated = new Date()
+                return true
+            } else {
+                throw new Error(pettyCashService.getErrorMessage(response))
+            }
+        }
+        const result = await withErrorHandling(operation, { context: 'deleteTopUp', topUpId: id })
+        loading.value.updating = false
+        return result
+    }
+
     const uploadExcel = async (formData: FormData) => {
         const operation = async () => {
             loading.value.creating = true
@@ -1012,7 +1031,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         balanceStatus, isBalanceLow, isBalanceCritical, getDisbursementById,
         getTopUpById, isLoading, hasErrors, isDataStale, hasValidationErrors,
         fetchDisbursements, createDisbursement, updateDisbursement,
-        voidDisbursement, deleteDisbursement, bulkDeleteDisbursements,
+        voidDisbursement, deleteDisbursement, deleteTopUp, bulkDeleteDisbursements,
         clearAllPettyCashData, fetchTopUps, fetchTransactions,
         fetchAvailableTopUps, createTopUp, uploadExcel, fetchCurrentBalance,
         recalculateBalance, fetchSummary, fetchRecentTransactions, archiveTransaction,

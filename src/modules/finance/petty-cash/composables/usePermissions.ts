@@ -9,6 +9,7 @@ export type PettyCashPermission =
   | 'finance.petty_cash.edit_disbursement'
   | 'finance.petty_cash.void_disbursement'
   | 'finance.petty_cash.delete_disbursement'
+  | 'finance.petty_cash.delete_top_up'
   | 'finance.petty_cash.view_balance'
   | 'finance.petty_cash.recalculate_balance'
   | 'finance.petty_cash.view_reports'
@@ -60,6 +61,7 @@ export function usePermissions() {
       'finance.petty_cash.edit_disbursement',
       'finance.petty_cash.void_disbursement',
       'finance.petty_cash.delete_disbursement',
+      'finance.petty_cash.delete_top_up',
       'finance.petty_cash.recalculate_balance',
       'finance.petty_cash.manage_settings'
     ]
@@ -97,6 +99,7 @@ export function usePermissions() {
   const canEditDisbursement = computed(() => userRoles.value.includes('Super Admin'))
   const canVoidDisbursement = computed(() => userRoles.value.includes('Super Admin'))
   const canDeleteDisbursement = computed(() => userRoles.value.includes('Super Admin'))
+  const canDeleteTopUp = computed(() => userRoles.value.includes('Super Admin'))
   const canViewBalance = computed(() => hasPermission('finance.petty_cash.view_balance'))
   const canRecalculateBalance = computed(() => userRoles.value.includes('Super Admin'))
   const canExportData = computed(() => hasPermission('finance.petty_cash.export_data'))
@@ -151,6 +154,7 @@ export function usePermissions() {
       'finance.petty_cash.edit_disbursement': 'Edit Disbursements',
       'finance.petty_cash.void_disbursement': 'Void Disbursements',
       'finance.petty_cash.delete_disbursement': 'Delete Disbursements',
+      'finance.petty_cash.delete_top_up': 'Delete Top-ups',
       'finance.petty_cash.view_balance': 'View Balance',
       'finance.petty_cash.recalculate_balance': 'Recalculate Balance',
       'finance.petty_cash.view_reports': 'View Reports',
@@ -178,6 +182,7 @@ export function usePermissions() {
     canEditDisbursement,
     canVoidDisbursement,
     canDeleteDisbursement,
+    canDeleteTopUp,
     canViewBalance,
     canRecalculateBalance,
     canExportData,
