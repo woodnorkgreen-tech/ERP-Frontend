@@ -127,7 +127,7 @@
         <div class="flex items-center gap-3">
           <button
             @click="proceedToNextStep"
-            :disabled="activeStepIndex >= workflowSteps.length - 1"
+            :disabled="activeStepIndex >= workflowSteps.length - 1 || !canAccessStep(workflowSteps[activeStepIndex + 1]?.key)"
             class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <span>Proceed to Next Step</span>
@@ -148,12 +148,15 @@
           <button
             v-for="step in workflowSteps"
             :key="step.key"
-            @click="activeStep = step.key"
+            @click="handleStepSelect(step.key)"
+            :disabled="!canAccessStep(step.key)"
+            :title="getStepLockReason(step.key)"
             :class="[
               'w-full text-left p-4 rounded-2xl border transition-all group relative',
               activeStep === step.key
                 ? 'bg-blue-50/70 border-blue-200 dark:bg-blue-900/20 dark:border-blue-500/30 ring-1 ring-blue-500/20'
-                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-700/50',
+              !canAccessStep(step.key) ? 'opacity-60 cursor-not-allowed hover:bg-white dark:hover:bg-slate-800' : ''
             ]"
           >
             <div class="flex items-center justify-between">
@@ -165,6 +168,9 @@
                   <p class="text-xs font-black uppercase tracking-widest text-slate-400">{{ step.label }}</p>
                   <p class="text-sm font-bold text-slate-900 dark:text-white">{{ step.subtitle }}</p>
                   <p v-if="completedStepsSet.has(step.key)" class="text-[10px] font-black uppercase tracking-widest text-emerald-600 mt-1">Completed</p>
+                  <p v-else-if="getStepLockReason(step.key)" class="text-[10px] font-black uppercase tracking-widest text-amber-600 mt-1">
+                    {{ getStepLockReason(step.key) }}
+                  </p>
                 </div>
               </div>
               <span v-if="step.count !== undefined" class="text-[10px] font-black text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
@@ -3217,8 +3223,47 @@ const getPriorityClass = (priority?: string) => {
 
 const proceedToNextStep = () => {
   if (activeStepIndex.value < workflowSteps.value.length - 1) {
-    activeStep.value = workflowSteps.value[activeStepIndex.value + 1].key
+    const nextKey = workflowSteps.value[activeStepIndex.value + 1].key
+    if (canAccessStep(nextKey)) {
+      activeStep.value = nextKey
+    } else {
+      uiMessage.value = { type: 'error', text: 'COMPLETE PREVIOUS STEP FIRST' }
+    }
   }
+}
+
+const canAccessStep = (stepKey?: string) => {
+  if (!stepKey) return false
+  if (stepKey === 'rework') return true
+  const ordered = workflowSteps.value
+    .map(step => step.key)
+    .filter(key => key !== 'rework')
+  const index = ordered.indexOf(stepKey)
+  if (index <= 0) return true
+  const previousKey = ordered[index - 1]
+  return completedStepsSet.value.has(previousKey)
+}
+
+const getStepLockReason = (stepKey?: string) => {
+  if (!stepKey) return ''
+  if (stepKey === 'rework') return ''
+  const ordered = workflowSteps.value
+    .map(step => step.key)
+    .filter(key => key !== 'rework')
+  const index = ordered.indexOf(stepKey)
+  if (index <= 0) return ''
+  const previousKey = ordered[index - 1]
+  if (completedStepsSet.value.has(previousKey)) return ''
+  const previousLabel = workflowSteps.value.find(step => step.key === previousKey)?.label || previousKey
+  return `Complete ${previousLabel} first`
+}
+
+const handleStepSelect = (stepKey: string) => {
+  if (!canAccessStep(stepKey)) {
+    uiMessage.value = { type: 'error', text: 'COMPLETE PREVIOUS STEP FIRST' }
+    return
+  }
+  activeStep.value = stepKey
 }
 
 const setActiveStepFromProgress = () => {
@@ -3249,13 +3294,14 @@ const markStepComplete = async (stepKey: string) => {
   if (!workOrderId) return
 
   const next = [...completedSteps.value, stepKey]
-  completedSteps.value = next
 
   try {
     await updateWorkOrder(workOrderId, { workflow_completed_steps: next })
+    completedSteps.value = next
     setActiveStepFromProgress()
   } catch (error) {
     console.error('Error updating workflow steps:', error)
+    uiMessage.value = { type: 'error', text: 'STEP GATE NOT MET OR OUT OF SEQUENCE' }
   }
 }
 

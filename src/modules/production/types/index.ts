@@ -327,3 +327,109 @@ export interface ProductionAnalytics {
     end_date: string
   }
 }
+
+export type NcrSeverity = 'minor' | 'major' | 'critical'
+export type NcrStatus = 'open' | 'assigned' | 'in_progress' | 'pending_reinspection' | 'closed' | 'cancelled'
+
+export interface ProductionNcrCode {
+  id: number
+  code: string
+  name: string
+  defect_group?: string
+  default_severity?: NcrSeverity
+  default_stage?: string
+  cause_group?: string
+}
+
+export interface ProductionNcrReferenceData {
+  defect_codes: ProductionNcrCode[]
+  root_cause_codes: ProductionNcrCode[]
+}
+
+export interface ProductionNcrEvent {
+  id: number
+  event_type: string
+  from_status?: string | null
+  to_status?: string | null
+  note?: string | null
+  performed_at?: string | null
+  performer?: {
+    id: number
+    name: string
+  }
+}
+
+export interface ProductionNcr {
+  id: number
+  ncr_number: string
+  work_order_id: number
+  work_order_rework_id?: number | null
+  defect_code_id?: number | null
+  root_cause_code_id?: number | null
+  source_type: string
+  source_ref?: string | null
+  raised_by_name?: string | null
+  shift?: string | null
+  job_order_no?: string | null
+  qc_stage?: string | null
+  workstation?: string | null
+  severity: NcrSeverity
+  status: NcrStatus
+  description: string
+  quantity_affected?: number | null
+  failure_description?: string | null
+  primary_sop_breached?: string | null
+  conformance_type?: string | null
+  items_rejected?: number | null
+  items_rejected_status?: 'yes' | 'no' | 'delayed' | 'na' | null
+  rejects_location?: string | null
+  production_impact?: string | null
+  client_impacted?: boolean
+  immediate_action_taken?: string | null
+  root_cause_category?: string | null
+  root_cause_description?: string | null
+  preventive_action?: string | null
+  reinspection_performed?: boolean
+  reinspection_performed_status?: 'yes' | 'no' | 'na' | 'other' | null
+  reinspection_performed_other?: string | null
+  reinspection_results?: string | null
+  image_path?: string | null
+  image_original_name?: string | null
+  image_url?: string | null
+  resolution?: string | null
+  supervisor_approval?: boolean
+  supervisor_approved_by?: number | null
+  supervisor_approved_at?: string | null
+  containment_action?: string | null
+  corrective_action?: string | null
+  due_date?: string | null
+  detected_at?: string | null
+  owner_user_id?: number | null
+  is_concession_approved?: boolean
+  concession_reason?: string | null
+  closed_at?: string | null
+  workOrder?: {
+    id: number
+    work_order_number: string
+    title: string
+  }
+  defectCode?: {
+    id: number
+    code: string
+    name: string
+  }
+  rootCauseCode?: {
+    id: number
+    code: string
+    name: string
+  }
+  owner?: {
+    id: number
+    name: string
+  }
+  detector?: {
+    id: number
+    name: string
+  }
+  events?: ProductionNcrEvent[]
+}

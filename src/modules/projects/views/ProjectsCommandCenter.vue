@@ -146,7 +146,7 @@ const currentTime = useDateFormat(useNow(), 'HH:mm:ss')
 
 // Types
 // Define minimal types for data handling
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const pipelineData = ref<{ stages: Record<string, any>, counts: Record<string, any> } | null>(null)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

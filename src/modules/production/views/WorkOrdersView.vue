@@ -284,8 +284,8 @@ const displayedPages = computed(() => {
   const current = currentPage.value
   
   // Show max 5 pages: current page and 2 before and after
-  let start = Math.max(1, current - 2)
-  let end = Math.min(total, current + 2)
+  const start = Math.max(1, current - 2)
+  const end = Math.min(total, current + 2)
   
   // Always show first page if not in range
   if (start > 1) {

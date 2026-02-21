@@ -330,6 +330,7 @@ export function useRouteGuard() {
             { name: 'production-dashboard', path: '/production/dashboard', label: 'Production Dashboard', icon: 'mdi-view-dashboard' },
             { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' },
             { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' },
+            { name: 'production-ncrs', path: '/production/ncrs', label: 'NCR Management', icon: 'mdi-alert-octagon-outline' },
             { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
           ]
         },
@@ -417,7 +418,8 @@ export function useRouteGuard() {
       routes.push(
         { name: 'production-dashboard', path: '/production/dashboard', label: 'Production Dashboard', icon: 'mdi-view-dashboard' },
         { name: 'production-work-orders', path: '/production/work-orders', label: 'Work Orders', icon: 'mdi-factory' },
-        { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' }
+        { name: 'production-job-cards', path: '/production/job-cards', label: 'Job Cards', icon: 'mdi-clipboard-text' },
+        { name: 'production-ncrs', path: '/production/ncrs', label: 'NCR Management', icon: 'mdi-alert-octagon-outline' }
       )
     }
 

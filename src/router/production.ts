@@ -40,6 +40,12 @@ export const productionRoutes: RouteRecordRaw[] = [
         meta: { title: 'Production Reports' }
       },
       {
+        path: 'ncrs',
+        name: 'production-ncrs',
+        component: () => import('../modules/production/views/NcrsView.vue'),
+        meta: { title: 'NCR Management' }
+      },
+      {
         path: 'dashboard',
         name: 'production-dashboard',
         component: () => import('../modules/production/views/ProductionDashboard.vue'),
