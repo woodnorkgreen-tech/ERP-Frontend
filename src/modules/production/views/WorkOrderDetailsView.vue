@@ -194,14 +194,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Pulled from project enquiry details</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('intake')"
-                :disabled="completedStepsSet.has('intake')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('intake') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('intake') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('intake')"
+                  @click="markStepComplete('intake')"
+                  :disabled="!canCompleteStep('intake')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('intake') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('intake')"
+                  @click="markStepIncomplete('intake')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
 
@@ -574,14 +584,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Approved files for shop floor execution</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('design_assets')"
-                :disabled="completedStepsSet.has('design_assets')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('design_assets') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('design_assets') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('design_assets')"
+                  @click="markStepComplete('design_assets')"
+                  :disabled="!canCompleteStep('design_assets')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('design_assets') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('design_assets')"
+                  @click="markStepIncomplete('design_assets')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
 
@@ -660,14 +680,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Pulled from Projects materials list</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('materials')"
-                :disabled="completedStepsSet.has('materials')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('materials') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('materials') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('materials')"
+                  @click="markStepComplete('materials')"
+                  :disabled="!canCompleteStep('materials')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('materials') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('materials')"
+                  @click="markStepIncomplete('materials')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
           <div v-if="materialsData.projectElements.length > 0" class="bg-white dark:bg-slate-950 rounded-xl border-2 border-slate-300 dark:border-slate-600 overflow-hidden shadow-lg">
@@ -824,14 +854,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Workstation tasks, safety checks, and execution tracking</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('fabrication')"
-                :disabled="completedStepsSet.has('fabrication')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('fabrication') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('fabrication') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('fabrication')"
+                  @click="markStepComplete('fabrication')"
+                  :disabled="!canCompleteStep('fabrication')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('fabrication') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('fabrication')"
+                  @click="markStepIncomplete('fabrication')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1110,14 +1150,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Checkpoint inspections, defect log, evidence, sign-off</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('qc')"
-                :disabled="completedStepsSet.has('qc')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('qc') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('qc') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('qc')"
+                  @click="markStepComplete('qc')"
+                  :disabled="!canCompleteStep('qc')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('qc') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('qc')"
+                  @click="markStepIncomplete('qc')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1290,165 +1340,139 @@
               <i class="mdi mdi-package-variant-closed text-indigo-600 dark:text-indigo-400 text-xl"></i>
             </div>
             <div>
-              <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Packaging & Handover</h2>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Internal transfer to logistics (not client handover)</p>
+              <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Handover Management</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Track and manage all handovers</p>
             </div>
             <div class="ml-auto">
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('packaging')"
+                  @click="markStepComplete('packaging')"
+                  :disabled="!canCompleteStep('packaging')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('packaging') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('packaging')"
+                  @click="markStepIncomplete('packaging')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Handover List -->
+          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60">
+            <div class="p-6 border-b border-slate-200/60 dark:border-slate-700/60">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-black uppercase tracking-widest text-slate-400">Handover Records</h3>
+                  <p class="text-xs text-slate-500 mt-1">{{ savedHandovers.length }} handover{{ savedHandovers.length !== 1 ? 's' : '' }} recorded</p>
+                </div>
+                <button
+                  @click="openHandoverForm"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <i class="mdi mdi-plus"></i>
+                  New Handover
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="savedHandovers.length === 0" class="p-12 text-center">
+              <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                <i class="mdi mdi-package-variant-closed text-slate-400 text-2xl"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Handovers Yet</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Start by creating your first handover record</p>
               <button
-                @click="markStepComplete('packaging')"
-                :disabled="completedStepsSet.has('packaging')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('packaging') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
+                @click="openHandoverForm"
+                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors inline-flex items-center gap-2"
               >
-                {{ completedStepsSet.has('packaging') ? 'Completed' : 'Mark Complete' }}
+                <i class="mdi mdi-plus"></i>
+                Create First Handover
               </button>
             </div>
-          </div>
 
-          <!-- Gate: Final QC -->
-          <div class="bg-amber-50/70 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i class="mdi mdi-shield-check text-amber-600 text-xl"></i>
-                <div>
-                  <p class="text-xs font-black uppercase tracking-widest text-amber-600">Final QC Confirmation</p>
-                  <p class="text-xs text-amber-700 dark:text-amber-300">Packaging is allowed only after QC is signed off.</p>
-                </div>
-              </div>
-              <button class="px-3 py-2 rounded-lg bg-amber-600 text-white text-xs font-bold">Verify QC</button>
-            </div>
-          </div>
-
-          <!-- Cleaning & Finishing Touches -->
-          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Cleaning & Finishing</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-300">
-              <label class="flex items-center gap-2">
-                <input type="checkbox" />
-                Surface wipe (dust, fingerprints, glue residue)
-              </label>
-              <label class="flex items-center gap-2">
-                <input type="checkbox" />
-                Edge trimming (threads, uneven vinyl, glue smudges)
-              </label>
-              <label class="flex items-center gap-2">
-                <input type="checkbox" />
-                Polishing (acrylic, stainless, glossy surfaces)
-              </label>
-              <label class="flex items-center gap-2">
-                <input type="checkbox" />
-                Tag removal (internal tags, corners checked)
-              </label>
-            </div>
-          </div>
-
-          <!-- Protection & Wrapping -->
-          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Protection & Wrapping</h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-xs">
-                <thead class="text-slate-400 uppercase tracking-widest">
+            <!-- Handover Table -->
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200/60 dark:border-slate-700/60">
                   <tr>
-                    <th class="text-left py-2">Material Type</th>
-                    <th class="text-left py-2">Packaging Material</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Job Number</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Client</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Project</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Items</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Handed Over</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Received By</th>
+                    <th class="text-left p-4 text-xs font-black uppercase tracking-widest text-slate-400">Date</th>
+                    <th class="text-center p-4 text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="text-slate-600 dark:text-slate-300">
-                  <tr><td class="py-1">Vinyl Banners</td><td class="py-1">Roll loosely, wrap in plastic, label ends</td></tr>
-                  <tr><td class="py-1">Wood/Metal Frames</td><td class="py-1">Bubble wrap corners, cover with foam/card</td></tr>
-                  <tr><td class="py-1">Acrylic Panels</td><td class="py-1">Foam sheets + corner guards</td></tr>
-                  <tr><td class="py-1">Light Boxes/Props</td><td class="py-1">Thermocol or soft foam padding</td></tr>
-                  <tr><td class="py-1">Digital Screens</td><td class="py-1">Dust-free cloth wrap, screen guard</td></tr>
+                <tbody class="divide-y divide-slate-200/60 dark:divide-slate-700/60">
+                  <tr v-for="handover in savedHandovers" :key="handover.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="p-4">
+                      <span class="text-sm font-medium text-slate-900 dark:text-white">{{ handover.job_number || '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.client_name || '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.project || '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.quantity ? `${handover.quantity} items` : '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.handed_over_by || '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.received_by || '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <span class="text-sm text-slate-600 dark:text-slate-300">{{ handover.created_at ? new Date(handover.created_at).toLocaleDateString() : '-' }}</span>
+                    </td>
+                    <td class="p-4">
+                      <div class="flex items-center gap-2">
+                        <button
+                          @click="viewHandover(handover.id)"
+                          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          title="View PDF"
+                        >
+                          <i class="mdi mdi-eye text-slate-600 dark:text-slate-400"></i>
+                        </button>
+                        <button
+                          @click="downloadHandoverPdf(handover.id)"
+                          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          title="Download PDF"
+                        >
+                          <i class="mdi mdi-download text-slate-600 dark:text-slate-400"></i>
+                        </button>
+                        <button
+                          @click="editHandover(handover)"
+                          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          title="Edit Handover"
+                        >
+                          <i class="mdi mdi-pencil text-slate-600 dark:text-slate-400"></i>
+                        </button>
+                        <button
+                          @click="deleteHandover(handover.id)"
+                          class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors group"
+                          title="Delete Handover"
+                        >
+                          <i class="mdi mdi-trash-can text-slate-600 dark:text-slate-400 group-hover:text-red-600 dark:group-hover:text-red-400"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
-            <div class="mt-3 text-xs text-slate-500">
-              Label all bundles: Job Number, Client, Item Description, Quantity, Handling info (FRAGILE/TOP LOAD).
-            </div>
-          </div>
-
-          <!-- Handover Form -->
-          <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div class="xl:col-span-2 bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Handover Form</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Job Number" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Client Name" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Description of Items" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Quantity" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Condition at Dispatch" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Handed Over By (Production)" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Received By (Logistics/Client Service)" />
-                <input class="p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Remarks" />
-              </div>
-            </div>
-            <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Dispatch</h3>
-              <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Notify logistics & client service
-                </label>
-                <input class="w-full p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Pickup reference / Waybill" />
-                <input class="w-full p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Handling instructions" />
-                <button class="w-full mt-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold">Notify Dispatch</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Staging & Delivery Checklist -->
-          <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Staging Confirmation</h3>
-              <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Items moved to dispatch/staging zone
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Labeled by Job / Client / Route
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Cross‑checked against dispatch list
-                </label>
-                <input class="w-full p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Staging location / shelf" />
-              </div>
-            </div>
-            <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Delivery Checklist</h3>
-              <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  All items ticked as loaded
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Fragile / special handling notes attached
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Driver / loader signed checklist
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" />
-                  Client / site rep acknowledged delivery
-                </label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
-                  <input class="w-full p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Signed by (Driver/Loader)" />
-                  <input class="w-full p-2 rounded-lg border border-slate-200/60 dark:border-slate-700/60" placeholder="Signed by (Client/Site)" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Post-Handover -->
-          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Post‑Handover Feedback</h3>
-            <p class="text-xs text-slate-500">
-              If delivery issues occur, reference the handover log, review packaging method, and conduct a post‑mortem with QC and dispatch.
-            </p>
           </div>
         </div>
 
@@ -1459,63 +1483,122 @@
               <i class="mdi mdi-check-decagram text-slate-600 dark:text-slate-300 text-xl"></i>
             </div>
             <div>
-              <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Production Close</h2>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Closes production work only, not the overall project</p>
+              <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Project Closure Summary</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Complete overview of project lifecycle and final status</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('close')"
-                :disabled="completedStepsSet.has('close')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('close') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('close') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('close')"
+                  @click="markStepComplete('close')"
+                  :disabled="!canCompleteStep('close')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('close') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Close Project
+                </button>
+                <button
+                  v-if="completedStepsSet.has('close')"
+                  @click="markStepIncomplete('close')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Reopen Project
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Close Summary -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div class="bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">QC Status</div>
-              <div class="text-sm font-bold text-slate-900 dark:text-white">Final QC Pending</div>
-              <p class="text-xs text-slate-500">Complete QC sign‑off before closing</p>
-            </div>
-            <div class="bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Packaging</div>
-              <div class="text-sm font-bold text-slate-900 dark:text-white">Not Confirmed</div>
-              <p class="text-xs text-slate-500">Handover form required</p>
-            </div>
-            <div class="bg-white dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-              <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Dispatch</div>
-              <div class="text-sm font-bold text-slate-900 dark:text-white">Pending</div>
-              <p class="text-xs text-slate-500">Logistics notification outstanding</p>
-            </div>
-          </div>
-
-          <!-- Close Checklist -->
-          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Close Checklist</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-300">
-              <label class="flex items-center gap-2"><input type="checkbox" /> Final QC signed off</label>
-              <label class="flex items-center gap-2"><input type="checkbox" /> Packaging complete</label>
-              <label class="flex items-center gap-2"><input type="checkbox" /> Handover form filed</label>
-              <label class="flex items-center gap-2"><input type="checkbox" /> Dispatch notified</label>
+          <!-- Project Overview -->
+          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-6">
+            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Project Overview</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="space-y-1">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Work Order</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedWorkOrder?.work_order_number || '-' }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Client</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedWorkOrder?.projectEnquiry?.client?.company_name || '-' }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Project Title</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedWorkOrder?.projectEnquiry?.title || '-' }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Project Officer</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedWorkOrder?.project_officer_name || '-' }}</div>
+              </div>
             </div>
           </div>
 
-          <!-- Closure Note -->
-          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4">
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-3">Closure Note</h3>
-            <textarea class="w-full p-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-sm" rows="4" placeholder="Add closure notes or post‑mortem details..."></textarea>
+          <!-- Production Summary -->
+          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-6">
+            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Production Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-clipboard-list text-blue-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tasks</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ intakeTasks.length }} Intake → {{ fabricationTasks.length }} Fabrication</div>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-package-variant text-green-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Materials</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ materialsList.length }} Items</div>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-image text-purple-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Design Assets</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ designAssets.length }} Files</div>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-handshake text-orange-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Handovers</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ savedHandovers.length }} Completed</div>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-repeat text-red-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Rework</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ reworkItems.length }} Items</div>
+              </div>
+              <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="mdi mdi-file-pdf text-indigo-600"></i>
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Documents</div>
+                </div>
+                <div class="text-lg font-black text-slate-900 dark:text-white">{{ savedHandovers.length }} PDFs</div>
+              </div>
+            </div>
           </div>
 
-          <!-- Close Action -->
-          <div class="flex items-center gap-3">
-            <button class="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold">
-              Close Production Work
-            </button>
-            <span class="text-xs text-slate-500">This does not close the overall project.</span>
+          <!-- Timeline Performance -->
+          <div class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-6">
+            <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Timeline Performance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="space-y-2">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Start Date</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ formatDate(selectedWorkOrder?.projectEnquiry?.created_at ?? null) }}</div>
+              </div>
+              <div class="space-y-2">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Expected Delivery</div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white">{{ formatDate(selectedWorkOrder?.projectEnquiry?.expected_delivery_date ?? null) }}</div>
+              </div>
+              <div class="space-y-2">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Status</div>
+                <div class="text-sm font-bold" :class="calculateDaysRemaining(selectedWorkOrder?.projectEnquiry?.expected_delivery_date ?? null).includes('overdue') ? 'text-red-600' : 'text-emerald-600'">
+                  {{ calculateDaysRemaining(selectedWorkOrder?.projectEnquiry?.expected_delivery_date ?? null) }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1530,14 +1613,24 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Post‑close adjustments, client changes, and reuse updates</p>
             </div>
             <div class="ml-auto">
-              <button
-                @click="markStepComplete('rework')"
-                :disabled="completedStepsSet.has('rework')"
-                class="px-3 py-2 rounded-lg text-xs font-bold"
-                :class="completedStepsSet.has('rework') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-600 text-white'"
-              >
-                {{ completedStepsSet.has('rework') ? 'Completed' : 'Mark Complete' }}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="!completedStepsSet.has('rework')"
+                  @click="markStepComplete('rework')"
+                  :disabled="!canCompleteStep('rework')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold"
+                  :class="canCompleteStep('rework') ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-500 cursor-not-allowed'"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  v-if="completedStepsSet.has('rework')"
+                  @click="markStepIncomplete('rework')"
+                  class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                >
+                  Mark Incomplete
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1746,13 +1839,279 @@
       </div>
     </div>
   </div>
+
+  <!-- PDF Viewer Modal -->
+  <div
+    v-if="showPdfModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    @click="closePdfModal"
+  >
+    <div
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
+      @click.stop
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Handover PDF Preview</h3>
+        <div class="flex items-center gap-2">
+          <button
+            @click="downloadCurrentPdf"
+            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
+          >
+            <i class="mdi mdi-download text-sm"></i>
+            Download
+          </button>
+          <button
+            @click="closePdfModal"
+            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <i class="mdi mdi-close text-slate-400 text-xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- PDF Content -->
+      <div class="p-4 overflow-auto" style="max-height: calc(90vh - 80px);">
+        <div v-if="pdfLoading" class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-slate-600 dark:text-slate-400">Loading PDF...</span>
+        </div>
+        <div v-else-if="pdfError" class="text-center py-12">
+          <i class="mdi mdi-file-pdf-outline text-4xl text-red-500 mb-4"></i>
+          <p class="text-red-600 dark:text-red-400">{{ pdfError }}</p>
+        </div>
+        <div v-else-if="pdfUrl" class="space-y-4">
+          <!-- Debug Info -->
+          <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg text-xs">
+            <p><strong>Debug Info:</strong></p>
+            <p>PDF URL: {{ pdfUrl.substring(0, 50) }}...</p>
+            <p>Handover ID: {{ currentHandoverId }}</p>
+          </div>
+          
+          <!-- PDF Object tag (more reliable than iframe for blobs) -->
+          <object
+            :data="pdfUrl"
+            type="application/pdf"
+            class="w-full border-0 rounded-lg"
+            style="min-height: 600px;"
+          >
+            <div class="text-center py-12">
+              <p class="text-slate-600 dark:text-slate-400 mb-4">
+                Unable to display PDF in this browser
+              </p>
+              <a :href="pdfUrl" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                <i class="mdi mdi-open-in-new mr-2"></i>
+                Open PDF in new tab
+              </a>
+            </div>
+          </object>
+          
+          <!-- Fallback link -->
+          <div class="text-center">
+            <a :href="pdfUrl" target="_blank" class="text-blue-600 hover:text-blue-700 underline">
+              Open PDF in new tab
+            </a>
+          </div>
+        </div>
+        <div v-else class="text-center py-12">
+          <p class="text-slate-600 dark:text-slate-400">No PDF loaded</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sliding Handover Form Panel -->
+  <div
+    v-if="showHandoverForm"
+    class="fixed inset-0 z-50"
+    @click="closeHandoverForm"
+  >
+    <!-- Backdrop -->
+    <div 
+      class="absolute inset-0 bg-black/50 transition-opacity"
+      :class="isHandoverFormOpen ? 'opacity-100' : 'opacity-0'"
+    ></div>
+    
+    <!-- Sliding Panel -->
+    <div
+      class="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl transform transition-transform duration-300 ease-in-out"
+      :class="isHandoverFormOpen ? 'translate-x-0' : 'translate-x-full'"
+      @click.stop
+    >
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between p-6 border-b border-slate-200/60 dark:border-slate-700/60">
+        <div>
+          <h2 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+            {{ isEditMode ? 'Edit Handover' : 'New Handover' }}
+          </h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            {{ isEditMode ? 'Update handover details' : 'Complete handover details' }}
+          </p>
+        </div>
+        <button
+          @click="closeHandoverForm"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <i class="mdi mdi-close text-slate-400 text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Panel Content -->
+      <div class="p-6 space-y-6 overflow-y-auto h-full pb-32">
+        <!-- Form Fields -->
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Job Number</label>
+              <input 
+                v-model="handoverForm.jobNumber" 
+                class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                placeholder="WNG2025-0412-001" 
+              />
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Client Name</label>
+              <input 
+                v-model="handoverForm.clientName" 
+                class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                placeholder="XYZ Ltd." 
+              />
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Project</label>
+              <input 
+                v-model="handoverForm.project" 
+                class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                placeholder="Project Name" 
+              />
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Description of Items</label>
+              <textarea 
+                v-model="handoverForm.description" 
+                rows="3"
+                class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                placeholder="5x roll-up banners, 2x 3x3m backdrops" 
+              />
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Quantity</label>
+                <input 
+                  v-model="handoverForm.quantity" 
+                  type="number"
+                  class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                  placeholder="7" 
+                />
+              </div>
+              
+              <div>
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Condition</label>
+                <input 
+                  v-model="handoverForm.condition" 
+                  class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                  placeholder="Good" 
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Handed Over By (Production)</label>
+              <div class="relative">
+                <input 
+                  v-model="handoverEmployeeSearch" 
+                  @input="searchHandoverEmployees(handoverEmployeeSearch)"
+                  @blur="() => { setTimeout(() => handoverEmployeeOpen.value = false, 200) }"
+                  class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                  placeholder="Search employee..." 
+                />
+                <div
+                  v-if="handoverEmployeeOpen && handoverEmployeeResults.length > 0"
+                  class="absolute z-20 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg"
+                >
+                  <button
+                    v-for="employee in handoverEmployeeResults"
+                    :key="employee.id"
+                    type="button"
+                    class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50"
+                    @click="selectHandoverEmployee(employee)"
+                  >
+                    {{ employee.name }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Received By (Logistics/Client Service)</label>
+              <div class="relative">
+                <input 
+                  v-model="handoverReceivedBySearch" 
+                  @input="searchHandoverReceivedBy(handoverReceivedBySearch)"
+                  @blur="() => { setTimeout(() => handoverReceivedByOpen.value = false, 200) }"
+                  class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                  placeholder="Search employee..." 
+                />
+                <div
+                  v-if="handoverReceivedByOpen && handoverReceivedByResults.length > 0"
+                  class="absolute z-20 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg"
+                >
+                  <button
+                    v-for="employee in handoverReceivedByResults"
+                    :key="employee.id"
+                    type="button"
+                    class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50"
+                    @click="selectReceivedByEmployee(employee)"
+                  >
+                    {{ employee.name }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Remarks</label>
+              <textarea 
+                v-model="handoverForm.remarks" 
+                rows="3"
+                class="w-full p-3 rounded-lg border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" 
+                placeholder="Additional notes..." 
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fixed Footer -->
+      <div class="absolute bottom-0 left-0 right-0 p-6 bg-white dark:bg-slate-900 border-t border-slate-200/60 dark:border-slate-700/60">
+        <div class="flex gap-3">
+          <button
+            @click="closeHandoverForm"
+            class="flex-1 px-4 py-3 border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="saveHandoverForm"
+            class="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors"
+          >
+            {{ isEditMode ? 'Update Handover' : 'Save Handover' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWorkOrders } from '../composables'
-import { workOrderScrapLogsService, workOrderTasksService, productionAssigneesService, workOrderMidQcService, workOrderTaskEvidenceService, workOrderFinalQcService, workOrderReworksService } from '../services'
+import { workOrderScrapLogsService, workOrderTasksService, productionAssigneesService, workOrderMidQcService, workOrderTaskEvidenceService, workOrderFinalQcService, workOrderReworksService, workOrderHandoversService } from '../services'
 import { DesignService } from '@/modules/projects/components/tasks/design/services/designService'
 import { MaterialsService } from '@/modules/projects/services/materialsService'
 import Network from '@/network-class'
@@ -1925,6 +2284,44 @@ const reworkForm = ref({
   isChangeRequest: false
 })
 
+const handoverForm = ref({
+  jobNumber: '',
+  clientName: '',
+  project: '',
+  description: '',
+  quantity: '',
+  condition: '',
+  handedOverTo: '',
+  handedOverBy: '',
+  receivedBy: '',
+  remarks: ''
+})
+
+// Handover management
+const savedHandovers = ref<any[]>([])
+const showHandoverForm = ref(false)
+const isHandoverFormOpen = ref(false)
+
+// Edit mode
+const editingHandover = ref<any>(null)
+const isEditMode = ref(false)
+
+// PDF Modal
+const showPdfModal = ref(false)
+const pdfUrl = ref<string | null>(null)
+const pdfLoading = ref(false)
+const pdfError = ref<string | null>(null)
+const currentHandoverId = ref<number | null>(null)
+
+const handoverEmployees = ref<{id: number, name: string}[]>([])
+const handoverEmployeeSearch = ref('')
+const handoverEmployeeResults = ref<{id: number, name: string}[]>([])
+const handoverEmployeeOpen = ref(false)
+const handoverReceivedBySearch = ref('')
+const handoverReceivedByResults = ref<{id: number, name: string}[]>([])
+const handoverReceivedByOpen = ref(false)
+let handoverEmployeeTimer: number | null = null
+
 const reworkEvidence = ref<Record<number, any[]>>({})
 const reworkEvidenceInputs = ref<Record<number, HTMLInputElement | null>>({})
 const reworkExpanded = ref<Set<number>>(new Set())
@@ -2056,14 +2453,27 @@ const updateRework = async (item: ReworkItem) => {
   try {
     const workOrderId = Number(route.params.id)
     if (!workOrderId) return
+    
+    // Format the date properly for the backend
+    let formattedDate = null
+    if (item.targetDate && item.targetDate.trim() !== '') {
+      // Ensure the date is in YYYY-MM-DD format for the backend
+      const dateObj = new Date(item.targetDate)
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toISOString().split('T')[0]
+      }
+    }
+    
     const payload = {
       status: item.status,
       assigned_workstation: item.assignedWorkstation || null,
       assigned_to: item.assignedTo || null,
-      target_date: item.targetDate || null,
+      target_date: formattedDate,
       qc_status: item.qcStatus,
       qc_reason: item.qcReason || null
     }
+    
+    console.log('Updating rework with payload:', payload)
     const response = await workOrderReworksService.updateRework(workOrderId, item.id, payload)
     if (response?.success === false) {
       uiMessage.value = { type: 'error', text: (response?.message || 'REWORK UPDATE FAILED').toString().toUpperCase() }
@@ -2104,20 +2514,32 @@ const formatReworkSource = (item: any) => {
   return `${base}${station}${stage}`
 }
 
-const mapReworkItem = (item: any): ReworkItem => ({
-  id: item.id,
-  source: formatReworkSource(item),
-  title: item.title,
-  notes: item.reason || 'No reason provided.',
-  status: item.status || 'open',
-  isChangeRequest: item.is_change_request ?? false,
-  createdAt: item.created_at || null,
-  assignedWorkstation: item.assigned_workstation || '',
-  assignedTo: item.assigned_to || '',
-  targetDate: item.target_date || '',
-  qcStatus: item.qc_status || 'pending',
-  qcReason: item.qc_reason || ''
-})
+const mapReworkItem = (item: any): ReworkItem => {
+  // Handle target_date properly for the date input
+  let targetDate = ''
+  if (item.target_date) {
+    const date = new Date(item.target_date)
+    if (!isNaN(date.getTime())) {
+      // Format as YYYY-MM-DD for the date input
+      targetDate = date.toISOString().split('T')[0]
+    }
+  }
+  
+  return {
+    id: item.id,
+    source: formatReworkSource(item),
+    title: item.title,
+    notes: item.reason || 'No reason provided.',
+    status: item.status || 'open',
+    isChangeRequest: item.is_change_request ?? false,
+    createdAt: item.created_at || null,
+    assignedWorkstation: item.assigned_workstation || '',
+    assignedTo: item.assigned_to || '',
+    targetDate: targetDate,
+    qcStatus: item.qc_status || 'pending',
+    qcReason: item.qc_reason || ''
+  }
+}
 
 const workflowSteps = computed(() => [
   { key: 'intake', label: 'Intake', subtitle: 'Job Intake', icon: 'mdi-clipboard-text-outline' },
@@ -2125,9 +2547,9 @@ const workflowSteps = computed(() => [
   { key: 'materials', label: 'Materials', subtitle: 'Verification', icon: 'mdi-package-variant-closed', count: materialsData.value.projectElements.length },
   { key: 'fabrication', label: 'Fabrication', subtitle: 'Assembly', icon: 'mdi-hammer-wrench' },
   { key: 'qc', label: 'Quality', subtitle: 'Control', icon: 'mdi-shield-check' },
+  { key: 'rework', label: 'Rework', subtitle: 'Post‑Close', icon: 'mdi-repeat' },
   { key: 'packaging', label: 'Packaging', subtitle: 'Handover', icon: 'mdi-truck-fast' },
-  { key: 'close', label: 'Close', subtitle: 'Production', icon: 'mdi-check-decagram' },
-  { key: 'rework', label: 'Rework', subtitle: 'Post‑Close', icon: 'mdi-repeat' }
+  { key: 'close', label: 'Close', subtitle: 'Production', icon: 'mdi-check-decagram' }
 ])
 
 const activeStepIndex = computed(() => workflowSteps.value.findIndex(step => step.key === activeStep.value))
@@ -2834,8 +3256,326 @@ const createManualRework = async () => {
     }
   } catch (error) {
     console.error('Error creating rework:', error)
-    uiMessage.value = { type: 'error', text: 'REWORK CREATE FAILED' }
+    uiMessage.value = { type: 'error', text: 'REWORK CREATION FAILED' }
   }
+}
+
+const editHandover = (handover: any) => {
+  editingHandover.value = handover
+  isEditMode.value = true
+  
+  // Prefill form with handover data
+  handoverForm.value = {
+    jobNumber: handover.job_number || '',
+    clientName: handover.client_name || '',
+    project: handover.project || '',
+    description: handover.description || '',
+    quantity: handover.quantity || '',
+    condition: handover.condition || '',
+    handedOverTo: handover.handed_over_to || '',
+    handedOverBy: handover.handed_over_by || '',
+    receivedBy: handover.received_by || '',
+    remarks: handover.remarks || ''
+  }
+  
+  // Populate autocomplete search fields
+  handoverEmployeeSearch.value = handover.handed_over_by || ''
+  handoverReceivedBySearch.value = handover.received_by || ''
+  
+  // Set selected employees for autocomplete
+  if (handover.handed_over_by) {
+    handoverEmployees.value = [{ id: 0, name: handover.handed_over_by }]
+  }
+  if (handover.received_by) {
+    handoverReceivedByResults.value = [{ id: 0, name: handover.received_by }]
+  }
+  
+  // Open the form
+  showHandoverForm.value = true
+  setTimeout(() => {
+    isHandoverFormOpen.value = true
+  }, 50)
+}
+
+const saveHandoverForm = async () => {
+  try {
+    const workOrderId = Number(route.params.id)
+    if (!workOrderId) return
+    
+    const payload = {
+      job_number: handoverForm.value.jobNumber,
+      client_name: handoverForm.value.clientName,
+      project: handoverForm.value.project,
+      description: handoverForm.value.description,
+      quantity: handoverForm.value.quantity,
+      condition: handoverForm.value.condition,
+      handed_over_to: handoverForm.value.handedOverTo,
+      handed_over_by: handoverForm.value.handedOverBy,
+      received_by: handoverForm.value.receivedBy,
+      remarks: handoverForm.value.remarks
+    }
+    
+    let response
+    if (isEditMode.value && editingHandover.value) {
+      // Update existing handover
+      response = await workOrderHandoversService.updateHandover(workOrderId, editingHandover.value.id, payload)
+    } else {
+      // Create new handover
+      response = await workOrderHandoversService.createHandover(workOrderId, payload)
+    }
+    
+    // Check for error response
+    if (response?.error_message || response?.success === false) {
+      uiMessage.value = { type: 'error', text: response?.error_message || 'FAILED TO SAVE HANDOVER' }
+      return
+    }
+    
+    // Success
+    uiMessage.value = { 
+      type: 'success', 
+      text: isEditMode.value ? 'HANDOVER UPDATED SUCCESSFULLY' : 'HANDOVER CREATED SUCCESSFULLY' 
+    }
+    
+    // Close form and refresh list
+    closeHandoverForm()
+    await fetchHandovers()
+    
+  } catch (error) {
+    console.error('Error saving handover:', error)
+    uiMessage.value = { type: 'error', text: 'FAILED TO SAVE HANDOVER' }
+  }
+}
+
+const fetchHandovers = async () => {
+  try {
+    const workOrderId = Number(route.params.id)
+    if (!workOrderId) return
+    
+    const response = await workOrderHandoversService.getHandovers(workOrderId)
+    savedHandovers.value = response?.data || []
+  } catch (error) {
+    console.error('Error fetching handovers:', error)
+    savedHandovers.value = []
+  }
+}
+
+const deleteHandover = async (handoverId: number) => {
+  try {
+    const workOrderId = Number(route.params.id)
+    if (!workOrderId) return
+    
+    await workOrderHandoversService.deleteHandover(workOrderId, handoverId)
+    
+    // Remove from local array
+    savedHandovers.value = savedHandovers.value.filter(h => h.id !== handoverId)
+    
+    uiMessage.value = { type: 'success', text: 'HANDOVER DELETED' }
+  } catch (error) {
+    console.error('Error deleting handover:', error)
+    uiMessage.value = { type: 'error', text: 'HANDOVER DELETE FAILED' }
+  }
+}
+
+const viewHandover = async (handoverId: number) => {
+  try {
+    const workOrderId = Number(route.params.id)
+    if (!workOrderId) return
+    
+    currentHandoverId.value = handoverId
+    pdfLoading.value = true
+    pdfError.value = null
+    showPdfModal.value = true
+    
+    console.log('Fetching PDF for work order:', workOrderId, 'handover:', handoverId)
+    const blob = await workOrderHandoversService.getHandoverPdf(workOrderId, handoverId)
+    console.log('Received blob:', blob, 'type:', blob?.type, 'size:', blob?.size)
+    
+    // Create blob URL for PDF
+    const url = URL.createObjectURL(blob)
+    console.log('Created blob URL:', url)
+    pdfUrl.value = url
+    pdfLoading.value = false
+  } catch (error) {
+    console.error('Error viewing handover:', error)
+    pdfError.value = 'Failed to load PDF: ' + error.message
+    pdfLoading.value = false
+    uiMessage.value = { type: 'error', text: 'FAILED TO VIEW HANDOVER' }
+  }
+}
+
+const allProductionStepsComplete = () => {
+  const requiredSteps = ['intake', 'design-assets', 'materials', 'fabrication', 'qc', 'packaging']
+  return requiredSteps.every(step => completedStepsSet.value.has(step))
+}
+
+const getTotalAssetSize = () => {
+  if (!designAssets.value || designAssets.value.length === 0) return '0 MB'
+  
+  const totalBytes = designAssets.value.reduce((sum, asset) => {
+    return sum + (asset.file_size || 0)
+  }, 0)
+  
+  const totalMB = totalBytes / (1024 * 1024)
+  return totalMB.toFixed(1) + ' MB'
+}
+
+const closePdfModal = () => {
+  showPdfModal.value = false
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+    pdfUrl.value = null
+  }
+  pdfLoading.value = false
+  pdfError.value = null
+  currentHandoverId.value = null
+}
+
+const downloadCurrentPdf = () => {
+  if (currentHandoverId.value) {
+    downloadHandoverPdf(currentHandoverId.value)
+  }
+}
+
+const downloadHandoverPdf = async (handoverId: number) => {
+  try {
+    const workOrderId = Number(route.params.id)
+    if (!workOrderId) return
+    
+    const response = await workOrderHandoversService.getHandoverPdf(workOrderId, handoverId)
+    
+    // Download PDF
+    const blob = new Blob([response], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `handover-${handoverId}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    uiMessage.value = { type: 'success', text: 'HANDOVER PDF DOWNLOADED' }
+  } catch (error) {
+    console.error('Error downloading handover PDF:', error)
+    uiMessage.value = { type: 'error', text: 'FAILED TO DOWNLOAD HANDOVER PDF' }
+  }
+}
+
+const openHandoverForm = () => {
+  isHandoverFormOpen.value = true
+  showHandoverForm.value = true
+  // Auto-populate when opening
+  populateHandoverForm()
+}
+
+const closeHandoverForm = () => {
+  isHandoverFormOpen.value = false
+  setTimeout(() => {
+    showHandoverForm.value = false
+    // Reset form
+    handoverForm.value = {
+      jobNumber: '',
+      clientName: '',
+      project: '',
+      description: '',
+      quantity: '',
+      condition: '',
+      handedOverTo: '',
+      handedOverBy: '',
+      receivedBy: '',
+      remarks: ''
+    }
+    // Reset edit mode
+    editingHandover.value = null
+    isEditMode.value = false
+  }, 300)
+}
+
+const resetHandoverForm = () => {
+  handoverForm.value = {
+    jobNumber: '',
+    clientName: '',
+    project: '',
+    description: '',
+    quantity: '',
+    condition: '',
+    handedOverBy: '',
+    receivedBy: '',
+    remarks: ''
+  }
+  handoverEmployeeSearch.value = ''
+  handoverReceivedBySearch.value = ''
+}
+
+// Auto-populate handover form with work order data
+const populateHandoverForm = () => {
+  if (selectedWorkOrder.value) {
+    handoverForm.value.jobNumber = selectedWorkOrder.value.work_order_number || ''
+    // Get client name from project enquiry client data
+    handoverForm.value.clientName = selectedWorkOrder.value.projectEnquiry?.client?.company_name || 
+                                   selectedWorkOrder.value.projectEnquiry?.client?.full_name || 
+                                   selectedWorkOrder.value.client_name || ''
+    // Try to get project name from different possible sources
+    handoverForm.value.project = selectedWorkOrder.value.project?.name || 
+                                 selectedWorkOrder.value.project_name || 
+                                 selectedWorkOrder.value.title || ''
+    // Description is now manual input - don't auto-populate
+  }
+}
+
+// Employee search functions for handover
+const searchHandoverEmployees = async (query: string) => {
+  if (handoverEmployeeTimer) clearTimeout(handoverEmployeeTimer)
+  handoverEmployeeTimer = setTimeout(async () => {
+    if (!query || query.trim().length < 2) {
+      handoverEmployeeResults.value = []
+      handoverEmployeeOpen.value = false
+      return
+    }
+    try {
+      const response = await productionAssigneesService.searchAssignees(query.trim())
+      const results = response?.data || []
+      handoverEmployeeResults.value = results
+      handoverEmployeeOpen.value = true
+    } catch (error) {
+      console.error('Error searching handover employees:', error)
+      handoverEmployeeResults.value = []
+      handoverEmployeeOpen.value = false
+    }
+  }, 250)
+}
+
+const searchHandoverReceivedBy = async (query: string) => {
+  if (handoverEmployeeTimer) clearTimeout(handoverEmployeeTimer)
+  handoverEmployeeTimer = setTimeout(async () => {
+    if (!query || query.trim().length < 2) {
+      handoverReceivedByResults.value = []
+      handoverReceivedByOpen.value = false
+      return
+    }
+    try {
+      const response = await productionAssigneesService.searchAssignees(query.trim())
+      const results = response?.data || []
+      handoverReceivedByResults.value = results
+      handoverReceivedByOpen.value = true
+    } catch (error) {
+      console.error('Error searching received by employees:', error)
+      handoverReceivedByResults.value = []
+      handoverReceivedByOpen.value = false
+    }
+  }, 250)
+}
+
+const selectHandoverEmployee = (employee: {id: number, name: string}) => {
+  handoverForm.value.handedOverBy = employee.name
+  handoverEmployeeSearch.value = employee.name
+  handoverEmployeeOpen.value = false
+}
+
+const selectReceivedByEmployee = (employee: {id: number, name: string}) => {
+  handoverForm.value.receivedBy = employee.name
+  handoverReceivedBySearch.value = employee.name
+  handoverReceivedByOpen.value = false
 }
 
 const addScrapLog = async () => {
@@ -2992,6 +3732,9 @@ onMounted(async () => {
     await fetchMidQcChecks()
     await fetchFinalQcChecks()
     await fetchReworks()
+    await fetchHandovers()
+    // Populate handover form with work order data
+    populateHandoverForm()
     setActiveStepFromProgress()
   }
 })
@@ -3290,6 +4033,13 @@ const setActiveStepFromProgress = () => {
 
 const markStepComplete = async (stepKey: string) => {
   if (completedStepsSet.value.has(stepKey)) return
+  
+  // Validate step has required data before allowing completion
+  if (!canCompleteStep(stepKey)) {
+    uiMessage.value = { type: 'error', text: getStepCompletionError(stepKey) }
+    return
+  }
+  
   const workOrderId = Number(route.params.id)
   if (!workOrderId) return
 
@@ -3299,9 +4049,74 @@ const markStepComplete = async (stepKey: string) => {
     await updateWorkOrder(workOrderId, { workflow_completed_steps: next })
     completedSteps.value = next
     setActiveStepFromProgress()
+    uiMessage.value = { type: 'success', text: 'STEP MARKED AS COMPLETE' }
   } catch (error) {
     console.error('Error updating workflow steps:', error)
     uiMessage.value = { type: 'error', text: 'STEP GATE NOT MET OR OUT OF SEQUENCE' }
+  }
+}
+
+const markStepIncomplete = async (stepKey: string) => {
+  if (!completedStepsSet.value.has(stepKey)) return
+  
+  const workOrderId = Number(route.params.id)
+  if (!workOrderId) return
+
+  const next = completedSteps.value.filter(step => step !== stepKey)
+
+  try {
+    await updateWorkOrder(workOrderId, { workflow_completed_steps: next })
+    completedSteps.value = next
+    setActiveStepFromProgress()
+    uiMessage.value = { type: 'success', text: 'STEP MARKED AS INCOMPLETE' }
+  } catch (error) {
+    console.error('Error updating workflow steps:', error)
+    uiMessage.value = { type: 'error', text: 'FAILED TO MARK STEP AS INCOMPLETE' }
+  }
+}
+
+// Helper functions to validate step completion
+const canCompleteStep = (stepKey: string): boolean => {
+  switch (stepKey) {
+    case 'packaging':
+      // Only require handovers for packaging step
+      return savedHandovers.value && savedHandovers.value.length > 0
+    case 'qc':
+      // Allow QC completion (user can mark when ready)
+      return true
+    case 'fabrication':
+      // Allow fabrication completion (user can mark when ready)
+      return true
+    case 'materials':
+      // Allow materials completion (user can mark when ready)
+      return true
+    case 'design_assets':
+      // Allow design assets completion (user can mark when ready)
+      return true
+    case 'intake':
+      // Intake can always be completed if work order exists
+      return true
+    case 'rework':
+      // Rework can always be completed (user can mark when ready)
+      return true
+    case 'close':
+      // Close can only be completed if all other steps are complete
+      return ['intake', 'design_assets', 'materials', 'fabrication', 'qc', 'packaging'].every(step => 
+        completedStepsSet.value.has(step)
+      )
+    default:
+      return true
+  }
+}
+
+const getStepCompletionError = (stepKey: string): string => {
+  switch (stepKey) {
+    case 'packaging':
+      return 'CANNOT COMPLETE PACKAGING: NO HANDOVER FORMS SAVED'
+    case 'close':
+      return 'CANNOT CLOSE PRODUCTION: ALL PREVIOUS STEPS MUST BE COMPLETED FIRST'
+    default:
+      return 'STEP REQUIREMENTS NOT MET'
   }
 }
 
