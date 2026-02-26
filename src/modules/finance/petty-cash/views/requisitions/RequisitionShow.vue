@@ -110,6 +110,9 @@
                   </span>
                   <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
                 </span>
+                <span v-if="requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone" class="block text-[10px] text-blue-500 font-bold mt-0.5">
+                  <i class="mdi mdi-phone text-[9px] mr-0.5"></i> {{ requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone }}
+                </span>
               </div>
             </div>
             <div class="flex items-start gap-3">
@@ -202,6 +205,9 @@
                         </template>
                       </span>
                       <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block italic">{{ item.description }}</span>
+                        <span v-if="item.payee_phone || item.payee?.phone || requisition.requester?.employee?.phone" class="text-[9px] text-blue-500 font-black uppercase tracking-widest block mt-0.5">
+                          <i class="mdi mdi-phone text-[8px] mr-1"></i> {{ item.payee_phone || item.payee?.phone || requisition.requester?.employee?.phone }}
+                        </span>
                     </div>
                   </div>
                   <div class="flex items-center gap-6">
@@ -1068,8 +1074,8 @@ const initiateDisbursement = async () => {
   accountSearch.value = ''
   errors.value = {}
   
-  await fetchFormData()
   showApproveModal.value = true
+  await fetchFormData()
 }
 
 const submitApprovalWithDisbursement = async () => {

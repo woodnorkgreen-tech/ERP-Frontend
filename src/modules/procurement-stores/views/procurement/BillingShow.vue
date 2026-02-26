@@ -55,6 +55,30 @@
           </svg>
           Record Payment
         </button>
+        <router-link
+          v-if="totalSelectedBalance > 0"
+          :to="{
+            path: '/finance/petty-cash/requisitions',
+            query: {
+              action: 'new',
+              bill_id: bill.id,
+              amount: totalSelectedBalance,
+              purpose: `Payment for Bill ${bill.bill_number} - ${bill.supplier?.supplier_name || ''}`,
+              department_id: bill.purchase_order?.requisition?.department_id,
+              project_id: bill.purchase_order?.requisition?.project_id,
+              project_selection: bill.purchase_order?.requisition?.project
+                ? 'p' + bill.purchase_order.requisition.project.id
+                : (bill.purchase_order?.requisition?.enquiry ? 'e' + bill.purchase_order.requisition.enquiry.id : null),
+              project_name: bill.purchase_order?.requisition?.project?.name || bill.purchase_order?.requisition?.enquiry?.title,
+              venue: bill.purchase_order?.delivery_address || bill.purchase_order?.requisition?.enquiry?.venue,
+              category: 'Projects'
+            }
+          }"
+          class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium inline-flex items-center shadow-sm transition-colors"
+        >
+          <i class="mdi mdi-cash-multiple mr-2"></i>
+          Pay via Petty Cash
+        </router-link>
       </div>
     </div>
 

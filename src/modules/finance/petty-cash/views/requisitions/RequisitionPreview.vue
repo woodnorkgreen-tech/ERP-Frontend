@@ -106,6 +106,10 @@
                   <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
                   <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
                   <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
+                  
+                  <span v-if="requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone" class="block text-[8px] text-blue-500 font-bold mt-0.5 lowercase tracking-normal">
+                    tel: {{ requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone }}
+                  </span>
                 </span>
               </div>
               <div class="flex justify-between text-xs">
@@ -174,6 +178,9 @@
                       <p class="text-[10px] text-slate-500 mt-1 font-bold italic">
                         {{ item.description }}
                       </p>
+                      <span v-if="item.payee_phone || item.payee?.phone || requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone" class="text-[8px] text-blue-500 font-black lowercase tracking-normal block mt-0.5">
+                        tel: {{ item.payee_phone || item.payee?.phone || requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone }}
+                      </span>
                     </div>
                   </div>
                   <div class="flex items-center gap-4">

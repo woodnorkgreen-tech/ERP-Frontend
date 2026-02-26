@@ -107,6 +107,18 @@
                 {{ project.project_id }} - {{ project.enquiry?.title }}
               </option>
             </select>
+
+            <!-- Job Number (Formal Display) -->
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Job Number
+              </label>
+              <div class="flex items-center px-4 py-2 bg-blue-50/50 dark:bg-gray-700/50 border border-blue-100 dark:border-gray-600 rounded-lg">
+                <span class="font-mono text-xs font-bold text-blue-700 dark:text-blue-400">
+                  {{ formData.job_number || 'No job number assigned' }}
+                </span>
+              </div>
+            </div>
           </div>
 
           <!-- Employee Selection -->
@@ -162,6 +174,7 @@
 
           <RequisitionItemsTable
             :items="formData.items"
+            :project-context="projectContext"
             @update="updateItem"
             @remove="removeItem"
           />
@@ -212,11 +225,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '@/plugins/axios'
 import type { RequisitionItem } from '../../shared/types/requisitions'
 import RequisitionItemsTable from '../../components/RequisitionItemsTable.vue'
+
+// Computed project context string to pass down to the items table
+const projectContext = computed(() => {
+  if (formData.value.requested_by_type !== 'project') return null
+  return formData.value.job_number || null
+})
 
 const router = useRouter()
 
@@ -235,11 +254,26 @@ const formData = ref({
   employee_id: undefined as number | undefined,
   department_id: undefined as number | undefined,
   urgency: 'normal' as 'normal' | 'urgent',
+  job_number: '' as string,
   items: [] as RequisitionItem[]
 })
 
 const totalAmount = computed(() => {
   return formData.value.items.reduce((sum, item) => sum + (item.total || 0), 0)
+})
+
+// Auto-fill job number when project is selected manually
+watch(() => formData.value.project_id, (newProjectId) => {
+  if (formData.value.requested_by_type === 'project' && newProjectId) {
+    const selectedProject = projects.value.find(p => p.id === newProjectId)
+    if (selectedProject) {
+      const ref = selectedProject.project_id || ''
+      const title = selectedProject.enquiry?.title || ''
+      formData.value.job_number = title ? `${ref} - ${title}` : ref
+    }
+  } else if (!newProjectId) {
+    formData.value.job_number = ''
+  }
 })
 
 const fetchProjects = async () => {
@@ -270,12 +304,14 @@ const fetchDepartments = async () => {
 }
 
 const addItem = () => {
+  const isProject = formData.value.requested_by_type === 'project'
   formData.value.items.push({
-    material_id: 0,
+    material_id: null,
     quantity: 1,
     unit_price: 0,
     total: 0,
-    purpose: '',
+    purpose: isProject ? 'project_use' : '',
+    custom_purpose: isProject ? (formData.value.job_number || '') : '',
     reason: '',
     sku_search: '',
     showDropdown: false,
@@ -304,11 +340,16 @@ const handleSubmit = async () => {
   try {
     const payload = {
       ...formData.value,
+      job_number: formData.value.job_number,
       items: formData.value.items.map(item => ({
         material_id: item.material_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        purpose: item.purpose,
+        // If purpose is 'project_use' or 'custom', send the custom_purpose text instead
+        purpose: (item.purpose === 'project_use' || item.purpose === 'custom')
+          ? (item.custom_purpose || item.purpose)
+          : item.purpose,
+        custom_description: item.custom_description,
         reason: item.reason
       }))
     }
@@ -336,6 +377,85 @@ const handleSubmit = async () => {
 
 onMounted(async () => {
   await Promise.all([fetchProjects(), fetchEmployees(), fetchDepartments()])
-  addItem() // Add first item by default
+  
+  // Handle pre-filled data from router/history state
+  const state = window.history.state as any
+  if (state?.prefillData) {
+    const prefill = state.prefillData
+    
+    // 1. Set basic info
+    formData.value.date = new Date().toISOString().split('T')[0]
+    formData.value.requested_by_type = prefill.requested_by_type || 'project'
+    formData.value.urgency = 'normal'
+    const prefRef = prefill.project_reference || ''
+    const prefTitle = prefill.project_title || ''
+    formData.value.job_number = prefTitle ? `${prefRef} - ${prefTitle}` : prefRef
+
+    // 2. Handle Project selection (including enquiry match)
+    const pid = Number(prefill.project_id)
+    if (formData.value.requested_by_type === 'project' && pid) {
+      // Check if project exists in our fetched list by ID or Enquiry ID
+      const matchingProject = projects.value.find(p => Number(p.id) === pid || Number(p.enquiry_id) === pid)
+      
+      if (!matchingProject) {
+        // Inject a mock project entry so it shows in the dropdown
+        projects.value.push({
+          id: pid,
+          enquiry_id: pid,
+          project_id: prefill.project_reference || `ENQ-${pid}`,
+          enquiry: { title: prefill.project_title || 'Enquiry Project' }
+        })
+        formData.value.project_id = pid
+      } else {
+        formData.value.project_id = matchingProject.id
+      }
+    }
+
+    // 3. Map items
+    if (prefill.items && Array.isArray(prefill.items)) {
+      // Valid purpose option codes from the dropdown
+      const purposeCodes = [
+        'ADM001/1.26/1','ADM002/1.26/1','ADM003/1.26/1','ADM004/1.26/1','ADM005/1.26/1',
+        'ADM006/1.26/1','ADM007/1.26/1','ADM008/1.26/1','ADM009/1.26/1','ADM010/1.26/1',
+        'ADM011/1.26/1','ADM012/1.26/1','ADM013/1.26/1','ADM014/1.26/1','ADM015/1.26/1',
+        'ADM016/1.26/1','ADM017/1.26/1','ADM018/1.26/1','ADM019/1.26/1','ADM020/1.26/1',
+        'ADM021/1.26/1'
+      ]
+
+      formData.value.items = prefill.items.map((item: any) => {
+        // Determine how to display the purpose
+        // If the purpose string from the task is not a known dropdown code,
+        // treat it as 'project_use' so the 🏗️ Project Use option is selected
+        // and the per-item description shows in the text input below.
+        const rawPurpose = item.purpose || ''
+        const isKnownCode = purposeCodes.includes(rawPurpose)
+        const purposeValue  = isKnownCode ? rawPurpose : 'project_use'
+        const customPurpose = isKnownCode ? '' : rawPurpose
+
+        return {
+          material_id: item.material_id || null,
+          material: item.material_id ? { 
+            id: item.material_id, 
+            material_code: item.material_code || '',
+            material_name: item.material_name 
+          } : null,
+          quantity: item.quantity || 1,
+          unit_price: item.unit_price || 0,
+          total: (item.quantity || 1) * (item.unit_price || 0),
+          purpose: purposeValue,
+          custom_purpose: customPurpose,
+          custom_description: item.custom_description || '',
+          reason: item.reason || '',
+          sku_search: item.sku_search || '',
+          showDropdown: false,
+          searchResults: [],
+          loading: false
+        }
+      })
+    }
+  } else {
+    // Default behavior if no pre-fill
+    addItem() 
+  }
 })
 </script>

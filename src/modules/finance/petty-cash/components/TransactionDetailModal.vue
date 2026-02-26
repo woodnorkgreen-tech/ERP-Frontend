@@ -79,6 +79,9 @@
               >
                 {{ transaction.amount?.formatted || 'KES 0.00' }}
               </p>
+              <p v-if="transaction.type === 'top_up' && transaction.previous_balance !== null" class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">
+                 Starting Balance: KES {{ formatAmount(transaction.previous_balance) }}
+              </p>
             </div>
 
             <div>
@@ -269,6 +272,13 @@ const formatDate = (dateString: string): string => {
     minute: '2-digit'
   });
 };
+
+const formatAmount = (amount: number | string | null): string => {
+  if (amount === null || amount === undefined) return '0.00'
+  const val = typeof amount === 'string' ? parseFloat(amount) : amount
+  if (isNaN(val)) return '0.00'
+  return val.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 
 const getClassificationBadgeClass = (classification: string): string => {
   const classes = {

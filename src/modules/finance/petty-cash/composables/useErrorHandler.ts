@@ -79,7 +79,12 @@ export function useErrorHandler() {
 
   // Get user-friendly error message
   const getUserFriendlyMessage = (error: any, type: ErrorType): string => {
-    // Check for specific error codes first
+    // Check for API error messages first as they are most specific
+    if (error.response?.data?.message) {
+      return error.response.data.message
+    }
+
+    // Check for specific error codes as fallbacks
     if (error.response?.status) {
       const statusMessages: Record<number, string> = {
         400: 'Bad request - please check your input',
@@ -93,11 +98,6 @@ export function useErrorHandler() {
       }
       const statusMessage = statusMessages[error.response.status]
       if (statusMessage) return statusMessage
-    }
-
-    // Check for API error messages
-    if (error.response?.data?.message) {
-      return error.response.data.message
     }
 
     // Check for direct error messages

@@ -13,6 +13,17 @@
 
       <div class="flex items-center gap-3">
         <button 
+          @click="createRequisition"
+          :disabled="isCreatingRequisition"
+          class="group flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md hover:shadow-xl active:scale-95 disabled:opacity-50"
+        >
+        <span v-if="isCreatingRequisition" class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+        <i v-else class="mdi mdi-cart-plus text-lg text-white"></i>
+        <span class="text-xs font-black uppercase tracking-widest">
+          {{ isCreatingRequisition ? 'Generating Stock Requisition...' : 'Create Stock Requisition' }}
+        </span>
+        </button>
+        <button 
           @click="downloadPdf"
           :disabled="isDownloading"
           class="group flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl transition-all shadow-md hover:shadow-xl active:scale-95 disabled:opacity-50"
@@ -597,6 +608,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import type { EnquiryTask } from '../../types/enquiry'
 import type { ProcurementTaskData, ProcurementItem } from '../../services'
 import { useProcurementData } from '@/composables/useProcurementData'
@@ -613,6 +625,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const router = useRouter()
 
 const emit = defineEmits<{
   'update-status': [status: EnquiryTask['status']]
@@ -1091,4 +1104,55 @@ useAutoSave(
     }
   }
 )
+// Requisition Creation Logic
+const isCreatingRequisition = ref(false)
+
+const createRequisition = async () => {
+  // 1. Filter items that need purchasing
+  const itemsToProcure = procurementData.procurementItems.filter((i: ProcurementItem) => i.purchaseQuantity > 0)
+  
+  if (itemsToProcure.length === 0) {
+    alert('No items have a purchase quantity set. Please set purchase quantities first.')
+    return
+  }
+
+  isCreatingRequisition.value = true
+
+  try {
+    // Construct the reference label for items
+    const jobRef = procurementData.projectInfo.job_number
+                   || procurementData.projectInfo.projectId
+                   || `ENQ-${props.task.project_enquiry_id}`
+
+    // Construct pre-fill payload for the RequisitionCreate page
+    const prefillData = {
+      project_id: props.task.project_enquiry_id,
+      requested_by_type: 'project',
+      project_reference: jobRef,
+      project_title: procurementData.projectInfo.enquiryTitle,
+      items: itemsToProcure.map((item: ProcurementItem) => ({
+        material_id: item.libraryMaterialId || null,
+        material_name: item.description,
+        custom_description: item.libraryMaterialId ? null : (item.description || item.budgetId),
+        quantity: Math.round(item.purchaseQuantity),
+        unit_price: item.budgetUnitPrice || 0,
+        purpose: `[${jobRef}] ${item.elementName} – ${item.description}`,
+        // Put description in sku_search so it's visible in the input
+        sku_search: item.description || ''
+      }))
+    }
+
+    // Navigate to the Requisition Create page with this data in history state
+    router.push({
+      name: 'procurement-requisition-create',
+      state: { prefillData }
+    })
+
+  } catch (error: any) {
+    console.error('Failed to initiate requisition:', error)
+    alert(`Failed to initiate requisition: ${error.message || 'Unknown error'}`)
+  } finally {
+    isCreatingRequisition.value = false
+  }
+}
 </script>

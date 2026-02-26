@@ -524,7 +524,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span>{{ isSaving ? 'Saving...' : 'Mark Complete' }}</span>
+          <span>Mark Complete</span>
         </button>
 
         <!-- Save Changes (for edit mode) -->
@@ -823,7 +823,7 @@
           
           <div class="flex items-center justify-end gap-3 mt-6">
             <button
-              @click="showEditReasonModal = false; editReason = ''"
+              @click="showEditReasonModal = false; editReason = ''; pendingAction = null"
               class="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
             >
               Cancel
@@ -1230,6 +1230,7 @@ const hasBaseVersion = computed(() => {
 // Reason for Edit Modal
 const showEditReasonModal = ref(false)
 const editReason = ref('')
+const pendingAction = ref<'complete' | 'exitEdit' | null>(null)
 
 // Excel Upload Modal State
 const showExcelUploadModal = ref(false)
@@ -1562,18 +1563,12 @@ const toggleEditMode = () => {
  * Save changes and exit edit mode
  */
 const saveChanges = async () => {
+  pendingAction.value = 'exitEdit'
   await saveMaterialsList()
-  // Only exit edit mode if save was successful (no error)
-  if (!error.value) {
-    isEditMode.value = false
-  }
 }
 
 const saveAndComplete = async () => {
-  await saveMaterialsList()
-  if (!error.value) {
-    emit('update-status', 'completed')
-  }
+  emit('update-status', 'completed')
 }
 
 /**
@@ -1607,6 +1602,14 @@ const saveMaterialsList = async () =>{
     showEditReasonModal.value = false
     console.log('Materials list saved successfully')
     
+    // Execute any pending action
+    if (pendingAction.value === 'complete') {
+      emit('update-status', 'completed')
+    } else if (pendingAction.value === 'exitEdit') {
+      isEditMode.value = false
+    }
+    pendingAction.value = null
+
     // Show workflow notification after successful save
     showWorkflowNotification()
   } catch (err: any) {

@@ -412,6 +412,15 @@
                 <p class="mt-2 text-sm font-semibold text-red-600 dark:text-red-400">
                   This action cannot be undone.
                 </p>
+
+                <!-- Error Display -->
+                <div v-if="errorState.hasError" class="mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800/50 flex items-start gap-2 animate-in slide-in-from-top-2 duration-300">
+                  <i class="mdi mdi-alert-circle text-lg flex-shrink-0"></i>
+                  <div>
+                    <p class="font-bold">Deletion Failed</p>
+                    <p class="mt-0.5">{{ errorState.message }}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -475,7 +484,7 @@ const store = usePettyCashStore()
 const route = useRoute()
 const router = useRouter()
 const permissions = usePermissions()
-const { handleError, clearError, withErrorHandling } = useErrorHandler()
+const { handleError, clearError, withErrorHandling, errorState } = useErrorHandler()
 
 // Loading states
 const isInitialLoading = ref(false)
@@ -1023,6 +1032,7 @@ const closeVoidModal = async () => {
 
 const closeDeleteModal = async () => {
   try {
+    clearError()
     showDeleteModal.value = false
     selectedDisbursement.value = null
     selectedTopUp.value = null
@@ -1059,15 +1069,21 @@ const confirmDelete = async () => {
   
   isDeleting.value = true
   try {
-    await withErrorHandling(async () => {
+    const result = await withErrorHandling(async () => {
       if (deleteType.value === 'top_up') {
-        await store.deleteTopUp(selectedTopUp.value!.id)
+        const success = await store.deleteTopUp(selectedTopUp.value!.id)
+        if (!success) throw new Error('Failed to delete top-up')
+        return true
       } else {
-        await store.deleteDisbursement(selectedDisbursement.value!.id)
+        const success = await store.deleteDisbursement(selectedDisbursement.value!.id)
+        if (!success) throw new Error('Failed to delete disbursement')
+        return true
       }
     }, { context: `delete_${deleteType.value}` })
     
-    await closeDeleteModal()
+    if (result) {
+      await closeDeleteModal()
+    }
     // Data refresh is handled by the store
   } catch (error: any) {
     handleError(error, { context: `delete_${deleteType.value}` })

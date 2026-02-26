@@ -7,6 +7,7 @@
 // Types for procurement data
 export interface ProjectInfo {
   projectId: string
+  job_number?: string
   enquiryTitle: string
   clientName: string
   eventVenue: string
@@ -69,6 +70,7 @@ export interface ProcurementItem {
   // Reference data for traceability
   budgetElementId: string
   budgetItemId: string
+  libraryMaterialId?: number
 }
 
 export interface ProcurementTaskData {
@@ -259,7 +261,8 @@ class MockProcurementAPI {
             procurementNotes: '',
             lastUpdated: new Date(),
             budgetElementId: element.id,
-            budgetItemId: material.id
+            budgetItemId: material.id,
+            libraryMaterialId: undefined // Mock data doesn't have library IDs by default
           })
         })
       })

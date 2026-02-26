@@ -296,6 +296,14 @@
                     >
                       <i class="mdi mdi-clock-outline text-[10px]"></i> Awaiting
                     </span>
+                    
+                    <!-- Previous Balance for Top-ups -->
+                    <span 
+                      v-if="transaction.type === 'top_up' && transaction.previous_balance != null" 
+                      class="inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-700/60"
+                    >
+                      <i class="mdi mdi-scale-balance text-[10px]"></i> Prev: KES {{ formatCurrency(transaction.previous_balance) }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -675,6 +683,13 @@ const formatDateOnly = (date: string): string => {
     day: 'numeric',
     year: 'numeric'
   })
+}
+
+const formatCurrency = (amount: number | string | null): string => {
+  if (amount === null || amount === undefined) return '0.00'
+  const val = typeof amount === 'string' ? parseFloat(amount) : amount
+  if (Number.isNaN(val)) return '0.00'
+  return val.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const formatTimeOnly = (date: string): string => {

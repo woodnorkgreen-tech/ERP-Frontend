@@ -16,7 +16,7 @@
           <!-- Left Section: Toggle & Context -->
           <div class="flex items-center gap-6">
             <button
-              @click="sidebarCollapsed = !sidebarCollapsed"
+              @click="toggleSidebar"
               class="group p-2.5 rounded-xl text-gray-500 hover:bg-blue-500/10 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-all focus:outline-none ring-1 ring-transparent hover:ring-blue-500/20"
               aria-label="Toggle Sidebar"
             >
@@ -165,7 +165,7 @@
       <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 scroll-smooth custom-scrollbar">
         <div class="max-w-8xl mx-auto w-full grid grid-cols-1 items-start">
            <router-view v-slot="{ Component, route }">
-              <transition :name="route.meta.transition || 'fade'" :mode="route.meta.transition === 'page-slide' ? undefined : 'out-in'">
+              <transition :name="(route.meta.transition as string) || 'fade'" :mode="route.meta.transition === 'page-slide' ? undefined : 'out-in'">
                 <div :key="route.fullPath" class="col-start-1 row-start-1 w-full">
                   <component :is="Component" @taskAssigned="handleGlobalTaskAssigned" />
                 </div>
@@ -199,6 +199,7 @@ const router = useRouter()
 const route = useRoute()
 
 const sidebarCollapsed = ref(true)
+const isSidebarPinned = ref(false)
 const notificationCenter = ref()
 const notificationPopup = ref()
 const activationPopup = ref()
@@ -237,13 +238,19 @@ const canHover = () => {
 const handleMouseEnter = () => {
   if (canHover()) {
     sidebarCollapsed.value = false
+    isSidebarPinned.value = true
   }
 }
 
 const handleMouseLeave = () => {
-  if (canHover()) {
+  if (canHover() && !isSidebarPinned.value) {
     sidebarCollapsed.value = true
   }
+}
+
+const toggleSidebar = () => {
+  isSidebarPinned.value = !isSidebarPinned.value
+  sidebarCollapsed.value = !isSidebarPinned.value
 }
 
 

@@ -3,7 +3,7 @@
     :class="[
       'h-full flex flex-col transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] border-r z-40 relative group/sidebar shadow-2xl',
       'bg-white/80 dark:bg-[#0b0f1a]/90 backdrop-blur-xl border-slate-200/60 dark:border-slate-800/60',
-      collapsed ? 'w-20' : 'w-72'
+      collapsed ? 'w-20' : 'w-80'
     ]"
     @mouseenter="$emit('mouseenter')"
     @mouseleave="$emit('mouseleave')"
@@ -22,8 +22,8 @@
           </div>
         </div>
         <div class="flex flex-col transition-all duration-300" :class="collapsed ? 'opacity-0 scale-95 translate-x-[-10px]' : 'opacity-100 scale-100 translate-x-0'">
-          <span class="text-[11px] font-black uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 leading-none mb-1.5 drop-shadow-sm">Strategic ERP</span>
-          <span class="text-base font-black text-slate-900 dark:text-white truncate max-w-[170px] tracking-tight">{{ getSidebarTitle() }}</span>
+          <span class="text-[11px] font-black font-['Poppins'] uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 leading-none mb-1.5 drop-shadow-sm">Strategic ERP</span>
+          <span class="text-base font-bold font-['Poppins'] text-slate-900 dark:text-white truncate max-w-[170px] tracking-tight">{{ getSidebarTitle() }}</span>
         </div>
       </div>
     </div>
@@ -31,118 +31,258 @@
     <!-- Navigation Area -->
     <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 custom-scrollbar relative z-10">
       <!-- Self Service Group (Strategic Entry Point) -->
-      <div class="mb-8">
-        <div 
+      <div class="mb-4">
+        <button 
           v-if="!collapsed" 
-          class="flex items-center gap-3 px-5 mb-4 transition-opacity duration-300"
-          :class="collapsed ? 'opacity-0' : 'opacity-100'"
+          @click="toggleGroup('Self Service')"
+          :class="[
+            'w-full flex items-center justify-between gap-3 px-4 mb-2 group/header transition-all duration-500 py-2.5 rounded-2xl relative overflow-hidden',
+            isGroupExpanded('Self Service') 
+              ? 'bg-blue-50/50 dark:bg-blue-500/10 shadow-sm ring-1 ring-blue-100/50 dark:ring-blue-400/20' 
+              : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
+          ]"
         >
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500 whitespace-nowrap drop-shadow-sm">
-            Self Service
-          </span>
-          <div class="h-[1px] w-full bg-slate-100 dark:bg-slate-800/80"></div>
-        </div>
-
-        <div class="space-y-1.5 px-1">
-          <RouterLink
-            to="/finance/petty-cash/requisitions"
-            :class="[
-              'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
-              route.path.startsWith('/finance/petty-cash/requisitions')
-                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
-                : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
-            ]"
-            :title="collapsed ? 'Financial Requisition' : ''"
-          >
-            <!-- Active Indicator Bar -->
+          <div class="flex items-center gap-3 relative z-10">
             <div 
-              class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-              :class="route.path.startsWith('/finance/petty-cash/requisitions') ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
-            ></div>
-
-            <!-- Icon Wrapper -->
-            <div class="w-14 flex items-center justify-center shrink-0">
-              <i 
-                :class="[
-                  'mdi mdi-cash-plus text-2xl transition-all duration-300 drop-shadow-md',
-                  route.path.startsWith('/finance/petty-cash/requisitions') ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
-                ]"
-              ></i>
-            </div>
-
-            <!-- Label -->
-            <span 
-              class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
-              :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+              :class="[
+                'w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-500',
+                isGroupExpanded('Self Service')
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover/header:bg-blue-100 dark:group-hover/header:bg-blue-900/30 group-hover/header:text-blue-600'
+              ]"
             >
-              Financial Requisition
+              <i class="mdi mdi-shield-star-outline text-lg"></i>
+            </div>
+            <span 
+              :class="[
+                'text-[13px] font-bold font-[\'Poppins\'] uppercase tracking-wider transition-all duration-500',
+                isGroupExpanded('Self Service')
+                  ? 'text-blue-700 dark:text-blue-300'
+                  : 'text-slate-500 dark:text-slate-400 group-hover/header:text-blue-600'
+              ]"
+            >
+              Self Service
             </span>
-          </RouterLink>
-        </div>
+          </div>
+          <i 
+            :class="[
+              'mdi mdi-chevron-down shrink-0 transition-transform duration-500 relative z-10',
+              isGroupExpanded('Self Service') ? 'rotate-0 text-blue-600 dark:text-blue-400' : '-rotate-90 text-slate-300 dark:text-slate-600'
+            ]"
+          ></i>
+          
+          <!-- Subtle Glow for expanded state -->
+          <div v-if="isGroupExpanded('Self Service')" class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse"></div>
+        </button>
+
+        <transition name="accordion">
+          <div v-if="isGroupExpanded('Self Service') || collapsed" class="overflow-hidden">
+            <div class="space-y-1.5 px-1 pb-2 border-l-2 border-blue-100/30 dark:border-blue-500/10 ml-8 mt-1">
+              <RouterLink
+                to="/finance/petty-cash/requisitions"
+                :class="[
+                  'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+                  route.path.startsWith('/finance/petty-cash/requisitions')
+                    ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
+                    : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
+                ]"
+                :title="collapsed ? 'Financial Requisition' : ''"
+              >
+                <!-- Active Indicator Bar -->
+                <div 
+                  class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                  :class="route.path.startsWith('/finance/petty-cash/requisitions') ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+                ></div>
+
+                <!-- Icon Wrapper -->
+                <div class="w-14 flex items-center justify-center shrink-0">
+                  <i 
+                    :class="[
+                      'mdi mdi-cash-plus text-2xl transition-all duration-300 drop-shadow-md',
+                      route.path.startsWith('/finance/petty-cash/requisitions') ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                    ]"
+                  ></i>
+                </div>
+
+                <!-- Label -->
+                <span 
+                  class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
+                  :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+                >
+                  Financial Requisition
+                </span>
+              </RouterLink>
+
+              <RouterLink
+                to="/procurement/requisition/create"
+                :class="[
+                  'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+                  route.path.startsWith('/procurement/requisition/create')
+                    ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
+                    : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
+                ]"
+                :title="collapsed ? 'Stock Requisition' : ''"
+              >
+                <!-- Active Indicator Bar -->
+                <div 
+                  class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                  :class="route.path.startsWith('/procurement/requisition/create') ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+                ></div>
+
+                <!-- Icon Wrapper -->
+                <div class="w-14 flex items-center justify-center shrink-0">
+                  <i 
+                    :class="[
+                      'mdi mdi-package-variant-plus text-2xl transition-all duration-300 drop-shadow-md',
+                      route.path.startsWith('/procurement/requisition/create') ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                    ]"
+                  ></i>
+                </div>
+
+                <!-- Label -->
+                <span 
+                  class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
+                  :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+                >
+                  Stock Requisition
+                </span>
+              </RouterLink>
+
+              <RouterLink
+                to="/procurement/requisitions"
+                :class="[
+                  'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+                  route.path === '/procurement/requisitions'
+                    ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
+                    : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
+                ]"
+                :title="collapsed ? 'Track Requisitions' : ''"
+              >
+                <!-- Active Indicator Bar -->
+                <div 
+                  class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                  :class="route.path === '/procurement/requisitions' ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+                ></div>
+
+                <!-- Icon Wrapper -->
+                <div class="w-14 flex items-center justify-center shrink-0">
+                  <i 
+                    :class="[
+                      'mdi mdi-clipboard-list-outline text-2xl transition-all duration-300 drop-shadow-md',
+                      route.path === '/procurement/requisitions' ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                    ]"
+                  ></i>
+                </div>
+
+                <!-- Label -->
+                <span 
+                  class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
+                  :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+                >
+                  Track Requisitions
+                </span>
+              </RouterLink>
+            </div>
+          </div>
+        </transition>
       </div>
 
-      <div v-for="group in navigationItems" :key="group.department" class="mb-8 last:mb-2">
+      <div v-for="group in navigationItems" :key="group.department" class="mb-4 last:mb-2">
         <!-- Group Header -->
-        <div 
+        <button 
           v-if="!collapsed" 
-          class="flex items-center gap-3 px-5 mb-4 transition-opacity duration-300"
-          :class="collapsed ? 'opacity-0' : 'opacity-100'"
+          @click="toggleGroup(group.department)"
+          :class="[
+            'w-full flex items-center justify-between gap-3 px-4 mb-2 group/header transition-all duration-500 py-2.5 rounded-2xl relative overflow-hidden',
+            isGroupExpanded(group.department) 
+              ? 'bg-blue-50/50 dark:bg-blue-500/10 shadow-sm ring-1 ring-blue-100/50 dark:ring-blue-400/20' 
+              : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
+          ]"
         >
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500 whitespace-nowrap drop-shadow-sm">
-            {{ group.department }}
-          </span>
-          <div class="h-[1px] w-full bg-slate-100 dark:bg-slate-800/80"></div>
-        </div>
+          <div class="flex items-center gap-3 relative z-10">
+            <div 
+              :class="[
+                'w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-500',
+                isGroupExpanded(group.department)
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover/header:bg-blue-100 dark:group-hover/header:bg-blue-900/30 group-hover/header:text-blue-600'
+              ]"
+            >
+              <i :class="['mdi text-lg', getCategoryIcon(group.department)]"></i>
+            </div>
+            <span 
+              :class="[
+                'text-[13px] font-bold font-[\'Poppins\'] uppercase tracking-wider transition-all duration-500',
+                isGroupExpanded(group.department)
+                  ? 'text-blue-700 dark:text-blue-300'
+                  : 'text-slate-500 dark:text-slate-400 group-hover/header:text-blue-600'
+              ]"
+            >
+              {{ group.department }}
+            </span>
+          </div>
+          <i 
+            :class="[
+              'mdi mdi-chevron-down shrink-0 transition-transform duration-500 relative z-10',
+              isGroupExpanded(group.department) ? 'rotate-0 text-blue-600 dark:text-blue-400' : '-rotate-90 text-slate-300 dark:text-slate-600'
+            ]"
+          ></i>
+          <div v-if="isGroupExpanded(group.department)" class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse"></div>
+        </button>
 
         <!-- Links -->
-        <div class="space-y-1.5 px-1">
-          <div v-for="item in group.routes" :key="item.path" class="relative">
-            <RouterLink
-              :to="item.path"
-              :class="[
-                'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
-                route.path === item.path
-                  ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] dark:shadow-[10px_10px_30px_-5px_rgba(37,99,235,0.6)]'
-                  : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
-              ]"
-              :title="collapsed ? item.label : ''"
-            >
-              <!-- Hover Background Shine -->
-              <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"></div>
-
-              <!-- Active Indicator Bar -->
-              <div 
-                class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-                :class="route.path === item.path ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
-              ></div>
-
-              <!-- Icon Wrapper -->
-              <div class="w-14 flex items-center justify-center shrink-0">
-                <i 
+        <transition name="accordion">
+          <div v-if="isGroupExpanded(group.department) || collapsed" class="overflow-hidden">
+            <div class="space-y-1.5 px-1 pb-2 border-l-2 border-blue-100/30 dark:border-blue-500/10 ml-8 mt-1">
+              <div v-for="item in group.routes" :key="item.path" class="relative">
+                <RouterLink
+                  :to="item.path"
                   :class="[
-                    'mdi text-2xl transition-all duration-300 drop-shadow-md',
-                    item.icon,
-                    route.path === item.path ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                    'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+                    route.path === item.path
+                      ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] dark:shadow-[10px_10px_30px_-5px_rgba(37,99,235,0.6)]'
+                      : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
                   ]"
-                ></i>
+                  :title="collapsed ? item.label : ''"
+                >
+                  <!-- Hover Background Shine -->
+                  <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none"></div>
+
+                  <!-- Active Indicator Bar -->
+                  <div 
+                    class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                    :class="route.path === item.path ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+                  ></div>
+
+                  <!-- Icon Wrapper -->
+                  <div class="w-14 flex items-center justify-center shrink-0">
+                    <i 
+                      :class="[
+                        'mdi text-2xl transition-all duration-300 drop-shadow-md',
+                        item.icon,
+                        route.path === item.path ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                      ]"
+                    ></i>
+                  </div>
+
+                  <!-- Label -->
+                  <span 
+                    class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
+                    :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+                  >
+                    {{ item.label }}
+                  </span>
+
+                  <!-- Mini Indicator for Active (Collapsed mode) -->
+                  <div
+                    v-if="collapsed && route.path === item.path"
+                    class="absolute right-3 w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] border border-white/20"
+                  ></div>
+                </RouterLink>
               </div>
-
-              <!-- Label -->
-              <span 
-                class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
-                :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
-              >
-                {{ item.label }}
-              </span>
-
-              <!-- Mini Indicator for Active (Collapsed mode) -->
-              <div
-                v-if="collapsed && route.path === item.path"
-                class="absolute right-3 w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.8)] border border-white/20"
-              ></div>
-            </RouterLink>
+            </div>
           </div>
-        </div>
+        </transition>
       </div>
     </nav>
 
@@ -177,7 +317,7 @@
 
           <!-- Label -->
           <span 
-            class="font-black text-sm uppercase tracking-[0.1em] whitespace-nowrap transition-all duration-500 overflow-hidden"
+            class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
             :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
           >
             Materials Library
@@ -212,7 +352,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouteGuard } from '../composables/useRouteGuard'
 import { useAuth } from '../composables/useAuth'
@@ -263,6 +403,48 @@ const navigationItems = computed((): DepartmentGroup[] => {
 const getSidebarTitle = (): string => {
   return getPanelTitle()
 }
+
+// Accordion Logic
+const expandedGroups = ref<string[]>(['Self Service'])
+
+const toggleGroup = (groupName: string) => {
+  const index = expandedGroups.value.indexOf(groupName)
+  if (index > -1) {
+    expandedGroups.value.splice(index, 1)
+  } else {
+    expandedGroups.value.push(groupName)
+  }
+}
+
+const isGroupExpanded = (groupName: string): boolean => {
+  return expandedGroups.value.includes(groupName)
+}
+
+const getCategoryIcon = (category: string): string => {
+  const icons: Record<string, string> = {
+    'Human Resource': 'mdi-account-group-outline',
+    'Human Resources': 'mdi-account-group-outline',
+    'Finance': 'mdi-finance',
+    'Procurement': 'mdi-cart-outline',
+    'Projects': 'mdi-folder-open-outline',
+    'Creatives': 'mdi-palette-outline',
+    'Digital': 'mdi-monitor-cellphone',
+    'Workshop': 'mdi-hammer-wrench',
+    'General Navigation': 'mdi-compass-outline',
+    'Stores & Inventory': 'mdi-warehouse'
+  }
+  return icons[category] || 'mdi-folder-outline'
+}
+
+// Auto-expand active group on mount
+onMounted(() => {
+  navigationItems.value.forEach(group => {
+    const hasActiveRoute = group.routes.some(r => route.path === r.path)
+    if (hasActiveRoute && !isGroupExpanded(group.department)) {
+      expandedGroups.value.push(group.department)
+    }
+  })
+})
 </script>
 
 <style scoped>
@@ -317,5 +499,20 @@ const getSidebarTitle = (): string => {
 /* Smooth transition for logo */
 .group\/logo:hover img {
   transform: scale(1.1) rotate(5deg);
+}
+
+/* Accordion Animation */
+.accordion-enter-active,
+.accordion-leave-active {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 500px;
+  opacity: 1;
+}
+
+.accordion-enter-from,
+.accordion-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

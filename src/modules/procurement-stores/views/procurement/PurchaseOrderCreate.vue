@@ -134,8 +134,17 @@
       </thead>
       <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
         <tr v-for="(item, index) in formData.items" :key="index">
-          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.material_name }}</td>
-          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.material_code }}</td>
+          <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+            {{ item.material_name }}
+          </td>
+          <td class="px-4 py-3 text-sm">
+            <span v-if="item.material_id" class="font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded text-xs">
+              {{ item.material_code }}
+            </span>
+            <span v-else class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide">
+              Custom
+            </span>
+          </td>
           <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
           <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price) }}</td>
           <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">KES {{ formatNumber(item.total) }}</td>
@@ -226,8 +235,10 @@ const fetchRequisition = async () => {
 
     formData.value.items = data.items.map((item: any) => ({
       material_id: item.material_id,
-      material_name: item.material?.material_name || '',
-      material_code: item.material?.material_code || '',
+      // API resource already resolves material_name → custom_description for non-library items
+      material_name: item.material_name || item.material?.material_name || item.custom_description || '—',
+      // SKU: library items have a code, custom items show their description
+      material_code: item.material?.material_code || item.custom_description || '—',
       quantity: item.quantity,
       unit_price: item.unit_price || item.material?.unit_cost || 0,
       total: item.quantity * (item.unit_price || item.material?.unit_cost || 0)
@@ -263,26 +274,28 @@ const handleSubmit = async () => {
   errors.value = {}
 
   try {
+    // Use the store-linked endpoint which copies items from the requisition server-side
+    // This avoids the material_id required validation on the generic store endpoint
     const payload = {
-      ...formData.value,
-      items: formData.value.items.map(item => ({
-        material_id: item.material_id,
-        quantity: item.quantity,
-        unit_price: item.unit_price
-      }))
+      requisition_id: formData.value.requisition_id,
+      supplier_id: formData.value.supplier_id,
+      due_date: formData.value.due_date,
+      delivery_address: formData.value.delivery_address,
+      description: formData.value.description,
     }
 
-    const response = await axios.post('/api/procurement-stores/purchase-orders', payload)
+    const response = await axios.post('/api/procurement-stores/purchase-orders/store-linked', payload)
 
-    if (response.data && response.data.id) {
-      router.push(`/procurement/purchase-order/${response.data.id}`)
-    } else if (response.data.data && response.data.data.id) {
-      router.push(`/procurement/purchase-order/${response.data.data.id}`)
+    const id = response.data?.data?.id || response.data?.id
+    if (id) {
+      router.push(`/procurement/purchase-order/${id}`)
     }
   } catch (error: any) {
     if (error.response?.data?.error) {
       errors.value = error.response.data.error
-      errorMessage.value = Object.values(error.response.data.error).flat().join(', ')
+      errorMessage.value = typeof error.response.data.error === 'string'
+        ? error.response.data.error
+        : Object.values(error.response.data.error).flat().join(', ')
     } else if (error.response?.data?.message) {
       errorMessage.value = error.response.data.message
     } else {

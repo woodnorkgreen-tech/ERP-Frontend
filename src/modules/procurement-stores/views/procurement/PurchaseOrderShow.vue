@@ -165,7 +165,17 @@
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="item in purchaseOrder.items" :key="item.id">
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.material?.material_name }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                  <div class="font-medium">{{ item.item_name || item.material?.material_name || item.custom_description || '—' }}</div>
+                  <div class="mt-0.5">
+                    <span v-if="item.material_id" class="font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded text-xs">
+                      {{ item.material?.material_code }}
+                    </span>
+                    <span v-else class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide">
+                      Custom
+                    </span>
+                  </div>
+                </td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">{{ item.quantity }}</td>
                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">KES {{ formatNumber(item.unit_price) }}</td>
                 <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">KES {{ formatNumber(item.total) }}</td>

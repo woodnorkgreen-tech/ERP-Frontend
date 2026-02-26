@@ -33,7 +33,7 @@ export interface Requisition {
 
 export interface RequisitionItem {
   id?: number
-  material_id: number
+  material_id: number | null
   material?: {
     id: number
     material_code: string
@@ -44,8 +44,9 @@ export interface RequisitionItem {
   total: number
   purpose: string
   custom_purpose?: string  // For custom purpose when "Other (Custom)" is selected
+  custom_description?: string // For manual material description or budget item description
   reason?: string
-  
+
   // UI helper fields
   sku_search?: string
   showDropdown?: boolean

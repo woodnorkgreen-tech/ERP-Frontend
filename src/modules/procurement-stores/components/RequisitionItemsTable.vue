@@ -30,11 +30,19 @@
                 <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-800">
 
                     <!-- Item Search -->
-                    <td class="px-4 py-3">
-                        <div class="relative">
+                            <!-- Material Name Label (Shows when material is selected) -->
+                            <div v-if="item.material_id" class="mb-1.5 flex items-center gap-2">
+                                <span class="px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-[10px] font-black uppercase tracking-wider border border-blue-200/50 dark:border-blue-800/50">
+                                    {{ item.material?.material_code || 'Library Material' }}
+                                </span>
+                                <span class="text-xs font-bold text-gray-700 dark:text-gray-200 truncate max-w-[200px]">
+                                    {{ item.material?.material_name }}
+                                </span>
+                            </div>
+
                             <input type="text" v-model="item.sku_search"
-                                @input="searchMaterial(index, item.sku_search || '')"
-                                :placeholder="item.material?.material_name || 'Search material...'"
+                                @input="handleSearchInput(index)"
+                                :placeholder="item.material_id ? 'Change material...' : 'Search material or enter name...'"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white min-w-[250px]">
 
                             <div v-if="item.searchResults && item.searchResults.length > 0"
@@ -52,8 +60,17 @@
                             <div v-if="item.loading" class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <i class="mdi mdi-loading mdi-spin text-blue-500 text-lg"></i>
                             </div>
-                        </div>
-                    </td>
+
+                            <div v-if="!item.material_id" class="mt-2 text-xs animate-in fade-in slide-in-from-top-1 duration-300">
+                                <label class="block font-black text-amber-600 dark:text-amber-400 mb-1 leading-none uppercase tracking-widest scale-75 origin-left">Name / Description</label>
+                                <textarea 
+                                    v-model="item.custom_description" 
+                                    @input="handleCustomDescriptionInput(index)"
+                                    rows="1"
+                                    placeholder="Brief name or description..."
+                                    class="w-full px-2 py-1.5 bg-amber-50/30 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/50 rounded-md text-[11px] font-medium text-amber-900 dark:text-amber-200 focus:ring-1 focus:ring-amber-500 focus:border-transparent outline-none transition-all placeholder-amber-400"
+                                ></textarea>
+                            </div>
 
                     <!-- Quantity -->
                     <td class="px-4 py-3">
@@ -75,19 +92,28 @@
                     <!-- Purpose Dropdown -->
                     <td class="px-4 py-3">
                         <select v-model="item.purpose" @change="handlePurposeChange(index)" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white min-w-[200px]">
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white min-w-[200px]"
+                            :class="{ 'border-blue-400 ring-1 ring-blue-300 dark:ring-blue-700': item.purpose === 'project_use' }"
+                        >
                             <option value="">Select Purpose</option>
+                            <option v-if="projectContext" value="project_use" class="font-bold text-blue-700">🏗️ Project Use</option>
                             <option v-for="purpose in purposeOptions" :key="purpose.code" :value="purpose.code">
                                 {{ purpose.code }} - {{ purpose.description }}
                             </option>
                             <option value="custom">Other (Custom)</option>
                         </select>
                         
-                        <!-- Custom Purpose Input - shows when "custom" is selected -->
-                        <input v-if="item.purpose === 'custom'" type="text" v-model="item.custom_purpose" 
-                            @input="updateItem(index)" required
-                            placeholder="Enter custom purpose"
-                            class="w-full px-3 py-2 mt-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white">
+                        <!-- Custom Purpose Input - shows for custom or project_use -->
+                        <input 
+                            v-if="item.purpose === 'custom' || item.purpose === 'project_use'" 
+                            type="text" 
+                            v-model="item.custom_purpose" 
+                            @input="updateItem(index)" 
+                            required
+                            :placeholder="item.purpose === 'project_use' ? 'Project details...' : 'Enter custom purpose'"
+                            class="w-full px-3 py-2 mt-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white"
+                            :class="{ 'border-blue-400 bg-blue-50/50 dark:bg-blue-900/10': item.purpose === 'project_use' }"
+                        />
                     </td>
 
                     <!-- Reason -->
@@ -118,11 +144,14 @@
 
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
+import { watch } from 'vue'
 import api from '@/plugins/axios'
-import type { RequisitionItem } from '../../shared/types/requisitions'
+import type { RequisitionItem } from '../shared/types/requisitions'
 
 interface Props {
     items: RequisitionItem[]
+    /** Pass project reference string (e.g. 'ENQ-001 - My Project') to enable project auto-fill */
+    projectContext?: string | null
 }
 
 const props = defineProps<Props>()
@@ -155,6 +184,43 @@ const purposeOptions = [
     { code: 'ADM020/1.26/1', description: 'Tailoring materials' },
     { code: 'ADM021/1.26/1', description: 'WNG Samples' }
 ]
+
+// Auto-fill purpose when project context changes
+const applyProjectPurpose = (context: string) => {
+    props.items.forEach((item, index) => {
+        // Only auto-fill if purpose is empty or was previously auto-filled
+        if (!item.purpose || item.purpose === 'project_use') {
+            emit('update', index, {
+                purpose: 'project_use',
+                custom_purpose: context
+            })
+        }
+    })
+}
+
+watch(() => props.projectContext, (newCtx) => {
+    if (newCtx) {
+        applyProjectPurpose(newCtx)
+    }
+}, { immediate: true })
+
+const handleSearchInput = (index: number) => {
+    const searchTerm = props.items[index].sku_search || ''
+    
+    // Sync with custom_description if not a library item
+    if (!props.items[index].material_id) {
+        props.items[index].custom_description = searchTerm
+        updateItem(index)
+    }
+
+    searchMaterial(index, searchTerm)
+}
+
+const handleCustomDescriptionInput = (index: number) => {
+    // Sync back to sku_search for visual consistency in the search box if needed
+    // props.items[index].sku_search = props.items[index].custom_description
+    updateItem(index)
+}
 
 const searchMaterial = useDebounceFn(async (index: number, searchTerm: string) => {
     if (!searchTerm || searchTerm.length < 2) {

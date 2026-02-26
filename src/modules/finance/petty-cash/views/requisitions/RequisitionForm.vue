@@ -7,7 +7,7 @@
     leave-from-class="translate-x-0 opacity-100"
     leave-to-class="translate-x-full opacity-0"
   >
-    <div v-if="isOpen" class="fixed inset-0 z-[100] flex justify-end">
+    <div v-if="isOpen" class="fixed inset-0 z-[9999] flex justify-end">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="emit('close')"></div>
       
@@ -192,7 +192,7 @@
 
               <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <!-- Description / Payee Name -->
-                <div :class="isPayeeCategory ? 'md:col-span-5' : 'md:col-span-8'" class="space-y-1">
+                <div :class="isPayeeCategory ? 'md:col-span-4' : 'md:col-span-8'" class="space-y-1">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">
                     {{ isPayeeCategory ? 'Recipient Name / Employee' : 'Description' }}
                   </label>
@@ -210,7 +210,7 @@
                             @blur="hidePayeeResults(index)"
                             :placeholder="item.payee_name || 'Search Employee or Tech Labour...'"
                             class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
-                            :disabled="isFinancialLocked || item.is_external"
+                            :disabled="isFinancialLocked"
                           />
                           <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
                           <button
@@ -240,6 +240,9 @@
                               <div class="text-[10px] uppercase font-black tracking-wider" 
                                 :class="result.type === 'employee' ? 'text-blue-500' : 'text-amber-500'">
                                 {{ result.detail }}
+                              </div>
+                              <div v-if="result.payee_phone || result.phone" class="text-[10px] text-blue-500 font-bold flex items-center gap-1 mt-0.5">
+                                <i class="mdi mdi-phone text-[9px]"></i> {{ result.payee_phone || result.phone }}
                               </div>
                             </div>
                             <i v-if="result.type === 'employee'" class="mdi mdi-account-tie text-slate-300 group-hover:text-blue-500"></i>
@@ -287,7 +290,7 @@
                 </div>
 
                 <!-- Amount -->
-                <div :class="isPayeeCategory ? 'md:col-span-3' : 'md:col-span-4'" class="space-y-1">
+                <div :class="isPayeeCategory ? 'md:col-span-2' : 'md:col-span-4'" class="space-y-1">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Amount</label>
                   <input
                     v-model.number="item.amount"
@@ -297,6 +300,17 @@
                     required
                     placeholder="0.00"
                     class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold text-right disabled:opacity-50"
+                  />
+                </div>
+
+                <!-- Phone Number (Always show if Payee Category) -->
+                <div v-if="isPayeeCategory" class="md:col-span-2 space-y-1">
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</label>
+                  <input
+                    v-model="item.payee_phone"
+                    :disabled="isFinancialLocked"
+                    placeholder="254..."
+                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -338,11 +352,13 @@ import { useToast } from '@/modules/universal-task/composables/useToast'
 const props = defineProps<{
   isOpen: boolean
   requisitionId?: number | null
+  preFill: any | null
 }>()
 
 const emit = defineEmits(['close', 'success'])
 
 const router = useRouter()
+const route = useRoute()
 const toast = useToast()
 
 const editMode = computed(() => !!props.requisitionId)
@@ -371,12 +387,17 @@ const form = reactive({
   project_name: '',
   venue: '',
   enquiry_id: null as number | null,
+  bill_id: null as number | null,
+  payee_id: null as number | null,
+  payee_name: '',
+  payee_phone: '',
   items: [
     { 
       description: '', 
       amount: 0, 
       payee_id: null as number | null, 
       payee_name: '', 
+      payee_phone: '',
       is_external: false,
       payee_search: '',
       show_results: false,
@@ -387,7 +408,8 @@ const form = reactive({
 })
 
 const isPayeeCategory = computed(() => {
-  return ['Transport', 'Meals', 'Transport and Meals'].includes(form.category)
+  // Enable payee search/selection for all categories to ensure phone numbers are always available
+  return true
 })
 
 const totalAmount = computed(() => {
@@ -440,12 +462,18 @@ const fetchRequisition = async () => {
       amount: parseFloat(item.amount),
       payee_id: item.payee_id,
       payee_name: item.payee_name,
+      payee_phone: item.payee_phone || (item.payee?.phone || ''),
       is_external: !!item.payee_name && !item.payee_id,
       payee_search: item.payee_name || (item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : ''),
       show_results: false,
       search_results: [],
       searching: false
     }))
+
+    // Map top-level payee info if available
+    form.payee_id = data.payee_id || null
+    form.payee_name = data.payee_name || ''
+    form.payee_phone = data.payee_phone || ''
   } catch (error) {
     console.error('Failed to fetch requisition:', error)
     toast.error('Failed to load requisition data')
@@ -519,8 +547,9 @@ watch(projectSelection, async (newVal) => {
           amount: 0,
           payee_id: m.payee_id,
           payee_name: m.is_internal ? '' : m.name,
+          payee_phone: m.payee_phone || '',
           is_external: !m.is_internal,
-          payee_search: m.is_internal ? m.name : '',
+          payee_search: m.name,
           show_results: false,
           search_results: [],
           searching: false
@@ -548,8 +577,9 @@ const addTeamToItems = (category: string) => {
     amount: 0,
     payee_id: m.payee_id,
     payee_name: m.is_internal ? '' : m.name,
+    payee_phone: m.payee_phone || '',
     is_external: !m.is_internal,
-    payee_search: m.is_internal ? m.name : '',
+    payee_search: m.name,
     show_results: false,
     search_results: [],
     searching: false
@@ -588,6 +618,7 @@ const addItem = () => {
     amount: 0, 
     payee_id: null, 
     payee_name: '', 
+    payee_phone: '',
     is_external: false,
     payee_search: '',
     show_results: false,
@@ -609,6 +640,11 @@ const onPayeeSearch = (event: Event, index: number) => {
     debounceTimer = null
   }
   
+  if (item.is_external) {
+    item.payee_name = query
+    return
+  }
+
   if (query.length < 2) {
     item.search_results = []
     item.show_results = false
@@ -647,12 +683,14 @@ const selectPayee = (index: number, result: any) => {
     item.payee_id = result.id
     item.payee_name = '' // Backend uses ID
     item.payee_search = result.name
+    item.payee_phone = result.payee_phone || result.phone || ''
   } else {
     // Technical Labour or other
     // Treat as external/manual for now, but pre-fill name
     item.payee_id = null
     item.payee_name = result.name + ' (Tech Labour)'
     item.payee_search = result.name
+    item.payee_phone = result.payee_phone || result.phone || ''
     // Optionally: store technical_labour_id if backend supports it
   }
   item.show_results = false
@@ -671,7 +709,8 @@ const toggleExternal = (index: number) => {
   // Clear search/selection when toggling
   if (item.is_external) {
     item.payee_id = null
-    item.payee_search = ''
+    // Preserve current search string as manual name
+    item.payee_name = item.payee_search
   } else {
     item.payee_name = ''
   }
@@ -703,6 +742,17 @@ const submitForm = async () => {
       form.enquiry_id = null
     }
 
+    // If it's a single item and top-level payee is not set, sync from first item
+    // This helps with backend's expectation for the main table
+    if (form.items.length === 1) {
+      const firstItem = form.items[0]
+      if (!form.payee_id && !form.payee_name) {
+        form.payee_id = firstItem.payee_id
+        form.payee_name = firstItem.payee_name
+        form.payee_phone = firstItem.payee_phone
+      }
+    }
+
     const response = editMode.value 
       ? await axios.put(`/api/finance/petty-cash/requisitions/${props.requisitionId}`, form)
       : await axios.post('/api/finance/petty-cash/requisitions', form)
@@ -719,6 +769,57 @@ const submitForm = async () => {
   }
 }
 
+const handleQueryPreFill = () => {
+  // Use prop if available, otherwise fallback to route query (though props are safer)
+  const data = props.preFill || (route.query.action === 'new' ? route.query : null)
+  
+  // Only pre-fill if it's a new requisition (no ID) and we have data
+  if (!props.requisitionId && data) {
+    if (data.purpose) {
+      form.purpose = data.purpose as string
+      // If we have a purpose, also set it as the description for the first item
+      if (form.items.length > 0) {
+        form.items[0].description = data.purpose as string
+      }
+    }
+    
+    if (data.amount) {
+      const amount = parseFloat(data.amount as string)
+      if (!isNaN(amount) && form.items.length > 0) {
+        form.items[0].amount = amount
+      }
+    }
+ 
+    if (data.bill_id) {
+      form.bill_id = parseInt(data.bill_id as string)
+    }
+ 
+    if (data.department_id) {
+      form.department_id = parseInt(data.department_id as string)
+    }
+ 
+    if (data.project_id) {
+      form.project_id = parseInt(data.project_id as string)
+    }
+ 
+    if (data.project_name) {
+      form.project_name = data.project_name as string
+    }
+ 
+    if (data.venue) {
+      form.venue = data.venue as string
+    }
+ 
+    if (data.category) {
+      form.category = data.category as string
+    }
+ 
+    if (data.project_selection) {
+      projectSelection.value = data.project_selection as string
+    }
+  }
+}
+
 const resetForm = () => {
   form.department_id = ''
   form.category = ''
@@ -727,11 +828,15 @@ const resetForm = () => {
   form.project_name = ''
   form.venue = ''
   form.enquiry_id = null
+  form.payee_id = null
+  form.payee_name = ''
+  form.payee_phone = ''
   form.items = [{ 
     description: '', 
     amount: 0, 
     payee_id: null, 
     payee_name: '', 
+    payee_phone: '',
     is_external: false,
     payee_search: '',
     show_results: false,
@@ -740,6 +845,9 @@ const resetForm = () => {
   }]
   projectSelection.value = null
   projectTeams.value = {}
+  
+  // After reset, try to pre-fill from query if applicable
+  handleQueryPreFill()
 }
 
 watch(() => props.isOpen, (newVal) => {
@@ -750,6 +858,14 @@ watch(() => props.isOpen, (newVal) => {
     }
   }
 })
+
+// Watch for pre-fill changes in case the form is already open
+watch(() => props.preFill, (newVal) => {
+  if (newVal && props.isOpen && !props.requisitionId) {
+    // Reset form first, then pre-fill
+    resetForm()
+  }
+}, { deep: true })
 
 onMounted(() => {
   if (props.isOpen) {

@@ -39,7 +39,7 @@ import {
 
 export const usePettyCashStore = defineStore('pettyCash', () => {
     // Error handling composable
-    const { handleError, clearError: clearErrorHandler, withErrorHandling, withRetry } = useErrorHandler()
+    const { handleError, clearError: clearErrorHandler, withErrorHandling, withRetry, errorState } = useErrorHandler()
 
     // State with safe defaults
     const disbursements = ref<PettyCashDisbursement[]>([])
@@ -1037,7 +1037,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         recalculateBalance, fetchSummary, fetchRecentTransactions, archiveTransaction,
         bulkArchiveTransactions, archiveTransactionGroup, updateTopUp,
         clearError, clearData, resetStore, validateDataIntegrity,
-        refreshDashboard, refreshAll,
+        refreshDashboard, refreshAll, errorState,
         debugStoreState: () => {
             console.log('🔍 Store Debug State:', {
                 disbursements: disbursements.value.length,

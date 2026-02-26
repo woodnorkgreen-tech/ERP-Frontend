@@ -45,7 +45,7 @@
                             class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" />
                     </td>
                     <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                        ${{ formatNumber(item.total || 0) }}
+                  Ksh {{ formatNumber(item.total || 0) }}
                     </td>
                     <td class="px-4 py-3">
                         <button @click="$emit('remove', index)"

@@ -229,6 +229,9 @@
                  :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
                >
                  {{ req.requester?.name || 'USER' }}
+                 <span v-if="req.payee_phone || req.payee?.phone || req.requester?.employee?.phone" class="ml-2 text-blue-500 font-bold lowercase tracking-normal">
+                   ({{ req.payee_phone || req.payee?.phone || req.requester?.employee?.phone }})
+                 </span>
                </span>
                <span 
                  class="text-xs font-black font-mono tracking-tighter"
@@ -336,6 +339,7 @@
     <RequisitionForm 
       :is-open="showForm"
       :requisition-id="formRequisitionId"
+      :pre-fill="preFillData"
       @close="showForm = false"
       @success="fetchRequisitions"
     />
@@ -343,8 +347,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
 import RequisitionPreview from './RequisitionPreview.vue'
 import RequisitionForm from './RequisitionForm.vue'
@@ -358,6 +362,7 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const route = useRoute()
 const requisitions = ref<any[]>([])
 const loading = ref(true)
 const submitting = ref(false)
@@ -375,6 +380,7 @@ const showRejectModal = ref(false)
 const showDisburseModal = ref(false)
 const showForm = ref(false)
 const formRequisitionId = ref<number | null>(null)
+const preFillData = ref<any>(null)
 const rejectionReason = ref('')
 const requisitionStats = ref<any>(null)
 
@@ -543,6 +549,7 @@ const submitRejection = async () => {
 }
 
 const handleDisburse = (req: any) => {
+  selectedRequisition.value = req
   showDisburseModal.value = true
 }
 
@@ -552,8 +559,9 @@ const onDisburseSuccess = () => {
   fetchRequisitions()
 }
 
-const openNewRequisition = () => {
+const openNewRequisition = (preFill: any = null) => {
   formRequisitionId.value = null
+  preFillData.value = preFill instanceof Event ? null : preFill
   showForm.value = true
 }
 
@@ -623,8 +631,32 @@ const getStatusClass = (status: string) => {
   }
 }
 
+const handleQueryParams = () => {
+  // Handle action parameter (e.g. from Billing module)
+  if (route.query.action === 'new') {
+    // Capture pre-fill data before clearing query
+    const preFill = { ...route.query }
+    openNewRequisition(preFill)
+    
+    // Clear the query parameters so refresh doesn't trigger this again
+    const newQuery = { ...route.query }
+    const paramsToClear = [
+      'action', 'purpose', 'amount', 'bill_id', 'department_id', 
+      'project_id', 'project_name', 'venue', 'category', 'project_selection'
+    ]
+    paramsToClear.forEach(p => delete (newQuery as any)[p])
+    router.replace({ query: newQuery as any })
+  }
+}
+
 onMounted(() => {
   fetchRequisitions()
+  handleQueryParams()
+})
+
+// Watch for query changes for when component is reused
+watch(() => route.query, () => {
+  handleQueryParams()
 })
 </script>
 
