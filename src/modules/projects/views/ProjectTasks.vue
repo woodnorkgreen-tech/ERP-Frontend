@@ -230,6 +230,14 @@
                   <div class="flex justify-between items-start mb-2">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ getProjectIdentifier(task) }}</span>
                     <div class="flex gap-1">
+                        <!-- Specialized Materials Gating Badge -->
+                        <div v-if="task.type === 'materials' && task.material_approval?.is_gated" 
+                             class="flex items-center gap-1 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-800 px-1.5 py-0.5 rounded animate-pulse"
+                        >
+                            <i class="mdi mdi-alert text-[10px] text-red-600 dark:text-red-400"></i>
+                            <span class="text-[9px] font-black text-red-700 dark:text-red-300 uppercase">Gated</span>
+                        </div>
+
                         <div v-if="isTaskLocked(task)" class="text-slate-400 text-[10px] font-bold flex items-center gap-1 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded" title="Waiting for previous task">
                            <i class="mdi mdi-lock text-[10px]"></i> Wait
                         </div>
@@ -287,8 +295,19 @@
                       </span>
                    </div>
                    
-                   <!-- Status Icons -->
+                   <!-- Status Icons & Gating Badges -->
                    <div class="flex items-center gap-1.5 shrink-0">
+                        <!-- Specialized Materials Gating Badge -->
+                        <div v-if="task.type === 'materials' && task.material_approval?.is_gated" 
+                             class="flex flex-col items-end"
+                        >
+                           <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/60 border-2 border-red-500 rounded text-[9px] font-black text-amber-900 dark:text-amber-200 uppercase tracking-tighter shadow-md flex items-center gap-1 animate-pulse">
+                               <i class="mdi mdi-alert text-[11px] text-red-600 dark:text-red-400"></i>
+                               Pending: Gated by Design
+                           </span>
+                           <span class="text-[8px] font-black text-red-600 dark:text-red-500 mt-0.5 tracking-tightest">APPROVALS LOCKED</span>
+                        </div>
+
                         <div v-if="isTaskLocked(task)" class="text-slate-400 dark:text-slate-500" title="Dependencies not met">
                             <i class="mdi mdi-lock-outline"></i>
                         </div>
@@ -301,12 +320,45 @@
                    </div>
                 </div>
 
-                <!-- Mid: Description Snippet -->
+                <!-- Mid: Description Snippet or Materials Summary -->
                 <div class="flex-grow flex items-center">
-                    <p v-if="task.task_description" class="text-xs text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                       {{ task.task_description }}
-                    </p>
-                    <span v-else class="text-xs text-slate-300 italic">No additional details provided.</span>
+                    <!-- Simplified Materials Summary -->
+                    <div v-if="task.type === 'materials'" class="w-full flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex gap-1.5">
+                                <span 
+                                    v-for="(approved, dept) in task.material_approval?.departments" 
+                                    :key="dept"
+                                    class="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-black uppercase border"
+                                    :class="[
+                                        approved 
+                                            ? 'bg-emerald-500 border-emerald-600 text-white' 
+                                            : 'bg-slate-50 dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-400'
+                                    ]"
+                                    :title="dept.charAt(0).toUpperCase() + dept.slice(1) + (approved ? ' Approved' : ' Pending')"
+                                >
+                                    {{ dept.charAt(0) }}
+                                </span>
+                            </div>
+                            <div class="text-[10px] font-bold text-slate-500">
+                                {{ task.material_approval?.element_count || 0 }} e | {{ task.material_approval?.material_count || 0 }} m
+                            </div>
+                        </div>
+                        
+                        <!-- Secondary Status Badge (if not gated) -->
+                        <div v-if="!task.material_approval?.is_gated && task.material_approval?.all_approved" class="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-md">
+                            <i class="mdi mdi-check-circle-outline text-emerald-500 text-[10px]"></i>
+                            <span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-tight">Fully Approved</span>
+                        </div>
+                    </div>
+
+                    <!-- Generic Description for other tasks -->
+                    <template v-else>
+                        <p v-if="task.task_description" class="text-xs text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                           {{ task.task_description }}
+                        </p>
+                        <span v-else class="text-xs text-slate-300 italic">No additional details provided.</span>
+                    </template>
                 </div>
 
                 <!-- Footer: Assignee & Date -->
@@ -358,8 +410,22 @@
                 class="hover:bg-slate-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
               >
                 <td class="px-6 py-4">
-                  <div class="font-semibold text-sm text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{{ task.title }}</div>
-                  <div v-if="task.priority === 'urgent'" class="text-[10px] font-bold text-red-500 mt-0.5">URGENT</div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex flex-col">
+                      <div class="font-semibold text-sm text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                        {{ task.title }}
+                        <!-- Table View Gating Alert -->
+                        <span v-if="task.type === 'materials' && task.material_approval?.is_gated" 
+                              class="flex items-center gap-1 px-1.5 py-0.5 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded animate-pulse"
+                              title="Gated by Design - Approvals Locked"
+                        >
+                          <i class="mdi mdi-alert text-[10px] text-red-600 dark:text-red-400"></i>
+                          <span class="text-[8px] font-black text-red-700 dark:text-red-300 uppercase">Gated</span>
+                        </span>
+                      </div>
+                      <div v-if="task.priority === 'urgent'" class="text-[10px] font-bold text-red-500 mt-0.5">URGENT</div>
+                    </div>
+                  </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="text-sm font-medium text-slate-700 dark:text-gray-300">{{ task.enquiry?.title || 'General' }}</div>

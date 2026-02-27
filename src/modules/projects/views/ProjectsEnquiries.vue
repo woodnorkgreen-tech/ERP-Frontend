@@ -891,7 +891,7 @@
                       class="mt-0.5 w-5 h-5 text-blue-600 rounded-lg focus:ring-blue-500 focus:ring-2 border-slate-300"
                     />
                     <div class="flex-1 min-w-0">
-                      <div class="font-black text-sm text-slate-800 dark:text-white mb-1">{{ task.title }}</div>
+                      <div class="font-black text-sm text-slate-800 dark:text-white mb-1">{{ getTaskTitle(task) }}</div>
                       <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ task.description }}</div>
                     </div>
                   </label>
@@ -1711,43 +1711,69 @@ const removeDeliverable = (index: number) => {
 const taskPresets = {
   full_event: {
     label: 'Full Event Production',
-    description: 'Complete event lifecycle with setup, execution, and teardown',
-    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'production', 'logistics', 'setup', 'handover', 'setdown', 'report']
+    description: 'Complete event lifecycle from survey to reporting',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'production', 'logistics', 'setup', 'handover', 'setdown', 'report'],
+    title_overrides: {}
   },
   proposal: {
     label: 'Proposal Development',
-    description: 'Survey, design, and quote preparation without execution',
-    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote']
+    description: 'Survey, design, and initial budgeting without execution',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote'],
+    title_overrides: {}
   },
-  branding_production: {
-    label: 'Branding & Production',
-    description: 'Design, production, and delivery of branded materials',
-    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report']
+  branding: {
+    label: 'Branding & Merchandising',
+    description: 'Branding projects with design, production and delivery',
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report'],
+    title_overrides: {}
   },
   fabrication: {
     label: 'Fabrication Project',
-    description: 'Manufacturing and delivery with site survey',
-    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report']
+    description: 'Custom manufacturing and installation builds',
+    tasks: ['site-survey', 'design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'production', 'logistics', 'handover', 'report'],
+    title_overrides: {}
   },
   installation: {
     label: 'Installation & Setup',
-    description: 'Installation project with setup and handover',
-    tasks: ['site-survey', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'logistics', 'setup', 'handover', 'report']
+    description: 'Deployment of ready-made assets with setup',
+    tasks: ['site-survey', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'logistics', 'setup', 'handover', 'report'],
+    title_overrides: {}
   },
   delivery_only: {
     label: 'Simple Delivery',
-    description: 'Material procurement and delivery without production',
-    tasks: ['materials', 'budget', 'quote', 'quote_approval', 'procurement', 'logistics', 'handover']
+    description: 'Procurement and delivery without production/setup',
+    tasks: ['materials', 'budget', 'quote', 'quote_approval', 'procurement', 'logistics', 'handover'],
+    title_overrides: {}
   },
-  design_consultation: {
+  design_only: {
     label: 'Design & Consultation',
-    description: 'Design services with site survey and advisory',
-    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'handover', 'report']
+    description: 'Service delivery focused on creative and advisory',
+    tasks: ['site-survey', 'design', 'budget', 'quote', 'quote_approval', 'handover', 'report'],
+    title_overrides: {}
   },
-  internal_production: {
+  internal_prod: {
     label: 'Internal Production',
-    description: 'In-house production without external logistics',
-    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'handover', 'report']
+    description: 'In-house manufacturing for departmental use',
+    tasks: ['design', 'materials', 'procurement', 'teams', 'production', 'handover', 'report'],
+    title_overrides: {}
+  },
+  internal_job: {
+    label: 'Internal Maintenance Job',
+    description: 'Company facility repairs and office maintenance',
+    tasks: ['site-survey', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'setup', 'handover', 'report'],
+    title_overrides: {
+      quote_approval: 'Maintenance Approval',
+      setup: 'Repair Works'
+    }
+  },
+  sponsorship: {
+    label: 'Corporate Sponsorship',
+    description: 'Marketing-led brand exposure at external events',
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'production', 'logistics', 'setup', 'handover', 'report'],
+    title_overrides: {
+      quote_approval: 'Sponsorship Approval',
+      setup: 'Event Activation'
+    }
   }
 }
 
@@ -1778,6 +1804,17 @@ const applyPreset = (presetKey: string) => {
     enquiryFormData.value.selected_workflow_tasks = [...preset.tasks]
     enquiryFormData.value.workflow_preset_type = presetKey
   }
+}
+
+const getTaskTitle = (task: typeof availableTasks[0]) => {
+  const presetKey = enquiryFormData.value.workflow_preset_type
+  if (presetKey && taskPresets[presetKey as keyof typeof taskPresets]) {
+    const preset = taskPresets[presetKey as keyof typeof taskPresets] as any
+    if (preset.title_overrides && preset.title_overrides[task.type]) {
+      return preset.title_overrides[task.type]
+    }
+  }
+  return task.title
 }
 
 const toggleAllTasks = () => {

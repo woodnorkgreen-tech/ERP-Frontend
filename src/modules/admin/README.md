@@ -60,6 +60,5 @@ Access to the Admin module is restricted to users with specific administrative p
 - `ADMIN_ACCESS`: General entry to the admin panel.
 
 ## Implementation Details
-- **RBAC**: Permissions are checked both on the backend (via Laravel Middleware) and the frontend (via permission guards on buttons and routes) to ensure multilayered security.
-- **Reactivity**: The UI uses Vue 3's Composition API for real-time updates when roles or users are modified.
+- **RBAC**: Permissions are enforced on the backend via Laravel Middleware to ensure security. Frontend permission guards on buttons and routes enhance user experience by hiding unauthorized actions.- **Reactivity**: The UI uses Vue 3's Composition API for real-time updates when roles or users are modified.
 - **Data Integrity**: Deletion of roles is blocked if they are still assigned to users, preventing accidental orphan accounts.

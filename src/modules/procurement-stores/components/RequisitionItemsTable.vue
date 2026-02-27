@@ -103,17 +103,13 @@
                             <option value="custom">Other (Custom)</option>
                         </select>
                         
-                        <!-- Custom Purpose Input - shows for custom or project_use -->
-                        <input 
-                            v-if="item.purpose === 'custom' || item.purpose === 'project_use'" 
-                            type="text" 
-                            v-model="item.custom_purpose" 
-                            @input="updateItem(index)" 
-                            required
-                            :placeholder="item.purpose === 'project_use' ? 'Project details...' : 'Enter custom purpose'"
-                            class="w-full px-3 py-2 mt-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-800 dark:text-white"
-                            :class="{ 'border-blue-400 bg-blue-50/50 dark:bg-blue-900/10': item.purpose === 'project_use' }"
-                        />
+const handlePurposeChange = (index: number) => {
+    const item = props.items[index]
+    if (item.purpose !== 'custom' && item.purpose !== 'project_use') {
+        item.custom_purpose = ''
+    }
+    updateItem(index)
+}
                     </td>
 
                     <!-- Reason -->

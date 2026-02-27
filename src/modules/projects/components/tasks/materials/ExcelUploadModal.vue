@@ -183,6 +183,7 @@ import api from '@/plugins/axios'
 interface Props {
   isOpen: boolean
   taskId: number
+  projectInfo?: any
 }
 
 interface Emits {
@@ -290,10 +291,9 @@ const confirmImport = async () => {
     const response = await api.post(
       `/api/projects/tasks/${props.taskId}/materials`,
       {
-         projectInfo: {
+         projectInfo: props.projectInfo || {
             projectId: props.taskId.toString(),
             enquiryTitle: 'Material Import',
-            // Default placeholder values as they come from separate project info store
             clientName: '', eventVenue: '', setupDate: '', setDownDate: ''
          },
          projectElements

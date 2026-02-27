@@ -26,6 +26,10 @@
         <span v-else-if="canApprove" class="text-xs text-blue-600 dark:text-blue-400 truncate">
           Action Required
         </span>
+        <span v-else-if="isGated" class="text-xs text-amber-600 dark:text-amber-400 truncate flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Gated by Design
+        </span>
         <span v-else class="text-xs text-gray-400 truncate">
           Pending
         </span>
@@ -45,10 +49,13 @@
          </div>
          <button 
            @click="handleApprove"
-           class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center gap-1"
+           :disabled="isGated"
+           class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
+           :title="isGated ? 'Approval is locked until design is approved' : 'Approve materials'"
          >
-           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-           Approve
+           <svg v-if="!isGated" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+           <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+           {{ isGated ? 'Locked' : 'Approve' }}
          </button>
       </div>
       
@@ -81,6 +88,7 @@ interface Props {
   title: string
   approvalData: ApprovalData
   canApprove: boolean
+  isGated?: boolean
 }
 
 const props = defineProps<Props>()

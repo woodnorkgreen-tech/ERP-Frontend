@@ -140,6 +140,10 @@ export interface EnquiryTask {
     approved_count: number;
     total_count: number;
     all_approved: boolean;
+    element_count?: number;
+    material_count?: number;
+    is_gated?: boolean;
+    gate_message?: string;
     departments: {
       design: boolean;
       production: boolean;

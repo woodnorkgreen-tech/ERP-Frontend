@@ -138,6 +138,30 @@
                 </button>
               </div>
 
+              <!-- Gated State (locked by Design) -->
+              <div v-if="designGate.is_gated" class="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border-2 border-amber-500/50 shadow-lg shadow-amber-500/10 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30">
+                    <i class="mdi mdi-lock text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-amber-900 dark:text-amber-200">Approval Lock</h4>
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Design Required</span>
+                  </div>
+                </div>
+                <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-4">
+                  {{ designGate.message }}
+                </p>
+                <button
+                  v-if="designGate.design_task_id"
+                  @click="emit('switch-task', 'design')"
+                  class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <i class="mdi mdi-brush"></i>
+                  <span>Go to Design Task</span>
+                </button>
+              </div>
+
               <!-- Approved State -->
               <div v-else class="p-5 bg-emerald-500 rounded-2xl shadow-xl shadow-emerald-500/20 text-white">
                 <div class="flex items-center gap-3 mb-2">
@@ -170,6 +194,7 @@
                 title="Project Officer"
                 :approval-data="approvalStatus.project_officer"
                 :can-approve="canApproveForDepartment('project_officer')"
+                :is-gated="designGate.is_gated"
                 @approve="approveForDepartment('project_officer', $event)"
               />
               <ApprovalCard
@@ -178,6 +203,7 @@
                 title="Production Approval"
                 :approval-data="approvalStatus.production"
                 :can-approve="canApproveForDepartment('production')"
+                :is-gated="designGate.is_gated"
                 @approve="approveForDepartment('production', $event)"
               />
             </div>
@@ -760,6 +786,7 @@
     <ExcelUploadModal
       :is-open="showExcelUploadModal"
       :task-id="props.task.id"
+      :project-info="materialsData.projectInfo"
       @close="showExcelUploadModal = false"
       @success="handleExcelUploadSuccess"
     />
@@ -1114,8 +1141,9 @@ const loadMaterialsData = async () => {
   try {
     error.value = null
     isLoading.value = true
-    const data = await MaterialsService.getMaterialsData(props.task.id)
-    Object.assign(materialsData, data)
+    const response = await MaterialsService.getMaterialsData(props.task.id)
+    Object.assign(materialsData, response.data)
+    designGate.value = response.designGate || { is_gated: false, message: '' }
     initializeCollapsedState()
     // Sync approval status from the loaded data
     await loadApprovalStatus()
@@ -1269,6 +1297,13 @@ interface ApprovalStatus {
   all_approved: boolean
   last_approval_at?: string | null
 }
+
+// Design Gate state
+const designGate = ref({
+  is_gated: false,
+  message: '',
+  design_task_id: null as number | null
+})
 
 // Initialize with safe defaults including production
 const approvalStatus = ref<ApprovalStatus>({

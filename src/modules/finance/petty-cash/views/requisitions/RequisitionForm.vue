@@ -795,7 +795,7 @@ const handleQueryPreFill = () => {
     }
  
     if (data.department_id) {
-      form.department_id = parseInt(data.department_id as string)
+      form.department_id = String(data.department_id)
     }
  
     if (data.project_id) {

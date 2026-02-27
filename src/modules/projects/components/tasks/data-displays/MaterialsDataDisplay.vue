@@ -583,8 +583,8 @@ const loadMaterialsData = async () => {
     isLoading.value = true
 
     // Fetch real data from backend API
-    const data = await MaterialsService.getMaterialsData(props.task.id)
-    Object.assign(materialsData, data)
+    const response = await MaterialsService.getMaterialsData(props.task.id)
+    Object.assign(materialsData, response.data)
     initializeCollapsedState()
     loadApprovalStatus()
   } catch (err: any) {

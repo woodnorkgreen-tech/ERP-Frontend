@@ -82,9 +82,9 @@ export class MaterialsService {
   /**
     * Get materials data for a task
     */
-  static async getMaterialsData(taskId: number): Promise<MaterialsTaskData> {
+  static async getMaterialsData(taskId: number): Promise<{ data: MaterialsTaskData; designGate?: any; message?: string }> {
     const response = await axios.get(`/api/projects/tasks/${taskId}/materials`)
-    return response.data.data
+    return response.data
   }
 
   /**
