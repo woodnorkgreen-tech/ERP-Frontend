@@ -226,9 +226,13 @@
            <RequisitionIndex :is-embedded="true" />
         </div>
 
-        <!-- Project Budgets Tab Content -->
         <div v-show="activeDashboardTab === 'budgets'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
            <ProjectBudgetsTab />
+        </div>
+
+        <!-- Activity Logs Tab Content -->
+        <div v-if="activeDashboardTab === 'logs'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <ActivityLogs />
         </div>
 
       </div>
@@ -470,14 +474,23 @@ import ExcelUploadModal from '../components/ExcelUploadModal.vue'
 import TransactionDetailModal from '../components/TransactionDetailModal.vue'
 import RequisitionIndex from './requisitions/RequisitionIndex.vue'
 import ProjectBudgetsTab from '../components/ProjectBudgetsTab.vue'
+import ActivityLogs from '../components/ActivityLogs.vue'
 import ErrorBoundary from '../components/ErrorBoundary.vue'
 
 const activeDashboardTab = ref('overview')
-const dashboardTabs = [
-  { id: 'overview', name: 'Financial Overview', icon: 'mdi-view-dashboard-outline', activeIcon: 'mdi-view-dashboard' },
-  { id: 'budgets', name: 'Project Budgets', icon: 'mdi-calculator-variant-outline', activeIcon: 'mdi-calculator-variant' },
-  { id: 'requisitions', name: 'Requisitions', icon: 'mdi-clipboard-list-outline', activeIcon: 'mdi-clipboard-list' }
-]
+const dashboardTabs = computed(() => {
+  const tabs = [
+    { id: 'overview', name: 'Financial Overview', icon: 'mdi-view-dashboard-outline', activeIcon: 'mdi-view-dashboard' },
+    { id: 'budgets', name: 'Project Budgets', icon: 'mdi-calculator-variant-outline', activeIcon: 'mdi-calculator-variant' },
+    { id: 'requisitions', name: 'Requisitions', icon: 'mdi-clipboard-list-outline', activeIcon: 'mdi-clipboard-list' }
+  ]
+  
+  if (permissions.userRole.value === 'Super Admin') {
+    tabs.push({ id: 'logs', name: 'Activity Logs', icon: 'mdi-history', activeIcon: 'mdi-history' })
+  }
+  
+  return tabs
+})
 
 
 const store = usePettyCashStore()

@@ -1,295 +1,327 @@
 <template>
-  <div v-if="!requisition?.id" class="h-full flex flex-col items-center justify-center p-12 text-center">
-    <div class="w-20 h-20 bg-slate-100 rounded-2xl shadow-sm flex items-center justify-center text-slate-300 mb-6">
-      <i class="mdi mdi-receipt-text-outline text-5xl opacity-20"></i>
+  <div v-if="!requisition?.id" class="h-full flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900/30">
+    <div class="w-20 h-20 bg-white dark:bg-slate-800 rounded-3xl shadow-sm flex items-center justify-center text-slate-200 dark:text-slate-600 mb-6 border border-slate-100 dark:border-slate-700 animate-pulse">
+      <i class="mdi mdi-text-box-search-outline text-4xl opacity-20"></i>
     </div>
-    <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">Select a Requisition</h3>
-    <p class="text-slate-500 mt-2 text-sm font-medium max-w-xs">Click on any request to view the receipt</p>
+    <h3 class="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-[0.2em]">Select Record</h3>
+    <p class="text-slate-500 dark:text-slate-400 mt-2 text-[11px] font-bold uppercase tracking-widest max-w-xs leading-relaxed opacity-60">Pending selection from requisition registry</p>
   </div>
 
-  <transition name="receipt-fade" appear>
-    <div v-if="requisition?.id" class="h-full overflow-y-auto no-scrollbar pb-12 px-4">
-      <!-- Action Buttons (Outside Receipt) -->
-      <div v-if="canManage" class="flex flex-wrap items-center justify-center gap-3 mb-6 sticky top-0 z-10 py-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md">
-        <!-- Edit & Delete Actions (Available for pending/approved/disbursed) -->
-        <div class="flex gap-2 mr-auto" v-if="['pending', 'approved', 'disbursed', 'received'].includes(requisition.status) || true">
-           <button
-            @click="downloadVoucher"
-            :disabled="downloading"
-            class="p-2.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
-            title="Download PDF Voucher"
-          >
-            <i class="mdi text-xl" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-file-pdf-box'"></i>
-          </button>
-           <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 my-auto mx-1"></div>
-           <button
-            @click="$emit('edit', requisition)"
-            class="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
-            title="Edit Requisition"
-          >
-            <i class="mdi mdi-pencil text-lg"></i>
-          </button>
-           <button
-            @click="$emit('delete', requisition)"
-            class="p-2.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95"
-            title="Delete Requisition"
-          >
-            <i class="mdi mdi-trash-can-outline text-lg"></i>
-          </button>
+  <transition name="document-fade" appear>
+    <div v-if="requisition?.id" class="h-full flex flex-col bg-white dark:bg-slate-950 font-technical leading-normal tracking-tight antialiased">
+      
+      <!-- Premium Header (Sticky Action Hub) -->
+      <div v-if="canManage" class="sticky top-0 z-30 px-8 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-md print:hidden transition-all shadow-sm">
+        <div class="flex items-center space-x-5">
+           <div class="p-2.5 bg-blue-500/10 rounded-xl shadow-inner border border-blue-500/20">
+            <i class="mdi mdi-file-document-outline text-blue-600 dark:text-blue-400 text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight tracking-tight uppercase">Requisition Registry</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-bold uppercase tracking-widest">Validating internal disbursement flows</p>
+          </div>
         </div>
 
-        <template v-if="requisition.status === 'pending'">
-          <button
-            @click="$emit('reject', requisition)"
-            class="px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg shadow-red-500/20 active:scale-95"
-          >
-            <i class="mdi mdi-close-circle-outline mr-1"></i> Reject
-          </button>
-          <button
-            @click="$emit('approve', requisition)"
-            class="px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
-          >
-            <i class="mdi mdi-check-circle-outline mr-1"></i> Approve
-          </button>
-        </template>
-        
-        <button
-          v-if="requisition.status === 'approved'"
-          @click="$emit('disburse', requisition)"
-          class="px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-lg shadow-blue-500/20 active:scale-95"
-        >
-          <i class="mdi mdi-cash-register mr-1"></i> Disburse Now
-        </button>
+        <!-- Master Action Hub -->
+        <div class="flex items-center gap-4">
+          <!-- View Toggle / Grouping -->
+          <div class="hidden sm:flex items-center bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex items-center gap-2 px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-white dark:bg-slate-700 shadow-md text-blue-600 dark:text-blue-400">
+               <i class="mdi mdi-file-eye-outline text-lg"></i>
+               <span>Official View</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons Group -->
+          <div class="flex items-center gap-3">
+            <!-- Download / Print -->
+            <button
+              @click="downloadVoucher"
+              :disabled="downloading"
+              class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl shadow-xl shadow-slate-950/10 hover:shadow-slate-950/20 hover:scale-105 active:scale-95 transition-all duration-300 font-black text-[10px] uppercase tracking-widest border border-slate-800 dark:border-white"
+            >
+              <i class="mdi text-lg" :class="downloading ? 'mdi-loading mdi-spin' : 'mdi-printer'"></i>
+              <span class="whitespace-nowrap">{{ downloading ? 'Generating...' : 'Print Voucher' }}</span>
+            </button>
+
+            <!-- Edit Interaction -->
+            <button
+              @click="$emit('edit', requisition)"
+              class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-300 font-black text-[10px] uppercase tracking-widest group"
+            >
+              <i class="mdi mdi-file-edit-outline text-lg group-hover:rotate-12 transition-transform"></i>
+              <span>Amend</span>
+            </button>
+
+            <!-- Status Actions -->
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+            <template v-if="requisition.status === 'pending'">
+              <button
+                @click="$emit('approve', requisition)"
+                class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all font-black text-[10px] uppercase tracking-widest"
+              >
+                <i class="mdi mdi-check-decagram text-lg"></i>
+                <span>Approve</span>
+              </button>
+              <button
+                @click="$emit('reject', requisition)"
+                class="flex items-center justify-center w-11 h-11 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl border border-red-100 dark:border-red-900/30 hover:bg-red-100 transition-all"
+              >
+                <i class="mdi mdi-close-octagon-outline text-xl"></i>
+              </button>
+            </template>
+
+            <button
+              v-if="requisition.status === 'approved'"
+              @click="$emit('disburse', requisition)"
+              class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all font-black text-[10px] uppercase tracking-widest"
+            >
+              <i class="mdi mdi-cash-multiple text-lg"></i>
+              <span>Authorize Funds</span>
+            </button>
+
+            <!-- Void -->
+            <button
+              @click="$emit('delete', requisition)"
+              class="group flex items-center justify-center w-11 h-11 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all duration-300"
+              title="Void Registry Entry"
+            >
+              <i class="mdi mdi-trash-can-outline text-xl transform group-hover:scale-110 transition-transform"></i>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Receipt Container -->
-      <div class="max-w-xl mx-auto bg-white shadow-2xl relative" style="font-family: 'Courier New', monospace;">
-        <!-- Receipt Paper Effect -->
-        <div class="relative bg-white" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f8f8 100%);">
-          <!-- Perforated Top Edge -->
-          <div class="h-3 bg-repeat-x" style="background-image: repeating-linear-gradient(90deg, #e5e7eb 0px, #e5e7eb 8px, transparent 8px, transparent 16px);"></div>
-          
-          <div class="px-8 pt-8 pb-6 text-center border-b-2 border-dashed border-slate-300">
-            <div class="flex items-center justify-center gap-4 mb-4">
-              <img :src="logoOutline" alt="WNG" class="h-10 object-contain" />
-              <div class="h-8 w-px bg-slate-200"></div>
-              <div class="text-left">
-                <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 leading-none">Woodnork Green</h2>
-                <div class="flex flex-col mt-1">
-                  <p class="text-[9px] font-black text-slate-900 uppercase tracking-widest">KRA PIN: P051451468C</p>
-                  <p class="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">Verified Official Document</p>
+      <!-- Quote Body (High Density Document) -->
+      <div class="flex-grow bg-white dark:bg-slate-950 p-2 print:p-0 print:bg-white h-auto overflow-y-auto no-scrollbar">
+        <div class="requisition-content w-[99%] max-w-[99%] mx-auto bg-white border border-slate-100 rounded-sm p-6 sm:p-10 print:p-0 print:shadow-none print:max-w-none print:mx-0 print:min-h-[268mm] print:flex print:flex-col transition-all duration-700 animate-in fade-in slide-in-from-bottom-6">
+          <!-- Unified Header + Requisition Info -->
+          <div class="mb-4 border-2 border-slate-100 rounded-sm overflow-hidden">
+            <!-- Top Brand/Title Bar -->
+            <div class="flex items-center justify-between bg-blue-600 px-5 py-2">
+              <div>
+                <span class="text-[11px] font-black text-white/70 uppercase tracking-[0.4em]">Woodwork Green</span>
+                <span class="ml-4 text-[10px] font-black text-white/50 uppercase tracking-widest">Official Payment Request</span>
+              </div>
+              <div class="text-[11px] font-black text-white uppercase tracking-[0.2em]">
+                REQUISITION — {{ requisition.requisition_number }}
+              </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="grid grid-cols-12 divide-x divide-slate-100">
+
+              <!-- Left: Doc Labels & Registry -->
+              <div class="col-span-3 bg-slate-50 p-4 flex flex-col gap-3 justify-between">
+                <div>
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Date</div>
+                  <div class="text-[15px] font-black text-slate-950 font-technical tracking-tight">{{ formatDate(requisition.created_at) }}</div>
+                </div>
+                <div>
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Requisition #</div>
+                  <div class="text-[15px] font-black text-blue-600 font-technical tracking-tight">{{ requisition.requisition_number }}</div>
+                </div>
+                <div v-if="requisition.department">
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Department</div>
+                  <div class="text-[14px] font-black text-slate-950 italic uppercase tracking-wide">{{ requisition.department?.name || '—' }}</div>
                 </div>
               </div>
-            </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-0 uppercase">Petty Cash Voucher</h1>
-            <p class="text-[10px] text-slate-500 font-black tracking-widest uppercase">Ref No: {{ requisition.requisition_number }}</p>
-            <div class="mt-4">
-              <span :class="getStatusClass(requisition.status)" class="inline-block px-4 py-1 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
-                {{ requisition.status }}
-              </span>
-            </div>
-          </div>
 
-          <!-- Receipt Body -->
-          <div class="px-8 py-6 space-y-4">
-            <!-- Date & Time -->
-            <div class="flex justify-between text-xs border-b border-dashed border-slate-200 pb-3">
-              <span class="font-bold text-slate-500 uppercase tracking-widest">Voucher Date:</span>
-              <span class="font-black text-slate-900 tabular-nums uppercase">{{ formatReceiptDate(requisition.created_at) }}</span>
-            </div>
-
-            <!-- Payee Info -->
-            <div class="space-y-2 border-b border-dashed border-slate-200 pb-3">
-              <div class="flex justify-between text-xs">
-                <span class="font-bold text-slate-500 uppercase tracking-widest">Authorized Payee:</span>
-                <span class="font-black text-slate-900 text-right max-w-[60%] uppercase tracking-tighter">
-                  <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
-                  <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
-                  <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
-                  
-                  <span v-if="requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone" class="block text-[8px] text-blue-500 font-bold mt-0.5 lowercase tracking-normal">
-                    tel: {{ requisition.payee?.phone || requisition.payee_phone || requisition.requester?.employee?.phone }}
-                  </span>
-                </span>
-              </div>
-              <div class="flex justify-between text-xs">
-                <span class="font-bold text-slate-500 uppercase tracking-widest">Cost Center:</span>
-                <span class="font-black text-slate-900 uppercase tracking-tighter">{{ requisition.department?.name || 'N/A' }}</span>
-              </div>
-            </div>
-
-            <!-- Purpose -->
-            <div class="border-b border-dashed border-slate-200 pb-3">
-              <p class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Payment Purpose:</p>
-              <p class="text-xs font-bold text-slate-900 leading-tight uppercase">{{ requisition.purpose }}</p>
-            </div>
-
-            <!-- Project & Venue Link -->
-            <div v-if="requisition.project || requisition.enquiry || requisition.project_name || requisition.venue" class="bg-slate-50/50 p-3 rounded border border-slate-200 border-dashed">
-              <p class="text-[9px] font-bold text-slate-500 mb-1 uppercase tracking-widest">Project Assignment & Location:</p>
-              <div class="space-y-2">
-                <div v-if="requisition.project || requisition.enquiry || requisition.project_name" class="flex items-center gap-2">
-                  <i class="mdi mdi-office-building text-slate-400"></i>
-                  <p class="text-xs font-black text-slate-900 tracking-tighter">
+              <!-- Center: Key Fields (Payee / Purpose / Project / Venue) -->
+              <div class="col-span-6 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                <!-- Payee -->
+                <div class="col-span-2">
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Payee</div>
+                  <div class="text-[16px] font-black uppercase text-slate-950 border-l-2 border-blue-600 pl-3">
+                    <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
+                    <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
+                    <span v-else>{{ requisition.requester?.name }}</span>
+                  </div>
+                </div>
+                <!-- Purpose -->
+                <div class="col-span-2">
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Purpose</div>
+                  <div class="text-[14px] font-black italic uppercase text-slate-950 leading-snug">{{ requisition.purpose }}</div>
+                </div>
+                <!-- Project / Job -->
+                <div>
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Project / Job</div>
+                  <div class="text-[13px] font-black text-slate-950 uppercase">
                     <span v-if="requisition.project">
-                      <span class="font-bold">{{ requisition.project.enquiry?.job_number || requisition.project.project_id || 'System Project' }}</span>
-                      - {{ requisition.project.enquiry?.title || requisition.project.title || 'Untitled Project' }}
+                      <span class="text-blue-600 font-technical">{{ requisition.project.enquiry?.job_number || requisition.project.project_id }}:</span>
+                      {{ requisition.project.enquiry?.title || requisition.project.title }}
                     </span>
                     <span v-else-if="requisition.enquiry">
-                      <span class="font-bold">{{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}</span>
-                      - {{ requisition.enquiry.title }}
+                      <span class="text-blue-600 font-technical">{{ requisition.enquiry.job_number || requisition.enquiry.enquiry_number }}:</span>
+                      {{ requisition.enquiry.title }}
                     </span>
-                    <span v-else-if="requisition.project_name">
-                      {{ requisition.project_name }}
-                    </span>
-                  </p>
+                    <span v-else class="italic text-slate-400">General Administrative</span>
+                  </div>
                 </div>
-                <div v-if="requisition.venue" class="flex items-center gap-2">
-                  <i class="mdi mdi-map-marker text-slate-400 text-sm"></i>
-                  <p class="text-xs font-bold text-slate-800 uppercase tracking-tight">
-                    Venue: {{ requisition.venue }}
-                  </p>
+                <!-- Venue -->
+                <div>
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Venue</div>
+                  <div class="text-[14px] font-black uppercase text-slate-950">{{ requisition.venue || 'Karen Village HQ' }}</div>
                 </div>
               </div>
-            </div>
 
-            <!-- Items List -->
-            <div class="border-t-2 border-slate-900 pt-4">
-              <div class="flex justify-between text-[10px] font-black text-slate-500 mb-3 pb-1 border-b border-slate-300 tracking-[.2em] uppercase">
-                <span>Distribution Detail</span>
-                <span>Amount</span>
+              <!-- Right: Phone (if any) -->
+              <div class="col-span-3 bg-slate-50 p-4 flex flex-col justify-center gap-3">
+                <div v-if="requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone">
+                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Phone</div>
+                  <div class="text-[14px] font-black text-slate-950 font-technical tracking-widest">
+                    {{ requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone }}
+                  </div>
+                </div>
               </div>
-              
-              <div v-for="(item, idx) in requisition.items" :key="item.id" class="mb-4">
-                <div class="flex justify-between items-start text-xs">
-                  <div class="flex-grow flex items-start gap-2 pr-4">
-                    <span class="text-[10px] font-black text-slate-400 mt-0.5">{{ Number(idx) + 1 }}.</span>
-                    <div>
-                      <p class="font-black text-slate-900 leading-tight uppercase tracking-tighter">
-                        <template v-if="item.payee || item.payee_name">
-                          {{ item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : item.payee_name }}
-                        </template>
-                        <template v-else>
-                          <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
-                          <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
-                          <span v-else>{{ requisition.requester?.name || 'Self' }}</span>
-                        </template>
-                      </p>
-                      <p class="text-[10px] text-slate-500 mt-1 font-bold italic">
-                        {{ item.description }}
-                      </p>
-                      <span v-if="item.payee_phone || item.payee?.phone || requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone" class="text-[8px] text-blue-500 font-black lowercase tracking-normal block mt-0.5">
-                        tel: {{ item.payee_phone || item.payee?.phone || requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone }}
-                      </span>
+
+            </div>
+          </div>
+
+          <!-- Distribution Table -->
+          <div class="mb-6">
+            <div class="border-b-2 border-blue-600 mb-3 pb-1">
+              <h3 class="text-slate-950 font-black text-[16px] uppercase tracking-[0.3em]">Request Items</h3>
+            </div>
+            <table class="w-full text-[15px] border-collapse mt-[-2px]">
+              <thead>
+                <tr class="bg-white border-b-4 border-blue-600">
+                  <th class="text-center py-2 px-3 font-black text-white bg-blue-600 border border-white/20 w-16 uppercase tracking-[0.1em] text-[11px]">ITEM</th>
+                  <th class="text-left py-2 px-6 font-black text-white bg-blue-600 border border-white/20 uppercase tracking-[0.1em] text-[11px]">DESCRIPTION</th>
+                  <th class="text-left py-2 px-6 font-black text-white bg-blue-600 border border-white/20 w-72 uppercase tracking-[0.1em] text-[11px]">RECEIVER</th>
+                  <th class="text-right py-2 px-6 font-black text-white bg-blue-600 border border-white/20 w-48 uppercase tracking-[0.1em] text-[11px]">AMOUNT (KES)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y-2 divide-slate-100 border-x-2 border-b-2 border-slate-200">
+                <tr v-for="(item, idx) in requisition.items" :key="item.id || idx" class="bg-white transition-colors group">
+                  <td class="py-2 px-3 text-center border-r border-slate-200 font-technical font-black text-slate-400">
+                    {{ pad(Number(idx) + 1) }}
+                  </td>
+                  <td class="py-2 px-6 border-r border-slate-200">
+                    <div class="font-black text-slate-950 uppercase leading-tight group-hover:translate-x-1 transition-transform">
+                      {{ item.description }}
                     </div>
-                  </div>
-                  <div class="flex items-center gap-4">
-                    <div class="text-right">
-                      <span class="font-black text-slate-900 tabular-nums tracking-tighter block">{{ formatReceiptAmount(item.amount) }}</span>
-                      <div v-if="item.received_at" class="text-[9px] text-emerald-600 font-black mt-0.5 tracking-tighter uppercase">✓ Confirmed</div>
+                    <div v-if="item.remarks" class="text-[10px] text-slate-400 mt-1 font-black uppercase tracking-widest flex items-center gap-1.5">
+                      Task: {{ item.remarks }}
                     </div>
-                    
-                    <!-- Itemized Signature on Receipt -->
-                    <div v-if="item.digital_signature" class="shrink-0 h-10 w-24 border border-slate-200 p-0.5 bg-white flex items-center justify-center overflow-hidden">
-                       <img :src="item.digital_signature" alt="Signature" class="max-h-full max-w-full opacity-100 brightness-0" />
+                  </td>
+                  <td class="py-2 px-6 border-r border-slate-200">
+                    <div class="font-black text-slate-950 uppercase tracking-tight text-[15px]">
+                      {{ item.payee_name || (item.payee?.first_name ? `${item.payee.first_name} ${item.payee.last_name}` : (requisition.payee_name || requisition.requester?.name)) }}
                     </div>
-                  </div>
-                </div>
-                <div v-if="Number(idx) < requisition.items.length - 1" class="border-b border-dotted border-slate-200 mt-4"></div>
-              </div>
-            </div>
-
-            <!-- Total -->
-            <div class="border-t-2 border-double border-slate-900 pt-3 mt-4">
-              <div class="flex justify-between items-center bg-slate-900 text-white p-3 border border-slate-900">
-                <span class="text-xs font-black tracking-widest uppercase">Total Disbursed:</span>
-                <span class="text-xl font-black tabular-nums tracking-tighter">{{ formatReceiptAmount(requisition.total_amount) }}</span>
-              </div>
-            </div>
-
-            <!-- Rejection Reason -->
-            <div v-if="requisition.status === 'rejected'" class="bg-red-50 border-2 border-red-300 p-3 rounded mt-4">
-              <div class="flex items-center gap-2 mb-1">
-                <i class="mdi mdi-alert-circle text-red-600"></i>
-                <p class="text-[9px] font-black text-red-600 uppercase tracking-widest">Rejected:</p>
-              </div>
-              <p class="text-xs font-bold text-red-900 italic leading-snug">{{ requisition.rejection_reason || 'No reason provided' }}</p>
-            </div>
+                    <div class="text-[10px] text-slate-400 font-black flex items-center gap-1 mt-1">
+                      {{ item.payee_phone || (item.payee?.phone) || (requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone || '-') }}
+                    </div>
+                  </td>
+                  <td class="py-2 px-6 text-right font-black text-slate-950 tabular-nums text-[16px] tracking-tighter bg-white font-technical">
+                    {{ formatCurrency(item.amount) }}
+                    <div v-if="item.received_at" class="flex items-center justify-end gap-1 text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1">
+                       <i class="mdi mdi-check-all"></i>
+                       Confirmed
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <!-- Subtotal / Total Style -->
+                <tr class="border-t-4 border-blue-600">
+                  <td colspan="2" class="border-r border-slate-200 bg-white"></td>
+                  <td class="py-4 px-6 font-black text-slate-950 border-r border-slate-200 bg-white uppercase tracking-[0.3em] text-[11px] text-right">Total Amount</td>
+                  <td class="py-4 px-6 text-right font-black text-white bg-blue-600 text-3xl tabular-nums tracking-tighter shadow-xl font-technical">
+                    {{ formatReceiptAmount(requisition.total_amount) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
 
-          <!-- Receipt Footer / Timeline -->
-          <div class="px-8 py-6 bg-slate-50/50 border-t-2 border-dashed border-slate-200">
-            <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest uppercase">Transaction Log</p>
-            
-            <div class="space-y-4 text-xs">
-              <div class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-slate-600 uppercase text-[9px]">Requested</span>
-                    <span class="font-black text-slate-900 tabular-nums">{{ formatReceiptDateTime(requisition.created_at) }}</span>
+          <!-- Sticky Bottom Section (Verification & Registry) -->
+          <div class="mt-auto pt-4 border-t-2 border-slate-100">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Audit Registry (Left & Center) -->
+              <div class="md:col-span-2">
+                <div class="bg-blue-600 text-white px-3 py-1.5 font-black text-[11px] uppercase tracking-[0.3em] mb-4 inline-block rounded-sm shadow-md shadow-blue-600/20">
+                  APPROVAL PATH
+                </div>
+                
+                <div class="grid grid-cols-2 gap-x-8 gap-y-4 text-[12px] leading-tight">
+                  <div>
+                    <h4 class="font-black text-slate-950 border-b border-slate-200 mb-2 pb-1 uppercase tracking-tighter text-[13px]">01. Authorization</h4>
+                    <ul class="space-y-3">
+                      <li class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>Originator:</span>
+                        <span class="text-slate-950 underline decoration-slate-200 font-black">{{ requisition.requester?.name }}</span>
+                      </li>
+                      <li v-if="requisition.approved_at" class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>Authorized:</span>
+                        <span class="text-slate-950 underline decoration-slate-200 font-black">{{ requisition.approver?.name || 'Board review' }}</span>
+                      </li>
+                      <li v-if="requisition.disbursement" class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>Disbursed:</span>
+                        <span class="text-slate-950 font-mono font-black italic">{{ formatDate(requisition.disbursement.created_at) }}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 class="font-black text-slate-950 border-b-2 border-slate-200 mb-3 pb-2 uppercase tracking-tighter text-[15px]">02. Registry Audit</h4>
+                    <ul class="space-y-3">
+                      <li class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>Registry ID:</span>
+                        <span class="text-slate-950 font-technical font-black">#{{ requisition.id }}</span>
+                      </li>
+                      <li v-if="requisition.disbursement" class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>TXN Path:</span>
+                        <span class="text-blue-600 font-technical font-black text-[14px]">{{ requisition.disbursement.transaction_code }}</span>
+                      </li>
+                      <li v-if="requisition.received_at" class="flex justify-between items-center text-slate-500 font-black uppercase">
+                        <span>Status:</span>
+                        <span class="text-emerald-600 font-black italic">FINALIZED & SIGNED</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
 
-              <div v-if="requisition.approved_at" class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 rounded-full mt-1 shadow-sm" :class="requisition.status === 'rejected' ? 'bg-red-500 shadow-red-500/50' : 'bg-emerald-500 shadow-emerald-500/50'"></div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-slate-600 uppercase text-[9px]">{{ requisition.status === 'rejected' ? 'Rejected' : 'Approved' }}</span>
-                    <span class="font-black text-slate-900 tabular-nums">{{ formatReceiptDateTime(requisition.approved_at) }}</span>
+              <!-- Digital Affidavit (Right Column) -->
+              <div class="border-l border-slate-100 pl-10 flex flex-col justify-end">
+                <div v-if="requisition.digital_signature" class="bg-slate-950 p-6 rounded-2xl shadow-2xl relative overflow-hidden group">
+                  <div class="absolute -right-10 -bottom-10 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
+                  <h5 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 relative z-10 border-b border-white/10 pb-2">Verification Seal</h5>
+                  <img :src="requisition.digital_signature" alt="SIG" class="max-h-20 grayscale invert brightness-200 relative z-10 mb-4 drop-shadow-[0_10px_15px_rgba(255,255,255,0.1)]" />
+                  <p class="text-[13px] font-black text-white uppercase tracking-widest relative z-10">{{ requisition.received_by || requisition.authenticated_user?.name }}</p>
+                  <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1 opacity-70 relative z-10 font-mono">{{ formatReceiptDateTime(requisition.received_at) }}</p>
+                </div>
+                
+                <div v-else-if="requisition.status === 'disbursed'" class="p-6 bg-white rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+                  <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Verification Entry Portal</span>
+                  <div class="p-3 bg-white rounded-xl border border-slate-100">
+                    <QrcodeVue :value="publicSignOffUrl" :size="70" />
                   </div>
-                  <p class="text-[9px] text-slate-400 font-bold mt-0.5 italic">By: {{ requisition.approver?.name }}</p>
+                  <button @click="copyToClipboard" class="text-[8px] font-black text-blue-600 uppercase tracking-widest hover:underline mt-4">
+                    {{ copied ? 'Link Copied' : 'Copy Verification Link' }}
+                  </button>
+                </div>
+
+                <div v-else class="flex items-end justify-center py-6">
+                   <div class="text-[10px] text-slate-300 italic uppercase font-black tracking-[0.3em] font-mono">WOODWORK GREEN OFFICIAL</div>
                 </div>
               </div>
+            </div>
 
-              <div v-if="requisition.disbursement" class="flex items-start gap-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1 shadow-purple-500/50"></div>
-                <div class="flex-1">
-                  <div class="flex justify-between items-center">
-                    <span class="font-bold text-slate-600 uppercase text-[9px]">Disbursed</span>
-                    <span class="font-black text-slate-900 tabular-nums">{{ formatReceiptDateTime(requisition.disbursement.created_at) }}</span>
-                  </div>
-                  <p class="text-[9px] text-slate-400 font-bold mt-0.5 truncate italic">Ref: {{ requisition.disbursement.transaction_code }}</p>
-                </div>
+            <!-- Final Footer Strip -->
+            <div class="flex items-center justify-between text-[8px] text-slate-400 pt-4 border-t border-slate-100 mt-4">
+              <div class="flex gap-4">
+                <span class="font-black text-slate-600 uppercase tracking-[0.2em]">Woodwork Green Ltd</span>
+                <span class="flex items-center gap-1 font-bold"><i class="mdi mdi-phone text-slate-300"></i> +254 780 397 798</span>
+                <span class="flex items-center gap-1 font-bold"><i class="mdi mdi-email text-slate-300"></i> admin@woodworkgreen.co.ke</span>
+              </div>
+              <div class="text-right font-bold uppercase tracking-widest text-slate-300">
+                Karen Village, Ngong Road, Nairobi | www.woodworkgreen.co.ke
               </div>
             </div>
           </div>
-
-          <!-- QR Code for Sign-off -->
-          <div v-if="requisition.status === 'disbursed' && !requisition.received_at" class="px-8 py-8 border-t border-dashed border-slate-200 text-center bg-white">
-            <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest uppercase">Scan to Confirm Receipt</p>
-            <div class="bg-white p-4 border border-slate-100 shadow-xl inline-block rounded-2xl mb-4 group ring-8 ring-slate-50">
-              <QrcodeVue :value="publicSignOffUrl" :size="140" level="H" />
-            </div>
-            <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
-              <code class="text-[9px] text-slate-400 font-mono truncate grow bg-slate-50 px-2 py-1 rounded border border-slate-100">{{ publicSignOffUrl }}</code>
-              <button 
-                @click="copyToClipboard" 
-                class="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-500 transition-all active:scale-95"
-                :title="copied ? 'Copied!' : 'Copy link'"
-              >
-                <i class="mdi" :class="copied ? 'mdi-check text-emerald-500' : 'mdi-content-copy'"></i>
-              </button>
-            </div>
-            <p v-if="copied" class="text-[9px] text-emerald-600 font-black uppercase mt-2 tracking-widest animate-bounce">Copied!</p>
-          </div>
-
-          <!-- Digital Signature -->
-          <div v-if="requisition.digital_signature" class="px-8 py-6 border-t border-dashed border-slate-200 bg-slate-50/30">
-            <p class="text-[10px] font-black text-slate-400 mb-4 tracking-widest text-center uppercase font-mono">Acknowledged by:</p>
-            <div class="border-b-2 border-slate-900/10 pb-2 mb-4">
-              <img :src="requisition.digital_signature" alt="Signature" class="max-h-16 mx-auto opacity-90 drop-shadow-sm transition-opacity hover:opacity-100" />
-            </div>
-            <div class="text-center space-y-1">
-              <p class="text-xs font-black text-slate-900 uppercase tracking-widest font-mono">{{ requisition.received_by || requisition.authenticated_user?.name || 'N/A' }}</p>
-              <p class="text-[9px] text-slate-400 font-black uppercase tracking-tighter">Verified Digital Signature</p>
-              <p class="text-[9px] text-slate-400 tabular-nums font-bold" v-if="requisition.received_at">{{ formatReceiptDateTime(requisition.received_at) }}</p>
-            </div>
-          </div>
-
-          <!-- Perforated Bottom Edge -->
-          <div class="h-3 bg-repeat-x" style="background-image: repeating-linear-gradient(90deg, #e5e7eb 0px, #e5e7eb 8px, transparent 8px, transparent 16px);"></div>
         </div>
       </div>
     </div>
@@ -299,7 +331,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import QrcodeVue from 'qrcode.vue'
-import logoOutline from '@/../public/logo-outline.png'
+import logoImage from '@/assets/wng-logo.png'
 import axios from '@/plugins/axios'
 import { useToast } from '@/modules/universal-task/composables/useToast'
 
@@ -376,17 +408,6 @@ const formatReceiptAmount = (amount: number) => {
   }).format(amount)
 }
 
-const formatDate = (date: string) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
 const formatReceiptDate = (date: string) => {
   if (!date) return '-'
   return new Date(date).toLocaleDateString('en-GB', {
@@ -410,19 +431,51 @@ const formatReceiptDateTime = (date: string) => {
   })
 }
 
-const getStatusClass = (status: string) => {
+const pad = (n: number) => n < 10 ? `0${n}` : n
+
+const getStatusTextStyle = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-    case 'approved': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-    case 'rejected': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-    case 'disbursed': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-    case 'received': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-    default: return 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400'
+    case 'pending': return 'text-amber-600'
+    case 'approved': return 'text-blue-600'
+    case 'rejected': return 'text-red-600'
+    case 'disbursed': return 'text-slate-900'
+    case 'received': return 'text-emerald-600'
+    default: return 'text-slate-500'
+  }
+}
+
+const formatDate = (date: string) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
+}
+
+const getStatusContextClass = (status: string) => {
+  switch (status) {
+    case 'pending': return 'bg-amber-500/10 border-amber-500/20 text-amber-500'
+    case 'approved': return 'bg-blue-500/10 border-blue-500/20 text-blue-500'
+    case 'rejected': return 'bg-red-500/10 border-red-500/20 text-red-500'
+    case 'disbursed': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+    case 'received': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+    default: return 'bg-slate-500/10 border-slate-500/20 text-slate-500'
   }
 }
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap');
+
+* {
+  font-family: 'Roboto', 'Open Sans', 'Lato', sans-serif;
+}
+
+.font-technical {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -431,19 +484,12 @@ const getStatusClass = (status: string) => {
   scrollbar-width: none;
 }
 
-/* Receipt Entry Animation */
-.receipt-fade-enter-active,
-.receipt-fade-leave-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Document Entry Animation */
+.document-fade-enter-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.receipt-fade-enter-from {
+.document-fade-enter-from {
   opacity: 0;
-  transform: translateY(20px) scale(0.98);
-}
-
-.receipt-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.98);
+  transform: translateY(15px);
 }
 </style>

@@ -606,6 +606,10 @@ class PettyCashService {
     return this.makeRequest<RecentTransactionsResponse>('GET', '/recent', null, { params: { limit } as Record<string, unknown> })
   }
 
+  async getActivityLogs(filters?: { action?: string; transaction_type?: string; user_id?: number; page?: number; limit?: number }): Promise<PaginatedResponse<any>> {
+    return this.makeRequest<PaginatedResponse<any>>('GET', '/activity-logs', null, { params: filters as Record<string, unknown> })
+  }
+
   async archiveTransaction(id: number, type: 'disbursement' | 'top_up'): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>('POST', `/transactions/${id}/archive`, { type })
   }
@@ -706,6 +710,20 @@ class PettyCashService {
   }
 
   // Export and reporting with permission validation
+  async downloadRequisitionVoucher(id: number): Promise<void> {
+    this.validatePermission('finance.petty_cash.view', 'download requisition voucher')
+
+    try {
+      const response = await api.get(`${this.baseUrl}/requisitions/${id}/voucher`, {
+        responseType: 'blob'
+      })
+
+      this.downloadFile(response.data, `voucher-${id}.pdf`, 'application/pdf')
+    } catch (error: any) {
+      throw this.transformError(error, { operation: 'download requisition voucher' })
+    }
+  }
+
   // File download helpers
   downloadFile(blob: Blob, filename: string, mimeType?: string) {
     const url = window.URL.createObjectURL(new Blob([blob], { type: mimeType }))

@@ -162,23 +162,23 @@
             :key="req.id"
             @click="selectRequisition(req)"
             :class="[
-              'w-full text-left p-5 transition-all border-b last:border-b-0 relative group flex flex-col gap-3',
+              'w-full text-left p-4 transition-all border-b last:border-b-0 relative group flex flex-col gap-3',
               selectedId === req.id 
-                ? 'bg-slate-900 border-slate-900 dark:bg-blue-600/20 dark:border-blue-500/50 z-10' 
-                : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-blue-900/40'
+                ? 'bg-slate-900 border-slate-900 dark:bg-blue-600/20 dark:border-blue-500/50 z-10 shadow-lg' 
+                : 'bg-white dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-blue-900/40 shadow-sm'
             ]"
           >
-            <!-- Header: ID + Status + Date -->
+            <!-- Header: ID + Status -->
             <div class="flex justify-between items-center w-full">
               <span 
-                class="text-[9px] font-black uppercase tracking-widest font-mono"
-                :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-400'"
+                class="text-[9px] font-black uppercase tracking-widest font-mono opacity-50"
+                :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
               >
                 {{ req.requisition_number }}
               </span>
               <span 
                 :class="[
-                  'px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border',
+                  'px-1.5 py-0.5 rounded text-[7px] font-black uppercase tracking-[0.15em] border',
                   selectedId === req.id ? 'bg-white/10 border-white/20 text-white' : getStatusClass(req.status)
                 ]"
               >
@@ -186,74 +186,64 @@
               </span>
             </div>
 
-            <!-- Main Content: Purpose + Project -->
-            <div>
+            <!-- Main Content: Purpose + Descriptive Context -->
+            <div class="space-y-1">
               <h4 
-                class="text-xs font-black uppercase tracking-wider leading-tight mb-2 line-clamp-1 h-3"
-                :class="selectedId === req.id ? 'text-white dark:text-white' : 'text-slate-900 dark:text-slate-100'"
+                class="text-xs font-black uppercase tracking-tight leading-snug line-clamp-2"
+                :class="selectedId === req.id ? 'text-white' : 'text-slate-900 dark:text-slate-100'"
               >
                 {{ req.purpose }}
               </h4>
-              <div class="flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                 <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">FOR</span>
                  <span 
-                   class="text-[9px] font-black uppercase tracking-tighter"
-                   :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
+                   class="text-[9px] font-black uppercase tracking-tight truncate max-w-[180px]"
+                   :class="selectedId === req.id ? 'text-blue-300' : 'text-slate-600 dark:text-blue-400'"
                  >
-                   {{ req.project?.enquiry?.title || req.project_name || 'GENERAL EXP' }}
-                 </span>
-                 <span v-if="req.venue" class="w-1 h-1 rounded-full bg-slate-300"></span>
-                 <span 
-                   v-if="req.venue"
-                   class="text-[9px] font-black uppercase tracking-tighter"
-                   :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-400'"
-                 >
-                   {{ req.venue }}
+                   {{ req.project?.enquiry?.title || req.project_name || 'GENERAL OPS' }}
                  </span>
               </div>
             </div>
 
-            <!-- Meta: Category + Requester -->
-            <div class="flex flex-wrap gap-1.5">
-                 <span class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-[9px] font-bold uppercase tracking-wide">
-                   {{ req.category }}
+            <!-- Footer: Requester & Amount -->
+            <div class="flex justify-between items-end mt-1 pt-3 border-t w-full" :class="selectedId === req.id ? 'border-white/10' : 'border-slate-100 dark:border-slate-700/50'">
+               <div class="flex flex-col">
+                 <div class="flex items-center gap-1.5 mb-0.5">
+                   <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">BY</span>
+                   <span 
+                     class="text-[9px] font-black uppercase tracking-tight"
+                     :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300'"
+                   >
+                     {{ req.requester?.name?.split(' ')[0] || 'Personnel' }}
+                   </span>
+                 </div>
+                 <span v-if="req.payee_phone || req.payee?.phone || req.requester?.employee?.phone" class="text-[8px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1">
+                    <i class="mdi mdi-phone-outline text-[10px]"></i> {{ (req.payee_phone || req.payee?.phone || req.requester?.employee?.phone)?.slice(-9) }}
                  </span>
-                 <span v-if="req.department" class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-[9px] font-bold uppercase tracking-wide">
-                   {{ req.department.name }}
+               </div>
+               <div class="text-right">
+                 <span 
+                   class="text-sm font-black font-mono tracking-tighter"
+                   :class="selectedId === req.id ? 'text-white' : 'text-slate-900 dark:text-slate-100'"
+                 >
+                   {{ formatCurrency(req.total_amount) }}
                  </span>
-            </div>
-
-            <!-- Footer: Requester + Amount -->
-            <div class="flex justify-between items-center mt-auto pt-3 border-t w-full" :class="selectedId === req.id ? 'border-white/10' : 'border-slate-50 dark:border-slate-700'">
-               <span 
-                 class="text-[9px] font-black uppercase tracking-tighter"
-                 :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-500'"
-               >
-                 {{ req.requester?.name || 'USER' }}
-                 <span v-if="req.payee_phone || req.payee?.phone || req.requester?.employee?.phone" class="ml-2 text-blue-500 font-bold lowercase tracking-normal">
-                   ({{ req.payee_phone || req.payee?.phone || req.requester?.employee?.phone }})
-                 </span>
-               </span>
-               <span 
-                 class="text-xs font-black font-mono tracking-tighter"
-                 :class="selectedId === req.id ? 'text-white dark:text-white' : 'text-slate-900 dark:text-slate-100'"
-               >
-                 {{ formatCurrency(req.total_amount) }}
-               </span>
+               </div>
             </div>
             
-            <!-- Dark Mode Indicator (Selected State) -->
+            <!-- Selection indicator strip -->
             <div 
               v-if="selectedId === req.id"
-              class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400"
+              class="absolute left-0 top-3 bottom-3 w-1 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.6)]"
             ></div>
 
-            <!-- Connection Link Arrow (Selected State) -->
+            <!-- Connection Link (Selected State) -->
             <div 
               v-if="selectedId === req.id"
-              class="hidden md:flex absolute -right-9 top-1/2 -translate-y-1/2 z-50 items-center justify-start pointer-events-none"
+              class="hidden md:flex absolute -right-9 top-1/2 -translate-y-1/2 z-50 items-center scale-90"
             >
-               <div :class="getStatusColor(req.status)" class="h-[3px] w-9 rounded-l-full"></div>
-               <div :class="getStatusColor(req.status)" class="w-2.5 h-2.5 rotate-45 -ml-1.5 transform origin-center rounded-sm"></div>
+               <div :class="getStatusColor(req.status)" class="h-[2px] w-9 rounded-l-full opacity-40"></div>
+               <div :class="getStatusColor(req.status)" class="w-2.5 h-2.5 rotate-45 -ml-1.5 transform origin-center rounded-sm ring-2 ring-white dark:ring-slate-800"></div>
             </div>
           </button>
         </div>
@@ -451,8 +441,8 @@ const fetchRequisitions = async () => {
     // Also fetch stats on refresh
     fetchStats()
     
-    // Auto-select first if in split pane and nothing selected
-    if (!selectedId.value && requisitions.value.length > 0 && window.innerWidth > 768) {
+    // Auto-select first if in split pane and nothing selected, provided form is not open
+    if (!selectedId.value && requisitions.value.length > 0 && window.innerWidth > 768 && !showForm.value) {
        selectRequisition(requisitions.value[0])
     }
   } catch (error) {
@@ -611,23 +601,23 @@ const formatDate = (date: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-amber-400'
-    case 'approved': return 'bg-blue-500'
-    case 'rejected': return 'bg-red-500'
-    case 'disbursed': return 'bg-purple-500'
-    case 'received': return 'bg-emerald-500'
-    default: return 'bg-slate-400'
+    case 'pending': return 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]'
+    case 'approved': return 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)]'
+    case 'rejected': return 'bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.4)]'
+    case 'disbursed': return 'bg-emerald-600 shadow-[0_0_10px_rgba(5,150,105,0.4)]'
+    case 'received': return 'bg-emerald-600 shadow-[0_0_10px_rgba(5,150,105,0.4)]'
+    default: return 'bg-slate-500'
   }
 }
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-blue-50/80 text-amber-700 border-blue-200 dark:bg-blue-900/20 dark:text-amber-400 dark:border-blue-800'
-    case 'approved': return 'bg-blue-50/80 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'
-    case 'rejected': return 'bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
-    case 'disbursed': return 'bg-blue-50/80 text-emerald-700 border-blue-200 dark:bg-blue-900/20 dark:text-emerald-400 dark:border-blue-800'
-    case 'received': return 'bg-blue-50/80 text-emerald-700 border-blue-200 dark:bg-blue-900/20 dark:text-emerald-400 dark:border-blue-800'
-    default: return 'bg-slate-50 text-slate-900 border-slate-200 dark:bg-slate-900/20 dark:text-slate-400 dark:border-slate-800'
+    case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+    case 'approved': return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'
+    case 'rejected': return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+    case 'disbursed': return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800'
+    case 'received': return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800'
+    default: return 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
   }
 }
 
@@ -645,7 +635,12 @@ const handleQueryParams = () => {
       'project_id', 'project_name', 'venue', 'category', 'project_selection'
     ]
     paramsToClear.forEach(p => delete (newQuery as any)[p])
-    router.replace({ query: newQuery as any })
+    
+    // Delay the route replace slightly to prevent race conditions 
+    // that cause the modal to close immediately upon mounting
+    setTimeout(() => {
+      router.replace({ query: newQuery as any })
+    }, 100)
   }
 }
 

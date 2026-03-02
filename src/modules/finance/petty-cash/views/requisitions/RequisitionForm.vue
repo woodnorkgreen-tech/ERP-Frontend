@@ -141,6 +141,83 @@
 
         <hr class="border-slate-100 dark:border-slate-700" />
 
+        <!-- Main Recipient Section (Only for Item-Centric Categories) -->
+        <div v-if="!isPayeeCategory && form.category" class="space-y-4 animate-in fade-in slide-in-from-top-2 duration-400">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">
+              Main Recipient / Payee <span class="text-red-500">*</span>
+            </h3>
+            <span class="text-[10px] font-bold text-slate-400 italic">
+              (All funds will be disbursed to this person)
+            </span>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Recipient Name</label>
+                <div class="relative">
+                  <input
+                    type="text"
+                    v-model="mainPayeeSearch"
+                    @input="onMainPayeeSearch"
+                    @focus="showMainResults = true"
+                    @blur="hideMainResults"
+                    :placeholder="form.payee_name || 'Search Employee or Tech Labour...'"
+                    class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all disabled:opacity-50"
+                    :disabled="isFinancialLocked"
+                  />
+                  <i class="mdi mdi-magnify absolute left-3 top-3.5 text-slate-400"></i>
+                  <button
+                    v-if="form.payee_id || form.payee_name"
+                    @click="clearMainPayee"
+                    type="button"
+                    class="absolute right-3 top-3.5 text-slate-400 hover:text-red-500"
+                  >
+                    <i class="mdi mdi-close"></i>
+                  </button>
+
+                  <!-- Search Results Dropdown -->
+                  <div
+                    v-if="showMainResults && mainSearchResults.length > 0"
+                    class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto"
+                  >
+                    <button
+                      v-for="result in mainSearchResults"
+                      :key="result.type + result.id"
+                      type="button"
+                      @mousedown.prevent="selectMainPayee(result)"
+                      class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-between group border-b border-slate-50 dark:border-slate-700/50 last:border-0"
+                    >
+                      <div>
+                        <div class="font-bold text-slate-900 dark:text-white text-sm">{{ result.name }}</div>
+                        <div class="text-[10px] uppercase font-black tracking-wider text-blue-500">
+                          {{ result.detail }}
+                        </div>
+                      </div>
+                      <i class="mdi mdi-account-tie text-slate-300 group-hover:text-blue-500"></i>
+                    </button>
+                  </div>
+
+                  <!-- Searching State -->
+                  <div v-if="mainSearching" class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+                    <i class="mdi mdi-loading mdi-spin text-blue-500 mr-2"></i> <span class="text-xs font-bold text-slate-500">Searching...</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number (Mpesa)</label>
+                <input
+                  v-model="form.payee_phone"
+                  :disabled="isFinancialLocked"
+                  placeholder="254..."
+                  class="w-full px-4 py-3 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all disabled:opacity-50"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Items Section (Bulk with Payees) -->
         <div class="space-y-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -272,20 +349,19 @@
                     v-model="item.description"
                     :disabled="isFinancialLocked"
                     required
-                    placeholder="Item description..."
+                    :placeholder="isPayeeCategory ? 'E.g., Dinner, Transport...' : 'Item description...'"
                     class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
 
-                <!-- Purpose / Remarks per item -->
+                <!-- Detail / Remarks (Only in Mode A) -->
                 <div v-if="isPayeeCategory" class="md:col-span-4 space-y-1">
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Remarks / Detail</label>
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Reference / Detail</label>
                   <input
-                    v-model="item.description"
+                    v-model="item.remarks"
                     :disabled="isFinancialLocked"
-                    required
-                    placeholder="E.g., Dinner, Transport..."
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
+                    placeholder="E.g., Site A, Trip 1..."
+                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm text-right disabled:opacity-50"
                   />
                 </div>
 
@@ -394,6 +470,7 @@ const form = reactive({
   items: [
     { 
       description: '', 
+      remarks: '',
       amount: 0, 
       payee_id: null as number | null, 
       payee_name: '', 
@@ -407,9 +484,20 @@ const form = reactive({
   ]
 })
 
+const mainPayeeSearch = ref('')
+const mainSearchResults = ref<any[]>([])
+const mainSearching = ref(false)
+const showMainResults = ref(false)
+
 const isPayeeCategory = computed(() => {
-  // Enable payee search/selection for all categories to ensure phone numbers are always available
-  return true
+  const multiPayeeCategories = [
+    'Projects',
+    'Transport',
+    'Meals',
+    'Transport and Meals',
+    'Communication & Airtime'
+  ]
+  return multiPayeeCategories.includes(form.category)
 })
 
 const totalAmount = computed(() => {
@@ -431,6 +519,9 @@ const fetchFormData = async () => {
 
     if (editMode.value) {
       fetchRequisition()
+    } else {
+      // Apply pre-fill AFTER form data loads so dropdowns have options available
+      handleQueryPreFill()
     }
   } catch (error) {
     console.error('Failed to fetch form data:', error)
@@ -459,6 +550,7 @@ const fetchRequisition = async () => {
 
     form.items = data.items.map((item: any) => ({
       description: item.description,
+      remarks: item.remarks || '',
       amount: parseFloat(item.amount),
       payee_id: item.payee_id,
       payee_name: item.payee_name,
@@ -470,10 +562,14 @@ const fetchRequisition = async () => {
       searching: false
     }))
 
-    // Map top-level payee info if available
+    // Map top-level payee info
     form.payee_id = data.payee_id || null
     form.payee_name = data.payee_name || ''
     form.payee_phone = data.payee_phone || ''
+    
+    if (!isPayeeCategory.value) {
+      mainPayeeSearch.value = data.payee_name || (data.payee ? `${data.payee.first_name} ${data.payee.last_name}` : '')
+    }
   } catch (error) {
     console.error('Failed to fetch requisition:', error)
     toast.error('Failed to load requisition data')
@@ -544,14 +640,15 @@ watch(projectSelection, async (newVal) => {
       if (isBlank && members.length > 0) {
         form.items = members.map((m: any) => ({
           description: isPayeeCategory.value ? form.category : '',
+          remarks: m.task_name || '',
           amount: 0,
           payee_id: m.payee_id,
-          payee_name: m.is_internal ? '' : m.name,
+          payee_name: m.name,
           payee_phone: m.payee_phone || '',
           is_external: !m.is_internal,
           payee_search: m.name,
           show_results: false,
-          search_results: [],
+          search_results: [] as any[],
           searching: false
         }))
         toast.success(`Auto-filled ${members.length} total team members`)
@@ -574,14 +671,15 @@ const addTeamToItems = (category: string) => {
   
   const newItems = members.map((m: any) => ({
     description: isPayeeCategory.value ? form.category : '',
+    remarks: m.task_name || '',
     amount: 0,
     payee_id: m.payee_id,
-    payee_name: m.is_internal ? '' : m.name,
+    payee_name: m.name,
     payee_phone: m.payee_phone || '',
     is_external: !m.is_internal,
     payee_search: m.name,
     show_results: false,
-    search_results: [],
+    search_results: [] as any[],
     searching: false
   }))
 
@@ -615,6 +713,7 @@ const handlePayeeToggle = () => {
 const addItem = () => {
   form.items.push({ 
     description: '', 
+    remarks: '',
     amount: 0, 
     payee_id: null, 
     payee_name: '', 
@@ -622,9 +721,51 @@ const addItem = () => {
     is_external: false,
     payee_search: '',
     show_results: false,
-    search_results: [],
+    search_results: [] as any[],
     searching: false
   })
+}
+
+const onMainPayeeSearch = async (event: Event) => {
+  const query = (event.target as HTMLInputElement).value
+  if (query.length < 2) {
+    mainSearchResults.value = []
+    showMainResults.value = false
+    return
+  }
+
+  mainSearching.value = true
+  showMainResults.value = true
+  
+  try {
+    const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
+      params: { query }
+    })
+    mainSearchResults.value = response.data.data
+  } catch (error) {
+    console.error('Search failed', error)
+  } finally {
+    mainSearching.value = false
+  }
+}
+
+const selectMainPayee = (result: any) => {
+  form.payee_id = result.type === 'employee' ? result.id : null
+  form.payee_name = result.name
+  form.payee_phone = result.payee_phone || result.phone || ''
+  mainPayeeSearch.value = result.name
+  showMainResults.value = false
+}
+
+const clearMainPayee = () => {
+  form.payee_id = null
+  form.payee_name = ''
+  form.payee_phone = ''
+  mainPayeeSearch.value = ''
+}
+
+const hideMainResults = () => {
+  setTimeout(() => { showMainResults.value = false }, 200)
 }
 
 // Debounce timer
@@ -681,7 +822,7 @@ const selectPayee = (index: number, result: any) => {
   const item = form.items[index]
   if (result.type === 'employee') {
     item.payee_id = result.id
-    item.payee_name = '' // Backend uses ID
+    item.payee_name = result.name
     item.payee_search = result.name
     item.payee_phone = result.payee_phone || result.phone || ''
   } else {
@@ -742,20 +883,49 @@ const submitForm = async () => {
       form.enquiry_id = null
     }
 
-    // If it's a single item and top-level payee is not set, sync from first item
-    // This helps with backend's expectation for the main table
-    if (form.items.length === 1) {
-      const firstItem = form.items[0]
-      if (!form.payee_id && !form.payee_name) {
-        form.payee_id = firstItem.payee_id
-        form.payee_name = firstItem.payee_name
-        form.payee_phone = firstItem.payee_phone
+    // Data Sanitization based on Category Mode
+    if (isPayeeCategory.value) {
+      // Mode A (Multi-payee): Ensure each item has payee info
+      // Check if at least one item has a payee
+      const hasPayee = form.items.some(i => i.payee_id || i.payee_name)
+      if (!hasPayee) {
+        toast.error('At least one recipient must be specified in the list')
+        submitting.value = false
+        return
       }
+    } else {
+      // Mode B (Item-centric): Ensure top-level payee is set
+      if (!form.payee_name) {
+        toast.error('A Main Recipient must be selected for this category')
+        submitting.value = false
+        return
+      }
+      
+      // Sync main payee to all items if they don't have one (for reporting/PDF)
+      form.items = form.items.map(item => ({
+        ...item,
+        payee_id: form.payee_id,
+        payee_name: form.payee_name,
+        payee_phone: form.payee_phone
+      }))
+    }
+
+    // Ensure every item has a description and minimum amount (required by backend)
+    const sanitizedItems = form.items.map(item => ({
+      ...item,
+      description: item.description?.trim() || form.category || form.purpose || 'Payment for Services',
+      amount: Math.max(Number(item.amount) || 0, 0.01)
+    }))
+
+    const payload = {
+      ...form,
+      items: sanitizedItems,
+      total_amount: sanitizedItems.reduce((sum, item) => sum + item.amount, 0)
     }
 
     const response = editMode.value 
-      ? await axios.put(`/api/finance/petty-cash/requisitions/${props.requisitionId}`, form)
-      : await axios.post('/api/finance/petty-cash/requisitions', form)
+      ? await axios.put(`/api/finance/petty-cash/requisitions/${props.requisitionId}`, payload)
+      : await axios.post('/api/finance/petty-cash/requisitions', payload)
       
     toast.success(response.data.message)
     emit('success')
@@ -769,7 +939,7 @@ const submitForm = async () => {
   }
 }
 
-const handleQueryPreFill = () => {
+const handleQueryPreFill = async () => {
   // Use prop if available, otherwise fallback to route query (though props are safer)
   const data = props.preFill || (route.query.action === 'new' ? route.query : null)
   
@@ -778,20 +948,17 @@ const handleQueryPreFill = () => {
     if (data.purpose) {
       form.purpose = data.purpose as string
       // If we have a purpose, also set it as the description for the first item
-      if (form.items.length > 0) {
+      // Make sure we only override if the array is empty or purely pristine
+      if (form.items.length === 1 && !form.items[0].description && !form.items[0].payee_name && !form.items[0].remarks) {
         form.items[0].description = data.purpose as string
       }
     }
     
     if (data.amount) {
       const amount = parseFloat(data.amount as string)
-      if (!isNaN(amount) && form.items.length > 0) {
+      if (!isNaN(amount) && form.items.length === 1 && (!form.items[0].amount || form.items[0].amount === 0)) {
         form.items[0].amount = amount
       }
-    }
- 
-    if (data.bill_id) {
-      form.bill_id = parseInt(data.bill_id as string)
     }
  
     if (data.department_id) {
@@ -817,6 +984,38 @@ const handleQueryPreFill = () => {
     if (data.project_selection) {
       projectSelection.value = data.project_selection as string
     }
+
+    if (data.bill_id) {
+      form.bill_id = parseInt(data.bill_id as string)
+      
+      // Auto-fill PO Items from the Bill
+      try {
+        const response = await axios.get(`/api/procurement-stores/bills/${form.bill_id}`)
+        const billData = response.data.data
+        const supplierName = billData?.supplier?.supplier_name || ''
+        
+        if (billData?.purchase_order?.items && billData.purchase_order.items.length > 0) {
+          form.items = billData.purchase_order.items.map((poItem: any) => ({
+            description: poItem.material_name || form.purpose || 'Bill Item',
+            remarks: poItem.material_name || 'Material Item', // UI uses remarks for description in Payee categories (Projects/Transport etc)
+            amount: poItem.total || 0,
+            payee_id: null,
+            payee_name: supplierName,
+            payee_phone: '',
+            is_external: !!supplierName,
+            payee_search: supplierName,
+            show_results: false,
+            search_results: [],
+            searching: false
+          }))
+          
+          toast.success('Material items auto-filled from Bill')
+        }
+      } catch (err) {
+        console.error('Failed to fetch bill items for prefill:', err)
+        // Silently fail to fallback to standard pre-fill
+      }
+    }
   }
 }
 
@@ -833,6 +1032,7 @@ const resetForm = () => {
   form.payee_phone = ''
   form.items = [{ 
     description: '', 
+    remarks: '',
     amount: 0, 
     payee_id: null, 
     payee_name: '', 
@@ -840,7 +1040,7 @@ const resetForm = () => {
     is_external: false,
     payee_search: '',
     show_results: false,
-    search_results: [],
+    search_results: [] as any[],
     searching: false
   }]
   projectSelection.value = null

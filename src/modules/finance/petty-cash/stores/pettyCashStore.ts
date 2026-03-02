@@ -49,6 +49,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
     const currentBalance = ref<PettyCashBalance>(defaultBalance)
     const summary = ref<TransactionSummary>(defaultSummary)
     const recentTransactions = ref<RecentTransaction[]>([])
+    const activityLogs = ref<any[]>([])
     const voucherData = ref<any>(null)
 
     // Enhanced loading states with safe defaults
@@ -62,7 +63,8 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         voucher: false,
         creating: false,
         updating: false,
-        voiding: false
+        voiding: false,
+        activityLogs: false
     })
 
     // Enhanced error states with safe defaults
@@ -76,7 +78,8 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         voucher: null as string | null,
         creating: null as string | null,
         updating: null as string | null,
-        voiding: null as string | null
+        voiding: null as string | null,
+        activityLogs: null as string | null
     })
 
     // Pagination with safe defaults
@@ -98,6 +101,14 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             to: 0
         },
         transactions: {
+            current_page: 1,
+            last_page: 1,
+            per_page: 15,
+            total: 0,
+            from: 0,
+            to: 0
+        },
+        activityLogs: {
             current_page: 1,
             last_page: 1,
             per_page: 15,
@@ -951,6 +962,24 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         return await withErrorHandling(operation, { context: 'archiveTransactionGroup', topUpId })
     }
 
+    const downloadVoucherReport = async (filters?: any) => {
+        const operation = async () => {
+            loading.value.voucher = true
+            await pettyCashService.downloadVoucherPdf(filters)
+        }
+        return await withErrorHandling(operation, { context: 'downloadVoucherReport' })
+            .finally(() => { loading.value.voucher = false })
+    }
+
+    const downloadIndividualVoucher = async (requisitionId: number) => {
+        const operation = async () => {
+            loading.value.voucher = true
+            await pettyCashService.downloadRequisitionVoucher(requisitionId)
+        }
+        return await withErrorHandling(operation, { context: 'downloadIndividualVoucher' })
+            .finally(() => { loading.value.voucher = false })
+    }
+
     const refreshDashboard = async () => {
         const operation = async () => {
             const results = await Promise.allSettled([
@@ -976,6 +1005,23 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
             return results
         }
         return await withErrorHandling(operation, { context: 'refreshAll' })
+    }
+
+    const fetchActivityLogs = async (filters?: any) => {
+        loading.value.activityLogs = true
+        errors.value.activityLogs = null
+        try {
+            const response = await pettyCashService.getActivityLogs({ ...filters, limit: pagination.value.activityLogs.per_page })
+            activityLogs.value = (response.data || []) as any[]
+            pagination.value.activityLogs = response.meta
+            return response
+        } catch (error) {
+            handleError(error, { context: 'activityLogs' })
+            errors.value.activityLogs = errorState.value.message || 'Failed to fetch logs'
+            throw error
+        } finally {
+            loading.value.activityLogs = false
+        }
     }
 
     const validateDataIntegrity = () => {
@@ -1008,6 +1054,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         currentBalance.value = defaultBalance
         summary.value = defaultSummary
         recentTransactions.value = []
+        activityLogs.value = []
         voucherData.value = null
     }
 
@@ -1017,7 +1064,7 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         loading.value = {
             disbursements: false, topUps: false, transactions: false, balance: false,
             summary: false, recent: false, creating: false, updating: false,
-            voiding: false, voucher: false
+            voiding: false, voucher: false, activityLogs: false
         }
     }
 
@@ -1036,6 +1083,9 @@ export const usePettyCashStore = defineStore('pettyCash', () => {
         fetchAvailableTopUps, createTopUp, uploadExcel, fetchCurrentBalance,
         recalculateBalance, fetchSummary, fetchRecentTransactions, archiveTransaction,
         bulkArchiveTransactions, archiveTransactionGroup, updateTopUp,
+        downloadVoucherReport, downloadIndividualVoucher,
+        fetchActivityLogs,
+        activityLogs: activityLogs,
         clearError, clearData, resetStore, validateDataIntegrity,
         refreshDashboard, refreshAll, errorState,
         debugStoreState: () => {

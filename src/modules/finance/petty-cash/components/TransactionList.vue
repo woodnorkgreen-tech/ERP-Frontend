@@ -37,6 +37,17 @@
             Filters
           </button>
 
+          <!-- PDF Report Download Button -->
+          <button
+            @click="handleDownloadReport"
+            :disabled="store.loading.voucher"
+            class="inline-flex items-center px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-transparent rounded-xl text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+          >
+            <i v-if="store.loading.voucher" class="mdi mdi-loading mdi-spin mr-2 text-lg"></i>
+            <i v-else class="mdi mdi-file-pdf-box mr-2 text-lg text-red-500"></i>
+            {{ store.loading.voucher ? 'Preparing...' : 'PDF Report' }}
+          </button>
+
           <!-- Bulk Actions Button -->
           <div v-if="selectedIds.length > 0 && isSuperAdmin" class="flex items-center space-x-2 animate-fade-in bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 shadow-sm">
             <button
@@ -407,6 +418,17 @@
                   title="Full View"
                 >
                   <i class="mdi mdi-eye-outline text-lg"></i>
+                </button>
+
+                <!-- Individual Voucher Download -->
+                <button
+                  v-if="transaction.type === 'disbursement' && transaction.requisition_id"
+                  @click="handleDownloadIndividualVoucher(transaction.requisition_id)"
+                  :disabled="store.loading.voucher"
+                  class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                  title="Download Voucher"
+                >
+                  <i class="mdi mdi-file-pdf-box text-lg"></i>
                 </button>
 
                 <button
@@ -803,6 +825,27 @@ const confirmBulkArchive = async () => {
             alert('Failed to archive some transactions. Please try again.')
         }
     }
+}
+
+// PDF Reporting Methods
+const handleDownloadReport = async () => {
+  try {
+    await store.downloadVoucherReport({
+      ...filters,
+      show_archived: filters.is_archived,
+      search: searchQuery.value
+    })
+  } catch (error) {
+    console.error('Failed to download report:', error)
+  }
+}
+
+const handleDownloadIndividualVoucher = async (requisitionId: number) => {
+  try {
+    await store.downloadIndividualVoucher(requisitionId)
+  } catch (error) {
+    console.error('Failed to download individual voucher:', error)
+  }
 }
 
 // Inline editing methods
