@@ -102,14 +102,6 @@
                             </option>
                             <option value="custom">Other (Custom)</option>
                         </select>
-                        
-const handlePurposeChange = (index: number) => {
-    const item = props.items[index]
-    if (item.purpose !== 'custom' && item.purpose !== 'project_use') {
-        item.custom_purpose = ''
-    }
-    updateItem(index)
-}
                     </td>
 
                     <!-- Reason -->
@@ -262,7 +254,7 @@ const calculateTotal = (index: number) => {
 
 const handlePurposeChange = (index: number) => {
     const item = props.items[index]
-    if (item.purpose !== 'custom') {
+    if (item.purpose !== 'custom' && item.purpose !== 'project_use') {
         item.custom_purpose = ''
     }
     updateItem(index)

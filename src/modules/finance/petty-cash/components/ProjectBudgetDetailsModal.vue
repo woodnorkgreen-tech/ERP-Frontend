@@ -84,23 +84,6 @@
                   </div>
                   <div class="flex justify-between items-end">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white font-mono">{{ formatCurrency(project.totals.materials) }}</h3>
-                    <div class="text-right">
-                      <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Spent</p>
-                      <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 font-mono">{{ formatCurrency(project.actual_spent_breakdown.materials) }}</p>
-                    </div>
-                  </div>
-                  <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Utilization</span>
-                      <span class="text-[9px] font-black text-slate-900 dark:text-white">{{ getCategoryUtilization('materials') }}%</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-slate-50 dark:bg-slate-900 rounded-full overflow-hidden">
-                       <div 
-                         class="h-full rounded-full transition-all duration-1000" 
-                         :class="getUtilizationBg(getCategoryUtilization('materials'))"
-                         :style="{ width: getCategoryUtilization('materials') + '%' }"
-                       ></div>
-                    </div>
                   </div>
                </div>
 
@@ -112,23 +95,6 @@
                   </div>
                   <div class="flex justify-between items-end">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white font-mono">{{ formatCurrency(project.totals.labour) }}</h3>
-                    <div class="text-right">
-                      <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Spent</p>
-                      <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 font-mono">{{ formatCurrency(project.actual_spent_breakdown.labour) }}</p>
-                    </div>
-                  </div>
-                  <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Utilization</span>
-                      <span class="text-[9px] font-black text-slate-900 dark:text-white">{{ getCategoryUtilization('labour') }}%</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-slate-50 dark:bg-slate-900 rounded-full overflow-hidden">
-                       <div 
-                         class="h-full rounded-full transition-all duration-1000" 
-                         :class="getUtilizationBg(getCategoryUtilization('labour'))"
-                         :style="{ width: getCategoryUtilization('labour') + '%' }"
-                       ></div>
-                    </div>
                   </div>
                </div>
 
@@ -140,23 +106,6 @@
                   </div>
                   <div class="flex justify-between items-end">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white font-mono">{{ formatCurrency(project.totals.logistics) }}</h3>
-                    <div class="text-right">
-                      <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Spent</p>
-                      <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 font-mono">{{ formatCurrency(project.actual_spent_breakdown.logistics) }}</p>
-                    </div>
-                  </div>
-                  <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Utilization</span>
-                      <span class="text-[9px] font-black text-slate-900 dark:text-white">{{ getCategoryUtilization('logistics') }}%</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-slate-50 dark:bg-slate-900 rounded-full overflow-hidden">
-                       <div 
-                         class="h-full rounded-full transition-all duration-1000" 
-                         :class="getUtilizationBg(getCategoryUtilization('logistics'))"
-                         :style="{ width: getCategoryUtilization('logistics') + '%' }"
-                       ></div>
-                    </div>
                   </div>
                </div>
 
