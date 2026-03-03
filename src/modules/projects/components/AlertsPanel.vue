@@ -18,44 +18,44 @@
       </div>
     </div>
 
-    <div v-if="!alerts?.length" class="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-[2rem]">
-      <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-500">
-        <i class="mdi mdi-shield-check text-4xl"></i>
+    <div v-if="!alerts?.length" class="flex flex-col items-center justify-center py-12 bg-slate-50/50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center px-6">
+      <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-4">
+        <i class="mdi mdi-shield-check text-3xl"></i>
       </div>
-      <p class="text-sm font-black text-slate-400 uppercase tracking-widest">Global Sector Clear</p>
-      <p class="text-xs text-slate-500 font-medium mt-1">No anomalies detected in the ecosystem.</p>
+      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Sector Clear</p>
+      <p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight opacity-60">No ecosystem anomalies detected.</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div v-else class="space-y-4">
       <div v-for="alert in alerts" :key="alert.id || alert.type"
-           class="group relative overflow-hidden p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all duration-500"
+           class="group relative overflow-hidden p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:shadow-md transition-all duration-300"
            :class="getAlertBorderStyles(alert.severity)">
         
         <div class="relative z-10 flex flex-col h-full">
-          <div class="flex items-start justify-between mb-6">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 group-hover:scale-110"
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-300 bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 group-hover:scale-110 shadow-sm"
                  :class="getAlertIconColor(alert.severity)">
-              <i class="mdi text-2xl" :class="getAlertIcon(alert.severity)"></i>
+              <i class="mdi text-xl" :class="getAlertIcon(alert.severity)"></i>
             </div>
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-60">
               {{ formatDate(alert.timestamp || new Date().toISOString()) }}
             </span>
           </div>
 
-          <div class="flex-1">
-             <h4 class="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-2 group-hover:text-blue-500 transition-colors">{{ alert.title }}</h4>
-             <p class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{{ alert.message }}</p>
+          <div>
+             <h4 class="text-xs font-black text-slate-900 dark:text-white tracking-tight mb-1 group-hover:text-blue-500 transition-colors uppercase leading-tight">{{ alert.title }}</h4>
+             <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-tight">{{ alert.message }}</p>
           </div>
 
-          <div v-if="alert.action" class="mt-8">
-            <button class="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all active:scale-95 border"
+          <div v-if="alert.action" class="mt-4">
+            <button class="w-full py-2.5 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95 border shadow-sm"
                     :class="getActionButtonStyles(alert.severity)">
               {{ alert.action }}
             </button>
           </div>
         </div>
         
-        <div class="absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full -mr-16 -mt-16 opacity-10" :class="getAlertIconBg(alert.severity)"></div>
+        <div class="absolute top-0 right-0 w-24 h-24 blur-2xl rounded-full -mr-12 -mt-12 opacity-10" :class="getAlertIconBg(alert.severity)"></div>
       </div>
     </div>
   </div>

@@ -50,6 +50,16 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: false, title: 'Daily Job Card' }
   },
 
+  {
+    path: '/public/requisition/new',
+    name: 'public-requisition-new',
+    component: () => import('../modules/finance/petty-cash/views/public/PublicRequisitionForm.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Submit Petty Cash Requisition | Woodnork Green'
+    }
+  },
+
   ...mainRoutes,
   ...adminRoutes,
   ...hrRoutes,

@@ -39,9 +39,6 @@
       <div class="flex flex-col md:flex-row items-center gap-4">
         <!-- Status Badges -->
         <div class="flex items-center gap-3">
-          <div class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
-            DEBUG: Roles: {{ user?.roles }} | Can Manage: {{ canManage }}
-          </div>
           <div class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
             {{ requisition.requisition_number }}
           </div>
@@ -862,7 +859,7 @@ const signatureContexts: Record<number, CanvasRenderingContext2D | null> = {}
 const isDrawing = ref(false)
 
 const isBulkPayee = computed(() => {
-  return ['Transport', 'Meals', 'Transport and Meals'].includes(requisition.value?.category)
+  return ['Transport', 'Meals'].includes(requisition.value?.category)
 })
 
 const canManage = computed(() => {
@@ -1039,7 +1036,7 @@ const initiateDisbursement = async () => {
   // Populate form with requisition data for disbursement
   const receiver = requisition.value.payee 
     ? `${requisition.value.payee.first_name} ${requisition.value.payee.last_name}`
-    : (requisition.value.payee_name || requisition.value.requester?.name)
+    : (requisition.value.payee_name || (requisition.value.is_public && requisition.value.items?.[0]?.payee_name) || requisition.value.requester?.name || '')
 
   Object.assign(approvalForm, {
     amount: requisition.value.total_amount,

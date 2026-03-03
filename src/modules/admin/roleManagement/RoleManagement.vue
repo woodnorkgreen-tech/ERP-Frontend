@@ -1,468 +1,183 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Role Management</h1>
-      <button
-        @click="showCreateModal = true"
-        class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
-      >
-        Add Role
-      </button>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="Search roles..."
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
+  <div class="min-h-screen bg-white dark:bg-slate-950 pb-10 font-inter text-slate-900 dark:text-slate-100">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+      
+      <!-- Minimalist Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+        <div>
+          <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <li><router-link to="/admin" class="hover:text-blue-500 transition-colors">Admin</router-link></li>
+              <li><i class="mdi mdi-chevron-right text-xs"></i></li>
+              <li class="text-slate-500 dark:text-slate-300">Access Control</li>
+            </ol>
+          </nav>
+          <h1 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+            Role <span class="text-emerald-500 opacity-50">Management</span>
+          </h1>
+        </div>
+        
         <button
-          @click="fetchRoles"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+          @click="showCreateModal = true"
+          class="flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95"
         >
-          Filter
+          <i class="mdi mdi-plus text-lg"></i>
+          Provision Role
         </button>
       </div>
-    </div>
 
-    <!-- Roles Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-      <div v-if="loading" class="p-8 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Loading roles...</p>
-      </div>
-
-      <div v-else-if="error" class="p-8 text-center text-red-600">
-        Error: {{ error }}
-      </div>
-
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Role
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Description
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Permissions
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Users Count
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="role in roles" :key="role.id">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ role.name }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ role.description || 'No description' }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="permission in role.permissions.slice(0, 3)"
-                    :key="permission.id"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                  >
-                    {{ permission.name.split('.').pop() }}
-                  </span>
-                  <span
-                    v-if="role.permissions.length > 3"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                  >
-                    +{{ role.permissions.length - 3 }} more
-                  </span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ role.user_count || 0 }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  @click="editRole(role)"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="handleDeleteRole(role)"
-                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Create/Edit Role Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 max-w-6xl w-full">
-        <h2 class="text-lg font-bold mb-3 text-gray-900 dark:text-white">
-          {{ editingRole ? 'Edit Role' : 'Create New Role' }}
-        </h2>
-
-        <form @submit.prevent="handleRoleSubmit" class="space-y-3">
-          <!-- Basic Information -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Role Name *
-              </label>
-              <input
-                v-model="roleForm.name"
-                type="text"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="e.g., Manager, Admin, Employee"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description
-              </label>
-              <textarea
-                v-model="roleForm.description"
-                rows="2"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Describe the role's responsibilities and access level..."
-              ></textarea>
-            </div>
+      <!-- Compact Search/Filter -->
+      <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+        <div class="relative z-10 flex flex-col md:flex-row gap-3">
+          <div class="flex-1 relative">
+            <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search by role name or description..."
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+            />
           </div>
+          <button
+            @click="fetchRoles"
+            class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 hover:text-emerald-500 transition-all"
+          >
+            Apply Filter
+          </button>
+        </div>
+      </div>
 
-          <!-- Permissions Section -->
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Permissions</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Select the permissions this role should have. Permissions are grouped by module.
-            </p>
+      <!-- High-Density Roles Table -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div v-if="loading" class="p-20 text-center flex flex-col items-center gap-4">
+          <div class="w-10 h-10 border-2 border-slate-100 border-t-emerald-500 rounded-full animate-spin"></div>
+          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Syncing Clearance Data...</p>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              <!-- User Management Permissions -->
-              <div v-if="userPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">👥</span>
-                  User Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in userPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('user.', '').replace('_', ' ').toUpperCase() }}
+        <div v-else-if="error" class="p-20 text-center text-red-500 font-bold text-sm">
+          <i class="mdi mdi-alert-circle-outline text-4xl mb-2 block"></i>
+          {{ error }}
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800/50">
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Clearance Pool</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Description</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Node Permissions</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Users</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Directives</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+              <tr v-for="role in roles" :key="role.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black text-xs shadow-sm">
+                      <i class="mdi mdi-shield-account-outline"></i>
+                    </div>
+                    <span class="text-[13px] font-black text-slate-900 dark:text-white tracking-tight">{{ role.name }}</span>
+                   </div>
+                </td>
+                <td class="px-6 py-4">
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium line-clamp-1 max-w-xs">{{ role.description || 'Global Access Profile' }}</p>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      v-for="permission in role.permissions.slice(0, 3)"
+                      :key="permission.id"
+                      class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+                    >
+                      {{ permission.name.split('.').pop() }}
                     </span>
-                  </label>
-                </div>
+                    <span
+                      v-if="role.permissions.length > 3"
+                      class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    >
+                      +{{ role.permissions.length - 3 }} Nodes
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-[11px] font-black text-slate-400">
+                  {{ role.user_count || 0 }} Accounts
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                   <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click="editRole(role)" class="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-emerald-500 rounded-lg transition-all" title="Edit Configuration">
+                      <i class="mdi mdi-cog-outline"></i>
+                    </button>
+                    <button @click="handleDeleteRole(role)" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-400 rounded-lg transition-all" title="Purge Role">
+                      <i class="mdi mdi-trash-can-outline"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role Config Modal: Premium Minimalism -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-6xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh] relative">
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]"></div>
+        
+        <div class="mb-8 relative z-10">
+          <h2 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none mb-2">
+            Clearance <span class="text-emerald-500">Node</span>
+          </h2>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ editingRole ? 'Modify Existing Protocol' : 'Initialize New Access Protocol' }}</p>
+        </div>
+
+        <div v-if="formError" class="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-900 rounded-2xl text-red-600 text-[10px] font-black uppercase tracking-widest italic">
+          {{ formError }}
+        </div>
+
+        <form @submit.prevent="handleRoleSubmit" class="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 flex-1 min-h-0">
+            <div class="md:col-span-1 space-y-4">
+              <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Protocol Name</label>
+                <input v-model="roleForm.name" type="text" required placeholder="e.g. Chief Operations" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500/20" />
               </div>
-
-              <!-- Role Management Permissions -->
-              <div v-if="rolePermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🛡️</span>
-                  Role Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in rolePermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('role.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Module Description</label>
+                <textarea v-model="roleForm.description" rows="5" placeholder="Operational boundaries..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-emerald-500/20"></textarea>
               </div>
+            </div>
 
-              <!-- Department Management Permissions -->
-              <div v-if="departmentPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🏢</span>
-                  Department Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in departmentPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('department.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Employee Management Permissions -->
-              <div v-if="employeePermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">👨‍💼</span>
-                  Employee Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in employeePermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('employee.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Project Management Permissions -->
-              <div v-if="projectPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">📊</span>
-                  Project Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in projectPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('project.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Enquiry Management Permissions -->
-              <div v-if="enquiryPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">📝</span>
-                  Enquiry Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in enquiryPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('enquiry.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Finance Permissions -->
-              <div v-if="financePermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">💰</span>
-                  Finance
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in financePermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('finance.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- HR Permissions -->
-              <div v-if="hrPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">👔</span>
-                  Human Resources
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in hrPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('hr.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Creatives Permissions -->
-              <div v-if="creativesPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🎨</span>
-                  Creatives
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in creativesPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('creatives.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Client Service Permissions -->
-              <div v-if="clientServicePermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🤝</span>
-                  Client Service
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in clientServicePermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('client.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Procurement Permissions -->
-              <div v-if="procurementPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🛒</span>
-                  Procurement
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in procurementPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('procurement.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Task Management Permissions -->
-              <div v-if="taskPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">✅</span>
-                  Task Management
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in taskPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('task.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Dashboard Permissions -->
-              <div v-if="dashboardPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">📊</span>
-                  Dashboard
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in dashboardPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('dashboard.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Admin Permissions -->
-              <div v-if="adminPermissions.length > 0" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
-                <h4 class="font-medium text-gray-900 dark:text-white mb-2 flex items-center">
-                  <span class="text-lg mr-2">🔐</span>
-                  Administration
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                  <label v-for="permission in adminPermissions" :key="permission.id" class="flex items-center">
-                    <input
-                      v-model="roleForm.selectedPermissions"
-                      :value="permission.id"
-                      type="checkbox"
-                      class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      {{ permission.name.replace('admin.', '').replace('_', ' ').toUpperCase() }}
-                    </span>
-                  </label>
+            <div class="md:col-span-2 flex flex-col min-h-0">
+              <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Clearance Matrix ({{ roleForm.selectedPermissions.length }} Nodes Active)</label>
+              <div class="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-y-auto p-4 custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <!-- Group blocks -->
+                   <div v-for="(perms, module) in groupedPermissions" :key="module" class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-3">
+                      <div class="flex items-center justify-between border-b border-slate-50 dark:border-slate-700 pb-2 mb-2">
+                        <h4 class="text-[10px] font-black text-slate-900 dark:text-emerald-400 uppercase tracking-widest">{{ module }}</h4>
+                        <span class="text-[9px] font-bold text-slate-400 opacity-60">{{ perms.length }} Nodes</span>
+                      </div>
+                      <div class="grid grid-cols-1 gap-1">
+                        <label v-for="p in perms" :key="p.id" class="flex items-center group cursor-pointer">
+                          <input v-model="roleForm.selectedPermissions" :value="p.id" type="checkbox" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20 transition-all" />
+                          <span class="ml-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-emerald-500 transition-colors uppercase tracking-tight">
+                            {{ p.name.split('.').pop().replace('_', ' ') }}
+                          </span>
+                        </label>
+                      </div>
+                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Form Actions -->
-          <div class="flex justify-end space-x-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              @click="closeCreateModal"
-              class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              :disabled="saving"
-              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <span v-if="saving" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-              {{ saving ? 'Saving...' : (editingRole ? 'Update Role' : 'Create Role') }}
+          <div class="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800 mt-auto">
+            <button type="button" @click="closeCreateModal" class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors" :disabled="saving">Abort</button>
+            <button type="submit" :disabled="saving" class="px-10 py-3 bg-slate-900 dark:bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:shadow-emerald-500/20 active:scale-95 flex items-center gap-2">
+              <i v-if="saving" class="mdi mdi-loading mdi-spin"></i>
+              {{ saving ? 'Syncing Matrix...' : (editingRole ? 'Commit Protocol' : 'Initialize Protocol') }}
             </button>
           </div>
         </form>
@@ -472,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoles } from './composables/useRoles'
 
 const { roles, permissions, loading, error, fetchRoles, fetchPermissions, createRole, updateRole, deleteRole } = useRoles()
@@ -484,50 +199,25 @@ const saving = ref(false)
 const formError = ref('')
 const formSuccess = ref('')
 
-// Role form data
 const roleForm = ref({
   name: '',
   description: '',
   selectedPermissions: []
 })
 
-// Permission data grouped by modules - will be populated from API
-const userPermissions = ref([])
-const rolePermissions = ref([])
-const departmentPermissions = ref([])
-const employeePermissions = ref([])
-const projectPermissions = ref([])
-const enquiryPermissions = ref([])
-const financePermissions = ref([])
-const hrPermissions = ref([])
-const creativesPermissions = ref([])
-const clientServicePermissions = ref([])
-const procurementPermissions = ref([])
-const adminPermissions = ref([])
-const taskPermissions = ref([])
-const dashboardPermissions = ref([])
-
-// Group permissions by module
-const groupPermissionsByModule = (permissions) => {
-  userPermissions.value = permissions.filter(p => p.name.startsWith('user.'))
-  rolePermissions.value = permissions.filter(p => p.name.startsWith('role.'))
-  departmentPermissions.value = permissions.filter(p => p.name.startsWith('department.'))
-  employeePermissions.value = permissions.filter(p => p.name.startsWith('employee.'))
-  projectPermissions.value = permissions.filter(p => p.name.startsWith('project.'))
-  enquiryPermissions.value = permissions.filter(p => p.name.startsWith('enquiry.'))
-  financePermissions.value = permissions.filter(p => p.name.startsWith('finance.'))
-  hrPermissions.value = permissions.filter(p => p.name.startsWith('hr.'))
-  creativesPermissions.value = permissions.filter(p => p.name.startsWith('creatives.'))
-  clientServicePermissions.value = permissions.filter(p => p.name.startsWith('client.'))
-  procurementPermissions.value = permissions.filter(p => p.name.startsWith('procurement.'))
-  adminPermissions.value = permissions.filter(p => p.name.startsWith('admin.'))
-  taskPermissions.value = permissions.filter(p => p.name.startsWith('task.'))
-  dashboardPermissions.value = permissions.filter(p => p.name.startsWith('dashboard.'))
-}
+// Grouped permissions for the matrix view
+const groupedPermissions = computed(() => {
+  const groups = {}
+  permissions.value.forEach(p => {
+    const module = p.name.split('.')[0].toUpperCase()
+    if (!groups[module]) groups[module] = []
+    groups[module].push(p)
+  })
+  return groups
+})
 
 const editRole = (role) => {
   editingRole.value = role
-  // Populate form with existing role data
   roleForm.value = {
     name: role.name,
     description: role.description || '',
@@ -537,30 +227,20 @@ const editRole = (role) => {
 }
 
 const handleDeleteRole = async (role) => {
-  if (confirm(`Are you sure you want to delete the role "${role.name}"? This will affect ${role.user_count || 0} users.`)) {
+  if (confirm(`PURGE PROTOCOL: Are you sure you want to delete "${role.name}"? Clearance will be revoked for ${role.user_count || 0} nodes.`)) {
     try {
       await deleteRole(role.id)
-    } catch (err) {
-      console.error('Error deleting role:', err)
-    }
+      await fetchRoles()
+    } catch (err) { console.error('Purge failed:', err) }
   }
 }
 
 const handleRoleSubmit = async () => {
-  // Basic validation
-  if (!roleForm.value.name.trim()) {
-    formError.value = 'Role name is required'
-    return
-  }
-
-  if (roleForm.value.selectedPermissions.length === 0) {
-    formError.value = 'Please select at least one permission'
-    return
-  }
+  if (!roleForm.value.name.trim()) { formError.value = 'Identity signature required.'; return }
+  if (roleForm.value.selectedPermissions.length === 0) { formError.value = 'Minimum clearance requirement: 1 node.'; return }
 
   saving.value = true
   formError.value = ''
-  formSuccess.value = ''
 
   try {
     const roleData = {
@@ -570,25 +250,15 @@ const handleRoleSubmit = async () => {
     }
 
     if (editingRole.value) {
-      // Update existing role
       await updateRole(editingRole.value.id, roleData)
-      formSuccess.value = 'Role updated successfully!'
     } else {
-      // Create new role
       await createRole(roleData)
-      formSuccess.value = 'Role created successfully!'
     }
-
-    // Refresh roles list
+    
     await fetchRoles()
-
-    // Close modal after a short delay
-    setTimeout(() => {
-      closeCreateModal()
-    }, 1500)
-
+    closeCreateModal()
   } catch (err) {
-    formError.value = err.message || 'Failed to save role'
+    formError.value = err.message || 'Transmission failed.'
   } finally {
     saving.value = false
   }
@@ -598,21 +268,18 @@ const closeCreateModal = () => {
   showCreateModal.value = false
   editingRole.value = null
   formError.value = ''
-  formSuccess.value = ''
-  // Reset form
-  roleForm.value = {
-    name: '',
-    description: '',
-    selectedPermissions: []
-  }
+  roleForm.value = { name: '', description: '', selectedPermissions: [] }
 }
 
 onMounted(async () => {
   await fetchRoles()
   await fetchPermissions()
-  // Group permissions by module after fetching
-  if (permissions.value.length > 0) {
-    groupPermissionsByModule(permissions.value)
-  }
 })
 </script>
+
+<style scoped>
+.font-inter { font-family: 'Inter', sans-serif; }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+</style>

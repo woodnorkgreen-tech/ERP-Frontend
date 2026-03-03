@@ -24,19 +24,19 @@
           :metadata="metadata"
         />
 
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-12">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <!-- Left Column: Main Analysis -->
-            <div class="xl:col-span-2 space-y-12">
+            <div class="xl:col-span-2 space-y-8">
                 
                 <!-- Section: Pipeline Funnel -->
-                <div class="space-y-6">
-                   <div class="flex items-center justify-between">
+                <div class="space-y-4">
+                   <div class="flex items-center justify-between px-2">
                     <div>
-                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Project <span class="text-blue-500 opacity-50">Pipeline</span></h2>
-                        <p class="text-sm text-slate-500 font-medium">Overview of project progression stages.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Project <span class="text-blue-500 opacity-50">Pipeline</span></h2>
+                        <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Operational progression stages.</p>
                     </div>
                   </div>
-                  <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 p-12 shadow-sm">
+                  <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
                       <ProjectPipelineFunnel
                         :enquiry-metrics="enquiryMetrics"
                         :project-metrics="projectMetrics"
@@ -49,31 +49,31 @@
             </div>
 
             <!-- Right Column: Sidebar -->
-            <div class="space-y-12">
+            <div class="space-y-8">
                 <!-- Section: Activity Feed -->
-                <div class="space-y-6">
-                  <div class="flex items-center justify-between">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between px-2">
                     <div>
-                      <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Recent <span class="text-blue-500 opacity-50">Activity</span></h2>
-                      <p class="text-sm text-slate-500 font-medium">Latest project updates.</p>
+                      <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Live <span class="text-blue-500 opacity-50">Flux</span></h2>
+                      <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Latest project updates.</p>
                     </div>
                   </div>
                   <ActivityFeed
                     :activities="dashboardMetrics?.recent_activities"
                     :loading="loading"
-                    class="h-[600px] bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm"
+                    class="h-[600px] bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm overflow-hidden"
                   />
                 </div>
 
                 <!-- Section: Alerts -->
-                <div class="space-y-6">
-                   <div class="flex items-center justify-between">
+                <div class="space-y-4">
+                   <div class="flex items-center justify-between px-2">
                     <div>
-                      <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">System <span class="text-red-500 opacity-50">Alerts</span></h2>
-                      <p class="text-sm text-slate-500 font-medium">Notices and warnings.</p>
+                      <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">System <span class="text-red-500 opacity-50">Alerts</span></h2>
+                      <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Security & Protocol notices.</p>
                     </div>
                   </div>
-                  <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                  <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
                     <AlertsPanel :alerts="dashboardMetrics?.alerts" />
                   </div>
                 </div>

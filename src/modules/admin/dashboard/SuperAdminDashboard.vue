@@ -1,285 +1,147 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Super Admin Dashboard</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Complete system oversight and department access</p>
-      </div>
-    </div>
-
-    <!-- System Overview Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-blue-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ systemStats.totalUsers }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-green-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Departments</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ systemStats.totalDepartments }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-purple-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Projects</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ systemStats.activeProjects }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-orange-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">System Health</p>
-            <p class="text-2xl font-semibold text-green-600">Excellent</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Department Access Cards -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Department Access</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Admin -->
-        <router-link
-          to="/admin"
-          class="block p-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all duration-200"
-        >
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-blue-500 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
+  <div class="min-h-screen bg-white dark:bg-slate-950 pb-10 font-inter text-slate-900 dark:text-slate-100">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 transition-all duration-300">
+      <div class="space-y-6">
+        <!-- Compact Premium Header -->
+        <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-6 md:p-8 shadow-xl">
+          <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px]"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Administration</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">User & system management</p>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                  Super Admin
+                </span>
+              </div>
+              <h1 class="text-3xl md:text-4xl font-black text-white tracking-tighter leading-tight">
+                System <span class="text-blue-500 opacity-80">Command</span>
+              </h1>
             </div>
+            <p class="text-slate-400 max-w-md text-sm font-medium leading-relaxed opacity-80">
+              Complete oversight and management of the WNG-ERP ecosystem.
+            </p>
           </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Manage users, roles, departments, and system settings</p>
-        </router-link>
-
-        <!-- Projects -->
-        <router-link
-          to="/projects/dashboard"
-          class="block p-6 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-700 hover:shadow-lg transition-all duration-200"
-        >
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-green-500 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Projects</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Project coordination</p>
-            </div>
-          </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Oversee project workflows, task assignments, and progress tracking</p>
-        </router-link>
-
-        <!-- Client Service -->
-        <router-link
-          to="/client-service"
-          class="block p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg border border-purple-200 dark:border-purple-700 hover:shadow-lg transition-all duration-200"
-        >
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-purple-500 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Client Service</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Client acquisition</p>
-            </div>
-          </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Manage client relationships, enquiries, and service requests</p>
-        </router-link>
-
-        <!-- HR -->
-        <router-link
-          to="/hr"
-          class="block p-6 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-lg border border-red-200 dark:border-red-700 hover:shadow-lg transition-all duration-200"
-        >
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-red-500 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Human Resources</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Employee management</p>
-            </div>
-          </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Handle employee records, payroll, and HR operations</p>
-        </router-link>
-
-        <!-- Finance -->
-        <router-link
-          to="/finance"
-          class="block p-6 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg border border-yellow-200 dark:border-yellow-700 hover:shadow-lg transition-all duration-200"
-        >
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-yellow-500 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Finance</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Finance & Accounts</p>
-            </div>
-          </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Manage petty cash transactions, top-ups, disbursements, and generate detailed reports</p>
-        </router-link>
-
-        <!-- Coming Soon: Creatives Module -->
-        <div class="block p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 opacity-60 cursor-not-allowed">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-gray-400 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Creatives</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Coming Soon</p>
-            </div>
-          </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Creative design, material management, and production oversight</p>
         </div>
 
-        <!-- Coming Soon: Procurement Module -->
-        <div class="block p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 opacity-60 cursor-not-allowed">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-gray-400 rounded-lg mr-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+        <!-- Compact KPI Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div v-for="stat in statsConfig" :key="stat.label" 
+               class="group relative p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-all duration-300 hover:border-blue-500/30 hover:shadow-md">
+            <div class="flex items-center gap-3">
+              <div :class="`p-2.5 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-105 transition-transform duration-300`">
+                <i :class="`mdi ${stat.icon} text-xl`"></i>
+              </div>
+              <div>
+                <p class="text-[10px] font-black uppercase tracking-wider text-slate-500">{{ stat.label }}</p>
+                <p class="text-2xl font-black tracking-tighter">{{ stat.value }}</p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Procurement</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Coming Soon</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Main Content: Modular Gateway -->
+          <div class="lg:col-span-8 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm overflow-hidden relative">
+               <div class="flex items-center justify-between mb-6">
+                 <div>
+                   <h2 class="text-xl font-black tracking-tighter">Department <span class="text-blue-500 opacity-50">Hub</span></h2>
+                   <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Access Control Points</p>
+                 </div>
+               </div>
+
+               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <router-link v-for="module in modulesConfig" :key="module.name" :to="module.path || '#'"
+                              :class="`group p-4 bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-transparent transition-all duration-300 ${module.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-500/40 hover:bg-white dark:hover:bg-slate-800'}`">
+                    <div class="flex items-center gap-3 mb-2">
+                      <div :class="`p-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm ${module.color} text-white`">
+                        <i :class="`mdi ${module.icon} text-lg`"></i>
+                      </div>
+                      <h3 class="text-sm font-black tracking-tight">{{ module.name }}</h3>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">{{ module.desc }}</p>
+                    <div v-if="!module.disabled" class="text-[9px] font-black uppercase tracking-widest text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Open Module <i class="mdi mdi-chevron-right"></i>
+                    </div>
+                 </router-link>
+               </div>
+            </div>
+
+            <!-- Compact Admin Tools -->
+            <div class="bg-slate-900 rounded-3xl p-6 text-white border border-slate-800 shadow-lg relative overflow-hidden group">
+               <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-blue-600/5 rounded-full blur-[60px]"></div>
+               <div class="relative z-10">
+                 <div class="flex items-center justify-between mb-4 px-2">
+                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 italic">Admin Engine</h2>
+                    <div class="flex gap-1">
+                      <div class="w-1 h-1 rounded-full bg-blue-500"></div>
+                      <div class="w-1 h-1 rounded-full bg-slate-700"></div>
+                      <div class="w-1 h-1 rounded-full bg-slate-700"></div>
+                    </div>
+                 </div>
+                 <div class="grid grid-cols-3 gap-3">
+                    <router-link v-for="tool in adminTools" :key="tool.name" :to="tool.path" 
+                                 class="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all group/tool">
+                      <div :class="`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${tool.bg} ${tool.color} group-hover/tool:scale-110 text-white`">
+                        <i :class="`mdi ${tool.icon} text-sm text-white`"></i>
+                      </div>
+                      <span class="text-[10px] font-black uppercase tracking-wider">{{ tool.name }}</span>
+                    </router-link>
+                 </div>
+               </div>
             </div>
           </div>
-          <p class="text-sm text-gray-700 dark:text-gray-300">Material requests, vendor management, and purchase orders</p>
-        </div>
-      </div>
-    </div>
 
-    <!-- Quick Admin Actions -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Admin Actions</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <router-link
-          to="/admin/users"
-          class="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-        >
-          <div class="p-2 bg-blue-500 rounded-lg mr-3">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 dark:text-white">Manage Users</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Create, edit, and manage user accounts</p>
-          </div>
-        </router-link>
+          <!-- Sidebar: Dense System Monitor -->
+          <div class="lg:col-span-4 h-full">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full max-h-[700px]">
+              <div class="p-5 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-black tracking-tight">System Feed</h3>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Audit</span>
+                  </div>
+                </div>
+                <button class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 transition-colors">
+                  <i class="mdi mdi-refresh text-lg"></i>
+                </button>
+              </div>
 
-        <router-link
-          to="/admin/roles"
-          class="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-        >
-          <div class="p-2 bg-green-500 rounded-lg mr-3">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 dark:text-white">Manage Roles</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Configure roles and permissions</p>
-          </div>
-        </router-link>
+              <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+                <div v-if="isLoading" class="flex flex-col items-center justify-center py-10 opacity-30">
+                  <div class="w-8 h-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+                  <span class="text-[9px] font-black uppercase tracking-[0.2em]">Syncing...</span>
+                </div>
+                
+                <div v-else-if="recentActivity.length === 0" class="flex flex-col items-center justify-center py-10 opacity-20 text-center">
+                  <i class="mdi mdi-text-box-remove-outline text-4xl mb-2"></i>
+                  <span class="text-[10px] font-black uppercase tracking-widest leading-tight whitespace-nowrap">Null State<br/>(No Logs)</span>
+                </div>
 
-        <router-link
-          to="/admin/departments"
-          class="flex items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
-        >
-          <div class="p-2 bg-purple-500 rounded-lg mr-3">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900 dark:text-white">Manage Departments</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Organize departments and assign users</p>
-          </div>
-        </router-link>
-      </div>
-    </div>
+                <div v-else class="space-y-4">
+                  <div v-for="activity in recentActivity" :key="activity.id" class="flex gap-3 items-start group">
+                    <div :class="`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 uppercase text-xs font-black shadow-sm transition-transform group-hover:scale-105 ${activity.action === 'login' ? 'bg-emerald-500' : 'bg-blue-500'} text-white`">
+                      {{ activity.user_name?.charAt(0) || 'S' }}
+                    </div>
+                    <div class="min-w-0 flex-1 pt-0.5">
+                      <div class="flex items-center justify-between gap-2 mb-0.5">
+                        <p class="text-[11px] font-black truncate leading-none">{{ activity.user_name }}</p>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase whitespace-nowrap">{{ activity.time }}</span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-normal line-clamp-2">
+                        {{ activity.message }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    <!-- Recent System Activity -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Recent System Activity</h2>
-      <div class="space-y-3">
-        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span class="text-sm text-white">U</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">New user account created</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">5 minutes ago</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            <span class="text-sm text-white">P</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">Project enquiry submitted</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">12 minutes ago</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-            <span class="text-sm text-white">T</span>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">Task assignment completed</p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">1 hour ago</p>
+              <div class="p-5 border-t border-slate-50 dark:border-slate-800">
+                <button class="w-full py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-blue-500 transition-all border border-slate-200 dark:border-slate-800 rounded-xl hover:border-blue-500/20 bg-slate-50/50 dark:bg-slate-800/30">
+                  Detailed Audit Logs
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -288,16 +150,69 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useApi, handleApiError } from '../shared/composables/useApi'
 
-// Mock system stats - in real app, fetch from API
+const { get } = useApi()
+
 const systemStats = ref({
-  totalUsers: 25,
-  totalDepartments: 7,
-  activeProjects: 12
+  totalUsers: 0,
+  totalDepartments: 0,
+  activeProjects: 0
 })
 
-onMounted(() => {
-  // Could fetch real system stats here
-})
+const recentActivity = ref<any[]>([])
+const isLoading = ref(true)
+const error = ref<string | null>(null)
+
+// Config for visual metrics
+const statsConfig = computed(() => [
+  { label: 'Total Users', value: systemStats.value.totalUsers, icon: 'mdi-account-multiple-outline', bg: 'bg-blue-50 dark:bg-blue-500/10', color: 'text-blue-600 dark:text-blue-400' },
+  { label: 'Departments', value: systemStats.value.totalDepartments, icon: 'mdi-office-building-outline', bg: 'bg-emerald-50 dark:bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
+  { label: 'Active Projects', value: systemStats.value.activeProjects, icon: 'mdi-briefcase-outline', bg: 'bg-purple-50 dark:bg-purple-500/10', color: 'text-purple-600 dark:text-purple-400' },
+  { label: 'Platform Health', value: 'Prime', icon: 'mdi-heart-pulse', bg: 'bg-amber-50 dark:bg-amber-500/10', color: 'text-amber-600 dark:text-amber-400' }
+])
+
+// Config for modules
+const modulesConfig = [
+  { name: 'Admin', path: '/admin', icon: 'mdi-shield-account-outline', color: 'text-blue-500', desc: 'System control & user management core.' },
+  { name: 'Projects', path: '/projects/dashboard', icon: 'mdi-application-cog-outline', color: 'text-emerald-500', desc: 'Operation workflows and pipeline tracking.' },
+  { name: 'Client Service', path: '/client-service', icon: 'mdi-account-card-outline', color: 'text-purple-500', desc: 'Acquisition and relationship management.' },
+  { name: 'Human Resources', path: '/hr', icon: 'mdi-account-group-outline', color: 'text-amber-500', desc: 'Workforce records and internal operations.' },
+  { name: 'Finance', path: '/finance', icon: 'mdi-cash-multiple', color: 'text-yellow-500', desc: 'Budget control and accounts management.' },
+  { name: 'Logistics', disabled: true, icon: 'mdi-truck-outline', color: 'text-slate-400', desc: 'Coming soon: Supply chain and delivery management.' }
+]
+
+// Config for admin tools
+const adminTools = [
+  { name: 'Users', path: '/admin/users', icon: 'mdi-account-cog-outline', bg: 'bg-blue-500/20', color: 'text-blue-400' },
+  { name: 'Access', path: '/admin/roles', icon: 'mdi-lock-outline', bg: 'bg-emerald-500/20', color: 'text-emerald-400' },
+  { name: 'Depts', path: '/admin/departments', icon: 'mdi-layers-outline', bg: 'bg-purple-500/20', color: 'text-purple-400' }
+]
+
+const fetchDashboardData = async () => {
+  try {
+    isLoading.value = true
+    error.value = null
+    const response = await get<any>('/api/admin/dashboard/stats')
+    if (response && response.data) {
+      systemStats.value = response.data.stats || systemStats.value
+      recentActivity.value = (response.data.recentActivity || []).slice(0, 8)
+    }
+  } catch (err) {
+    error.value = handleApiError(err, 'Failed to sync dashboard')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => fetchDashboardData())
 </script>
+
+<style scoped>
+.font-inter { font-family: 'Inter', sans-serif; }
+.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; }
+</style>

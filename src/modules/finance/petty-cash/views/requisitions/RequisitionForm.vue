@@ -7,15 +7,20 @@
     leave-from-class="translate-x-0 opacity-100"
     leave-to-class="translate-x-full opacity-0"
   >
-    <div v-if="isOpen" class="fixed inset-0 z-[9999] flex justify-end">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="emit('close')"></div>
+    <div v-if="isOpen || standalone" :class="standalone ? 'relative w-full h-full' : 'fixed inset-0 z-[9999] flex justify-end'">
+      <!-- Backdrop (Only if drawer) -->
+      <div v-if="!standalone" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="emit('close')"></div>
       
-      <!-- Drawer Content -->
-      <div class="w-full max-w-4xl bg-slate-50 dark:bg-slate-900 h-full shadow-2xl relative z-10 overflow-y-auto border-l border-slate-200 dark:border-slate-800">
+      <!-- Drawer/Page Content -->
+      <div 
+        :class="[
+          standalone ? 'w-full h-full' : 'w-full max-w-4xl bg-slate-50 dark:bg-slate-900 h-full shadow-2xl relative z-10 overflow-y-auto border-l border-slate-200 dark:border-slate-800'
+        ]"
+      >
         <div class="p-6 md:p-8">
           <!-- Close Button -->
           <button 
+            v-if="!standalone"
             @click="emit('close')"
             class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all shadow-sm"
           >
@@ -24,6 +29,7 @@
           <!-- Header Area -->
           <div class="flex items-center gap-4 mb-8">
             <button
+              v-if="!standalone"
               @click="emit('close')"
               class="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
             >
@@ -424,11 +430,14 @@ import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from '@/plugins/axios'
 import { useToast } from '@/modules/universal-task/composables/useToast'
+import { pettyCashService } from '../../services/pettyCashService'
 
 const props = defineProps<{
   isOpen: boolean
   requisitionId?: number | null
   preFill: any | null
+  isPublic?: boolean
+  standalone?: boolean
 }>()
 
 const emit = defineEmits(['close', 'success'])
@@ -494,7 +503,6 @@ const isPayeeCategory = computed(() => {
     'Projects',
     'Transport',
     'Meals',
-    'Transport and Meals',
     'Communication & Airtime'
   ]
   return multiPayeeCategories.includes(form.category)
@@ -510,12 +518,18 @@ const hasProjectTeams = computed(() => {
 
 const fetchFormData = async () => {
   try {
-    const response = await axios.get('/api/finance/petty-cash/requisitions/form-data')
-    formData.departments = response.data.departments
-    formData.categories = response.data.categories
-    formData.employees = response.data.employees
-    formData.projects = response.data.projects
-    formData.enquiries = response.data.enquiries
+    const response = props.isPublic 
+      ? await pettyCashService.getPublicFormData()
+      : await axios.get('/api/finance/petty-cash/requisitions/form-data')
+    
+    // public service returns data directly, axios returns response object
+    const data = props.isPublic ? response : response.data
+
+    formData.departments = data.departments
+    formData.categories = data.categories
+    formData.employees = data.employees || []
+    formData.projects = data.projects
+    formData.enquiries = data.enquiries
 
     if (editMode.value) {
       fetchRequisition()
@@ -738,10 +752,17 @@ const onMainPayeeSearch = async (event: Event) => {
   showMainResults.value = true
   
   try {
-    const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
-      params: { query }
-    })
-    mainSearchResults.value = response.data.data
+    let results = []
+    if (props.isPublic) {
+      const response = await pettyCashService.publicSearchPayees(query)
+      results = response.data
+    } else {
+      const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
+        params: { query }
+      })
+      results = response.data.data
+    }
+    mainSearchResults.value = results
   } catch (error) {
     console.error('Search failed', error)
   } finally {
@@ -789,20 +810,26 @@ const onPayeeSearch = (event: Event, index: number) => {
   if (query.length < 2) {
     item.search_results = []
     item.show_results = false
-    item.searching = false // Reset searching state
+    item.searching = false
     return
   }
 
-  // Indicate searching immediately
   item.searching = true
   item.show_results = true 
 
   debounceTimer = setTimeout(async () => {
     try {
-      const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
-        params: { query }
-      })
-      item.search_results = response.data.data
+      let results = []
+      if (props.isPublic) {
+        const response = await pettyCashService.publicSearchPayees(query)
+        results = response.data
+      } else {
+        const response = await axios.get('/api/finance/petty-cash/requisitions/search-payees', {
+          params: { query }
+        })
+        results = response.data.data
+      }
+      item.search_results = results
     } catch (error) {
       console.error('Search failed', error)
       item.search_results = []
@@ -920,15 +947,23 @@ const submitForm = async () => {
     const payload = {
       ...form,
       items: sanitizedItems,
-      total_amount: sanitizedItems.reduce((sum, item) => sum + item.amount, 0)
+      total_amount: sanitizedItems.reduce((sum, item) => sum + item.amount, 0),
+      is_public: props.isPublic
     }
 
-    const response = editMode.value 
-      ? await axios.put(`/api/finance/petty-cash/requisitions/${props.requisitionId}`, payload)
-      : await axios.post('/api/finance/petty-cash/requisitions', payload)
+    let response
+    if (props.isPublic) {
+      response = await pettyCashService.submitPublicRequisition(payload)
+    } else {
+      response = editMode.value 
+        ? await axios.put(`/api/finance/petty-cash/requisitions/${props.requisitionId}`, payload)
+        : await axios.post('/api/finance/petty-cash/requisitions', payload)
+    }
       
-    toast.success(response.data.message)
-    emit('success')
+    // Handle both public service (direct data) and axios (response object)
+    const resData = props.isPublic ? response : response.data
+    toast.success(resData.message || 'Success')
+    emit('success', resData.data)
     emit('close')
   } catch (error: any) {
     console.error('Submission failed:', error)

@@ -1,14 +1,14 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <!-- Total Enquiries -->
-    <div class="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
-      <div class="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors"></div>
+    <div class="group relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+      <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-blue-500/10 transition-colors"></div>
       </div>
       <div class="relative z-10 flex flex-col h-full justify-between">
-        <div class="flex items-center justify-between mb-8">
-          <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 group-hover:scale-110 transition-transform duration-500">
-            <i class="mdi mdi-account-group-outline text-2xl"></i>
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-account-group-outline text-xl"></i>
           </div>
           <div class="text-right flex flex-col items-end gap-2">
             <div class="group/tooltip relative">
@@ -28,22 +28,22 @@
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Global Enquiries</p>
           <div class="flex items-baseline gap-2">
-            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ enquiryMetrics?.total_enquiries || 0 }}</h3>
-            <span class="text-xs font-medium text-slate-400">Total Flux</span>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ enquiryMetrics?.total_enquiries || 0 }}</h3>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Total Flux</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Active Projects -->
-    <div class="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
-      <div class="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-indigo-500/10 transition-colors"></div>
+    <div class="group relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+      <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-indigo-500/10 transition-colors"></div>
       </div>
       <div class="relative z-10 flex flex-col h-full justify-between">
-        <div class="flex items-center justify-between mb-8">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
-            <i class="mdi mdi-rocket-launch-outline text-2xl"></i>
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-rocket-launch-outline text-xl"></i>
           </div>
           <div class="text-right flex flex-col items-end gap-2">
             <div class="group/tooltip relative">
@@ -63,22 +63,22 @@
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Active Deployments</p>
           <div class="flex items-baseline gap-2">
-            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ projectMetrics?.active_projects || 0 }}</h3>
-            <span class="text-xs font-medium text-slate-400">Total Ops</span>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ projectMetrics?.active_projects || 0 }}</h3>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Total Ops</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Task Completion -->
-    <div class="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl transition-all duration-500">
-      <div class="absolute inset-0 overflow-hidden rounded-[2.5rem] pointer-events-none">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors"></div>
+    <div class="group relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-md transition-all duration-300">
+      <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-2xl rounded-full -mr-12 -mt-12 group-hover:bg-emerald-500/10 transition-colors"></div>
       </div>
       <div class="relative z-10 flex flex-col h-full justify-between">
-        <div class="flex items-center justify-between mb-8">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
-            <i class="mdi mdi-progress-check text-2xl"></i>
+        <div class="flex items-center justify-between mb-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
+            <i class="mdi mdi-progress-check text-xl"></i>
           </div>
           <div class="text-right flex flex-col items-end gap-2">
             <div class="group/tooltip relative">
@@ -98,8 +98,8 @@
         <div>
           <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Execution Ratio</p>
           <div class="flex items-baseline gap-2">
-            <h3 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ taskMetrics?.completion_rate || 0 }}<span class="text-2xl opacity-50">%</span></h3>
-            <span class="text-xs font-medium text-slate-400">Efficiency</span>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ taskMetrics?.completion_rate || 0 }}<span class="text-xl opacity-50">%</span></h3>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Efficiency</span>
           </div>
         </div>
       </div>

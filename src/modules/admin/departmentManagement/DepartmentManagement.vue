@@ -1,156 +1,134 @@
 <template>
-  <div class="space-y-6">
-    <!-- Breadcrumb -->
-    <nav class="flex" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <router-link to="/dashboard" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-            <svg class="w-3 h-3 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2A1 1 0 0 0 1 10h2v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8h2a1 1 0 0 0 .707-1.707Z"/>
-            </svg>
-            Dashboard
-          </router-link>
-        </li>
-        <li>
-          <div class="flex items-center">
-            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-            </svg>
-            <router-link to="/admin" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">
-              Admin
-            </router-link>
-          </div>
-        </li>
-        <li aria-current="page">
-          <div class="flex items-center">
-            <svg class="w-3 h-3 text-gray-400 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-            </svg>
-            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Departments</span>
-          </div>
-        </li>
-      </ol>
-    </nav>
-
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Department Management</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage company departments and organizational structure</p>
-      </div>
-      <button
-        @click="showCreateModal = true"
-        class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg font-medium transition-colors"
-      >
-        Add Department
-      </button>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="Search departments..."
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        />
-        <select
-          v-model="filters.has_manager"
-          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        >
-          <option value="">All Departments</option>
-          <option :value="true">Has Manager</option>
-          <option :value="false">No Manager</option>
-        </select>
+  <div class="min-h-screen bg-white dark:bg-slate-950 pb-10 font-inter text-slate-900 dark:text-slate-100">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+      
+      <!-- Minimalist Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+        <div>
+          <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <li><router-link to="/admin" class="hover:text-blue-500 transition-colors">Admin</router-link></li>
+              <li><i class="mdi mdi-chevron-right text-xs"></i></li>
+              <li class="text-slate-500 dark:text-slate-300">Structural Units</li>
+            </ol>
+          </nav>
+          <h1 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+            Department <span class="text-blue-500 opacity-50">Logistics</span>
+          </h1>
+        </div>
+        
         <button
-          @click="applyFilters"
-          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+          @click="showCreateModal = true"
+          class="flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
         >
-          Filter
+          <i class="mdi mdi-plus text-lg"></i>
+          Register Unit
         </button>
       </div>
-    </div>
 
-    <!-- Departments Table -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-      <div v-if="loading" class="p-8 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Loading departments...</p>
+      <!-- Compact Search/Filter -->
+      <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+        <div class="relative z-10 flex flex-col md:flex-row gap-3">
+          <div class="flex-1 relative">
+            <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search by department name..."
+              class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+            />
+          </div>
+          <select
+            v-model="filters.has_manager"
+            class="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <option :value="undefined">Global Scope</option>
+            <option :value="true">Managed Units</option>
+            <option :value="false">Pending Leadership</option>
+          </select>
+          <button
+            @click="applyFilters"
+            class="px-6 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-blue-500 hover:text-blue-500 transition-all"
+          >
+            Sort & Sync
+          </button>
+        </div>
       </div>
 
-      <div v-else-if="error" class="p-8 text-center text-red-600">
-        Error: {{ error }}
-      </div>
+      <!-- High-Density Departments Table -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div v-if="loading" class="p-20 text-center flex flex-col items-center gap-4">
+          <div class="w-10 h-10 border-2 border-slate-100 border-t-blue-500 rounded-full animate-spin"></div>
+          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Syncing Structural Nodes...</p>
+        </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Department
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Manager
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Employees
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Description
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="department in departments" :key="department.id">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10">
-                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-                      <span class="text-sm font-medium text-white">{{ department.name.charAt(0) }}</span>
+        <div v-else-if="error" class="p-20 text-center text-red-500 font-bold text-sm">
+          <i class="mdi mdi-alert-circle-outline text-4xl mb-2 block"></i>
+          {{ error }}
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800/50">
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Structural Unit</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Operational Lead</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Headcount</th>
+                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Description</th>
+                <th class="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">Command</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+              <tr v-for="department in departments" :key="department.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-black text-[10px] shadow-sm uppercase">
+                      {{ department.name.substring(0, 2) }}
                     </div>
+                    <span class="text-[13px] font-black text-slate-900 dark:text-white tracking-tight">{{ department.name }}</span>
+                   </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div v-if="department.manager" class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black">
+                      {{ department.manager.first_name[0] }}{{ department.manager.last_name[0] }}
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">{{ department.manager.first_name }} {{ department.manager.last_name }}</span>
                   </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ department.name }}</div>
+                  <span v-else class="text-[9px] font-black uppercase tracking-widest text-slate-300 italic">No Lead</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-[11px] font-black text-slate-400 px-2.5 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    {{ department.user_count || 0 }} Members
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium line-clamp-1 max-w-xs">{{ department.description || 'Global Operations Unit' }}</p>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-xs">
+                   <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click="editDepartment(department)" class="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-500 rounded-lg transition-all" title="Modify Unit">
+                      <i class="mdi mdi-pencil-outline"></i>
+                    </button>
+                    <button @click="viewEmployees(department)" class="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-emerald-500 rounded-lg transition-all" title="Review Members">
+                      <i class="mdi mdi-account-group-outline"></i>
+                    </button>
                   </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ department.manager ? `${department.manager.first_name} ${department.manager.last_name}` : 'No Manager' }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ department.user_count || 0 }} employees
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
-                {{ department.description || 'No description' }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  @click="editDepartment(department)"
-                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="viewEmployees(department)"
-                  class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3"
-                >
-                  View Employees
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- Create/Edit Department Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">
-          {{ editingDepartment ? 'Edit Department' : 'Create New Department' }}
+    <!-- Department Config Modal -->
+    <div v-if="showCreateModal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-blue-500/5 rounded-full blur-[60px]"></div>
+        
+        <h2 class="text-2xl font-black mb-8 tracking-tighter text-slate-900 dark:text-white leading-none">
+          {{ editingDepartment ? 'Refine' : 'Register' }} <span class="text-blue-500">Unit</span>
         </h2>
 
         <DepartmentForm
@@ -160,29 +138,23 @@
           @submit="handleFormSubmit"
         />
 
-        <div v-if="formError" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+        <div v-if="formError" class="mt-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-900 rounded-2xl text-red-600 text-[10px] font-black uppercase tracking-widest italic">
           {{ formError }}
         </div>
 
-        <div v-if="formSuccess" class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+        <div v-if="formSuccess" class="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-900 rounded-2xl text-emerald-600 text-[10px] font-black uppercase tracking-widest">
           {{ formSuccess }}
         </div>
 
-        <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            @click="closeModal"
-            class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            :disabled="saving"
-          >
-            Cancel
-          </button>
-          <button
-            @click="handleFormSubmit"
-            :disabled="saving"
-            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <span v-if="saving" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-            {{ saving ? 'Saving...' : (editingDepartment ? 'Update Department' : 'Create Department') }}
+        <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <button @click="closeModal" class="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors" :disabled="saving">Abort</button>
+          <button @click="handleFormSubmit" :disabled="saving" class="px-8 py-2.5 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:shadow-blue-500/20 active:scale-95 flex items-center gap-2">
+            <template v-if="saving">
+              <i class="mdi mdi-loading mdi-spin"></i> Syncing...
+            </template>
+            <template v-else>
+              {{ editingDepartment ? 'Update Unit' : 'Initialize Unit' }}
+            </template>
           </button>
         </div>
       </div>
@@ -211,9 +183,7 @@ const departmentFormData = ref<CreateDepartmentData | UpdateDepartmentData>({
   location: ''
 })
 
-const applyFilters = () => {
-  fetchDepartments(filters.value)
-}
+const applyFilters = () => { fetchDepartments(filters.value) }
 
 const editDepartment = (department: Department) => {
   editingDepartment.value = department
@@ -227,9 +197,9 @@ const editDepartment = (department: Department) => {
   showCreateModal.value = true
 }
 
-const viewEmployees = (department: Department) => {
-  console.log('View employees for department:', department.name)
-  // Could navigate to employee list filtered by department
+const viewEmployees = (department: Department) => { 
+  // Integration point for navigating to filtered employee list
+  console.log('Syncing filtered employee node:', department.name) 
 }
 
 const closeModal = () => {
@@ -237,60 +207,34 @@ const closeModal = () => {
   editingDepartment.value = null
   formError.value = ''
   formSuccess.value = ''
-  departmentFormData.value = {
-    name: '',
-    description: '',
-    manager_id: undefined,
-    budget: undefined,
-    location: ''
-  }
+  departmentFormData.value = { name: '', description: '', manager_id: undefined, budget: undefined, location: '' }
 }
 
 const handleFormSubmit = async () => {
-  // Basic validation
-  if (!departmentFormData.value.name) {
-    formError.value = 'Department name is required'
-    return
-  }
-
+  if (!departmentFormData.value.name) { formError.value = 'Identity signature required.'; return }
   saving.value = true
-  formError.value = ''
-  formSuccess.value = ''
+  formError.value = formSuccess.value = ''
 
   try {
     if (editingDepartment.value) {
-      // Update existing department
       await updateDepartment(editingDepartment.value.id, departmentFormData.value as UpdateDepartmentData)
-      formSuccess.value = 'Department updated successfully!'
+      formSuccess.value = 'Node synchronized.'
     } else {
-      // Create new department
       await createDepartment(departmentFormData.value as CreateDepartmentData)
-      formSuccess.value = 'Department created successfully!'
+      formSuccess.value = 'Node initialized.'
     }
-
-    // Refresh department list
     await fetchDepartments()
-
-    // Close modal after a short delay
-    setTimeout(() => {
-      closeModal()
-    }, 1500)
-
-  } catch (err: unknown) {
-    if (err && typeof err === 'object' && 'response' in err) {
-      const axiosError = err as { response?: { data?: { message?: string } } }
-      formError.value = axiosError.response?.data?.message || 'An error occurred'
-    } else if (err instanceof Error) {
-      formError.value = err.message
-    } else {
-      formError.value = 'An error occurred'
-    }
+    setTimeout(closeModal, 1000)
+  } catch (err: any) {
+    formError.value = err.response?.data?.message || 'Transmission failed.'
   } finally {
     saving.value = false
   }
 }
 
-onMounted(() => {
-  fetchDepartments()
-})
+onMounted(() => { fetchDepartments() })
 </script>
+
+<style scoped>
+.font-inter { font-family: 'Inter', sans-serif; }
+</style>

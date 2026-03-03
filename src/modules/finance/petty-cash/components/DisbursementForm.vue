@@ -1120,14 +1120,12 @@ watch(() => form.project_name, () => {
 
 // Safe component initialization
 onMounted(async () => {
-  console.log('🔥 DisbursementForm mounted, isOpen:', props.isOpen)
   
   // Use nextTick to ensure component is fully mounted
   await nextTick()
   
   // Initialize modal state if already open
   if (props.isOpen) {
-    console.log('🔥 DisbursementForm mounted with isOpen=true, calling initializeModal...')
     await initializeModal()
   }
 })
@@ -1139,7 +1137,7 @@ const prefillFromRequisition = (req: any) => {
   
   const receiver = req.payee 
     ? `${req.payee.first_name} ${req.payee.last_name}`
-    : (req.payee_name || req.requester?.name || '')
+    : (req.payee_name || (req.is_public && req.items?.[0]?.payee_name) || req.requester?.name || '')
 
   // Determine classification based on project/enquiry
   let defaultClassification = 'other'
@@ -1179,7 +1177,7 @@ const prefillFromRequisition = (req: any) => {
 }
 
 watch(() => props.requisition, (newReq) => {
-  console.log('🔥 Requisition prop changed:', newReq, 'isOpen:', props.isOpen)
+
   if (newReq && props.isOpen && !props.editMode) {
     nextTick(() => {
       prefillFromRequisition(newReq)
@@ -1189,15 +1187,12 @@ watch(() => props.requisition, (newReq) => {
 
 // Proper modal state management
 watch(() => props.isOpen, async (newValue, oldValue) => {
-  console.log('🔥 DisbursementForm isOpen changed:', { newValue, oldValue, modalState: modalState.value })
   
   if (newValue && !oldValue) {
     // Modal opening
-    console.log('🔥 Opening Disbursement modal via watcher...')
     await initializeModal()
   } else if (!newValue && oldValue) {
     // Modal closing
-    console.log('🔥 Closing Disbursement modal...')
     modalState.value = 'closed'
     isInitialized.value = false
     // Optional: Reset form on close to clear state

@@ -136,6 +136,7 @@
                   <div class="text-[16px] font-black uppercase text-slate-950 border-l-2 border-blue-600 pl-3">
                     <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
                     <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
+                    <span v-else-if="requisition.is_public">{{ requisition.requester_name || 'Public Submission' }}</span>
                     <span v-else>{{ requisition.requester?.name }}</span>
                   </div>
                 </div>
@@ -168,10 +169,10 @@
 
               <!-- Right: Phone (if any) -->
               <div class="col-span-3 bg-slate-50 p-4 flex flex-col justify-center gap-3">
-                <div v-if="requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone">
+                <div v-if="requisition.requester_phone || requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone">
                   <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">Phone</div>
                   <div class="text-[14px] font-black text-slate-950 font-technical tracking-widest">
-                    {{ requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone }}
+                    {{ requisition.payee_phone || requisition.requester_phone || requisition.payee?.phone || requisition.requester?.employee?.phone || '—' }}
                   </div>
                 </div>
               </div>
@@ -251,7 +252,10 @@
                     <ul class="space-y-3">
                       <li class="flex justify-between items-center text-slate-500 font-black uppercase">
                         <span>Originator:</span>
-                        <span class="text-slate-950 underline decoration-slate-200 font-black">{{ requisition.requester?.name }}</span>
+                        <span class="text-slate-950 underline decoration-slate-200 font-black">
+                          {{ requisition.is_public ? (requisition.requester_name || 'Public Guest') : requisition.requester?.name }}
+                          <span v-if="requisition.is_public" class="ml-1 text-[8px] text-purple-600 bg-purple-50 px-1 rounded">PUBLIC</span>
+                        </span>
                       </li>
                       <li v-if="requisition.approved_at" class="flex justify-between items-center text-slate-500 font-black uppercase">
                         <span>Authorized:</span>

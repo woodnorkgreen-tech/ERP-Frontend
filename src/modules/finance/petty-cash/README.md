@@ -33,38 +33,49 @@ The **Finance & Accounts** module (formerly Petty Cash Management) is a robust f
 - **Budget Monitoring**: Real-time tracking of how much project budget has been "consumed" via petty cash.
 - **Cross-Departmental Sync**: Automatic updates to project managers on financial status.
 
+### 6. Public Requisition Portal
+- **Guest Submissions**: Specialized portal for unauthenticated users to submit petty cash requests for their departments.
+- **Payee Search**: Integrated search for active system users and technical labor without requiring login.
+- **MPesa Integration**: Automated fetching of recipient phone numbers during the public requisition process.
+
 ## 🏗️ Technical Architecture
 
 ### Frontend Structure
 - **Vue 3 Components**: Composition API-based modular UI.
+- **Shared Forms**: `RequisitionForm.vue` refactored for both internal and public modal/standalone modes.
 - **Pinia Store (`pettyCashStore.ts`)**: Centralized state management for transactions, balance, and loading states.
-- **Services (`pettyCashService.ts`)**: Decoupled API logic with built-in retry mechanisms and permission enforcement.
-- **Composables**:
-  - `useErrorHandler`: Standardized error processing and user feedback.
-  - `usePermissions`: Granular role-based access control.
+- **Services (`pettyCashService.ts`)**: Decoupled API logic with built-in retry mechanisms and public-facing search endpoints.
 
 ### API Endpoints (Prefix: `/api/finance/petty-cash`)
+
+#### Internal Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/balance` | Fetch current vault balance |
 | `GET` | `/transactions` | List all financial movements |
 | `POST` | `/requisitions` | Create new petty cash request |
-| `POST` | `/disbursements` | Process cash disbursement |
-| `POST` | `/top-ups` | Add funds to the vault |
-| `GET` | `/budgets/summary` | Project-based budget consumption report |
+| `POST` | `/disbursements` | Process cash disbursement (autofills receiver from request data) |
+
+#### Public Endpoints (Prefix: `/api/public/petty-cash`)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/form-data` | Fetch departments, categories, and active project lists |
+| `GET` | `/payees/search` | Search active recipients (Public-safe data) |
+| `POST` | `/requisition` | Create unauthenticated requisition |
 
 ## 🔐 Roles & Permissions
 
 - **Requester (Employee)**: Can create requisitions and view their own history.
+- **Public User**: Can submit requisitions via the guest portal without an account.
 - **Approver (Accounts/HOD)**: Can approve/reject requisitions.
 - **Disburser (Accounts)**: Can process payments, add top-ups, and manage the vault.
 - **Super Admin**: Complete system oversight, data reset, and advanced configuration.
 
 ## 📊 Reporting & Maintenance
 
+- **Vouchers**: PDF generation with "Public Submission" fallbacks for non-internal originators.
 - **Excel Exports**: Bulk export transaction data for external auditing.
-- **Template Uploads**: Mass processing of disbursements via CSV/Excel templates.
 - **Data Integrity**: Built-in "Recalculate Balance" utility to fix synchronization issues.
 
 ---
-*Last Updated: February 2026*
+*Last Updated: March 2026*

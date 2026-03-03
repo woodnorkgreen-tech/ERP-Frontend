@@ -19,6 +19,13 @@
           <i class="mdi mdi-refresh text-lg" :class="{ 'animate-spin': loading }"></i>
         </button>
         <button
+          @click="copyPublicLink"
+          class="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 px-4 py-3 rounded-lg font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-purple-100 dark:hover:bg-purple-900/40 border border-purple-100 dark:border-purple-800"
+        >
+          <i class="mdi mdi-share-variant text-lg"></i>
+          <span>{{ linkCopied ? 'Link Copied' : 'Share Public Link' }}</span>
+        </button>
+        <button
           @click="openNewRequisition"
           class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-lg font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-slate-800 dark:hover:bg-slate-100 shadow-sm"
         >
@@ -184,6 +191,12 @@
               >
                 {{ req.status }}
               </span>
+              <span 
+                v-if="req.is_public"
+                class="px-1.5 py-0.5 rounded text-[7px] font-black uppercase tracking-[0.15em] bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800"
+              >
+                Public
+              </span>
             </div>
 
             <!-- Main Content: Purpose + Descriptive Context -->
@@ -214,11 +227,11 @@
                      class="text-[9px] font-black uppercase tracking-tight"
                      :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-700 dark:text-slate-300'"
                    >
-                     {{ req.requester?.name?.split(' ')[0] || 'Personnel' }}
+                     {{ req.is_public ? req.requester_name?.split(' ')[0] : (req.requester?.name?.split(' ')[0] || 'Personnel') }}
                    </span>
                  </div>
-                 <span v-if="req.payee_phone || req.payee?.phone || req.requester?.employee?.phone" class="text-[8px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1">
-                    <i class="mdi mdi-phone-outline text-[10px]"></i> {{ (req.payee_phone || req.payee?.phone || req.requester?.employee?.phone)?.slice(-9) }}
+                 <span v-if="req.requester_phone || req.payee_phone || req.payee?.phone || req.requester?.employee?.phone" class="text-[8px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-1">
+                    <i class="mdi mdi-phone-outline text-[10px]"></i> {{ (req.requester_phone || req.payee_phone || req.payee?.phone || req.requester?.employee?.phone)?.slice(-9) }}
                  </span>
                </div>
                <div class="text-right">
@@ -373,6 +386,7 @@ const formRequisitionId = ref<number | null>(null)
 const preFillData = ref<any>(null)
 const rejectionReason = ref('')
 const requisitionStats = ref<any>(null)
+const linkCopied = ref(false)
 
 const statCards = computed(() => [
   { 
@@ -581,6 +595,21 @@ const handleDelete = async (req: any) => {
     alert(error.response?.data?.message || 'Failed to delete requisition')
   } finally {
     submitting.value = false
+  }
+}
+
+const copyPublicLink = async () => {
+  const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL.slice(0, -1) : import.meta.env.BASE_URL
+  const url = `${window.location.origin}${base}/public/requisition/new`
+  
+  try {
+    await navigator.clipboard.writeText(url)
+    linkCopied.value = true
+    setTimeout(() => {
+      linkCopied.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy: ', err)
   }
 }
 

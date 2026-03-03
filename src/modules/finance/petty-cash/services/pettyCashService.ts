@@ -899,6 +899,39 @@ class PettyCashService {
       throw error
     }
   }
+
+  // Public Operations (Unauthenticated)
+  async getPublicFormData(): Promise<ApiResponse<any>> {
+    const requestConfig: AxiosRequestConfig = {
+      method: 'GET',
+      url: '/api/public/petty-cash/form-data',
+      headers: { 'Content-Type': 'application/json' }
+    }
+    const response = await api(requestConfig)
+    return response.data
+  }
+
+  async submitPublicRequisition(data: any): Promise<ApiResponse<any>> {
+    const requestConfig: AxiosRequestConfig = {
+      method: 'POST',
+      url: '/api/public/petty-cash/requisitions',
+      data,
+      headers: { 'Content-Type': 'application/json' }
+    }
+    const response = await api(requestConfig)
+    return response.data
+  }
+
+  async publicSearchPayees(query: string): Promise<ApiResponse<any>> {
+    const requestConfig: AxiosRequestConfig = {
+      method: 'GET',
+      url: '/api/public/petty-cash/payees/search',
+      params: { query },
+      headers: { 'Content-Type': 'application/json' }
+    }
+    const response = await api(requestConfig)
+    return response.data
+  }
 }
 
 // Export singleton instance

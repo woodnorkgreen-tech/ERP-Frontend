@@ -14,55 +14,51 @@
       </button>
     </div>
 
-    <div class="space-y-8">
+    <div class="space-y-6">
       <!-- Search Bar -->
-      <div class="space-y-3">
-        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Global Query Search</label>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Global Quantum Search</label>
         <div class="relative group">
           <input
             v-model="filters.searchQuery"
             type="text"
-            placeholder="Search Project ID, Client, or Mission..."
-            class="w-full h-14 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-12 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+            placeholder="Mission ID, Client, or Scope..."
+            class="w-full h-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-11 text-xs font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
           />
-          <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+          <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-xl text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
         </div>
       </div>
 
       <!-- Date Range -->
-      <div class="space-y-3">
-        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Temporal Range</label>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="relative">
-            <input
-              v-model="filters.dateFrom"
-              type="date"
-              class="w-full h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
-            />
-          </div>
-          <div class="relative">
-            <input
-              v-model="filters.dateTo"
-              type="date"
-              class="w-full h-12 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
-            />
-          </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Temporal Window</label>
+        <div class="grid grid-cols-2 gap-3">
+          <input
+            v-model="filters.dateFrom"
+            type="date"
+            class="w-full h-11 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+          />
+          <input
+            v-model="filters.dateTo"
+            type="date"
+            class="w-full h-11 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-blue-500 transition-all text-slate-900 dark:text-white"
+          />
         </div>
       </div>
 
       <!-- Status Filter -->
-      <div class="space-y-3">
-        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Operational Status</label>
-        <div class="flex flex-wrap gap-2">
+      <div class="space-y-2">
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Execution Status</label>
+        <div class="flex flex-wrap gap-1.5">
           <button
             v-for="status in statusOptions"
             :key="status.value"
             @click="toggleStatus(status.value)"
             :class="[
-              'px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 border',
+              'px-3.5 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95 border',
               filters.status.includes(status.value)
-                ? 'bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-500/50'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20'
+                : 'bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-500/50'
             ]"
           >
             {{ status.label }}
@@ -71,18 +67,18 @@
       </div>
 
       <!-- Priority Filter -->
-      <div class="space-y-3">
-        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Criticality Level</label>
-        <div class="flex flex-wrap gap-2">
+      <div class="space-y-2">
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Criticality level</label>
+        <div class="flex flex-wrap gap-1.5">
           <button
             v-for="priority in priorityOptions"
             :key="priority.value"
             @click="togglePriority(priority.value)"
             :class="[
-              'px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 border',
+              'px-3.5 py-2 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95 border',
               filters.priority.includes(priority.value)
                 ? getPriorityActiveClass(priority.value)
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-blue-500/50'
+                : 'bg-white dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-500/50'
             ]"
           >
             {{ priority.label }}
@@ -91,22 +87,22 @@
       </div>
 
       <!-- Export Interface -->
-      <div class="space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Digital Dispatch</label>
-        <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Mission Logistics</label>
+        <div class="grid grid-cols-2 gap-3">
           <button
             @click="exportToPDF"
-            class="group flex items-center justify-center gap-3 h-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-red-500 transition-all active:scale-95"
+            class="group flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-red-500/50 transition-all active:scale-95"
           >
-            <i class="mdi mdi-file-pdf-box text-2xl text-red-500"></i>
-            <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">PDF Export</span>
+            <i class="mdi mdi-file-pdf-box text-lg text-red-500"></i>
+            <span class="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-widest">PDF Export</span>
           </button>
           <button
             @click="exportToExcel"
-            class="group flex items-center justify-center gap-3 h-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 transition-all active:scale-95"
+            class="group flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-emerald-500/50 transition-all active:scale-95"
           >
-            <i class="mdi mdi-file-excel text-2xl text-emerald-500"></i>
-            <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Excel Cell</span>
+            <i class="mdi mdi-file-excel text-lg text-emerald-500"></i>
+            <span class="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Excel Cell</span>
           </button>
         </div>
       </div>
@@ -114,10 +110,10 @@
       <!-- Tactical Action -->
       <button
         @click="applyFilters"
-        class="w-full h-14 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-2xl shadow-xl shadow-blue-500/10 transition-all active:scale-95 font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+        class="w-full h-12 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/10 transition-all active:scale-95 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
       >
-        <i class="mdi mdi-filter-variant text-xl"></i>
-        Synchronize Filter State
+        <i class="mdi mdi-filter-variant text-base"></i>
+        Sync Filter State
       </button>
     </div>
   </div>
