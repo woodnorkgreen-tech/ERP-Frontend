@@ -932,6 +932,17 @@ class PettyCashService {
     const response = await api(requestConfig)
     return response.data
   }
+
+  async getPublicProjectTeamMembers(params: { project_id?: string; enquiry_id?: string }): Promise<ApiResponse<any>> {
+    const requestConfig: AxiosRequestConfig = {
+      method: 'GET',
+      url: '/api/public/petty-cash/requisitions/project-team-members',
+      params,
+      headers: { 'Content-Type': 'application/json' }
+    }
+    const response = await api(requestConfig)
+    return response.data
+  }
 }
 
 // Export singleton instance

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
     <!-- Header Area -->
     <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 py-4">
-      <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-4">
           <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center p-2 shadow-lg shadow-blue-500/20">
             <img :src="logoOutline" alt="WNG" class="w-full h-full object-contain" />
@@ -15,8 +15,8 @@
       </div>
     </header>
 
-    <main class="flex-grow p-4 md:p-8">
-      <div class="max-w-4xl mx-auto">
+    <main class="flex-grow p-4 md:p-6">
+      <div class="max-w-6xl mx-auto">
         <!-- Success State -->
         <transition
           enter-active-class="transition-all duration-500 ease-out"

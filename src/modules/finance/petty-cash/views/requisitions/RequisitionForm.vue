@@ -17,7 +17,7 @@
           standalone ? 'w-full h-full' : 'w-full max-w-4xl bg-slate-50 dark:bg-slate-900 h-full shadow-2xl relative z-10 overflow-y-auto border-l border-slate-200 dark:border-slate-800'
         ]"
       >
-        <div class="p-6 md:p-8">
+        <div :class="standalone ? 'p-0' : 'p-6 md:p-8'">
           <!-- Close Button -->
           <button 
             v-if="!standalone"
@@ -26,10 +26,9 @@
           >
             <i class="mdi mdi-close text-xl"></i>
           </button>
-          <!-- Header Area -->
-          <div class="flex items-center gap-4 mb-8">
+          <!-- Header Area (Hidden in standalone to avoid redundancy with parent header) -->
+          <div v-if="!standalone" class="flex items-center gap-4 mb-8">
             <button
-              v-if="!standalone"
               @click="emit('close')"
               class="p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
             >
@@ -49,10 +48,14 @@
           </div>
 
       <!-- Main Form -->
-      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl shadow-slate-200/20 dark:shadow-none overflow-hidden">
-      <form @submit.prevent="submitForm" class="p-8 space-y-8">
+      <div :class="[
+        standalone 
+          ? 'bg-transparent border-none shadow-none' 
+          : 'bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl shadow-slate-200/20 dark:shadow-none'
+      ]" class="overflow-hidden">
+      <form @submit.prevent="submitForm" :class="standalone ? 'p-0 space-y-6' : 'p-8 space-y-8'">
         <!-- Basic Info Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div :class="standalone ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5' : 'grid-cols-1 md:grid-cols-2 gap-6'" class="grid">
           <div class="space-y-2">
             <label class="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
               Department <span class="text-red-500">*</span>
@@ -262,8 +265,12 @@
             </div>
           </div>
 
-          <div class="space-y-6">
-            <div v-for="(item, index) in form.items" :key="index" class="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 space-y-4 relative group">
+          <div :class="standalone ? 'space-y-4' : 'space-y-6'">
+            <div v-for="(item, index) in form.items" :key="index" :class="[
+              standalone 
+                ? 'bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/50' 
+                : 'bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50'
+            ]" class="space-y-4 relative group transition-all">
               <button
                 v-if="form.items.length > 1 && !isFinancialLocked"
                 type="button"
@@ -292,7 +299,8 @@
                             @focus="item.show_results = true"
                             @blur="hidePayeeResults(index)"
                             :placeholder="item.payee_name || 'Search Employee or Tech Labour...'"
-                            class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
+                            :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                            class="w-full pl-10 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
                             :disabled="isFinancialLocked"
                           />
                           <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
@@ -356,7 +364,8 @@
                     :disabled="isFinancialLocked"
                     required
                     :placeholder="isPayeeCategory ? 'E.g., Dinner, Transport...' : 'Item description...'"
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
+                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                    class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
 
@@ -367,7 +376,8 @@
                     v-model="item.remarks"
                     :disabled="isFinancialLocked"
                     placeholder="E.g., Site A, Trip 1..."
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm text-right disabled:opacity-50"
+                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                    class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm text-right disabled:opacity-50"
                   />
                 </div>
 
@@ -381,7 +391,8 @@
                     step="0.01"
                     required
                     placeholder="0.00"
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold text-right disabled:opacity-50"
+                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                    class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold text-right disabled:opacity-50"
                   />
                 </div>
 
@@ -392,7 +403,8 @@
                     v-model="item.payee_phone"
                     :disabled="isFinancialLocked"
                     placeholder="254..."
-                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
+                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                    class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -401,17 +413,18 @@
         </div>
 
         <!-- Footer / Summary -->
-        <div class="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-100 dark:border-slate-700/50 mt-8">
+        <div :class="standalone ? 'p-4 rounded-xl' : 'p-6 rounded-2xl'" class="bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100 dark:border-slate-700/50 mt-6 md:mt-8">
           <div>
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Total Amount Requested</span>
-            <span class="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Total Amount Requested</span>
+            <span :class="standalone ? 'text-2xl' : 'text-3xl'" class="font-black text-blue-600 dark:text-blue-400 tracking-tighter">
               {{ formatCurrency(totalAmount) }}
             </span>
           </div>
           <button
             type="submit"
             :disabled="submitting"
-            class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 min-w-[200px]"
+            :class="standalone ? 'py-3.5 px-8 rounded-xl' : 'py-4 px-10 rounded-2xl'"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-black uppercase tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 min-w-[200px]"
           >
             <i v-if="submitting" class="mdi mdi-loading mdi-spin text-xl"></i>
             <span v-else>{{ editMode ? 'Update Requisition' : 'Submit Requisition' }}</span>
@@ -610,14 +623,17 @@ watch(projectSelection, async (newVal) => {
       params = { enquiry_id: newVal.substring(1) }
     }
 
-    const response = await axios.get('/api/finance/petty-cash/requisitions/project-team-members', { params })
-    const members = response.data.members || []
+    const res = props.isPublic 
+      ? await pettyCashService.getPublicProjectTeamMembers(params)
+      : (await axios.get('/api/finance/petty-cash/requisitions/project-team-members', { params })).data
+      
+    const members = res.members || []
 
     // Auto-fill venue from project/enquiry data
     // Venue is stored in the enquiry, not directly on the project
     let venueValue = null
-    const project = response.data.project
-    const enquiry = response.data.enquiry
+    const project = res.project
+    const enquiry = res.enquiry
 
     if (project?.enquiry?.venue) {
       venueValue = project.enquiry.venue
