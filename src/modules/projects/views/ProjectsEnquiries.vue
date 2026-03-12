@@ -122,6 +122,9 @@
                 <option value="in_progress">Active</option>
                 <option value="completed">Done</option>
               </optgroup>
+              <optgroup v-if="currentView === 'canceled'" label="Cancelled">
+                <option value="cancelled">Cancelled</option>
+              </optgroup>
             </select>
           </div>
 
@@ -1444,7 +1447,7 @@ const filteredEnquiries = computed(() => {
   
   let result = enquiries.value
   
-  // Client-side filtering for 'Needs Attention'
+  // Only filter for 'Needs Attention' - let backend handle view filtering
   if (filters.value.needs_attention) {
     result = result.filter(enquiry => getUserPendingTaskCount(enquiry) > 0)
   }
@@ -1834,12 +1837,13 @@ if (!enquiryFormData.value.selected_workflow_tasks || enquiryFormData.value.sele
 
 
 
-const currentView = ref<'enquiries' | 'projects' | 'completed'>('enquiries')
+const currentView = ref<'enquiries' | 'projects' | 'completed' | 'canceled'>('enquiries')
 
 const dashboardTabs = [
   { id: 'enquiries', label: 'New Enquiries', desc: 'In the pipeline' },
   { id: 'projects', label: 'In Progress', desc: 'Active projects' },
-  { id: 'completed', label: 'Completed', desc: 'Finished projects' }
+  { id: 'completed', label: 'Completed', desc: 'Finished projects' },
+  { id: 'canceled', label: 'Canceled', desc: 'Rejected enquiries' }
 ]
 
 const statusTabs = computed(() => {
@@ -1855,8 +1859,14 @@ const statusTabs = computed(() => {
   if (currentView.value === 'completed') {
     return [
       { key: 'all', label: 'All History', count: pagination.value.total },
-      { key: 'completed', label: 'Finished', count: enquiries.value.filter(e => e.status === 'completed').length },
-      { key: 'cancelled', label: 'Aborted', count: enquiries.value.filter(e => e.status === 'cancelled').length }
+      { key: 'completed', label: 'Finished', count: enquiries.value.filter(e => e.status === 'completed').length }
+    ]
+  }
+  
+  if (currentView.value === 'canceled') {
+    return [
+      { key: 'all', label: 'All Canceled', count: pagination.value.total },
+      { key: 'cancelled', label: 'Cancelled', count: enquiries.value.filter(e => e.status === 'cancelled').length }
     ]
   }
 
