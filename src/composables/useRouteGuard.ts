@@ -337,7 +337,8 @@ export function useRouteGuard() {
         {
           department: 'Finance',
           routes: [
-            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' }
+            { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' },
+            { name: 'finance-project-receivables', path: '/finance/project-receivables', label: 'Project Billing & Deposits', icon: 'mdi-cash-lock' }
           ]
         },
         {
@@ -451,7 +452,8 @@ export function useRouteGuard() {
     // Add finance routes for authorized users (skip for Super Admin as they're already included in departments)
     if (canAccessFinance() && !userRoles.includes('Super Admin')) {
       routes.push(
-        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' }
+        { name: 'finance-petty-cash', path: '/finance/petty-cash', label: 'Finance & Accounts', icon: 'mdi-cash-multiple' },
+        { name: 'finance-project-receivables', path: '/finance/project-receivables', label: 'Project Billing & Deposits', icon: 'mdi-cash-lock' }
       )
     }
 

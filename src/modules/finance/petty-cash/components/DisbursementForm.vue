@@ -115,7 +115,7 @@
                     type="number"
                     step="0.01"
                     min="0.01"
-                    :max="maxAmount"
+                    :max="editMode ? undefined : maxAmount"
                     :class="[
                       'block w-full pl-12 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
                       errors.amount ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -331,14 +331,10 @@
                     'mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
                     errors.project_name ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   ]"
-                  placeholder="Project or job name"
-                  :required="requiresProject"
+                  placeholder="Project or job name (Optional)"
                 />
                 <p v-if="errors.project_name" class="mt-2 text-sm text-red-600 dark:text-red-400">
                   {{ errors.project_name[0] }}
-                </p>
-                <p v-else-if="requiresProject" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Project name is required for selected classification
                 </p>
               </div>
 
@@ -518,7 +514,6 @@ import { validateDisbursementFormData } from '../utils/validation'
 import type { CreateDisbursementFormData, UpdateDisbursementFormData } from '../types/forms'
 import type { PettyCashDisbursement } from '../types/pettyCash'
 import type { Account } from '../../../../types/accounts'
-import accountsData from '../../../../data/accounts.json'
 
 interface Props {
   isOpen: boolean
@@ -565,7 +560,8 @@ const errors = ref<Record<string, string[]>>({})
 const modalState = ref<'closed' | 'opening' | 'open' | 'closing'>('closed')
 
 // Account autocomplete
-const accounts = ref<Account[]>(accountsData.accounts as any)
+const accounts = ref<Account[]>([])
+const isLoadingAccounts = ref(false)
 const accountSearch = ref('')
 const showAccountDropdown = ref(false)
 const selectedAccount = ref<Account | null>(null)
@@ -630,6 +626,8 @@ const requiresProject = computed(() => {
 })
 
 const isFormValid = computed(() => {
+  const amountValid = form.amount && (props.editMode || currentBalance.value >= (Number(form.amount) + Number(form.transaction_cost || 0)))
+  
   return form.receiver &&
          form.account &&
          (form.account_id || props.editMode) && // Ensure account ID is selected, but relax for edit mode if name matches
@@ -639,8 +637,7 @@ const isFormValid = computed(() => {
          form.payment_method &&
          form.tax &&
          form.date_disbursed &&
-         currentBalance.value >= (Number(form.amount) + Number(form.transaction_cost || 0)) && // Ensure there's balance available
-         (!requiresProject.value || form.project_name) &&
+         amountValid &&
          (availableBudgetItems.value.length === 0 || form.budget_category)
 })
 
@@ -783,7 +780,7 @@ const validateForm = (): boolean => {
     const total = amount + cost
     if (!form.amount || isNaN(amount) || amount <= 0) {
       errors.value.amount = ['Amount must be a positive number']
-    } else if (total > currentBalance.value) {
+    } else if (!props.editMode && total > currentBalance.value) {
       errors.value.amount = [`Total amount (KES ${total.toLocaleString()}) with transaction cost exceeds available balance of ${formatAmount(currentBalance.value)}`]
     }
 
@@ -813,14 +810,9 @@ const validateForm = (): boolean => {
       errors.value.tax = ['Invalid tax option selected']
     }
 
-    // Validate project name for specific classifications
+    // Validate project name - No longer mandatory as per request
     if (requiresProject.value && (!form.project_name || form.project_name.trim().length === 0)) {
-      const classificationLabels = {
-        'agencies': 'Agencies',
-        'operations': 'Operations'
-      }
-      const label = classificationLabels[form.classification as keyof typeof classificationLabels] || form.classification
-      errors.value.project_name = [`Project name is required for ${label} classification`]
+      // Optional now
     }
 
     // Validate job number length if provided
@@ -920,12 +912,18 @@ const loadDisbursementData = () => {
         payment_method: (d.payment_method as any)?.value || d.payment_method || 'cash',
         transaction_cost: d.transaction_cost?.raw || d.transaction_cost || 0,
         transaction_code: d.transaction_code || '',
-        top_up_id: d.top_up_id
+        top_up_id: d.top_up_id,
+        budget_category: d.budget_category || ''
       })
 
       // Set autocomplete search values
       accountSearch.value = d.account || ''
       projectSearch.value = d.job_number || ''
+
+      // Fetch budget categories if job number exists
+      if (d.job_number) {
+        fetchBudgetCategories(d.job_number)
+      }
     } catch (err) {
       console.error('❌ Error in loadDisbursementData:', err)
       modalError.value = 'Failed to load transaction data for editing. Please try again.'
@@ -955,6 +953,14 @@ const initializeModal = async () => {
     modalState.value = 'opening'
     await nextTick()
     
+    // Sequence matters: Load critical dependencies first
+    await Promise.all([
+      store.fetchAvailableTopUps(),
+      store.fetchCurrentBalance(),
+      fetchProjects(),
+      fetchAccounts()
+    ])
+
     if (props.editMode && props.disbursement) {
       loadDisbursementData()
     } else if (props.requisition) {
@@ -970,11 +976,6 @@ const initializeModal = async () => {
       }
     }
     
-    await Promise.all([
-      store.fetchAvailableTopUps(),
-      store.fetchCurrentBalance(),
-      fetchProjects()
-    ])
     isInitialized.value = true
     modalState.value = 'open'
   } catch (error) {
@@ -998,6 +999,20 @@ const fetchProjects = async () => {
     }
   } catch (error) {
     console.error('❌ Error fetching projects:', error)
+  }
+}
+
+const fetchAccounts = async () => {
+  isLoadingAccounts.value = true
+  try {
+    const response = await pettyCashService.getChartOfAccounts()
+    if (response.success && Array.isArray(response.data)) {
+      accounts.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch Chart of Accounts:', error)
+  } finally {
+    isLoadingAccounts.value = false
   }
 }
 
@@ -1155,7 +1170,7 @@ const prefillFromRequisition = (req: any) => {
   }
 
   // Auto-select Petty Cash account
-  const pettyCashAccount = accounts.value.find(acc => acc.id === 12) // Petty cash account
+  const pettyCashAccount = accounts.value.find(acc => acc.code === 'PETTY-001') // Petty cash account
   if (pettyCashAccount) {
     selectedAccount.value = pettyCashAccount
     accountSearch.value = pettyCashAccount.name

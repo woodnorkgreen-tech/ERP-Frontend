@@ -62,7 +62,7 @@
                 {{ entry.vehicle_allocated }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {{ entry.driver || 'N/A' }}
+                {{ entry.driver || '-' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ formatDate(entry.loading_time) }}
@@ -530,7 +530,13 @@ const changePage = (page: number) => {
 // Helpers
 const formatDate = (dateString: string) => {
   if (!dateString) return '-'
-  return new Date(dateString).toLocaleString()
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return '-'
+    return date.toLocaleString()
+  } catch {
+    return '-'
+  }
 }
 
 const getStatusClass = (status: string) => {

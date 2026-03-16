@@ -15,29 +15,29 @@
       </div>
     </header>
 
-    <main class="flex-grow p-4 md:p-6">
-      <div class="max-w-6xl mx-auto">
+    <main class="flex-grow p-2 sm:p-4 md:p-6">
+      <div class="max-w-6xl mx-auto w-[94%] sm:w-full">
         <!-- Success State -->
         <transition
           enter-active-class="transition-all duration-500 ease-out"
           enter-from-class="scale-95 opacity-0 translate-y-4"
           enter-to-class="scale-100 opacity-100 translate-y-0"
         >
-          <div v-if="submitted" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/60 shadow-2xl p-12 text-center">
-            <div class="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-              <i class="mdi mdi-check-decagram text-5xl"></i>
+          <div v-if="submitted" class="bg-white dark:bg-slate-900 rounded-3xl sm:rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/60 shadow-2xl p-6 sm:p-12 text-center">
+            <div class="w-16 h-16 sm:w-24 sm:h-24 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-inner">
+              <i class="mdi mdi-check-decagram text-4xl sm:text-5xl"></i>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight uppercase">Submitted Successfully!</h2>
-            <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-sm mx-auto mb-10">
+            <h2 class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-3 sm:mb-4 tracking-tight uppercase">Submitted!</h2>
+            <p class="text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-sm mx-auto mb-8 sm:mb-10 text-sm sm:text-base">
               Your requisition has been received and is now awaiting approval by the finance department.
             </p>
-            <div class="pt-8 border-t border-slate-100 dark:border-slate-800">
+            <div class="pt-6 sm:pt-8 border-t border-slate-100 dark:border-slate-800">
                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Requisition Number</p>
-               <p class="text-xl font-black text-blue-600 dark:text-blue-400">{{ result?.requisition_number }}</p>
+               <p class="text-lg sm:text-xl font-black text-blue-600 dark:text-blue-400">{{ result?.requisition_number }}</p>
             </div>
             <button 
               @click="resetPage"
-              class="mt-12 w-full py-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-black uppercase tracking-widest text-xs transition-all"
+              class="mt-8 sm:mt-12 w-full py-4 sm:py-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl font-black uppercase tracking-widest text-xs transition-all"
             >
               Make Another Request
             </button>

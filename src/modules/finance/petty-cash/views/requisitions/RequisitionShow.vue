@@ -812,7 +812,6 @@ import { useAuth } from '@/composables/useAuth'
 import { usePettyCashStore } from '../../stores/pettyCashStore'
 import { pettyCashService } from '../../services/pettyCashService'
 import QrcodeVue from 'qrcode.vue'
-import accountsData from '../../../../../data/accounts.json'
 import logoOutline from '@/../public/logo-outline.png'
 
 const route = useRoute()
@@ -850,7 +849,8 @@ const approvalForm = reactive({
 const accountSearch = ref('')
 const showAccountDropdown = ref(false)
 const projects = ref<any[]>([])
-const accounts = ref<any[]>(accountsData.accounts || [])
+const accounts = ref<any[]>([])
+const isLoadingAccounts = ref(false)
 const errors = ref<Record<string, string[]>>({})
 
 // Signature Pads State (Dynamic)
@@ -987,12 +987,35 @@ const downloadVoucher = async () => {
     }
 }
 
+const fetchAccounts = async () => {
+  isLoadingAccounts.value = true
+  try {
+    const response = await pettyCashService.getChartOfAccounts()
+    if (response.success && Array.isArray(response.data)) {
+      accounts.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch Chart of Accounts:', error)
+  } finally {
+    isLoadingAccounts.value = false
+  }
+}
+
 const fetchFormData = async () => {
   try {
-    const response = await pettyCashService.getProjects()
-    if (response.success) {
-      projects.value = response.data
+    const [projectsResp, accountsResp] = await Promise.all([
+      pettyCashService.getProjects(),
+      pettyCashService.getChartOfAccounts()
+    ])
+    
+    if (projectsResp.success) {
+      projects.value = projectsResp.data
     }
+    
+    if (accountsResp.success && Array.isArray(accountsResp.data)) {
+      accounts.value = accountsResp.data
+    }
+    
     await store.fetchCurrentBalance()
   } catch (error) {
     console.error('Failed to fetch form data:', error)
@@ -1073,6 +1096,14 @@ const initiateDisbursement = async () => {
   
   showApproveModal.value = true
   await fetchFormData()
+  
+  // After fetching accounts, try to find and set Petty Cash
+  const pettyCashAccount = accounts.value.find(acc => acc.code === 'PETTY-001')
+  if (pettyCashAccount) {
+    approvalForm.account = pettyCashAccount.name
+    approvalForm.account_id = pettyCashAccount.id
+    accountSearch.value = pettyCashAccount.name
+  }
 }
 
 const submitApprovalWithDisbursement = async () => {

@@ -707,8 +707,38 @@
             </div>
           </div>
 
-
-
+          <!-- Financial Comparison HUD -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+               <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">System Generated Total</div>
+               <div class="text-xl font-black text-slate-900 dark:text-white">{{ formatCurrency(quoteData.totals.grandTotal) }}</div>
+               <div class="text-[10px] text-slate-400 mt-1">Calculated based on current inputs</div>
+            </div>
+            
+            <div class="bg-emerald-50/50 dark:bg-emerald-500/5 p-4 rounded-xl border border-emerald-100 dark:border-emerald-500/20 col-span-2 flex items-center justify-between">
+               <div>
+                  <div class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Official Client Approved Quote</div>
+                  <div class="text-2xl font-black text-emerald-900 dark:text-emerald-200">
+                     {{ formatCurrency(task.enquiry?.client_approved_quote || 0) }}
+                  </div>
+                  <div v-if="!task.enquiry?.client_approved_quote" class="text-[10px] text-orange-600 font-bold mt-1 uppercase tracking-tighter italic">
+                     <i class="mdi mdi-alert mr-1"></i> Awaiting client approval record
+                  </div>
+                  <div v-else class="text-[10px] text-emerald-600 font-bold mt-1 uppercase tracking-tighter">
+                     <i class="mdi mdi-check-decagram mr-1"></i> Basis for mobilization deposit
+                  </div>
+               </div>
+               <div v-if="task.enquiry?.client_approved_quote" class="text-right">
+                  <div class="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest mb-1">Variance</div>
+                  <div :class="[
+                     (task.enquiry.client_approved_quote - quoteData.totals.grandTotal) >= 0 ? 'text-emerald-600' : 'text-red-600',
+                     'text-sm font-bold'
+                  ]">
+                     {{ (task.enquiry.client_approved_quote - quoteData.totals.grandTotal) >= 0 ? '+' : '' }}{{ formatCurrency(task.enquiry.client_approved_quote - quoteData.totals.grandTotal) }}
+                  </div>
+               </div>
+            </div>
+          </div>
           <!-- Discount & VAT Section -->
           <div class="mb-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">

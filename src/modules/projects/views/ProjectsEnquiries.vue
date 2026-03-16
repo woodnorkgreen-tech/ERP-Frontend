@@ -19,6 +19,29 @@
             </nav>
             <h1 class="text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Requests</h1>
             <p class="text-slate-500 font-medium text-base">View and manage all project requests.</p>
+
+            <div class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 mt-6">
+              <button 
+                @click="filters.is_non_profit = false; activeTab = 'all'"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all"
+                :class="!filters.is_non_profit 
+                  ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+              >
+                <i class="mdi mdi-earth text-lg"></i>
+                External Jobs
+              </button>
+              <button 
+                @click="filters.is_non_profit = true; activeTab = 'all'"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all"
+                :class="filters.is_non_profit 
+                  ? 'bg-white dark:bg-slate-900 text-purple-600 shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+              >
+                <i class="mdi mdi-office-building-cog text-lg"></i>
+                Internal & Sponsorships
+              </button>
+            </div>
           </div>
           
           <div class="flex flex-wrap items-center gap-4">
@@ -48,14 +71,15 @@
               @click="openLogisticsLogModal()"
               class="h-10 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm border border-slate-200 transition-all active:scale-95 flex items-center gap-2"
             >
+              <i class="mdi mdi-truck-delivery-outline"></i>
               Logistics
             </button>
-
             <button
               v-if="canLogEnquiry"
               @click="showCreateModal = true"
               class="h-10 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2"
             >
+              <i class="mdi mdi-plus-circle-outline"></i>
               New Enquiry
             </button>
           </div>
@@ -106,21 +130,22 @@
               class="w-full h-10 pl-3 pr-8 bg-white dark:bg-slate-800 border-0 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 appearance-none uppercase tracking-wider cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
               <option value="">Status: All</option>
-              <optgroup v-if="currentView === 'enquiries'" label="New">
-                <option value="client_registered">New Client</option>
+              <optgroup v-if="currentView === 'enquiries'" :label="filters.is_non_profit ? 'Internal Pipeline' : 'New/Planning'">
                 <option value="enquiry_logged">Logged</option>
                 <option value="site_survey_completed">Survey Done</option>
+                <option value="design_completed">Design Done</option>
+                <option value="quote_prepared">Budget/Quote Done</option>
+                <option value="awaiting_deposit">Awaiting Deposit</option>
+                <option v-if="!filters.is_non_profit" value="client_registered">New Client</option>
               </optgroup>
-              <optgroup v-if="currentView === 'enquiries'" label="Planning">
-                <option value="design_completed">Design</option>
-                <option value="budget_created">Budget</option>
-                <option value="quote_prepared">Quote</option>
-              </optgroup>
-              <optgroup v-if="currentView === 'projects'" label="Execution">
+              <optgroup v-if="currentView === 'projects'" :label="filters.is_non_profit ? 'Active Internal' : 'Execution'">
                 <option value="quote_approved">Approved</option>
                 <option value="planning">Planning</option>
                 <option value="in_progress">Active</option>
-                <option value="completed">Done</option>
+              </optgroup>
+              <optgroup v-if="currentView === 'completed'" :label="filters.is_non_profit ? 'Finished Internal' : 'History'">
+                <option value="completed">Finished</option>
+                <option value="cancelled">Aborted</option>
               </optgroup>
               <optgroup v-if="currentView === 'canceled'" label="Cancelled">
                 <option value="cancelled">Cancelled</option>
@@ -144,6 +169,9 @@
 
     <!-- Enquiries Data Engine -->
     <div class="bg-white dark:bg-slate-900 rounded-b-2xl rounded-tr-2xl border-2 border-blue-600 shadow-xl shadow-blue-900/10 overflow-hidden relative z-20">
+      
+
+
       <!-- Toolbar with View Toggle -->
       <div v-if="!loading && !error" class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-end">
         <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex gap-1">
@@ -383,12 +411,17 @@
                   <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">
                     {{ enquiry.enquiry_number }}
                   </span>
-                  <span 
-                    class="text-sm font-black tracking-tight"
-                    :class="enquiry.job_number ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300'"
-                  >
-                    {{ enquiry.job_number || 'NO JOB #' }}
-                  </span>
+                  <div class="flex items-center gap-2">
+                    <div v-if="enquiry.status === 'awaiting_deposit'" class="w-6 h-6 rounded bg-amber-500/20 flex items-center justify-center text-amber-600 border border-amber-500/30" title="Locked: Awaiting Deposit">
+                      <i class="mdi mdi-lock text-sm"></i>
+                    </div>
+                    <span 
+                      class="text-sm font-black tracking-tight"
+                      :class="enquiry.job_number ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300'"
+                    >
+                      {{ enquiry.job_number || 'NO JOB #' }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -762,63 +795,8 @@
              </div>
           </div>
 
-          <!-- Site Survey Engagement Tab -->
-          <div v-if="activeModalTab === 'survey'" class="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="p-8 bg-blue-500/5 rounded-[2.5rem] border border-blue-500/10">
-              <label class="flex items-center gap-4 cursor-pointer group">
-                <div class="relative flex items-center">
-                  <input
-                    v-model="enquiryFormData.site_survey_skipped"
-                    type="checkbox"
-                    class="peer h-6 w-6 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-transparent text-blue-500 focus:ring-blue-500/20 transition-all"
-                  />
-                  <i class="mdi mdi-check absolute left-0 text-white opacity-0 peer-checked:opacity-100 transition-opacity ml-1 pointer-events-none"></i>
-                </div>
-                <span class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest group-hover:text-blue-500 transition-colors">Skip Site Survey</span>
-              </label>
-              
-              <div v-if="enquiryFormData.site_survey_skipped" class="mt-8 space-y-6">
-                 <div class="p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-blue-100 dark:border-blue-800">
-                    <p class="text-sm font-bold text-blue-500 uppercase tracking-[0.3em] mb-4">Site Survey Skip Warning</p>
-                     <ul class="space-y-3">
-                       <li class="flex items-center gap-3 text-sm font-medium text-slate-500">
-                         Confirm dimensions are verified via secondary measures/blueprints.
-                       </li>
-                       <li class="flex items-center gap-3 text-sm font-medium text-slate-500">
-                          Bypassing will advance the project directly to Design.
-                       </li>
-                     </ul>
-                 </div>
-
-                 <div class="space-y-3">
-                  <label class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Rationale for Survey Bypass</label>
-                  <div class="flex flex-wrap gap-2 mb-4">
-                    <button 
-                      v-for="reason in ['Legacy Data Available', 'Client Blueprints Verified', 'Consultation Only', 'Asset Deployment Only']" 
-                      :key="reason"
-                      type="button"
-                      @click="enquiryFormData.site_survey_skip_reason = reason"
-                      class="px-4 py-2 text-sm font-bold rounded-lg border uppercase tracking-widest transition-all"
-                      :class="enquiryFormData.site_survey_skip_reason === reason 
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20' 
-                        : 'bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-blue-500'"
-                    >
-                      {{ reason }}
-                    </button>
-                  </div>
-                  <input
-                    v-model="enquiryFormData.site_survey_skip_reason"
-                    type="text"
-                    placeholder="Document specific rationale for process changes..."
-                    class="w-full h-14 px-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:opacity-50"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Workflow Tasks Tab -->
-          <div v-if="activeModalTab === 'workflow'" class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div v-if="activeModalTab === 'workflow'" class="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-8 rounded-3xl border border-blue-100 dark:border-blue-800">
               <div class="flex items-start gap-4 mb-6">
                 <div class="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shrink-0">
@@ -1197,9 +1175,14 @@
                 <tbody class="divide-y-4 divide-slate-50 dark:divide-slate-950">
                   <tr v-for="entry in sortedLogisticsEntries" :key="entry.id" class="group transition-all hover:bg-blue-600/5 dark:hover:bg-blue-400/5">
                     <td class="px-8 py-10 whitespace-nowrap">
-                      <div class="flex flex-col">
-                        <span class="text-sm font-black text-slate-400 tracking-widest mb-1">{{ entry.id.toString().padStart(6, '0') }}</span>
-                        <span class="text-xs font-bold text-blue-500 uppercase tracking-tighter">{{ new Date(entry.created_at).toLocaleDateString([], {day: '2-digit', month: 'short', year: 'numeric'}) }}</span>
+                      <div class="flex items-center gap-3">
+                        <div v-if="getProjectStatus(entry.project_id) === 'awaiting_deposit'" class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-600 border border-amber-500/30 shadow-sm" title="Locked: Awaiting Deposit">
+                          <i class="mdi mdi-lock text-lg"></i>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-sm font-black text-slate-400 tracking-widest mb-1">{{ entry.id.toString().padStart(6, '0') }}</span>
+                          <span class="text-xs font-bold text-blue-500 uppercase tracking-tighter">{{ new Date(entry.created_at).toLocaleDateString([], {day: '2-digit', month: 'short', year: 'numeric'}) }}</span>
+                        </div>
                       </div>
                     </td>
                     <td class="px-8 py-10">
@@ -1323,6 +1306,8 @@
       @edit="handleEditFromSlideOver"
     />
 
+
+
     <!-- Teleported Floating Action Menu -->
     <Teleport to="body">
       <div v-if="activeMenuEnquiry" class="fixed inset-0 z-[9999] bg-transparent" @click="activeMenuEnquiry = null"></div>
@@ -1374,6 +1359,10 @@
             </div>
             <span>Delete Record</span>
           </button>
+
+          <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+
+
         </div>
       </Transition>
     </Teleport>
@@ -1409,7 +1398,7 @@ const emit = defineEmits<{
 const { enquiries, pagination, loading, error, fetchEnquiries, goToPage, createEnquiry, updateEnquiry, deleteEnquiry, newEnquiries, inProgressEnquiries } = useProjectsEnquiries()
 const { activeClients, fetchClients } = useClients()
 const { user } = useAuth()
-const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries', needs_attention: false })
+const filters = ref({ search: '', status: '', sub_status: 'all', client_name: '', sort_by: 'created_at', sort_order: 'desc', assigned_to_me: false, view: 'enquiries', needs_attention: false, is_non_profit: false })
 
 const hasPrivilegedAccess = computed(() => {
   return user.value?.roles?.some(role => ['Super Admin', 'Project Manager', 'Project Officer', 'Client Service'].includes(role))
@@ -1441,6 +1430,14 @@ const activeTab = computed({
 const showCreateModal = ref(false)
 const editingEnquiry = ref<ProjectEnquiry | null>(null) // Tracks enquiry being edited
 const titleInputRef = ref<HTMLInputElement | null>(null)
+
+
+
+const isAccountant = computed(() => {
+  return user.value?.roles?.some(role => ['Super Admin', 'Accountant', 'Finance', 'Finance Officer'].includes(role))
+})
+
+
 
 const filteredEnquiries = computed(() => {
   if (!enquiries.value) return []
@@ -1646,12 +1643,11 @@ const loadingDrivers = ref(false)
 
 
 // Modal Tabs
-const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'survey' | 'workflow'>('basic')
-const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'survey' | 'workflow', label: string }> = [
+const activeModalTab = ref<'basic' | 'contact' | 'assignment' | 'workflow'>('basic')
+const modalTabs: Array<{ key: 'basic' | 'contact' | 'assignment' | 'workflow', label: string }> = [
   { key: 'basic', label: 'Basic Information' },
   { key: 'contact', label: 'Contact & Priority' },
   { key: 'assignment', label: 'Assignment & Venue' },
-  { key: 'survey', label: 'Site Survey' },
   { key: 'workflow', label: 'Workflow Tasks' }
 ]
 
@@ -1686,8 +1682,6 @@ const enquiryFormData = ref<CreateProjectEnquiryData>({
   project_officer_id: null as number | null,
   follow_up_notes: '',
   venue: '',
-  site_survey_skipped: false,
-  site_survey_skip_reason: '',
   selected_workflow_tasks: [] as string[],
   workflow_preset_type: '' as string
 })
@@ -1761,12 +1755,11 @@ const taskPresets = {
     title_overrides: {}
   },
   internal_job: {
-    label: 'Internal Maintenance Job',
+    label: 'Internal Job',
     description: 'Company facility repairs and office maintenance',
-    tasks: ['site-survey', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'setup', 'handover', 'report'],
+    tasks: ['design', 'materials', 'budget', 'quote', 'quote_approval', 'procurement', 'teams', 'handover', 'report'],
     title_overrides: {
-      quote_approval: 'Maintenance Approval',
-      setup: 'Repair Works'
+      quote_approval: 'Job Approval',
     }
   },
   sponsorship: {
@@ -1921,8 +1914,6 @@ const editEnquiry = (enquiry: ProjectEnquiry) => {
     project_officer_id: enquiry.project_officer_id || null,
     follow_up_notes: enquiry.follow_up_notes || '',
     venue: enquiry.venue || '',
-    site_survey_skipped: enquiry.site_survey_skipped ?? false,
-    site_survey_skip_reason: enquiry.site_survey_skip_reason || '',
     selected_workflow_tasks: enquiry.selected_workflow_tasks || [],
     workflow_preset_type: enquiry.workflow_preset_type || ''
   }
@@ -2231,6 +2222,12 @@ const getProjectName = (projectId: number) => {
   return project?.title || 'Unknown Project'
 }
 
+const getProjectStatus = (projectId: number) => {
+  const project = allApprovedProjects.value.find(e => e.id === projectId) || 
+                  enquiries.value.find(e => e.id === projectId)
+  return project?.status || 'unknown'
+}
+
 
 
 const handleTaskAssigned = (updatedTask: EnquiryTask) => {
@@ -2273,8 +2270,6 @@ const closeModal = () => {
     project_officer_id: null,
     follow_up_notes: '',
     venue: '',
-    site_survey_skipped: false,
-    site_survey_skip_reason: '',
     selected_workflow_tasks: [],
     workflow_preset_type: ''
   }

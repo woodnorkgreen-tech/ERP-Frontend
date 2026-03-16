@@ -1,641 +1,342 @@
 <template>
-  <div class="production-task bg-white dark:bg-slate-950 rounded-[2.5rem] shadow-sm p-4 sm:p-10 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-sans leading-normal tracking-normal antialiased">
-    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ task.title }}</h3>
+  <div class="production-task bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 sm:p-6 text-slate-800 dark:text-slate-200">
 
-    <!-- Precise Minimalist Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 border-b border-gray-100 dark:border-gray-700 pb-8">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-          <i class="mdi mdi-factory text-2xl"></i>
-        </div>
-        <div>
-          <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ task.title }}</h2>
-          <div class="flex items-center gap-3 mt-1">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ projectInfo.projectId }}</span>
-            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ projectInfo.clientName }}</span>
-            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-            <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{{ formatDate(projectInfo.setupDate) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <div class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full border border-emerald-100 dark:border-emerald-800/30">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Production Live</span>
-        </div>
-      </div>
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-16 text-slate-500">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+      <span class="text-sm">Loading production data...</span>
     </div>
 
-    <!-- Simplified Tabs Navigation -->
-    <div class="flex items-center gap-1 mb-6 px-1 border-b border-gray-100 dark:border-gray-700">
-      <button
-        v-for="tab in [
-          { id: 'production-management', label: 'Build Items', icon: 'mdi-factory' },
-          { id: 'quality', label: 'QA Checks', icon: 'mdi-shield-check' },
-          { id: 'design', label: 'Design Art', icon: 'mdi-palette-swatch' },
-          { id: 'issues', label: 'Issues', icon: 'mdi-alert-octagon', count: getTabBadgeCount('issues') }
-        ]"
-        :key="tab.id"
-        @click="activeTab = tab.id"
-        class="flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative group"
-        :class="activeTab === tab.id 
-          ? 'text-blue-600' 
-          : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
-      >
-        <i :class="['mdi', tab.icon, 'text-lg', activeTab === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500']"></i>
-        <span>{{ tab.label }}</span>
-        <span v-if="tab.count" class="ml-1.5 px-1.5 py-0.5 bg-rose-500 text-white text-[9px] rounded-full">{{ tab.count }}</span>
-        
-        <!-- Underline Accent -->
-        <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-      </button>
-    </div>
-
-    <!-- Tab Content Container -->
-    <div class="tab-content relative">
-      <!-- Production Management Tab -->
-      <div
-        v-show="activeTab === 'production-management'"
-        class="tab-panel animate-fade-in"
-      >
-
-
-        <div v-if="productionData.productionElements.length > 0" class="space-y-6">
-           <template v-for="category in categoriesWithElements" :key="category.id">
-             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                <!-- Precise Category Header -->
-                <div 
-                   class="px-5 py-3 cursor-pointer flex justify-between items-center transition-all bg-slate-50/50 dark:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-900/40"
-                   @click="toggleCategoryCollapse(category.id)"
-                >
-                    <div class="flex items-center gap-4">
-                       <div>
-                          <h3 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">{{ category.displayName }}</h3>
-                          <div class="flex items-center gap-2 mt-1">
-                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ getElementsByCategory(category.id).length }} Items</span>
-                             <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ getCategoryTotalQuantity(category.id) }} Units</span>
-                          </div>
-                       </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                       <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                          <i 
-                             class="mdi mdi-chevron-down text-lg text-slate-400 transition-transform duration-300"
-                             :class="{ 'rotate-180': !isCategoryCollapsed(category.id) }"
-                          ></i>
-                       </div>
-                    </div>
-                </div>
-
-                 <!-- Precise Production Table -->
-                 <div v-if="isCategoryExpanded(category.id)" class="border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
-                       <tbody class="bg-white dark:bg-slate-800">
-                          <tr v-for="element in getElementsByCategory(category.id)" :key="element.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
-                             <td class="px-5 py-3">
-                                <div class="flex items-center justify-between gap-4">
-                                   <div class="flex flex-col min-w-0">
-                                      <span class="text-xs font-bold text-slate-700 dark:text-white">{{ element.name || element.description }}</span>
-                                      <span class="text-[9px] font-medium text-slate-400 uppercase tracking-tighter mt-0.5">Specifications Pending Verification</span>
-                                   </div>
-                                   <div class="flex items-center gap-2">
-                                      <span class="text-[9px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded border border-blue-100 dark:border-blue-800/50 uppercase tracking-tighter">
-                                         {{ element.quantity }} {{ element.unitOfMeasurement || element.unit }}
-                                      </span>
-                                   </div>
-                                </div>
-                             </td>
-                          </tr>
-                       </tbody>
-                    </table>
-                 </div>
-              </div>
-           </template>
-        </div><div v-else class="flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-            <!-- Premium Empty State -->
-            <div class="w-24 h-24 rounded-3xl bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-8 relative rotate-3 hover:rotate-0 transition-transform duration-500">
-               <i class="mdi mdi-factory text-5xl text-blue-500"></i>
-               <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800">
-                  <i class="mdi mdi-plus text-xl"></i>
-               </div>
+    <template v-else>
+      <!-- Task Header -->
+      <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white">{{ task.title }}</h3>
+            <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
+              <span v-if="productionData.productionData.workOrderNumber">
+                WO: {{ productionData.productionData.workOrderNumber }}
+              </span>
+              <span
+                class="px-2 py-0.5 rounded text-xs font-medium"
+                :class="productionData.productionData.executionHealth.status === 'at_risk'
+                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'"
+              >
+                {{ productionData.productionData.executionHealth.status.replace('_', ' ') }}
+              </span>
             </div>
-
-            <div class="text-center max-w-lg px-8">
-               <h3 class="text-3xl font-black text-slate-800 dark:text-white mb-4">Start Building Items</h3>
-               <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed text-lg">
-                  Load your list of materials from the <strong>Materials Task</strong> to start tracking what needs to be built and checked.
-               </p>
-
-               <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button
-                    @click="retryMaterialsImport"
-                    class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
-                  >
-                    <i class="mdi mdi-import text-lg"></i>
-                    Sync Materials
-                  </button>
-                  <button
-                    class="px-10 py-5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
-                  >
-                    <i class="mdi mdi-help-circle-outline text-lg"></i>
-                    Learn More
-                  </button>
-               </div>
-
-               <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-8 text-left">
-                  <div class="flex gap-3">
-                     <i class="mdi mdi-shield-check text-blue-500"></i>
-                      <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Automatic check points</p>
-                  </div>
-                  <div class="flex gap-3">
-                     <i class="mdi mdi-truck-fast text-emerald-500"></i>
-                     <p class="text-[10px] font-bold text-slate-400 uppercase leading-snug">Real-time Procurement Sync</p>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-
-
-      <div
-        v-show="activeTab === 'quality'"
-        class="quality-control-section tab-panel"
-        :id="`tab-panel-quality`"
-        role="tabpanel"
-        :aria-labelledby="`tab-quality`"
-        :class="{ 'animate-fade-in': activeTab === 'quality' }"
-      >
-         <!-- Quality Control Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm gap-4">
-          <div class="flex items-center gap-4">
-             <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                <i class="mdi mdi-check-decagram text-3xl"></i>
-             </div>
-             <div>
-                 <h4 class="text-xl font-black text-slate-900 dark:text-white leading-tight">Quality Check</h4>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
-                  <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Check items match quality standards
-                </p>
-             </div>
           </div>
 
-          <div class="flex items-center gap-3 w-full md:w-auto">
-            <button
-              v-if="!isReadOnly"
-              @click="generateQualityCheckpoints"
-              class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-sm transition-all"
-            >
-              <i class="mdi mdi-refresh"></i>
-              Regenerate
-            </button>
-            <button
-              @click="exportQualityReport"
-              class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all"
-            >
-              <i class="mdi mdi-file-export-outline"></i>
-              QA Report
-            </button>
-          </div>
-        </div>
-
-        <!-- Quality Control Summary -->
-        <div v-if="productionData.qualityControl.length > 0" class="mb-10">
-          <div class="flex flex-col md:flex-row gap-6">
-            <!-- Overall Progress Bar Detailed -->
-            <div class="flex-1 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
-               <div class="relative z-10">
-                  <div class="flex justify-between items-center mb-4">
-                    <div>
-                       <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider block">Quality Progress</span>
-                       <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Standard Certification</span>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ qualityProgressPercentage }}%</span>
-                    </div>
-                  </div>
-                  <div class="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-2 overflow-hidden shadow-inner border border-slate-200/50 dark:border-slate-700/50">
-                    <div
-                      class="h-full rounded-full transition-all duration-1000 ease-out bg-emerald-500"
-                      :style="{ width: qualityProgressPercentage + '%' }"
-                    ></div>
-                  </div>
-                  <div class="flex justify-between mt-3 px-1">
-                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Start</span>
-                     <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-tighter">Certified</span>
-                  </div>
-               </div>
+          <!-- Progress Summary -->
+          <div class="flex items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+            <div class="text-center">
+              <div class="font-semibold text-slate-800 dark:text-slate-100">{{ productionData.productionData.executionHealth.progress }}%</div>
+              <div class="text-xs">Progress</div>
             </div>
-
-            <!-- Mini Stats Row -->
-            <div class="grid grid-cols-2 gap-4 md:w-1/3">
-              <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all hover:border-blue-500/30">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Checkpoints</span>
-                <span class="text-xl font-black text-slate-800 dark:text-white">{{ productionData.qualityControl.length }}</span>
+            <div class="text-center">
+              <div class="font-semibold text-slate-800 dark:text-slate-100">{{ productionData.productionData.executionHealth.qcPassRate }}%</div>
+              <div class="text-xs">QC Pass</div>
+            </div>
+            <div class="text-center">
+              <div class="font-semibold" :class="productionData.productionData.executionHealth.openNcrs > 0 ? 'text-red-600' : 'text-slate-800 dark:text-slate-100'">
+                {{ productionData.productionData.executionHealth.openNcrs }}
               </div>
-              <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 transition-all hover:border-emerald-500/30">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Passed</span>
-                <span class="text-xl font-black text-emerald-600">{{ getQualityStatusCount('passed') }}</span>
-              </div>
+              <div class="text-xs">Open NCRs</div>
             </div>
           </div>
         </div>
 
-         <!-- Precise Quality Checkpoints -->
-        <div v-if="productionData.qualityControl.length > 0" class="space-y-4">
+        <!-- Progress Bar -->
+        <div class="mt-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
           <div
-            v-for="checkpoint in productionData.qualityControl"
-            :key="checkpoint.id"
-            class="group bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition-all overflow-hidden"
-            :class="{ 'ring-1 ring-blue-500/50 border-blue-200 dark:border-blue-800 shadow-lg': isCheckpointDetailsExpanded(checkpoint.id) }"
+            class="h-full bg-blue-500 rounded-full transition-all duration-500"
+            :style="{ width: productionData.productionData.executionHealth.progress + '%' }"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex flex-wrap gap-1 mb-6 border-b border-slate-200 dark:border-slate-700">
+        <button
+          v-for="tab in [
+            { id: 'production-management', label: 'Build Items' },
+            { id: 'quality', label: 'QA Checks' },
+            { id: 'evidence', label: 'Evidence', count: getTabBadgeCount('evidence') },
+            { id: 'logs', label: 'Work Logs', count: getTabBadgeCount('logs') },
+            { id: 'design', label: 'Design Files' },
+            { id: 'issues', label: 'Issues', count: getTabBadgeCount('issues') }
+          ]"
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          class="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors"
+          :class="activeTab === tab.id
+            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+        >
+          {{ tab.label }}
+          <span v-if="tab.count" class="px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full leading-none">{{ tab.count }}</span>
+        </button>
+      </div>
+
+      <!-- Evidence Tab -->
+      <div v-if="activeTab === 'evidence'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">
+            Evidence Gallery
+            <span class="ml-2 text-sm text-slate-400">({{ productionData.evidenceGallery.length }} items)</span>
+          </h4>
+        </div>
+
+        <div v-if="productionData.evidenceGallery.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div
+            v-for="asset in productionData.evidenceGallery"
+            :key="asset.id"
+            class="bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
           >
-            <!-- Checkpoint Row -->
-            <div class="px-5 py-3 flex items-center justify-between gap-4">
-               <div class="flex items-center gap-4 flex-1 min-w-0">
-                  <div
-                    class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0"
-                    :class="[
-                      checkpoint.status === 'passed' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' :
-                      checkpoint.status === 'failed' ? 'bg-red-50 text-red-600 dark:bg-red-900/20' :
-                      checkpoint.status === 'in_progress' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' :
-                      'bg-slate-50 text-slate-400 dark:bg-slate-900/20'
-                    ]"
-                  >
-                    <i :class="getQualityStatusIconMdi(checkpoint.status)"></i>
-                  </div>
-
-                  <div class="flex-1 min-w-0">
-                     <div class="flex items-center gap-2">
-                        <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider truncate">{{ checkpoint.categoryName }}</h4>
-                        <span v-if="checkpoint.priority === 'high'" class="text-[8px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded uppercase">Critical</span>
-                     </div>
-                     <div class="flex items-center gap-3 mt-1">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1">
-                           <i class="mdi mdi-layers-outline"></i> {{ checkpoint.elementCount }} Items
-                        </span>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-1">
-                           <i class="mdi mdi-check-all"></i> {{ checkpoint.checklist?.filter(i => i.checked).length || 0 }}/{{ checkpoint.checklist?.length || 0 }} Steps
-                        </span>
-                     </div>
-                  </div>
-               </div>
-
-               <div class="flex items-center gap-2">
-                  <button
-                    v-if="!isReadOnly && checkpoint.status !== 'passed'"
-                    @click="fastPassCheckpoint(checkpoint.id)"
-                    class="h-8 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-                  >
-                    Auto Pass
-                  </button>
-                  <button
-                    @click="toggleCheckpointDetails(checkpoint.id)"
-                    class="h-8 w-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-blue-500 transition-all"
-                    :class="{ 'bg-blue-600 text-white': isCheckpointDetailsExpanded(checkpoint.id) }"
-                  >
-                    <i class="mdi" :class="isCheckpointDetailsExpanded(checkpoint.id) ? 'mdi-chevron-up' : 'mdi-cog-outline'"></i>
-                  </button>
-               </div>
+            <div class="aspect-square bg-slate-100 dark:bg-slate-700 overflow-hidden">
+              <img :src="asset.url" class="w-full h-full object-cover" />
             </div>
+            <div class="p-3">
+              <p class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{{ asset.taskTitle }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">{{ formatDate(asset.uploadedAt) }}</p>
+            </div>
+          </div>
+        </div>
 
-            <!-- Detailed Panel -->
-            <div v-if="isCheckpointDetailsExpanded(checkpoint.id)" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700 pt-5 bg-slate-50/30 dark:bg-slate-900/10">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Checklist -->
+        <div v-else class="py-12 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-camera-off text-3xl mb-2 block"></i>
+          <p class="text-sm">No evidence uploaded yet</p>
+          <p class="text-xs mt-1">Workshop teams will upload photos directly from the production floor</p>
+        </div>
+      </div>
+
+      <!-- Build Items Tab -->
+      <div v-show="activeTab === 'production-management'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">Production Elements</h4>
+          <button
+            v-if="!isReadOnly"
+            @click="retryMaterialsImport"
+            :disabled="isImportingMaterials"
+            class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <div v-if="isImportingMaterials" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+            <i v-else class="mdi mdi-import text-sm"></i>
+            {{ isImportingMaterials ? 'Importing...' : 'Sync from Materials' }}
+          </button>
+        </div>
+
+        <div v-if="materialsImportError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+          {{ materialsImportError }}
+        </div>
+
+        <div v-if="productionData.productionElements.length > 0" class="space-y-3">
+          <template v-for="category in categoriesWithElements" :key="category.id">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+              <div
+                class="px-4 py-3 bg-slate-50 dark:bg-slate-800 flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                @click="toggleCategoryCollapse(category.id)"
+              >
                 <div>
-                   <h5 class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Verification Checklist</h5>
-                   <div class="space-y-1.5 max-h-[200px] overflow-y-auto pr-2">
-                      <div
-                        v-for="item in checkpoint.checklist"
-                        :key="item.id"
-                        class="flex items-center gap-2.5 p-2 rounded-lg border transition-all cursor-pointer text-[10px]"
-                        :class="item.checked ? 'bg-emerald-50/50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-800' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'"
-                        @click="item.checked = !item.checked; updateChecklistItem(checkpoint.id, item.id, item.checked)"
-                      >
-                         <i :class="[item.checked ? 'mdi-check-circle text-emerald-500' : 'mdi-circle-outline text-slate-300', 'mdi text-base']"></i>
-                         <span :class="item.checked ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-70' : 'text-slate-700 dark:text-slate-300 font-bold'">
-                           {{ item.label }}
-                         </span>
-                      </div>
-                   </div>
+                  <span class="font-medium text-sm text-slate-800 dark:text-white">{{ category.displayName }}</span>
+                  <span class="ml-2 text-xs text-slate-400">{{ getElementsByCategory(category.id).length }} items</span>
                 </div>
-
-                <!-- Controls -->
-                <div class="space-y-4">
-                   <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                      <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Final Verdict</span>
-                      <div class="grid grid-cols-4 gap-1.5">
-                        <button
-                          v-for="status in (['pending', 'in_progress', 'passed', 'failed'] as const)"
-                          :key="status"
-                          @click="updateQualityStatus(checkpoint.id, status as any)"
-                          class="py-2 rounded-lg border transition-all text-[8px] font-black uppercase"
-                          :class="[
-                            checkpoint.status === status ?
-                            (status === 'passed' ? 'bg-emerald-500 border-emerald-500 text-white' :
-                             status === 'failed' ? 'bg-red-500 border-red-500 text-white' :
-                             status === 'in_progress' ? 'bg-blue-500 border-blue-500 text-white' :
-                             'bg-slate-500 border-slate-500 text-white') :
-                            'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-700 text-slate-400'
-                          ]"
-                        >
-                          {{ status.replace('_', ' ') }}
-                        </button>
-                      </div>
-                   </div>
-
-                   <div class="grid grid-cols-2 gap-4">
-                      <div class="col-span-2">
-                         <textarea
-                           v-model="checkpoint.notes"
-                           @change="updateCheckpointNotes(checkpoint.id, checkpoint.notes)"
-                           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-[10px] font-medium outline-none h-20"
-                           placeholder="Add technical notes..."
-                         ></textarea>
-                      </div>
-                      <div class="flex flex-col gap-1">
-                         <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Inspector</span>
-                         <input type="text" v-model="checkpoint.checkedBy" @change="updateInspector(checkpoint.id, checkpoint.checkedBy)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-[10px] font-bold outline-none" />
-                      </div>
-                      <div class="flex flex-col gap-1 text-right mt-auto">
-                         <button @click="retryQualityCheck(checkpoint.id)" class="text-[8px] font-black text-slate-400 uppercase hover:text-red-500">Reset Check</button>
-                      </div>
-                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div><div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-           <!-- No Quality Control State -->
-          <div class="w-24 h-24 rounded-full bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center mb-6 relative">
-             <i class="mdi mdi-shield-search text-5xl text-slate-300 dark:text-slate-600"></i>
-             <div class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg animate-bounce">
-                <i class="mdi mdi-plus text-xl"></i>
-             </div>
-          </div>
-
-          <div class="text-center max-w-md px-6">
-             <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">Start Quality Check</h3>
-            <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-               Quality check points are created to make sure items are built correctly.
-            </p>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10 text-left">
-               <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                  <i class="mdi mdi-numeric-1-box text-blue-500 text-xl"></i>
-                  <div>
-                     <p class="text-[10px] font-black uppercase text-slate-400">Step 1</p>
-                     <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Map All Categories</p>
-                  </div>
-               </div>
-               <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                  <i class="mdi mdi-numeric-2-box text-emerald-500 text-xl"></i>
-                  <div>
-                     <p class="text-[10px] font-black uppercase text-slate-400">Step 2</p>
-                     <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Start Verification</p>
-                  </div>
-               </div>
-            </div>
-
-            <button
-              @click="generateQualityCheckpoints"
-              class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
-            >
-              <i class="mdi mdi-lightning-bolt text-lg"></i>
-              Generate Checkpoints
-            </button>
-            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">Recommended for this project</p>
-          </div>
-        </div>
-
-
-
-      <!-- Issues Tab -->
-      <div
-        v-show="activeTab === 'issues'"
-        class="issues-section tab-panel"
-        :id="`tab-panel-issues`"
-        role="tabpanel"
-        :aria-labelledby="`tab-issues`"
-        :class="{ 'animate-fade-in': activeTab === 'issues' }"
-      >
-        <!-- Precise Issues Header -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6 border-b border-gray-100 dark:border-gray-800 pb-6">
-          <div class="flex items-center gap-4">
-             <div class="w-12 h-12 rounded-xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
-                <i class="mdi mdi-alert-octagram text-2xl"></i>
-             </div>
-             <div>
-                 <h3 class="text-sm font-black text-slate-900 dark:text-white tracking-widest uppercase">Production Issues</h3>
-                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Incident logs and blockers</p>
-             </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-             <div class="relative flex-1 sm:flex-none">
-                <select
-                  v-model="selectedIssueCategory"
-                  class="appearance-none pl-9 pr-8 py-2.5 text-[10px] font-black uppercase tracking-widest border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all min-w-[180px] cursor-pointer outline-none"
-                >
-                  <option value="">All Categories</option>
-                  <option v-for="cat in issueCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
-                </select>
-                <i class="mdi mdi-filter-variant absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-             </div>
-
-             <button
-               v-if="!isReadOnly"
-               @click="showAddIssueModal = true"
-               class="px-5 py-2.5 bg-slate-900 dark:bg-slate-700 hover:bg-rose-600 text-white rounded-xl transition-all flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-md active:scale-95"
-             >
-               <i class="mdi mdi-plus-circle-outline"></i>
-               <span>New Record</span>
-             </button>
-          </div>
-        </div>
-
-        <!-- Precise Issues Summary -->
-        <div v-if="productionData.issues.length > 0" class="flex flex-wrap gap-4 mb-8">
-            <div
-               v-for="stat in [
-                 { label: 'Total Logs', value: productionData.issues.length, color: 'slate' },
-                 { label: 'Unfixed', value: getIssueStatusCount('open'), color: 'rose' },
-                 { label: 'Being Fixed', value: getIssueStatusCount('in_progress'), color: 'amber' },
-                 { label: 'Resolved', value: getIssueStatusCount('resolved'), color: 'emerald' }
-               ]"
-               :key="stat.color"
-               class="px-5 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center gap-4"
-            >
-               <div class="flex flex-col">
-                  <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ stat.label }}</span>
-                  <p class="text-xl font-black transition-colors" :class="`text-${stat.color}-600 dark:text-${stat.color}-400`">{{ stat.value }}</p>
-               </div>
-            </div>
-        </div>
-
-        <!-- Modernized Issues List -->
-        <div v-if="filteredIssues.length > 0" class="grid grid-cols-1 gap-6">
-          <template
-            v-for="issue in filteredIssues"
-            :key="issue.id"
-          >
-            <div
-              class="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden"
-              :class="{ 'opacity-75 grayscale-[0.5]': issue.status === 'resolved' }"
-            >
-              <!-- Premium List Item Body -->
-              <div class="px-8 py-6">
-                 <div class="flex flex-col xl:flex-row gap-6">
-                    <!-- Issue Info -->
-                    <div class="flex-1">
-                       <div class="flex items-center gap-3 mb-3">
-                          <span
-                             class="text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border"
-                             :class="getPriorityClass(issue.priority)"
-                          >
-                             <i class="mdi mr-1" :class="getPriorityIconMdi(issue.priority)"></i>
-                             {{ issue.priority }}
-                          </span>
-                          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ issue.category }}</span>
-                          <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ formatDate(issue.reportedDate) }}</span>
-                       </div>
-                       <h4 class="text-xl font-black text-slate-900 dark:text-white mb-2 group-hover:text-rose-600 transition-colors">{{ issue.title }}</h4>
-                       <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl">{{ issue.description }}</p>
-
-                       <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
-                          <div class="flex items-center gap-2">
-                             <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black text-slate-500">
-                                {{ issue.reportedBy.substring(0,1).toUpperCase() }}
-                             </div>
-                             <span class="text-[10px] font-black text-slate-400 uppercase">Reported By: {{ issue.reportedBy }}</span>
-                          </div>
-                          <div v-if="issue.resolvedDate" class="flex items-center gap-2">
-                             <i class="mdi mdi-check-circle text-emerald-500"></i>
-                             <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Resolved: {{ formatDate(issue.resolvedDate) }}</span>
-                          </div>
-                       </div>
-                    </div>
-
-                    <!-- Status Control Panel -->
-                    <div class="flex flex-col sm:flex-row xl:flex-col gap-3 justify-center xl:min-w-[200px]">
-                       <div class="relative group/select">
-                          <select
-                            v-model="issue.status"
-                            @change="updateIssueStatus(issue.id, issue.status)"
-                            class="w-full appearance-none px-5 py-3.5 text-[10px] font-black uppercase tracking-widest border-2 rounded-2xl bg-white dark:bg-slate-900 transition-all cursor-pointer shadow-sm hover:shadow-md outline-none"
-                            :class="getIssueStatusSelectClass(issue.status)"
-                          >
-                            <option value="open">⚠️ Open Ticket</option>
-                            <option value="in_progress">⚙️ In Progress</option>
-                            <option value="resolved">✅ Resolved</option>
-                          </select>
-                          <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                       </div>
-
-                       <div class="flex gap-2">
-                          <button
-                            @click="showEscalationModal(issue)"
-                            class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700/50 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-400 hover:text-rose-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center gap-2"
-                            title="Escalate Issue"
-                          >
-                            <i class="mdi mdi-arrow-up-bold-circle-outline text-lg"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Escalate</span>
-                          </button>
-                          <button
-                            @click="deleteIssue(issue.id)"
-                            class="w-12 h-12 bg-white dark:bg-slate-800 hover:bg-red-500 hover:text-white text-slate-300 border border-slate-100 dark:border-slate-700 rounded-xl transition-all flex items-center justify-center shadow-sm"
-                            title="Archive Log"
-                          >
-                            <i class="mdi mdi-delete-outline text-xl"></i>
-                          </button>
-                       </div>
-                    </div>
-                 </div>
+                <i class="mdi mdi-chevron-down text-slate-400 transition-transform" :class="{ 'rotate-180': !isCategoryCollapsed(category.id) }"></i>
               </div>
 
-              <!-- Optional Expansion (if has nested comments/logs) -->
-              <div v-if="isIssueDetailsExpanded(issue.id)" class="px-8 pb-8 animate-slide-down">
-                 <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
-                     <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Fix History</h5>
-                    <div class="space-y-4">
-                       <p class="text-sm font-medium italic text-slate-500">No logs reported yet...</p>
-                    </div>
-                  </div>
-                </div>
+              <div v-if="isCategoryExpanded(category.id)" class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="text-xs text-slate-500 bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                      <th class="px-4 py-2 text-left font-medium">Item</th>
+                      <th class="px-4 py-2 text-right font-medium">Qty</th>
+                      <th class="px-4 py-2 text-left font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                    <tr v-for="element in getElementsByCategory(category.id)" :key="element.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <td class="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">{{ element.name || element.description }}</td>
+                      <td class="px-4 py-3 text-right text-slate-600 dark:text-slate-400">{{ element.quantity }} {{ element.unitOfMeasurement || element.unit }}</td>
+                      <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 rounded text-xs font-medium"
+                          :class="element.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                  element.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-slate-100 text-slate-600'">
+                          {{ element.status || 'Pending' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </template>
-        </div><div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-           <!-- Premium Empty State for Issues -->
+        </div>
 
-           <div class="text-center max-w-md px-6">
-              <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-3">
-                 {{ selectedIssueCategory ? 'No Category Match' : 'Line Operating Smoothly' }}
-              </h3>
-              <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                 {{ selectedIssueCategory
-                   ? `Success! No ${selectedIssueCategory} bottlenecks detected in current filtration.`
-                   : 'Outstanding! No production issues are currently blocking your fabrication pipeline.'
-                 }}
-              </p>
+        <div v-else class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-factory text-4xl text-slate-300 mb-3 block"></i>
+          <p class="font-medium text-slate-600 dark:text-slate-400">No production items loaded</p>
+          <p class="text-sm text-slate-400 mt-1 mb-4">Sync from the Materials Task to populate this list.</p>
+          <button @click="retryMaterialsImport" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Sync Materials</button>
+        </div>
+      </div>
 
-              <button
-                @click="showAddIssueModal = true"
-                class="px-8 py-3.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center gap-3 mx-auto"
-              >
-                <i class="mdi mdi-plus-circle-outline"></i>
-                Log New Issue
-              </button>
-           </div>
+      <!-- Quality Checks Tab -->
+      <div v-show="activeTab === 'quality'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">Quality Control</h4>
+          <div class="flex gap-2">
+            <button v-if="!isReadOnly" @click="generateQualityCheckpoints" class="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 transition-colors">
+              <i class="mdi mdi-refresh text-sm"></i> Regenerate
+            </button>
+            <button @click="exportQualityReport" class="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors">
+              <i class="mdi mdi-file-export-outline text-sm"></i> Export
+            </button>
+          </div>
+        </div>
+
+        <div v-if="productionData.qualityControl.midStream.length > 0 || productionData.qualityControl.final.length > 0" class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm">
+          <div class="flex-1">
+            <div class="flex justify-between mb-1">
+              <span class="text-slate-500">Overall Progress</span>
+              <span class="font-medium">{{ qualityProgressPercentage }}%</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+              <div class="h-full bg-green-500 rounded-full" :style="{ width: qualityProgressPercentage + '%' }"></div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-green-600">{{ getQualityStatusCount('passed') }}</div>
+            <div class="text-xs text-slate-400">Passed</div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-red-600">{{ getQualityStatusCount('failed') }}</div>
+            <div class="text-xs text-slate-400">Failed</div>
+          </div>
+        </div>
+
+        <div v-if="productionData.qualityControl.midStream.length > 0">
+          <h5 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Mid-Stream Checks</h5>
+          <div class="space-y-2">
+            <div v-for="checkpoint in productionData.qualityControl.midStream" :key="checkpoint.id" class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800">
+              <div class="flex items-center gap-3">
+                <i class="mdi text-lg" :class="checkpoint.status === 'passed' ? 'mdi-check-circle text-green-500' : checkpoint.status === 'failed' ? 'mdi-close-circle text-red-500' : 'mdi-clock-outline text-slate-400'"></i>
+                <div>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ checkpoint.title || checkpoint.categoryName }}</p>
+                  <p class="text-xs text-slate-400">{{ checkpoint.checkedBy }} · {{ formatDate(checkpoint.checkedAt) }}</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-xs font-medium" :class="checkpoint.status === 'passed' ? 'bg-green-100 text-green-700' : checkpoint.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'">{{ checkpoint.status }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="productionData.qualityControl.final.length > 0">
+          <h5 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Final QC</h5>
+          <div class="space-y-2">
+            <div v-for="checkpoint in productionData.qualityControl.final" :key="checkpoint.id" class="flex items-center justify-between p-3 border border-blue-200 dark:border-blue-800/50 rounded-lg bg-blue-50/30 dark:bg-blue-900/10">
+              <div class="flex items-center gap-3">
+                <i class="mdi text-lg" :class="checkpoint.status === 'passed' ? 'mdi-check-circle text-green-500' : checkpoint.status === 'failed' ? 'mdi-close-circle text-red-500' : 'mdi-certificate-outline text-blue-400'"></i>
+                <div>
+                  <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ checkpoint.title }}</p>
+                  <p class="text-xs text-slate-400">Final gate</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded text-xs font-medium" :class="checkpoint.status === 'passed' ? 'bg-green-100 text-green-700' : checkpoint.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'">{{ checkpoint.status }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="productionData.qualityControl.midStream.length === 0 && productionData.qualityControl.final.length === 0" class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-shield-check text-4xl text-slate-300 mb-3 block"></i>
+          <p class="font-medium text-slate-600 dark:text-slate-400">No QC checkpoints loaded</p>
+          <p class="text-sm text-slate-400 mt-1 mb-4">Generate checkpoints from the production workshop.</p>
+          <button @click="generateQualityCheckpoints" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Load QC Checkpoints</button>
+        </div>
+      </div>
+
+      <!-- Issues Tab -->
+      <div v-show="activeTab === 'issues'" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">Production Issues</h4>
+          <div class="flex items-center gap-2">
+            <select v-model="selectedIssueCategory" class="text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">All Categories</option>
+              <option v-for="cat in issueCategories" :key="cat.id" :value="cat.id">{{ cat.label }}</option>
+            </select>
+            <button v-if="!isReadOnly" @click="showAddIssueModal = true" class="flex items-center gap-2 px-3 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors">
+              <i class="mdi mdi-plus"></i> Log Issue
+            </button>
+          </div>
+        </div>
+
+        <div v-if="productionData.issues.length > 0" class="flex flex-wrap gap-2 text-sm">
+          <span class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg"><strong>{{ productionData.issues.length }}</strong> Total</span>
+          <span class="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg"><strong>{{ getIssueStatusCount('open') }}</strong> Open</span>
+          <span class="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg"><strong>{{ getIssueStatusCount('in_progress') }}</strong> In Progress</span>
+          <span class="px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg"><strong>{{ getIssueStatusCount('resolved') }}</strong> Resolved</span>
+        </div>
+
+        <div v-if="filteredIssues.length > 0" class="space-y-3">
+          <div v-for="issue in filteredIssues" :key="issue.id" class="border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-white dark:bg-slate-800" :class="{ 'opacity-60': issue.status === 'resolved' }">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="flex-1">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium border" :class="getPriorityClass(issue.priority)">{{ issue.priority }}</span>
+                  <span class="text-xs text-slate-400">{{ issue.category }}</span>
+                  <span class="text-xs text-slate-400">{{ formatDate(issue.reportedDate) }}</span>
+                </div>
+                <h5 class="font-medium text-slate-900 dark:text-white">{{ issue.title }}</h5>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ issue.description }}</p>
+                <p class="text-xs text-slate-400 mt-2">Reported by: {{ issue.reportedBy }}</p>
+              </div>
+              <div class="flex sm:flex-col gap-2 sm:min-w-[160px]">
+                <select v-model="issue.status" @change="updateIssueStatus(issue.id, issue.status)" class="flex-1 sm:flex-none text-sm border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+                <div class="flex gap-2">
+                  <button @click="showEscalationModal(issue)" class="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2 py-1.5 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-400 transition-colors">
+                    <i class="mdi mdi-arrow-up"></i> Escalate
+                  </button>
+                  <button @click="deleteIssue(issue.id)" class="p-1.5 border border-slate-200 dark:border-slate-700 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 rounded-lg text-slate-400 transition-colors">
+                    <i class="mdi mdi-delete-outline"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-check-all text-4xl text-green-400 mb-3 block"></i>
+          <p class="font-medium text-slate-600 dark:text-slate-400">{{ selectedIssueCategory ? 'No issues in this category' : 'No production issues logged' }}</p>
+          <button @click="showAddIssueModal = true" class="mt-3 px-4 py-2 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-400 transition-colors">Log an Issue</button>
         </div>
 
         <!-- Add Issue Modal -->
-        <div v-if="showAddIssueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4" style="z-index: 9999;" @click="closeAddIssueModal">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700" @click.stop>
+        <div v-if="showAddIssueModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" @click="closeAddIssueModal">
+          <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.stop>
             <div class="flex justify-between items-center mb-4">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white">Report New Issue</h3>
-              <button @click="closeAddIssueModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Report Issue</h3>
+              <button @click="closeAddIssueModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl leading-none">&times;</button>
             </div>
-
             <form @submit.prevent="addNewIssue" class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Issue Title</label>
-                <input
-                  v-model="newIssue.title"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Brief description of the issue"
-                />
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Issue Title</label>
+                <input v-model="newIssue.title" type="text" required class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Brief description" />
               </div>
-
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                <textarea
-                  v-model="newIssue.description"
-                  rows="3"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Detailed description of the issue"
-                ></textarea>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                <textarea v-model="newIssue.description" rows="3" required class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Detailed description"></textarea>
               </div>
-
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                  <select
-                    v-model="newIssue.category"
-                    required
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="">Select category</option>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                  <select v-model="newIssue.category" required class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select</option>
                     <option value="materials">Materials</option>
                     <option value="equipment">Equipment</option>
                     <option value="quality">Quality</option>
@@ -644,397 +345,182 @@
                     <option value="other">Other</option>
                   </select>
                 </div>
-
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
-                  <select
-                    v-model="newIssue.priority"
-                    required
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  >
-                    <option value="">Select priority</option>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Priority</label>
+                  <select v-model="newIssue.priority" required class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select</option>
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
                   </select>
                 </div>
               </div>
-
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reported By</label>
-                <input
-                  v-model="newIssue.reportedBy"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  placeholder="Your name"
-                />
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reported By</label>
+                <input v-model="newIssue.reportedBy" type="text" required class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your name" />
               </div>
-
-              <div class="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  @click="closeAddIssueModal"
-                  class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Report Issue
-                </button>
+              <div class="flex justify-end gap-3 pt-2">
+                <button type="button" @click="closeAddIssueModal" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Report Issue</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Precise Design Assets Tab -->
-      <div
-        v-show="activeTab === 'design'"
-        class="design-section tab-panel"
-        :id="`tab-panel-design`"
-        role="tabpanel"
-        :aria-labelledby="`tab-design`"
-        :class="{ 'animate-fade-in': activeTab === 'design' }"
-      >
-         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-            <div class="flex items-center gap-4">
-               <div class="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                  <i class="mdi mdi-palette-swatch text-2xl"></i>
-               </div>
-               <div>
-                  <h3 class="text-sm font-black text-slate-900 dark:text-white tracking-widest uppercase">Technical Assets</h3>
-                  <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Validated Blueprints & Artworks</p>
-               </div>
-            </div>
+      <!-- Work Logs Tab -->
+      <div v-show="activeTab === 'logs'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">
+            Work Logs
+            <span class="ml-2 text-sm text-slate-400">({{ productionData.productionLogs.length }} entries)</span>
+          </h4>
+        </div>
 
-            <button
-               @click="fetchDesignAssets"
-               class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-indigo-600 transition-all group"
-               title="Refresh Assets"
-            >
-               <i class="mdi mdi-refresh text-lg group-hover:rotate-180 transition-transform duration-500"></i>
-            </button>
-         </div>
-
-         <!-- Assets Grid -->
-         <div v-if="designAssets.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <div
-              v-for="asset in designAssets"
-              :key="asset.id"
-              class="group bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden hover:border-indigo-500 transition-all cursor-pointer flex flex-col"
-              @click="openPreview(asset)"
-            >
-              <!-- Asset Preview -->
-              <div class="h-32 bg-slate-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden shrink-0 border-b border-slate-100 dark:border-slate-800">
-                <template v-if="isImageAsset(asset)">
-                  <img :src="getAssetUrl(asset)" :alt="asset.file_name" class="w-full h-full object-cover" />
-                </template>
-                <div v-else class="flex flex-col items-center">
-                   <i :class="[isPdfAsset(asset) ? 'mdi-file-pdf-box text-red-500' : 'mdi-file-document-outline text-slate-400', 'mdi text-3xl mb-1']"></i>
-                   <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{{ asset.category || 'FILE' }}</span>
-                </div>
-
-                <!-- Hover Overlay -->
-                <div class="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                   <div class="w-8 h-8 rounded-full bg-white text-indigo-600 flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
-                     <i class="mdi mdi-eye-outline"></i>
-                   </div>
-                </div>
-              </div>
-
-              <!-- Asset Info -->
-              <div class="p-3 flex flex-col flex-1">
-                 <h4 class="font-bold text-slate-800 dark:text-gray-200 truncate text-[10px] leading-tight mb-1" :title="asset.file_name">
-                   {{ asset.file_name || asset.name }}
-                 </h4>
-                 <div class="flex items-center justify-between mt-auto">
-                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{{ formatDate(asset.created_at) }}</span>
-                    <span class="px-1.5 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter" :class="getAssetStatusClass(asset.status)">
-                       {{ asset.status }}
-                     </span>
-                  </div>
-               </div>
-            </div>
-          </div>
-        <div v-else class="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/20 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-            <!-- Empty/Loading/Error handled similarly with minimal design -->
-            <span v-if="isLoadingDesignAssets" class="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Assets...</span>
-            <span v-else class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No design assets found</span>
-         </div>
-      </div>
-    </div>
-
-    <!-- Save Status Indicator -->
-    <div v-if="saveError || isSaving || lastSaveTime" class="mb-4 p-3 rounded-lg border">
-      <div v-if="isSaving" class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
-        <!-- Saving State -->
-        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-        <span class="text-sm font-medium">Saving production data...</span>
-      </div>
-
-      <div v-else-if="saveError" class="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-        <!-- Save Error State -->
-        <div class="flex items-start justify-between">
-          <div class="flex items-start space-x-3">
-            <span class="text-lg mt-0.5"></span>
+        <div v-if="productionData.productionLogs.length > 0" class="space-y-3">
+          <div v-for="log in productionData.productionLogs" :key="log.id" class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800">
             <div class="flex-1">
-              <p class="text-sm font-medium text-red-800 dark:text-red-200">Failed to Save</p>
-              <p class="text-xs text-red-600 dark:text-red-300 mt-1">{{ saveError }}</p>
-              <p class="text-xs text-red-500 dark:text-red-400 mt-1">
-                Retry attempt: {{ saveRetryCount }}/{{ maxSaveRetries }}
-              </p>
+              <div class="flex flex-wrap items-center gap-2 mb-1 text-xs text-slate-400">
+                <span>{{ formatDate(log.date) }}</span>
+                <span>·</span>
+                <span class="text-blue-600 dark:text-blue-400">{{ log.workerName }}</span>
+                <span>·</span>
+                <span class="text-green-600 dark:text-green-400">{{ log.hoursWorked }} hrs</span>
+              </div>
+              <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ log.description }}</p>
+              <p v-if="log.notes" class="text-xs text-slate-400 mt-1 italic">{{ log.notes }}</p>
+            </div>
+            <span class="self-start px-2 py-0.5 rounded text-xs font-medium" :class="log.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'">{{ log.status }}</span>
+          </div>
+        </div>
+
+        <div v-else class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-history text-4xl text-slate-300 mb-3 block"></i>
+          <p class="font-medium text-slate-600 dark:text-slate-400">No work logs recorded</p>
+          <p class="text-sm text-slate-400 mt-1">Technicians will log their daily activities here.</p>
+        </div>
+      </div>
+
+      <!-- Design Files Tab -->
+      <div v-show="activeTab === 'design'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-slate-700 dark:text-slate-300">Design Assets</h4>
+          <button @click="fetchDesignAssets" class="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-400 transition-colors">
+            <i class="mdi mdi-refresh text-sm"></i> Refresh
+          </button>
+        </div>
+
+        <div v-if="designAssets.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div v-for="asset in designAssets" :key="asset.id" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden hover:border-blue-400 transition-colors cursor-pointer" @click="openPreview(asset)">
+            <div class="h-28 bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-b border-slate-100 dark:border-slate-600">
+              <img v-if="isImageAsset(asset)" :src="getAssetUrl(asset)" :alt="asset.file_name" class="w-full h-full object-cover" />
+              <i v-else class="mdi text-3xl text-slate-400" :class="isPdfAsset(asset) ? 'mdi-file-pdf-box text-red-400' : 'mdi-file-document-outline'"></i>
+            </div>
+            <div class="p-3">
+              <p class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{{ asset.file_name || asset.name }}</p>
+              <div class="flex justify-between items-center mt-1">
+                <span class="text-xs text-slate-400">{{ formatDate(asset.created_at) }}</span>
+                <span class="px-1.5 py-0.5 rounded text-xs font-medium" :class="getAssetStatusClass(asset.status)">{{ asset.status }}</span>
+              </div>
             </div>
           </div>
-          <div class="flex space-x-2">
-            <button
-              @click="retrySave"
-              class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              Retry
+        </div>
+
+        <div v-else class="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
+          <i class="mdi mdi-palette-swatch text-4xl text-slate-300 mb-3 block" :class="{'animate-pulse': isLoadingDesignAssets}"></i>
+          <p class="font-medium text-slate-600 dark:text-slate-400">{{ isLoadingDesignAssets ? 'Loading assets...' : 'No design assets found' }}</p>
+        </div>
+      </div>
+
+      <!-- Footer: Save Status + Actions -->
+      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div v-if="saveError" class="mb-3 flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+          <i class="mdi mdi-alert-circle"></i>
+          <span class="flex-1">{{ saveError }}</span>
+          <button @click="retrySave" class="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Retry</button>
+          <button @click="clearSaveError" class="text-red-400 hover:text-red-600">&times;</button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex flex-wrap gap-2">
+            <button v-if="task.status !== 'skipped' && task.status !== 'completed'" @click="showSkipModal = true" class="px-3 py-2 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Skip Task</button>
+            <button v-if="['skipped', 'completed'].includes(task.status)" @click="$emit('update-status', 'pending')" class="px-3 py-2 text-sm text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 rounded-lg transition-colors">
+              {{ task.status === 'skipped' ? 'Unskip' : 'Reopen' }}
             </button>
-            <button
-              @click="clearSaveError"
-              class="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              Dismiss
+            <button v-if="task.status === 'pending'" @click="updateStatus('in_progress')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Start Production</button>
+            <button v-if="task.status === 'in_progress'" @click="updateStatus('completed')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">Mark Complete</button>
+          </div>
+          <div class="flex items-center gap-3">
+            <div v-if="isSaving" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+              <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div> Saving...
+            </div>
+            <div v-else-if="hasUnsavedChanges" class="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+              <span class="w-2 h-2 bg-amber-500 rounded-full"></span> Unsaved changes
+            </div>
+            <div v-else-if="lastSaveTime" class="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span> Saved
+            </div>
+            <button v-if="!isReadOnly" @click="handleSubmit" :disabled="isSaving" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg text-sm font-medium transition-colors">
+              {{ isSaving ? 'Saving...' : 'Save' }}
             </button>
           </div>
         </div>
       </div>
+    </template>
 
-      <div v-else-if="lastSaveTime" class="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-        <!-- Save Success State -->
-        <div class="flex items-center space-x-3 text-green-600 dark:text-green-400">
-          <span class="text-lg"></span>
-          <div>
-            <p class="text-sm font-medium">Data saved successfully</p>
-            <p class="text-xs text-green-500 dark:text-green-300">
-              Last saved: {{ lastSaveTime.toLocaleTimeString() }}
-              <span v-if="hasUnsavedChanges" class="text-yellow-600 dark:text-yellow-400 ml-2">
-                (Unsaved changes)
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-      <div class="flex space-x-2">
-          <button
-            v-if="task.status !== 'skipped' && task.status !== 'completed'"
-            @click="showSkipModal = true"
-            class="px-4 py-2.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors"
-          >
-            Skip Task
-          </button>
-
-          <button
-            v-if="['skipped', 'completed'].includes(task.status)"
-            @click="$emit('update-status', 'pending')"
-            class="px-4 py-2.5 text-yellow-600 hover:text-yellow-700 bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
-          >
-            <i class="mdi mdi-undo"></i>
-            {{ task.status === 'skipped' ? 'Unskip Task' : 'Reopen Task' }}
-          </button>
-        <button
-          v-if="task.status === 'pending'"
-          @click="updateStatus('in_progress')"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          Start Production
-        </button>
-        <button
-          v-if="task.status === 'in_progress'"
-          @click="updateStatus('completed')"
-          class="px-4 py-2 text-white rounded-lg transition-colors bg-green-500 hover:bg-green-600 shadow-md shadow-green-500/20"
-        >
-          Complete Production
-        </button>
-      </div>
-      <div class="flex items-center space-x-3">
-        <!-- Save Status Indicator -->
-        <div class="flex items-center space-x-2 text-sm">
-          <div v-if="isSaving" class="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
-            <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-            <span>Saving...</span>
-          </div>
-          <div v-else-if="hasUnsavedChanges" class="flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
-            <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
-            <span>Unsaved changes</span>
-          </div>
-          <div v-else-if="lastSaveTime" class="flex items-center space-x-2 text-green-600 dark:text-green-400">
-            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span>Saved</span>
-          </div>
-        </div>
-
-        <button
-          v-if="!isReadOnly"
-          @click="handleSubmit"
-          :disabled="isSaving"
-          :class="[
-            'px-4 py-2 text-white rounded-lg transition-colors',
-            isSaving
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          ]"
-        >
-          {{ isSaving ? 'Saving...' : 'Save Production Data' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Preview Modal -->
+    <!-- Asset Preview Modal -->
     <Transition name="modal">
-      <div
-        v-if="showPreviewModal && previewAsset"
-        class="fixed inset-0 z-[150] overflow-y-auto"
-        @click.self="closePreview"
-      >
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity" @click="closePreview"></div>
-
-        <!-- Modal Content -->
-        <div class="flex min-h-screen items-center justify-center p-4">
-          <div
-            class="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in duration-300"
-            @click.stop
-          >
-            <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
-              <div class="flex-1 min-w-0 mr-4">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white truncate">
-                  {{ previewAsset.file_name || previewAsset.name || previewAsset.original_name }}
-                </h3>
-                <div class="flex items-center gap-3 mt-1">
-                   <span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase rounded-md tracking-wider">
-                     {{ previewAsset.category }}
-                   </span>
-                   <span class="text-xs text-gray-400 font-medium">
-                     {{ previewAsset.file_size ? formatFileSize(previewAsset.file_size) : 'Size unknown' }}
-                   </span>
-                </div>
-              </div>
-              
-              <div class="flex items-center space-x-3">
-                <a
-                  v-if="previewAsset.file_url"
-                  :href="previewAsset.file_url"
-                  download
-                  class="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-black/10"
-                >
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                  </svg>
-                  <span>Download</span>
-                </a>
-                
-                <button
-                  @click="closePreview"
-                  class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-xl transition-all"
-                >
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
+      <div v-if="showPreviewModal && previewAsset" class="fixed inset-0 z-[150] flex items-center justify-center p-4" @click.self="closePreview">
+        <div class="fixed inset-0 bg-black/70" @click="closePreview"></div>
+        <div class="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden z-10" @click.stop>
+          <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="min-w-0 mr-4">
+              <h3 class="font-semibold text-slate-900 dark:text-white truncate">{{ previewAsset.file_name || previewAsset.name }}</h3>
+              <span class="text-xs text-slate-400">{{ previewAsset.category }} · {{ previewAsset.file_size ? formatFileSize(previewAsset.file_size) : '' }}</span>
             </div>
-
-            <!-- Preview Content -->
-            <div class="flex-1 overflow-auto bg-gray-50/50 dark:bg-gray-950 p-6 flex items-center justify-center min-h-0">
-              <!-- Image Preview -->
-              <div v-if="isImageAsset(previewAsset)" class="relative group">
-                <img
-                  :src="getAssetUrl(previewAsset)"
-                  :alt="previewAsset.file_name || previewAsset.name"
-                  class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
-                />
-              </div>
-
-              <!-- PDF Preview -->
-              <div v-else-if="isPdfAsset(previewAsset)" class="w-full h-full min-h-[70vh]">
-                <iframe
-                  :src="getAssetUrl(previewAsset)"
-                  class="w-full h-full min-h-[70vh] rounded-xl border border-gray-200 dark:border-gray-800"
-                  frameborder="0"
-                ></iframe>
-              </div>
-
-              <!-- Other File Types -->
-              <div v-else class="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 max-w-md w-full mx-auto">
-                <div class="p-6 bg-gray-100 dark:bg-gray-800 rounded-full mb-6 text-gray-400">
-                  <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center text-balance px-4">Preview not available</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8 text-center max-w-xs">We can't display this file type directly in the browser.</p>
-                
-                <a
-                  v-if="previewAsset.file_url"
-                  :href="previewAsset.file_url"
-                  download
-                  class="px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20"
-                >
-                  Download File
-                </a>
-              </div>
+            <div class="flex gap-2">
+              <a v-if="previewAsset.file_url" :href="previewAsset.file_url" download class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700 transition-colors">
+                <i class="mdi mdi-download"></i> Download
+              </a>
+              <button @click="closePreview" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg">
+                <i class="mdi mdi-close text-xl"></i>
+              </button>
             </div>
-
-            <!-- Asset Details Footer -->
-            <div class="p-6 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-               <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div class="space-y-1">
-                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Description</span>
-                     <p class="text-sm text-gray-600 dark:text-gray-300 font-medium italic">
-                        {{ previewAsset.description || 'No detailed description provided for this asset.' }}
-                     </p>
-                  </div>
-                  <div class="flex items-center gap-8 text-xs">
-                     <div class="flex flex-col gap-1">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</span>
-                        <div class="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-                           <div class="w-2 h-2 rounded-full" :class="previewAsset.status === 'approved' ? 'bg-emerald-500' : 'bg-amber-500'"></div>
-                           {{ previewAsset.status.toUpperCase() }}
-                        </div>
-                     </div>
-                     <div class="flex flex-col gap-1">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Added On</span>
-                         <span class="font-bold text-gray-900 dark:text-white">{{ previewAsset.created_at ? new Date(previewAsset.created_at).toLocaleString() : 'N/A' }}</span>
-                      </div>
-                   </div>
-                </div>
-             </div>
-           </div>
-         </div>
-       </div>
+          </div>
+          <div class="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950 p-4 flex items-center justify-center min-h-0">
+            <img v-if="isImageAsset(previewAsset)" :src="getAssetUrl(previewAsset)" class="max-w-full max-h-[70vh] object-contain rounded-lg" />
+            <iframe v-else-if="isPdfAsset(previewAsset)" :src="getAssetUrl(previewAsset)" class="w-full h-full min-h-[65vh] rounded-lg border border-slate-200 dark:border-slate-700" frameborder="0"></iframe>
+            <div v-else class="text-center py-12">
+              <i class="mdi mdi-file-document-outline text-5xl text-slate-300 mb-4 block"></i>
+              <p class="text-slate-500 mb-4">Preview not available for this file type.</p>
+              <a v-if="previewAsset.file_url" :href="previewAsset.file_url" download class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">Download File</a>
+            </div>
+          </div>
+          <div class="p-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 flex gap-6">
+            <div>Status: <strong>{{ previewAsset.status }}</strong></div>
+            <div v-if="previewAsset.description">{{ previewAsset.description }}</div>
+          </div>
+        </div>
+      </div>
     </Transition>
 
     <!-- Skip Task Modal -->
-    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Skip Task</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">Please provide a reason for skipping this task.</p>
-        <textarea
-            v-model="skipReason"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white mb-4"
-            placeholder="Reason for skipping..."
-        ></textarea>
-        <div class="flex justify-end space-x-3">
-            <button @click="showSkipModal = false" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
-            <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}</button>
+    <div v-if="showSkipModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Skip Task</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Please provide a reason for skipping this task.</p>
+        <textarea v-model="skipReason" rows="3" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" placeholder="Reason for skipping..."></textarea>
+        <div class="flex justify-end gap-3">
+          <button @click="showSkipModal = false" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+          <button @click="handleSkipTask" :disabled="!skipReason.trim() || isSkipping" class="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors">
+            {{ isSkipping ? 'Skipping...' : 'Confirm Skip' }}
+          </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
@@ -1083,6 +569,18 @@ interface ProductionIssue {
     [key: string]: any
 }
 
+interface ProductionLog {
+    id: string
+    date: any
+    workerName: string
+    description: string
+    hoursWorked: number
+    startTime: string
+    endTime: string
+    notes?: string
+    status: string
+}
+
 interface ProductionElement {
     id: string
     name: string
@@ -1097,12 +595,16 @@ interface ProductionElement {
 interface QualityControlCheckpoint {
     id: string
     categoryId: string
+    categoryName?: string
+    title?: string
     description?: string
     status: 'pending' | 'passed' | 'failed' | 'in_progress'
     notes?: string
     checkedBy?: string
     checkedAt?: string | Date | null
     checklist?: any[]
+    qualityScore?: number
+    priority?: string
     [key: string]: any
 }
 
@@ -1117,10 +619,44 @@ interface ProjectInfo {
 
 interface ProductionTaskData {
     projectInfo: ProjectInfo
-    productionElements: ProductionElement[]
+    productionData: {
+        id: number
+        taskId: number
+        workOrderNumber: string
+        status: string
+        workflowSteps: string[]
+        materialsImported: boolean
+        executionHealth: {
+            progress: number
+            qcPassRate: number
+            openNcrs: number
+            reworkHours: number
+            status: 'on_track' | 'at_risk' | 'pending' | 'delayed'
+        }
+    }
+    productionElements: (ProductionElement & { evidenceCount?: number })[]
     relatedProcurementItems: any[]
-    qualityControl: QualityControlCheckpoint[]
+    qualityControl: {
+        midStream: QualityControlCheckpoint[]
+        final: QualityControlCheckpoint[]
+    }
     issues: ProductionIssue[]
+    reworkAnalytics: {
+        id: string
+        title: string
+        hours: number
+        status: string
+        date: string
+    }[]
+    evidenceGallery: {
+        id: string
+        taskTitle: string
+        url: string
+        type: string
+        uploadedAt: string
+        notes?: string
+    }[]
+    productionLogs: ProductionLog[]
     completionCriteria: CompletionCriterion[]
     [key: string]: any
 }
@@ -1149,44 +685,14 @@ interface Emits {
   'save': [data: ProductionTaskData]
 }
 
-// Component setup
+
+// Component implementation
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Date formatting function (following MaterialsTask pattern)
-function formatDate(dateValue: string | Date | null | undefined) {
-  if (!dateValue || dateValue === 'TBC') return 'TBC'
-
-  try {
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
-    if (isNaN(date.getTime())) return 'TBC'
-
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-  } catch {
-    return 'TBC'
-  }
-}
-
-function convertToCamelCase(obj: any): any {
-  if (obj === null || typeof obj !== 'object') return obj
-  if (Array.isArray(obj)) return obj.map(convertToCamelCase)
-
-  const result: any = {}
-  for (const [key, value] of Object.entries(obj)) {
-    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
-    result[camelKey] = convertToCamelCase(value)
-  }
-  return result
-}
-
-// Initialize activeTab with initialTab if provided, otherwise default to 'production-management'
+// UI core state
 const activeTab = ref(props.initialTab || 'production-management')
-
-// UI State
+const isLoading = ref(false)
 const isSaving = ref(false)
 const saveError = ref<string | null>(null)
 const lastSaveTime = ref<Date | null>(null)
@@ -1196,17 +702,39 @@ const maxSaveRetries = 3
 const autoSaveDelay = 500
 let autoSaveTimeout: any = null
 
-// Watch initialTab to update activeTab when it changes while open
-watch(() => props.initialTab, (newTab) => {
-  if (newTab) {
-    activeTab.value = newTab
+function convertToCamelCase(obj: any): any {
+  if (obj === null || typeof obj !== 'object') return obj
+  if (Array.isArray(obj)) return obj.map(convertToCamelCase)
+  const result: any = {}
+  for (const [key, value] of Object.entries(obj)) {
+    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+    result[camelKey] = convertToCamelCase(value)
   }
+  return result
+}
+
+// Watchers
+watch(() => props.initialTab, (newTab) => {
+  if (newTab) activeTab.value = newTab
 })
+
+// Formatting Utilities
+function formatDate(dateValue: string | Date | null | undefined) {
+  if (!dateValue || dateValue === 'TBC') return 'TBC'
+  try {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue
+    if (isNaN(date.getTime())) return 'TBC'
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return 'TBC'
+  }
+}
 
 // Tab navigation with enhanced functionality
 const tabs = [
   { id: 'production-management', label: 'Production Management', description: 'View and manage production workflow' },
   { id: 'quality', label: 'Quality Assurance', description: 'Manage quality control checkpoints' },
+  { id: 'logs', label: 'Production Logs', description: 'View technician daily activity and job cards' },
   { id: 'design', label: 'Design Assets', description: 'View Design Artworks and Renders' }
 ]
 
@@ -1400,11 +928,15 @@ const getTabBadgeCount = (tabId: string): number => {
     case 'production-elements':
       return productionData.value.productionElements.length
     case 'quality':
-      return productionData.value.qualityControl.filter((qc: any) => qc.status === 'failed').length
+      const failedMid = productionData.value.qualityControl.midStream.filter((qc: any) => qc.status === 'failed').length
+      const failedFinal = productionData.value.qualityControl.final.filter((qc: any) => qc.status === 'failed').length
+      return failedMid + failedFinal
     case 'issues':
       return productionData.value.issues.filter((issue: any) => issue.status === 'open').length
-    case 'completion':
-      return productionData.value.completionCriteria.filter((c: any) => c.met).length
+    case 'logs':
+      return productionData.value.productionLogs.length
+    case 'evidence':
+      return productionData.value.evidenceGallery.length
     case 'design':
       return designAssets.value.length
     default:
@@ -1419,8 +951,10 @@ const getTabBadgeClass = (tabId: string): string => {
     case 'production-elements':
       return `${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`
     case 'quality':
-      const failedCount = productionData.value.qualityControl.filter((qc: any) => qc.status === 'failed').length
-      return failedCount > 0
+      const failedCountMid = productionData.value.qualityControl.midStream.filter((qc: any) => qc.status === 'failed').length
+      const failedCountFinal = productionData.value.qualityControl.final.filter((qc: any) => qc.status === 'failed').length
+      const totalFailed = failedCountMid + failedCountFinal
+      return totalFailed > 0
         ? `${baseClasses} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`
         : `${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`
     case 'issues':
@@ -1436,11 +970,11 @@ const getTabBadgeClass = (tabId: string): string => {
 
 // Production element categories (will be loaded from backend)
 const productionElementCategories = ref<ProductionElementCategory[]>([
-  { id: 'stage', name: 'stage', displayName: 'STAGE', color: 'green' },
-  { id: 'stage-skirting', name: 'stage-skirting', displayName: 'STAGE SKIRTING', color: 'green' },
-  { id: 'stage-backdrop', name: 'stage-backdrop', displayName: 'STAGE BACKDROP', color: 'green' },
-  { id: 'entrance-arc', name: 'entrance-arc', displayName: 'ENTRANCE ARC', color: 'green' },
-  { id: 'walkway-dance-floor', name: 'walkway-dance-floor', displayName: 'WALKWAY AND DANCE FLOOR', color: 'green' }
+  { id: 'carpentry', name: 'carpentry', displayName: 'Carpentry ', color: 'amber' },
+  { id: 'branding', name: 'branding', displayName: 'Branding & Prints', color: 'blue' },
+  { id: 'metal_work', name: 'metal_work', displayName: 'Metal Work', color: 'slate' },
+  { id: 'painting', name: 'painting', displayName: 'Painting & Finishing', color: 'emerald' },
+  { id: 'general_assembly', name: 'general_assembly', displayName: 'General Assembly', color: 'rose' }
 ])
 
 // Issue categories (will be loaded from backend)
@@ -1495,7 +1029,7 @@ const defaultCompletionCriteria = ref<CompletionCriterion[]>([
 
 // Reactive data structure following ProcurementTask pattern
 const productionData = ref<ProductionTaskData>({
-  relatedProcurementItems: [], // Initialize empty array for procurement items
+  relatedProcurementItems: [],
   projectInfo: {
     projectId: '',
     enquiryNumber: '',
@@ -1506,9 +1040,30 @@ const productionData = ref<ProductionTaskData>({
     setDownDate: '',
     contactPerson: ''
   },
+  productionData: {
+    id: 0,
+    taskId: 0,
+    workOrderNumber: 'PENDING',
+    status: 'pending',
+    workflowSteps: [],
+    materialsImported: false,
+    executionHealth: {
+        progress: 0,
+        qcPassRate: 100,
+        openNcrs: 0,
+        reworkHours: 0,
+        status: 'pending'
+    }
+  },
   productionElements: [],
-  qualityControl: [],
+  qualityControl: {
+      midStream: [],
+      final: []
+  },
   issues: [],
+  reworkAnalytics: [],
+  evidenceGallery: [],
+  productionLogs: [],
   completionCriteria: [...defaultCompletionCriteria.value]
 })
 
@@ -1611,19 +1166,29 @@ const updateElementNotes = (elementId: string, notes: string) => {
 
 
 // Quality control status management
-const updateQualityStatus = (checkpointId: string, status: QualityControlCheckpoint['status']) => {
-  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+const updateQualityStatus = async (checkpointId: string, status: QualityControlCheckpoint['status']) => {
+  // Find in midStream or final
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
+
   if (checkpoint) {
     const previousStatus = checkpoint.status
     checkpoint.status = status
-    checkpoint.checkedAt = new Date()
+    checkpoint.checkedAt = new Date().toISOString()
     checkpoint.updatedAt = new Date()
-
+    
     // Auto-update quality score based on status
     if (status === 'passed' && !checkpoint.qualityScore) {
       checkpoint.qualityScore = 100
     } else if (status === 'failed' && !checkpoint.qualityScore) {
       checkpoint.qualityScore = 0
+    }
+
+    // if passed, also check all items in checklist
+    if (status === 'passed' && checkpoint.checklist) {
+      checkpoint.checklist.forEach(item => item.checked = true)
     }
 
     console.log(`Quality status updated for ${checkpoint.categoryName}: ${previousStatus} → ${status}`)
@@ -1647,15 +1212,17 @@ const isCheckpointDetailsExpanded = (checkpointId: string): boolean => {
 }
 
 // Quality control utility functions
-function getQualityStatusCount(status: QualityControlCheckpoint['status']): number {
-  return productionData.value.qualityControl.filter((checkpoint: any) => checkpoint.status === status).length
+const getQualityStatusCount = (status: QualityControlCheckpoint['status']) => {
+  const midCount = productionData.value.qualityControl.midStream.filter(qc => qc.status === status).length
+  const finalCount = productionData.value.qualityControl.final.filter(qc => qc.status === status).length
+  return midCount + finalCount
 }
 
 const qualityProgressPercentage = computed(() => {
-  const total = productionData.value.qualityControl.length
-  if (total === 0) return 0
-  const completed = productionData.value.qualityControl.filter((c: any) => c.status === 'passed' || c.status === 'failed').length
-  return Math.round((completed / total) * 100)
+  const allChecks = [...productionData.value.qualityControl.midStream, ...productionData.value.qualityControl.final]
+  if (allChecks.length === 0) return 0
+  const completed = allChecks.filter((c: any) => c.status === 'passed' || c.status === 'failed').length
+  return Math.round((completed / allChecks.length) * 100)
 })
 
 // Quality control styling functions
@@ -1720,11 +1287,14 @@ const getQualityStatusIconMdi = (status: QualityControlCheckpoint['status']) => 
 }
 
 const fastPassCheckpoint = (checkpointId: string) => {
-  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.status = 'passed'
     checkpoint.qualityScore = 100
-    checkpoint.checkedAt = new Date()
+    checkpoint.checkedAt = new Date().toISOString()
     checkpoint.updatedAt = new Date()
     
     // Check all checklist items
@@ -1743,7 +1313,10 @@ const fastPassCheckpoint = (checkpointId: string) => {
 
 // Quality control management functions
 const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
-  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.notes = notes
     checkpoint.updatedAt = new Date()
@@ -1752,7 +1325,10 @@ const updateCheckpointNotes = (checkpointId: string, notes?: string) => {
 }
 
 const updateChecklistItem = (checkpointId: string, itemId: string, checked: boolean) => {
-  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint && checkpoint.checklist) {
     const item = checkpoint.checklist.find((i: any) => i.id === itemId)
     if (item) {
@@ -1766,7 +1342,7 @@ const updateChecklistItem = (checkpointId: string, itemId: string, checked: bool
       // Auto-update status based on completion
       if (checkedItems === totalItems) {
         checkpoint.status = 'passed'
-        checkpoint.checkedAt = new Date()
+        checkpoint.checkedAt = new Date().toISOString()
       } else if (checkedItems > 0) {
         checkpoint.status = 'in_progress'
       }
@@ -1778,7 +1354,10 @@ const updateChecklistItem = (checkpointId: string, itemId: string, checked: bool
 }
 
 const updateQualityScore = (checkpointId: string, score?: number) => {
-  const checkpoint = productionData.value.qualityControl.find((c: any) => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.qualityScore = score
     checkpoint.updatedAt = new Date()
@@ -1798,7 +1377,10 @@ const updateQualityScore = (checkpointId: string, score?: number) => {
 }
 
 const updateInspector = (checkpointId: string, inspector?: string) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.checkedBy = inspector
     checkpoint.updatedAt = new Date()
@@ -1807,7 +1389,10 @@ const updateInspector = (checkpointId: string, inspector?: string) => {
 }
 
 const updateCheckpointPriority = (checkpointId: string, priority?: 'low' | 'medium' | 'high') => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.priority = priority
     checkpoint.updatedAt = new Date()
@@ -1816,7 +1401,10 @@ const updateCheckpointPriority = (checkpointId: string, priority?: 'low' | 'medi
 }
 
 const retryQualityCheck = (checkpointId: string) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     checkpoint.status = 'pending'
     checkpoint.qualityScore = undefined
@@ -1828,7 +1416,10 @@ const retryQualityCheck = (checkpointId: string) => {
 }
 
 const duplicateCheckpoint = (checkpointId: string) => {
-  const checkpoint = productionData.value.qualityControl.find(c => c.id === checkpointId)
+  let checkpoint = productionData.value.qualityControl.midStream.find(c => c.id === checkpointId)
+  if (!checkpoint) {
+    checkpoint = productionData.value.qualityControl.final.find(c => c.id === checkpointId)
+  }
   if (checkpoint) {
     const newCheckpoint: QualityControlCheckpoint = {
       ...checkpoint,
@@ -1842,7 +1433,12 @@ const duplicateCheckpoint = (checkpointId: string) => {
       createdAt: new Date(),
       updatedAt: new Date()
     }
-    productionData.value.qualityControl.push(newCheckpoint)
+    // Add to the same category as the original
+    if (productionData.value.qualityControl.midStream.some(c => c.id === checkpointId)) {
+      productionData.value.qualityControl.midStream.push(newCheckpoint)
+    } else {
+      productionData.value.qualityControl.final.push(newCheckpoint)
+    }
     console.log(`Quality checkpoint duplicated: ${newCheckpoint.categoryName}`)
     // Auto-save would be triggered here
   }
@@ -1851,173 +1447,20 @@ const duplicateCheckpoint = (checkpointId: string) => {
 
 const generateQualityCheckpoints = async () => {
   try {
-    // First, clear all existing quality control checkpoints from the backend
     const taskId = props.task.id.toString()
+    const response = await api.post(`/api/projects/tasks/${taskId}/production/generate-checkpoints`)
     
-    try {
-      await api.delete(`/api/projects/tasks/${taskId}/production/quality-checkpoints`)
-    } catch (deleteError: any) {
-      if (deleteError.response?.status !== 404) {
-        console.error('Error deleting checkpoints:', deleteError)
-        throw deleteError
+    if (response.data && response.data.data) {
+      const data = response.data.data
+      productionData.value.qualityControl = {
+        midStream: data.midStream || [],
+        final: data.final || []
       }
-    }
-    
-    // Generate static quality control checklist
-    const staticCheckpoints = [
-      // 1. Event Details
-      {
-        id: 'qc-event-details',
-        categoryId: 'event-details',
-        categoryName: '1. Event Details',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'high' as const,
-        elementCount: 6,
-        checklist: [
-          { id: 'project_name_confirmed', label: 'Project Name confirmed', checked: false },
-          { id: 'project_code_confirmed', label: 'Project Code/Ref confirmed', checked: false },
-          { id: 'client_name_confirmed', label: 'Client Name confirmed', checked: false },
-          { id: 'production_dates_confirmed', label: 'Production dates confirmed', checked: false },
-          { id: 'venue_confirmed', label: 'Venue confirmed', checked: false },
-          { id: 'project_officer_confirmed', label: 'Assigned Project Officer confirmed', checked: false }
-        ]
-      },
-
-      // 2. Job Brief Intake
-      {
-        id: 'qc-job-brief',
-        categoryId: 'job-brief',
-        categoryName: '2. Job Brief Intake',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'high' as const,
-        elementCount: 3,
-        checklist: [
-          { id: 'job_sheet_reviewed', label: 'Review job sheet from Design Department', checked: false },
-          { id: 'materials_quantities_confirmed', label: 'Confirm materials, quantities, and deadline', checked: false },
-          { id: 'clarifying_questions_asked', label: 'Ask clarifying questions if needed', checked: false }
-        ]
-      },
-
-      // 3. Material Preparation
-      {
-        id: 'qc-material-prep',
-        categoryId: 'material-prep',
-        categoryName: '3. Material Preparation',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'high' as const,
-        elementCount: 3,
-        checklist: [
-          { id: 'inventory_checked', label: 'Check inventory for required materials', checked: false },
-          { id: 'materials_cut_prepared', label: 'Cut/print/prepare materials as specified', checked: false },
-          { id: 'material_quality_inspected', label: 'Inspect for material quality (no defects/damage)', checked: false }
-        ]
-      },
-
-      // 4. Fabrication
-      {
-        id: 'qc-fabrication',
-        categoryId: 'fabrication',
-        categoryName: '4. Fabrication',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'high' as const,
-        elementCount: 4,
-        checklist: [
-          { id: 'quality_standards_tested', label: 'Test ply timbers/melamine (PSC, primers, etc.)', checked: false },
-          { id: 'materials_post_fabrication_tested', label: 'Test materials where fabrics fall tops', checked: false },
-          { id: 'production_per_specs', label: 'Execute production to PVC, acrylic specs', checked: false },
-          { id: 'safety_standards_observed', label: 'Observe safety standards', checked: false }
-        ]
-      },
-
-      // 5. Assembly
-      {
-        id: 'qc-assembly',
-        categoryId: 'assembly',
-        categoryName: '5. Assembly',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'medium' as const,
-        elementCount: 3,
-        checklist: [
-          { id: 'dry_fit_before_assembly', label: 'Dry-fit components before final assembly', checked: false },
-          { id: 'correct_fasteners_used', label: 'Use correct fasteners, adhesives, finish', checked: false },
-          { id: 'dimensions_confirmed', label: 'Confirm dimensions and alignments', checked: false }
-        ]
-      },
-
-      // 6. Quality Control (QC)
-      {
-        id: 'qc-quality-control',
-        categoryId: 'quality-control',
-        categoryName: '6. Quality Control (QC)',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'high' as const,
-        elementCount: 3,
-        checklist: [
-          { id: 'scratches_colors_inspected', label: 'Inspect for scratches, incorrect colors, uneven cuts', checked: false },
-          { id: 'final_piece_matches_design', label: 'Confirm final piece matches design', checked: false },
-          { id: 'defects_logged', label: 'Log defects, repairs, or reworks done', checked: false }
-        ]
-      },
-
-      // 7. Packaging & Handover
-      {
-        id: 'qc-packaging',
-        categoryId: 'packaging',
-        categoryName: '7. Packaging & Handover',
-        status: 'pending' as const,
-        qualityScore: 0,
-        checkedBy: '',
-        checkedAt: null,
-        notes: '',
-        priority: 'medium' as const,
-        elementCount: 4,
-        checklist: [
-          { id: 'items_cleaned', label: 'Clean and finish all items', checked: false },
-          { id: 'packed_with_protection', label: 'Pack with appropriate protection', checked: false },
-          { id: 'labeled_moved_to_storage', label: 'Label and move to storage/delivery area', checked: false },
-          { id: 'job_status_updated', label: 'Update job status on tracker/system', checked: false }
-        ]
-      }
-    ]
-
-    // Set the static checkpoints
-    productionData.value.qualityControl = staticCheckpoints
-    
-    // Save immediately to persist the new checkpoints
-    const saveResult = await manualSave()
-    
-    if (saveResult) {
-      alert('Quality Control checkpoints regenerated successfully!')
-    } else {
-      alert('Failed to save checkpoints. Please try again.')
+      alert('Quality checkpoints pulled from Production Module.')
     }
   } catch (error: any) {
-    console.error('Failed to regenerate quality checkpoints:', error)
-    alert(`Failed to regenerate quality checkpoints: ${error.response?.data?.message || error.message}`)
+    console.error('Failed to pull quality checkpoints:', error)
+    alert(`Failed to pull quality checkpoints: ${error.response?.data?.message || error.message}`)
   }
 }
 
@@ -2027,13 +1470,22 @@ const exportQualityReport = () => {
     projectInfo: productionData.value.projectInfo,
     generatedAt: new Date().toISOString(),
     summary: {
-      totalCheckpoints: productionData.value.qualityControl.length,
+      totalCheckpoints: productionData.value.qualityControl.midStream.length + productionData.value.qualityControl.final.length,
       passed: getQualityStatusCount('passed'),
       failed: getQualityStatusCount('failed'),
       pending: getQualityStatusCount('pending') + getQualityStatusCount('in_progress'),
       overallProgress: qualityProgressPercentage.value
     },
-    checkpoints: productionData.value.qualityControl.map(checkpoint => ({
+    checkpoints: [
+      ...productionData.value.qualityControl.midStream.map(checkpoint => ({
+        ...checkpoint,
+        phase: 'Mid-Stream'
+      })),
+      ...productionData.value.qualityControl.final.map(checkpoint => ({
+        ...checkpoint,
+        phase: 'Final'
+      }))
+    ].map(checkpoint => ({
       category: checkpoint.categoryName,
       status: checkpoint.status,
       qualityScore: checkpoint.qualityScore,
@@ -2519,6 +1971,7 @@ const API_ENDPOINTS = {
 
 
 
+
 // Auto-save functionality with debouncing
 const triggerAutoSave = () => {
   hasUnsavedChanges.value = true
@@ -2794,7 +2247,8 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
 
   // Quality control validation with comprehensive checks
   const totalElements = productionData.value.productionElements.length
-  const totalQC = productionData.value.qualityControl.length
+  const allQC = [...productionData.value.qualityControl.midStream, ...productionData.value.qualityControl.final]
+  const totalQC = allQC.length
 
   if (totalElements > 0 && totalQC === 0) {
     warnings.push('Production elements exist but no quality control checkpoints are defined')
@@ -2802,9 +2256,9 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
     info.push(`${totalQC} quality control checkpoints defined`)
 
     let qcErrors = 0
-    productionData.value.qualityControl.forEach((checkpoint, index) => {
-      if (!checkpoint.categoryName) {
-        errors.push(`Quality checkpoint ${index + 1}: Category name is required`)
+    allQC.forEach((checkpoint, index) => {
+      if (!checkpoint.categoryName && !checkpoint.title) {
+        errors.push(`Quality checkpoint ${index + 1}: Title is required`)
         qcErrors++
       }
       if (!checkpoint.status) {
@@ -2821,7 +2275,7 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
     }
 
     // QC status distribution
-    const qcStatusDistribution = productionData.value.qualityControl.reduce((acc, qc) => {
+    const qcStatusDistribution = allQC.reduce((acc, qc) => {
       acc[qc.status] = (acc[qc.status] || 0) + 1
       return acc
     }, {} as Record<string, number>)
@@ -2867,84 +2321,16 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
       warnings.push('No completion criteria have been met - consider reviewing progress')
     } else if (completionPercentage === 100) {
       info.push('All completion criteria met - production ready for completion')
-    } else if (completionPercentage < 50) {
-      warnings.push(`Only ${completionPercentage}% of completion criteria met`)
     }
-
-    // Check for required categories
-    const requiredCategories = ['production', 'quality']
-    requiredCategories.forEach(category => {
-      const categoryHasCriteria = productionData.value.completionCriteria.some(c => c.category === category)
-      if (!categoryHasCriteria) {
-        warnings.push(`No completion criteria defined for ${category} category`)
-      }
-    })
   }
 
   // Issues validation with priority and status analysis
   if (productionData.value.issues.length > 0) {
     info.push(`${productionData.value.issues.length} production issues tracked`)
-
-    const issueStatusDistribution = productionData.value.issues.reduce((acc, issue) => {
-      acc[issue.status] = (acc[issue.status] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    const openIssues = issueStatusDistribution.open || 0
-    const inProgressIssues = issueStatusDistribution.in_progress || 0
-    const resolvedIssues = issueStatusDistribution.resolved || 0
     const highPriorityIssues = productionData.value.issues.filter(i => i.priority === 'high' && i.status !== 'resolved').length
-
-    if (openIssues > 5) {
-      warnings.push(`High number of open issues (${openIssues}) may impact production timeline`)
-    }
-
     if (highPriorityIssues > 0) {
       warnings.push(`${highPriorityIssues} high-priority issues require immediate attention`)
     }
-
-    if (resolvedIssues > 0) {
-      info.push(`${resolvedIssues} issues have been resolved`)
-    }
-
-    if (inProgressIssues > 0) {
-      info.push(`${inProgressIssues} issues are being worked on`)
-    }
-
-    // Issue resolution rate
-    const resolutionRate = Math.round((resolvedIssues / productionData.value.issues.length) * 100)
-    info.push(`Issue resolution rate: ${resolutionRate}%`)
-
-    // Validate individual issues
-    let issueErrors = 0
-    productionData.value.issues.forEach((issue, index) => {
-      if (!issue.title) {
-        errors.push(`Issue ${index + 1}: Title is required`)
-        issueErrors++
-      }
-      if (!issue.description) {
-        errors.push(`Issue ${index + 1}: Description is required`)
-        issueErrors++
-      }
-      if (!issue.reportedBy) {
-        errors.push(`Issue ${index + 1}: Reporter is required`)
-        issueErrors++
-      }
-      if (!issue.category) {
-        errors.push(`Issue ${index + 1}: Category is required`)
-        issueErrors++
-      }
-      if (!issue.priority) {
-        errors.push(`Issue ${index + 1}: Priority is required`)
-        issueErrors++
-      }
-    })
-
-    if (issueErrors === 0) {
-      info.push('All issues have complete information')
-    }
-  } else {
-    info.push('No production issues reported')
   }
 
   // Business logic validations with enhanced checks
@@ -2959,7 +2345,7 @@ const validateProductionData = (): { isValid: boolean; errors: string[]; warning
   // Check for consistency between production elements and quality control
   if (totalElements > 0 && totalQC > 0) {
     const elementCategories = [...new Set(productionData.value.productionElements.map(e => e.category))]
-    const qcCategories = productionData.value.qualityControl.map(qc => qc.categoryId)
+    const qcCategories = allQC.map(qc => qc.categoryId)
 
     const missingQCCategories = elementCategories.filter(cat => !qcCategories.includes(cat))
     if (missingQCCategories.length > 0) {
@@ -3029,11 +2415,13 @@ const calculateDataConsistencyScore = (): number => {
   if (!productionData.value.projectInfo.setupDate || productionData.value.projectInfo.setupDate === 'TBC') score -= 5
 
   if (productionData.value.productionElements.length === 0) score -= 15
-  if (productionData.value.qualityControl.length === 0 && productionData.value.productionElements.length > 0) score -= 10
+  
+  const allQC = [...productionData.value.qualityControl.midStream, ...productionData.value.qualityControl.final]
+  if (allQC.length === 0 && productionData.value.productionElements.length > 0) score -= 10
 
   // Check for data relationships consistency
   const elementCategories = [...new Set(productionData.value.productionElements.map(e => e.category))]
-  const qcCategories = productionData.value.qualityControl.map(qc => qc.categoryId)
+  const qcCategories = allQC.map((qc: any) => qc.categoryId)
 
   const missingQCCategories = elementCategories.filter(cat => !qcCategories.includes(cat))
   const orphanedQCCategories = qcCategories.filter(cat => !elementCategories.includes(cat))
@@ -3042,23 +2430,19 @@ const calculateDataConsistencyScore = (): number => {
   score -= orphanedQCCategories.length * 2
 
   // Check for high-priority unresolved issues
-  const criticalIssues = productionData.value.issues.filter(i => i.priority === 'high' && i.status !== 'resolved')
-  score -= criticalIssues.length * 5
 
-  // Check completion criteria progress
-  if (productionData.value.completionCriteria.length > 0) {
-    const completionRate = productionData.value.completionCriteria.filter(c => c.met).length / productionData.value.completionCriteria.length
-    if (completionRate < 0.2) score -= 10
-  }
+  if (productionData.value.productionElements.length === 0) score -= 20
+  if (allQC.length === 0) score -= 15
+  if (productionData.value.completionCriteria.length === 0) score -= 10
+  
+  // Complexity score based on missing details
+  const elementsWithoutDesc = productionData.value.productionElements.filter(e => !e.description)
+  score -= elementsWithoutDesc.length * 2
 
-  // Check for data quality issues
-  const elementsWithInvalidQuantity = productionData.value.productionElements.filter(e => !e.quantity || e.quantity <= 0)
-  score -= elementsWithInvalidQuantity.length * 2
-
-  const elementsWithShortDesc = productionData.value.productionElements.filter(e => !e.description || e.description.length < 5)
-  score -= elementsWithShortDesc.length * 1
-
-  return Math.max(0, Math.min(100, score))
+  const qcWithoutStatus = allQC.filter(q => q.status === 'pending')
+  score -= (qcWithoutStatus.length / (allQC.length || 1)) * 10
+  
+  return Math.max(0, Math.min(100, Math.round(score)))
 }
 
 // Convert snake_case to camelCase for frontend compatibility
@@ -3066,46 +2450,31 @@ const calculateDataConsistencyScore = (): number => {
 
 // Load existing data
 const loadProductionData = async () => {
-  try {
-    const taskId = props.task.id.toString()
-    const response = await api.get(`/api/projects/tasks/${taskId}/production`)
-
-    if (response.data.success && response.data.data) {
-      const data = response.data.data
-      
-      // Update production data with backend data (handling camelCase keys from service)
-      if (data.productionElements) {
-        productionData.value.productionElements = convertToCamelCase(data.productionElements)
-      }
-
-      if (data.relatedProcurementItems) {
-        productionData.value.relatedProcurementItems = convertToCamelCase(data.relatedProcurementItems)
-      }
-
-      if (data.qualityControl) {
-        productionData.value.qualityControl = convertToCamelCase(data.qualityControl)
-      } else if (data.quality_control) { // Fallback for snake_case
-        productionData.value.qualityControl = convertToCamelCase(data.quality_control)
-      }
-
-      if (data.issues) {
-        productionData.value.issues = convertToCamelCase(data.issues)
-      }
-
-      if (data.completionCriteria) {
-        productionData.value.completionCriteria = convertToCamelCase(data.completionCriteria)
-      } else if (data.completion_criteria) { // Fallback for snake_case
-        productionData.value.completionCriteria = convertToCamelCase(data.completion_criteria)
-      }
+    try {
+        isLoading.value = true
+        const response = await api.get(`/api/projects/tasks/${props.task.id}/production`)
+        if (response.data && response.data.data) {
+            const data = response.data.data
+            // Map data correctly to the new structure
+            productionData.value = {
+                ...productionData.value,
+                ...data,
+                productionData: data.productionData || productionData.value.productionData,
+                qualityControl: data.qualityControl || productionData.value.qualityControl,
+                reworkAnalytics: data.reworkAnalytics || [],
+                evidenceGallery: data.evidenceGallery || [],
+                issues: data.issues || [],
+                productionLogs: data.productionLogs || []
+            }
+        }
+    } catch (error: any) {
+        console.error('Production data loading failed:', error)
+        if (error.response?.status !== 404) {
+             console.warn('Backend alignment service unavailable, using initial state')
+        }
+    } finally {
+        isLoading.value = false
     }
-
-  } catch (error: any) {
-    console.error('Failed to load production data:', error)
-    // Continue with default data if loading fails
-    if (error.response?.status !== 404) {
-      console.warn('Production data loading failed, using default data')
-    }
-  }
 }
 
 // Retry save functionality
@@ -3182,7 +2551,17 @@ const importMaterialsFromTask = async () => {
     if (response.data.success) {
       // Update production data with imported elements
       productionData.value.productionElements = response.data.data.productionElements || []
-      productionData.value.qualityControl = response.data.data.qualityControl || []
+      
+      // Handle qualityControl being either an array (legacy) or object (new)
+      const importedQC = response.data.data.qualityControl
+      if (Array.isArray(importedQC)) {
+        productionData.value.qualityControl = {
+          midStream: importedQC,
+          final: []
+        }
+      } else {
+        productionData.value.qualityControl = importedQC || { midStream: [], final: [] }
+      }
 
       // Only update issues and completion criteria if they're empty (preserve user changes)
       if (productionData.value.issues.length === 0) {
@@ -3197,7 +2576,7 @@ const importMaterialsFromTask = async () => {
 
       console.log('Materials imported successfully:', {
         elementsCount: productionData.value.productionElements.length,
-        qualityCheckpoints: productionData.value.qualityControl.length,
+        qualityCheckpoints: productionData.value.qualityControl.midStream.length + productionData.value.qualityControl.final.length,
         issuesCount: productionData.value.issues.length,
         completionCriteria: productionData.value.completionCriteria.length
       })

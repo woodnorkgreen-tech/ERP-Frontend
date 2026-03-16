@@ -137,6 +137,7 @@ export interface PettyCashDisbursement {
 
   // Permissions with default values
   readonly tax?: 'etr' | 'no_etr' | null
+  readonly budget_category?: NullableString
   readonly can_edit: boolean
   readonly can_void: boolean
   readonly can_view_details: boolean

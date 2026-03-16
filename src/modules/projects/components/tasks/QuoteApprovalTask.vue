@@ -8,7 +8,7 @@
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-4">
           <div>
-            <h2 class="text-lg font-black text-slate-900 dark:text-white leading-tight">Quote Approval</h2>
+            <h2 class="text-lg font-black text-slate-900 dark:text-white leading-tight">{{ approvalLabel }} Approval</h2>
             <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
               <span class="font-bold text-blue-600">{{ quoteData.projectInfo?.projectId || 'TBC' }}</span>
               <span>•</span>
@@ -21,14 +21,14 @@
         </div>
 
         <div class="mb-6">
-           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Value</p>
+           <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{{ isNonProfit ? 'Estimated Budget' : 'Total Value' }}</p>
            <div class="text-3xl font-black text-slate-900 dark:text-white flex items-baseline gap-1">
              <span class="text-sm font-bold text-slate-400">KES</span>
              {{ formatCurrencyValue(quoteData.totals?.grandTotal || 0) }}
            </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-6">
+        <div v-if="!isNonProfit" class="grid grid-cols-2 gap-3 mb-6">
            <div class="p-3 bg-slate-50 dark:bg-gray-700/50 rounded-lg border border-slate-100 dark:border-gray-700">
              <p class="text-[9px] font-bold uppercase text-slate-400 mb-0.5">Margin</p>
              <p class="text-sm font-black text-blue-600 dark:text-blue-400">{{ quoteData.totals?.overallMarginPercentage ?? 0 }}%</p>
@@ -47,7 +47,7 @@
               class="w-full h-10 rounded-lg border font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
               :class="formData.approval_status === 'approved' ? 'bg-emerald-500 text-white border-emerald-500 shadow-md' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
            >
-             <i class="mdi mdi-check"></i> Approve Quote
+             <i class="mdi mdi-check"></i> Approve {{ approvalLabel }}
            </button>
            
            <button 
@@ -56,7 +56,7 @@
               class="w-full h-10 rounded-lg border font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
               :class="formData.approval_status === 'rejected' ? 'bg-red-500 text-white border-red-500 shadow-md' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'"
            >
-             <i class="mdi mdi-close"></i> Reject Quote
+             <i class="mdi mdi-close"></i> Reject {{ approvalLabel }}
            </button>
         </div>
       </div>
@@ -84,7 +84,7 @@
     <!-- Right Content: Details Form -->
     <div class="w-full md:w-2/3 flex flex-col gap-4">
        <!-- Toolbar -->
-       <div class="flex justify-end">
+       <div v-if="!isNonProfit" class="flex justify-end">
           <button 
             @click="showQuoteViewer = true"
             class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg text-xs font-bold text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all shadow-sm"
@@ -189,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import type { EnquiryTask } from '../../types/enquiry'
 import axios from '@/plugins/axios'
 import { useAuth } from '@/composables/useAuth'
@@ -305,6 +305,18 @@ const quoteData = ref({
   updatedAt: new Date()
 })
 
+// Non-profit detection
+const isNonProfit = computed(() => {
+  const type = props.task.enquiry?.workflow_preset_type
+  return type === 'internal_job' || type === 'sponsorship'
+})
+
+const approvalLabel = computed(() => {
+  if (props.task.enquiry?.workflow_preset_type === 'internal_job') return 'Internal Job'
+  if (props.task.enquiry?.workflow_preset_type === 'sponsorship') return 'Sponsorship'
+  return 'Quote'
+})
+
 const loadQuoteData = async () => {
   if (!props.task.project_enquiry_id) {
     error.value = 'No enquiry ID found'
@@ -318,6 +330,8 @@ const loadQuoteData = async () => {
     const enquiryResponse = await axios.get(`/api/projects/enquiries/${props.task.project_enquiry_id}`)
     if (enquiryResponse.data.data) {
       const enquiry = enquiryResponse.data.data
+      const totalVal = isNonProfit.value ? (enquiry.estimated_budget || 0) : 0
+      
       quoteData.value.projectInfo = {
         projectId: enquiry.job_number || enquiry.enquiry_number || enquiry.id,
         enquiryTitle: enquiry.title || enquiry.event_name || 'Project Title',
@@ -327,31 +341,42 @@ const loadQuoteData = async () => {
         setDownDate: enquiry.setdown_date || 'TBC',
         jobNumber: enquiry.job_number || ''
       }
+
+      if (isNonProfit.value) {
+        quoteData.value.totals.grandTotal = totalVal
+        // Check if already approved/rejected from enquiry status
+        if (enquiry.status === 'quote_approved') {
+           formData.value.approval_status = 'approved'
+           quoteData.value.status = 'approved'
+        }
+      }
     }
 
-    const tasksResponse = await axios.get(`/api/projects/enquiries/${props.task.project_enquiry_id}/tasks`)
-    const tasks = tasksResponse.data.data || []
-    const quoteTask = tasks.find((t: EnquiryTask) => t.type === 'quote')
+    if (!isNonProfit.value) {
+      const tasksResponse = await axios.get(`/api/projects/enquiries/${props.task.project_enquiry_id}/tasks`)
+      const tasks = tasksResponse.data.data || []
+      const quoteTask = tasks.find((t: EnquiryTask) => t.type === 'quote')
 
-    if (quoteTask) {
-      quoteTaskId.value = quoteTask.id
-      const quoteResponse = await axios.get(`/api/projects/tasks/${quoteTask.id}/quote`)
-      if (quoteResponse.data.data) {
-        const quoteDataFromAPI = quoteResponse.data.data
-        const preservedProjectInfo = quoteData.value.projectInfo
-        Object.assign(quoteData.value, quoteDataFromAPI)
-        quoteData.value.projectInfo = preservedProjectInfo
+      if (quoteTask) {
+        quoteTaskId.value = quoteTask.id
+        const quoteResponse = await axios.get(`/api/projects/tasks/${quoteTask.id}/quote`)
+        if (quoteResponse.data.data) {
+          const quoteDataFromAPI = quoteResponse.data.data
+          const preservedProjectInfo = quoteData.value.projectInfo
+          Object.assign(quoteData.value, quoteDataFromAPI)
+          quoteData.value.projectInfo = preservedProjectInfo
 
-        if (quoteData.value.status && quoteData.value.status !== 'draft') {
-          formData.value.approval_status = quoteData.value.status
+          if (quoteData.value.status && quoteData.value.status !== 'draft') {
+            formData.value.approval_status = quoteData.value.status
+          }
+          if (quoteData.value.approvalComments) formData.value.comments = quoteData.value.approvalComments
+          if (quoteData.value.approvedBy) formData.value.approved_by = quoteData.value.approvedBy
+          if (quoteData.value.approvalDate) formData.value.approval_date = quoteData.value.approvalDate
+          if (quoteData.value.rejectionReason) formData.value.rejection_reason = quoteData.value.rejectionReason
         }
-        if (quoteData.value.approvalComments) formData.value.comments = quoteData.value.approvalComments
-        if (quoteData.value.approvedBy) formData.value.approved_by = quoteData.value.approvedBy
-        if (quoteData.value.approvalDate) formData.value.approval_date = quoteData.value.approvalDate
-        if (quoteData.value.rejectionReason) formData.value.rejection_reason = quoteData.value.rejectionReason
+      } else {
+          error.value = 'Quote Task not found'
       }
-    } else {
-        error.value = 'Quote Task not found'
     }
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Failed to load data'
@@ -377,11 +402,14 @@ const handleSubmit = async () => {
       approval_date: formData.value.approval_date,
       approved_by: formData.value.approved_by,
       quote_amount: quoteData.value.totals?.grandTotal || 0,
-      quote_data: quoteData.value
+      quote_data: isNonProfit.value ? null : quoteData.value
     }
 
     await axios.post(`/api/projects/tasks/${props.task.id}/approval`, approvalData)
-    await loadQuoteData()
+    // No need to reload quote data for non-profit
+    if (!isNonProfit.value) {
+       await loadQuoteData()
+    }
     
     successMessage.value = 'Decision saved successfully!'
     setTimeout(() => { successMessage.value = null }, 3000)

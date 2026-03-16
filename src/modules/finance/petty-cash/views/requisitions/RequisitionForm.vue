@@ -17,7 +17,7 @@
           standalone ? 'w-full h-full' : 'w-full max-w-4xl bg-slate-50 dark:bg-slate-900 h-full shadow-2xl relative z-10 overflow-y-auto border-l border-slate-200 dark:border-slate-800'
         ]"
       >
-        <div :class="standalone ? 'p-0' : 'p-6 md:p-8'">
+        <div :class="standalone ? 'p-2 sm:p-4' : 'p-6 md:p-8'">
           <!-- Close Button -->
           <button 
             v-if="!standalone"
@@ -53,9 +53,9 @@
           ? 'bg-transparent border-none shadow-none' 
           : 'bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 shadow-xl shadow-slate-200/20 dark:shadow-none'
       ]" class="overflow-hidden">
-      <form @submit.prevent="submitForm" :class="standalone ? 'p-0 space-y-6' : 'p-8 space-y-8'">
+      <form @submit.prevent="submitForm" :class="standalone ? 'p-3 sm:p-4 space-y-5 sm:space-y-6' : 'p-8 space-y-8'">
         <!-- Basic Info Section -->
-        <div :class="standalone ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5' : 'grid-cols-1 md:grid-cols-2 gap-6'" class="grid">
+        <div :class="standalone ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5' : 'grid-cols-1 md:grid-cols-2 gap-6'" class="grid">
           <div class="space-y-2">
             <label class="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
               Department <span class="text-red-500">*</span>
@@ -268,9 +268,9 @@
           <div :class="standalone ? 'space-y-4' : 'space-y-6'">
             <div v-for="(item, index) in form.items" :key="index" :class="[
               standalone 
-                ? 'bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/50' 
+                ? 'bg-white dark:bg-slate-800/50 p-2 sm:p-3 rounded-xl border border-slate-200 dark:border-slate-700/50' 
                 : 'bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50'
-            ]" class="space-y-4 relative group transition-all">
+            ]" class="space-y-3 sm:space-y-4 relative group transition-all">
               <button
                 v-if="form.items.length > 1 && !isFinancialLocked"
                 type="button"
@@ -281,108 +281,95 @@
               </button>
 
               <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <!-- Description / Payee Name -->
-                <div :class="isPayeeCategory ? 'md:col-span-4' : 'md:col-span-8'" class="space-y-1">
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    {{ isPayeeCategory ? 'Recipient Name / Employee' : 'Description' }}
-                  </label>
-                  
-                  <template v-if="isPayeeCategory">
-                    <div class="flex gap-2">
-                      <div class="relative w-full">
-                        <!-- Payee Search Input -->
-                        <div class="relative">
-                          <input
-                            type="text"
-                            v-model="item.payee_search"
-                            @input="onPayeeSearch($event, index)"
-                            @focus="item.show_results = true"
-                            @blur="hidePayeeResults(index)"
-                            :placeholder="item.payee_name || 'Search Employee or Tech Labour...'"
-                            :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
-                            class="w-full pl-10 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
-                            :disabled="isFinancialLocked"
-                          />
-                          <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
-                          <button
-                            v-if="item.payee_id || (item.payee_name && !item.is_external)"
-                            @click="clearPayee(index)"
-                            type="button"
-                            class="absolute right-3 top-2.5 text-slate-400 hover:text-red-500"
-                          >
-                            <i class="mdi mdi-close"></i>
-                          </button>
-                        </div>
-                        
-                        <!-- Search Results Dropdown -->
-                        <div
-                          v-if="item.show_results && item.search_results && item.search_results.length > 0"
-                          class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto"
+                <!-- Recipient / Payee Name (Mode A) -->
+                <div v-if="isPayeeCategory" class="md:col-span-6 space-y-1">
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Recipient Name / Employee</label>
+                  <div class="flex gap-2">
+                    <div class="relative w-full">
+                      <!-- Payee Search Input -->
+                      <div class="relative">
+                        <input
+                          type="text"
+                          v-model="item.payee_search"
+                          @input="onPayeeSearch($event, index)"
+                          @focus="item.show_results = true"
+                          @blur="hidePayeeResults(index)"
+                          :placeholder="item.payee_name || 'Search...'"
+                          :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                          class="w-full pl-10 bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm font-bold disabled:opacity-50"
+                          :disabled="isFinancialLocked"
+                        />
+                        <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
+                        <button
+                          v-if="item.payee_id || (item.payee_name && !item.is_external)"
+                          @click="clearPayee(index)"
+                          type="button"
+                          class="absolute right-3 top-2.5 text-slate-400 hover:text-red-500"
                         >
-                          <button
-                            v-for="result in item.search_results"
-                            :key="result.type + result.id"
-                            type="button"
-                            @mousedown.prevent="selectPayee(index, result)"
-                            class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-between group border-b border-slate-50 dark:border-slate-700/50 last:border-0"
-                          >
-                            <div>
-                              <div class="font-bold text-slate-900 dark:text-white text-sm">{{ result.name }}</div>
-                              <div class="text-[10px] uppercase font-black tracking-wider" 
-                                :class="result.type === 'employee' ? 'text-blue-500' : 'text-amber-500'">
-                                {{ result.detail }}
-                              </div>
-                              <div v-if="result.payee_phone || result.phone" class="text-[10px] text-blue-500 font-bold flex items-center gap-1 mt-0.5">
-                                <i class="mdi mdi-phone text-[9px]"></i> {{ result.payee_phone || result.phone }}
-                              </div>
+                          <i class="mdi mdi-close"></i>
+                        </button>
+                      </div>
+                      
+                      <!-- Search Results Dropdown -->
+                      <div
+                        v-if="item.show_results && item.search_results && item.search_results.length > 0"
+                        class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 max-h-60 overflow-y-auto"
+                      >
+                        <button
+                          v-for="result in item.search_results"
+                          :key="result.type + result.id"
+                          type="button"
+                          @mousedown.prevent="selectPayee(index, result)"
+                          class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center justify-between group border-b border-slate-50 dark:border-slate-700/50 last:border-0"
+                        >
+                          <div>
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">{{ result.name }}</div>
+                            <div class="text-[10px] uppercase font-black tracking-wider" 
+                              :class="result.type === 'employee' ? 'text-blue-500' : 'text-amber-500'">
+                              {{ result.detail }}
                             </div>
-                            <i v-if="result.type === 'employee'" class="mdi mdi-account-tie text-slate-300 group-hover:text-blue-500"></i>
-                            <i v-else class="mdi mdi-hammer-wrench text-slate-300 group-hover:text-amber-500"></i>
-                          </button>
-                        </div>
-                        
-                        <!-- Loading State -->
-                        <div v-if="item.searching" class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
-                           <i class="mdi mdi-loading mdi-spin text-blue-500 mr-2"></i> <span class="text-xs font-bold text-slate-500">Searching...</span>
-                        </div>
+                            <div v-if="result.payee_phone || result.phone" class="text-[10px] text-blue-500 font-bold flex items-center gap-1 mt-0.5">
+                              <i class="mdi mdi-phone text-[9px]"></i> {{ result.payee_phone || result.phone }}
+                            </div>
+                          </div>
+                          <i v-if="result.type === 'employee'" class="mdi mdi-account-tie text-slate-300 group-hover:text-blue-500"></i>
+                          <i v-else class="mdi mdi-hammer-wrench text-slate-300 group-hover:text-amber-500"></i>
+                        </button>
                       </div>
 
-                      <button 
-                         v-if="!isFinancialLocked"
-                         type="button"
-                         @click="toggleExternal(index)"
-                         class="p-2 text-slate-400 hover:text-blue-500 shrink-0"
-                         :title="item.is_external ? 'Switch to Search' : 'Switch to Manual Entry'"
-                      >
-                         <i :class="item.is_external ? 'mdi mdi-account-search' : 'mdi mdi-account-edit'"></i>
-                      </button>
+                      <!-- Loading State -->
+                      <div v-if="item.searching" class="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+                         <i class="mdi mdi-loading mdi-spin text-blue-500 mr-2"></i> <span class="text-xs font-bold text-slate-500">...</span>
+                      </div>
                     </div>
-                  </template>
+
+                    <button 
+                       v-if="!isFinancialLocked"
+                       type="button"
+                       @click="toggleExternal(index)"
+                       class="p-2 text-slate-400 hover:text-blue-500 shrink-0"
+                       :title="item.is_external ? 'Switch to Search' : 'Switch to Manual Entry'"
+                    >
+                       <i :class="item.is_external ? 'mdi mdi-account-search' : 'mdi mdi-account-edit'"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Detail / Description (Item-Centric Mode) -->
+                <div v-if="!isPayeeCategory" class="md:col-span-8 space-y-1">
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Description</label>
                   <input
-                    v-else
                     v-model="item.description"
                     :disabled="isFinancialLocked"
                     required
-                    :placeholder="isPayeeCategory ? 'E.g., Dinner, Transport...' : 'Item description...'"
+                    placeholder="Item description..."
                     :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
                     class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
 
-                <!-- Detail / Remarks (Only in Mode A) -->
-                <div v-if="isPayeeCategory" class="md:col-span-4 space-y-1">
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Reference / Detail</label>
-                  <input
-                    v-model="item.remarks"
-                    :disabled="isFinancialLocked"
-                    placeholder="E.g., Site A, Trip 1..."
-                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
-                    class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm text-right disabled:opacity-50"
-                  />
-                </div>
-
                 <!-- Amount -->
-                <div :class="isPayeeCategory ? 'md:col-span-2' : 'md:col-span-4'" class="space-y-1">
+                <div :class="isPayeeCategory ? 'md:col-span-3' : 'md:col-span-4'" class="space-y-1">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Amount</label>
                   <input
                     v-model.number="item.amount"
@@ -396,8 +383,8 @@
                   />
                 </div>
 
-                <!-- Phone Number (Always show if Payee Category) -->
-                <div v-if="isPayeeCategory" class="md:col-span-2 space-y-1">
+                <!-- Phone (Only for Payee Category) -->
+                <div v-if="isPayeeCategory" class="md:col-span-3 space-y-1">
                   <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</label>
                   <input
                     v-model="item.payee_phone"
@@ -413,7 +400,7 @@
         </div>
 
         <!-- Footer / Summary -->
-        <div :class="standalone ? 'p-4 rounded-xl' : 'p-6 rounded-2xl'" class="bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100 dark:border-slate-700/50 mt-6 md:mt-8">
+        <div :class="standalone ? 'p-3 sm:p-4 rounded-xl' : 'p-6 rounded-2xl'" class="bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100 dark:border-slate-700/50 mt-4 sm:mt-8">
           <div>
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Total Amount Requested</span>
             <span :class="standalone ? 'text-2xl' : 'text-3xl'" class="font-black text-blue-600 dark:text-blue-400 tracking-tighter">
@@ -423,10 +410,10 @@
           <button
             type="submit"
             :disabled="submitting"
-            :class="standalone ? 'py-3.5 px-8 rounded-xl' : 'py-4 px-10 rounded-2xl'"
-            class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-black uppercase tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 min-w-[200px]"
+            :class="standalone ? 'py-3 sm:py-3.5 px-6 sm:px-8 rounded-xl' : 'py-4 px-10 rounded-2xl'"
+            class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs md:text-sm transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 w-full md:min-w-[200px] md:w-auto"
           >
-            <i v-if="submitting" class="mdi mdi-loading mdi-spin text-xl"></i>
+            <i v-if="submitting" class="mdi mdi-loading mdi-spin text-lg sm:text-xl"></i>
             <span v-else>{{ editMode ? 'Update Requisition' : 'Submit Requisition' }}</span>
           </button>
         </div>
@@ -492,7 +479,6 @@ const form = reactive({
   items: [
     { 
       description: '', 
-      remarks: '',
       amount: 0, 
       payee_id: null as number | null, 
       payee_name: '', 
@@ -575,19 +561,26 @@ const fetchRequisition = async () => {
     form.project_name = data.project_name || ''
     form.venue = data.venue || ''
 
-    form.items = data.items.map((item: any) => ({
-      description: item.description,
-      remarks: item.remarks || '',
-      amount: parseFloat(item.amount),
-      payee_id: item.payee_id,
-      payee_name: item.payee_name,
-      payee_phone: item.payee_phone || (item.payee?.phone || ''),
-      is_external: !!item.payee_name && !item.payee_id,
-      payee_search: item.payee_name || (item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : ''),
-      show_results: false,
-      search_results: [],
-      searching: false
-    }))
+    form.items = data.items.map((item: any) => {
+      // If it's a payee category and had remarks, merge them for the new single-field UI
+      let description = item.description
+      if (isPayeeCategory.value && item.remarks) {
+        description = item.remarks
+      }
+      
+      return {
+        description: description,
+        amount: parseFloat(item.amount),
+        payee_id: item.payee_id,
+        payee_name: item.payee_name,
+        payee_phone: item.payee_phone || (item.payee?.phone || ''),
+        is_external: !!item.payee_name && !item.payee_id,
+        payee_search: item.payee_name || (item.payee ? `${item.payee.first_name} ${item.payee.last_name}` : ''),
+        show_results: false,
+        search_results: [],
+        searching: false
+      }
+    })
 
     // Map top-level payee info
     form.payee_id = data.payee_id || null
@@ -669,8 +662,8 @@ watch(projectSelection, async (newVal) => {
 
       if (isBlank && members.length > 0) {
         form.items = members.map((m: any) => ({
-          description: isPayeeCategory.value ? form.category : '',
-          remarks: m.task_name || '',
+          description: m.task_name || '',
+          remarks: '',
           amount: 0,
           payee_id: m.payee_id,
           payee_name: m.name,
@@ -700,8 +693,8 @@ const addTeamToItems = (category: string) => {
   const isOnlyBlank = form.items.length === 1 && !form.items[0].description && !form.items[0].payee_id && !form.items[0].payee_name
   
   const newItems = members.map((m: any) => ({
-    description: isPayeeCategory.value ? form.category : '',
-    remarks: m.task_name || '',
+    description: m.task_name || '',
+    remarks: '',
     amount: 0,
     payee_id: m.payee_id,
     payee_name: m.name,
@@ -743,7 +736,6 @@ const handlePayeeToggle = () => {
 const addItem = () => {
   form.items.push({ 
     description: '', 
-    remarks: '',
     amount: 0, 
     payee_id: null, 
     payee_name: '', 
@@ -956,7 +948,8 @@ const submitForm = async () => {
     // Ensure every item has a description and minimum amount (required by backend)
     const sanitizedItems = form.items.map(item => ({
       ...item,
-      description: item.description?.trim() || form.category || form.purpose || 'Payment for Services',
+      // If payee mode, use Purpose as description if detail is hidden/empty
+      description: item.description?.trim() || form.purpose || form.category || 'Payment',
       amount: Math.max(Number(item.amount) || 0, 0.01)
     }))
 
@@ -1000,7 +993,7 @@ const handleQueryPreFill = async () => {
       form.purpose = data.purpose as string
       // If we have a purpose, also set it as the description for the first item
       // Make sure we only override if the array is empty or purely pristine
-      if (form.items.length === 1 && !form.items[0].description && !form.items[0].payee_name && !form.items[0].remarks) {
+      if (form.items.length === 1 && !form.items[0].description && !form.items[0].payee_name) {
         form.items[0].description = data.purpose as string
       }
     }
@@ -1048,7 +1041,6 @@ const handleQueryPreFill = async () => {
         if (billData?.purchase_order?.items && billData.purchase_order.items.length > 0) {
           form.items = billData.purchase_order.items.map((poItem: any) => ({
             description: poItem.material_name || form.purpose || 'Bill Item',
-            remarks: poItem.material_name || 'Material Item', // UI uses remarks for description in Payee categories (Projects/Transport etc)
             amount: poItem.total || 0,
             payee_id: null,
             payee_name: supplierName,
@@ -1083,7 +1075,6 @@ const resetForm = () => {
   form.payee_phone = ''
   form.items = [{ 
     description: '', 
-    remarks: '',
     amount: 0, 
     payee_id: null, 
     payee_name: '', 

@@ -53,6 +53,15 @@ export const financeRoutes: RouteRecordRaw[] = [
         meta: {
           title: 'Edit Requisition'
         }
+      },
+      {
+        path: 'project-receivables',
+        name: 'finance-project-receivables',
+        component: () => import('../modules/finance/receivables/views/ProjectReceivablesIndex.vue'),
+        meta: {
+          title: 'Project Billing & Deposits',
+          requiresFinanceAccess: true
+        }
       }
     ],
   },

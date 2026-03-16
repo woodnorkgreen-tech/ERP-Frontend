@@ -326,13 +326,31 @@ const initializeModal = async () => {
     modalState.value = 'opening'
     await nextTick()
     
-    resetForm()
+    if (props.mode === 'edit' && props.topUp) {
+      loadTopUpData()
+    } else {
+      resetForm()
+    }
+    
     isInitialized.value = true
     modalState.value = 'open'
   } catch (error) {
     console.error('Error initializing modal:', error)
     modalError.value = 'Failed to initialize modal'
     modalState.value = 'closed'
+  }
+}
+
+const loadTopUpData = () => {
+  if (props.topUp) {
+    const t = props.topUp
+    Object.assign(form, {
+      amount: t.amount?.raw ?? t.amount,
+      payment_method: t.payment_method?.value ?? t.payment_method,
+      transaction_code: t.transaction_code || '',
+      date_topped_up: (t.date_topped_up?.raw || t.date_topped_up || '').split('T')[0],
+      description: t.description || ''
+    })
   }
 }
 
@@ -392,16 +410,8 @@ watch(() => form.payment_method, (newMethod) => {
 
 // Watch for topUp change to populate form in edit mode
 watch(() => props.topUp, (newTopUp) => {
-  if (props.mode === 'edit' && newTopUp) {
-    Object.assign(form, {
-      amount: newTopUp.amount?.raw ?? newTopUp.amount,
-      payment_method: newTopUp.payment_method?.value ?? newTopUp.payment_method,
-      transaction_code: newTopUp.transaction_code || '',
-      date_topped_up: (newTopUp.date_topped_up?.raw || newTopUp.date_topped_up || '').split('T')[0],
-      description: newTopUp.description || ''
-    })
-  } else if (props.mode !== 'edit' && !props.isOpen) {
-    resetForm()
+  if (props.mode === 'edit' && newTopUp && props.isOpen) {
+    loadTopUpData()
   }
 }, { immediate: true })
 

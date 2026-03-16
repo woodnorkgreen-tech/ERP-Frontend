@@ -1,383 +1,322 @@
 <template>
-  <div class="p-8 space-y-8 max-w-5xl mx-auto">
-    <!-- Premium Header -->
-    <div class="flex justify-between items-center">
+  <div class="min-h-screen bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-200 p-6 font-sans transition-colors duration-300">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
-        <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
-          Receive <span class="text-emerald-500 text-3xl opacity-50">/</span> Stock
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Stock Check-In
         </h1>
-        <p class="text-slate-500 dark:text-gray-400 font-medium mt-1">Add new materials into the warehouse stock.</p>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Receive an individual item into stock.</p>
       </div>
-      <button @click="$router.push('/stores/batch-check-in')" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border-2 border-emerald-600/30 text-emerald-600 dark:text-emerald-400 rounded-2xl hover:bg-emerald-50 transition-all font-black text-[10px] uppercase tracking-widest">
-        <i class="mdi mdi-layers-plus text-lg"></i>
-        SWITCH TO BATCH MODE
-      </button>
+      
+      <div class="flex gap-3">
+        <button @click="router.push('/stores/batch-check-in')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-xs font-bold uppercase tracking-wider shadow-sm">
+          <i class="mdi mdi-layers-plus text-lg"></i>
+          Batch Mode
+        </button>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Form Section -->
-      <div class="lg:col-span-2 space-y-6">
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl">
-          <div class="p-10 space-y-8">
-            <!-- Material Selection -->
-
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">1. Select Material</label>
-              <div class="relative group" ref="materialSearchContainer">
-                <!-- Search Input with Icon -->
-                <div class="relative">
-                  <i v-if="searching" class="mdi mdi-loading mdi-spin absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500 text-xl transition-colors"></i>
-                  <i v-else class="mdi mdi-magnify absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-emerald-500 transition-colors"></i>
-                  <input 
-                    v-model="materialSearch"
-                    type="text"
-                    placeholder="Search library or type code..."
-                    @input="onSearchInput"
-                    @focus="showResults = true"
-                    class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
-                  />
-                  <!-- Selection Indicator -->
-                  <div v-if="selectedMaterial" class="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-lg border border-emerald-500/20 animate-in fade-in zoom-in duration-200">
-                    <i class="mdi mdi-check-circle text-sm"></i>
-                    <span class="text-[10px] font-black uppercase tracking-tighter">Selected</span>
-                  </div>
-                </div>
-
-                <!-- Floating Results Dropdown -->
-                <div v-if="showResults" 
-                     class="absolute left-0 right-0 mt-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] z-[500] max-h-[400px] overflow-y-auto ring-1 ring-black/5 animate-in slide-in-from-top-2 duration-200">
-                  
-                  <!-- Searching State -->
-                  <div v-if="searching" class="p-8 flex flex-col items-center justify-center text-slate-400">
-                    <div class="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Querying Inventory...</span>
-                  </div>
-
-                  <!-- Results List -->
-                  <ul v-else class="p-2">
-                    <li v-for="item in displayInventory" :key="item.id"
-                        @click="selectMaterial(item)"
-                        class="p-4 hover:bg-emerald-50 dark:hover:bg-emerald-400/10 cursor-pointer rounded-xl transition-all border border-transparent hover:border-emerald-500/20 group flex items-center justify-between"
-                    >
-                      <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-emerald-500 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/10 transition-colors">
-                          <i class="mdi mdi-package-variant-closed text-xl"></i>
-                        </div>
-                        <div class="flex flex-col">
-                          <span class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ item.material_name }}</span>
-                          <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{{ item.material_code }}</span>
-                        </div>
-                      </div>
-                      <div class="text-right">
-                        <span class="text-[10px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded uppercase group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 group-hover:text-emerald-600 transition-colors">
-                          {{ item.quantity_on_hand }} {{ item.unit_of_measure }}
-                        </span>
-                      </div>
-                    </li>
-                  </ul>
-
-                  <!-- No Results -->
-                  <div v-if="inventory.length === 0 && !searching" class="p-12 text-center text-slate-400">
-                    <i class="mdi mdi-package-variant text-4xl mb-3 block opacity-20"></i>
-                    <p class="text-xs font-bold uppercase tracking-widest">No materials found matching "{{ materialSearch }}"</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <!-- Quantity -->
-              <div class="space-y-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">2. Quantity to Add</label>
-                <div class="relative">
-                  <input 
-                    type="number" 
-                    v-model.number="form.quantity"
-                    placeholder="0.00"
-                    class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xl font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all"
-                  />
-                  <div class="absolute right-6 top-1/2 -translate-y-1/2 h-8 px-3 flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg text-[10px] font-black uppercase text-slate-500">
-                    {{ selectedMaterial?.unit_of_measure || 'Units' }}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Location -->
-              <div class="space-y-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">3. Storage Location</label>
-                <input 
-                  type="text" 
-                  v-model="form.location"
-                  placeholder="Shelf / Bin Number (e.g. A-12)"
-                  class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
-                />
-              </div>
-            </div>
-
-            <!-- Meta Data (LPO / GRN) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div class="space-y-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">4. Reference / LPO</label>
-                <input 
-                  type="text" 
-                  v-model="form.reference_no"
-                  placeholder="LPO # or GRN #"
-                  class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
-                />
-              </div>
-              <div class="space-y-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">5. Supplier</label>
-                <select 
-                  class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all appearance-none"
-                >
-                  <option>Self / Existing Stock</option>
-                  <option>Supplier A</option>
-                  <option>Supplier B</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Notes -->
-            <div class="space-y-3">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">6. Notes</label>
-              <textarea 
-                v-model="form.notes"
-                rows="3"
-                placeholder="Details of the arrival..."
-                class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
-              ></textarea>
-            </div>
-
-            <!-- Submit -->
-            <button 
-              @click="submitCheckIn"
-              :disabled="submitting || !form.material_id || !form.quantity"
-              class="w-full py-6 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-2xl shadow-xl shadow-emerald-500/20 transition-all font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
-            >
-              <div v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <i v-else class="mdi mdi-check-circle-outline text-xl transition-transform group-hover:scale-125"></i>
-              {{ submitting ? 'Saving...' : 'Save and Update Stock' }}
-            </button>
+    <!-- Stepper -->
+    <div class="max-w-3xl mx-auto mb-10">
+      <div class="flex items-center justify-center gap-4 px-4">
+        <div v-for="step in 3" :key="step" class="flex items-center gap-4">
+          <div :class="['w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-lg', 
+                       currentStep >= step ? 'bg-emerald-600 text-white shadow-emerald-500/40 dark:shadow-emerald-900/40' : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700']">
+            {{ step }}
           </div>
+          <span v-if="step < 3" class="w-12 h-px bg-slate-200 dark:bg-slate-700"></span>
         </div>
       </div>
+      <div class="flex justify-center mt-2">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-500">{{ stepLabels[currentStep-1] }}</span>
+      </div>
+    </div>
 
-      <!-- Live Sidebar Summary -->
-      <div class="space-y-6">
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 h-full rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
-          <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-          <div class="relative z-10 space-y-8">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Operation</p>
-              <h3 class="text-xl font-black">ADD STOCK</h3>
-            </div>
+    <div class="grid grid-cols-12 gap-6 max-w-7xl mx-auto">
+      <!-- Main Form -->
+      <div class="col-span-12 lg:col-span-8">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm dark:shadow-xl min-h-[450px]">
+          
+          <!-- Step 1: Find Material -->
+          <div v-if="currentStep === 1" class="space-y-8 animate-fade-in">
+             <div class="space-y-1">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white font-sans">Find Material</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-sans">Search for the item you are adding to stock</p>
+             </div>
 
-            <div v-if="selectedMaterial" class="space-y-6 animate-fade-in">
-              <div class="p-6 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-md">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">Stock Summary</p>
-                <div class="space-y-4">
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">Current Stock</span>
-                    <span class="text-xs font-black">{{ selectedMaterial.quantity_on_hand }} {{ selectedMaterial.unit_of_measure }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">New Stock</span>
-                    <span class="text-xs font-black text-emerald-400">+ {{ form.quantity || 0 }} {{ selectedMaterial.unit_of_measure }}</span>
-                  </div>
-                  <div class="h-px bg-white/10 my-4"></div>
-                  <div class="flex justify-between">
-                    <span class="text-xs text-white/50">Final Balance</span>
-                    <span class="text-base font-black">{{ (selectedMaterial.quantity_on_hand || 0) + (form.quantity || 0) }}</span>
-                  </div>
+             <div class="relative" ref="materialSearchContainer">
+                <i v-if="searching" class="mdi mdi-loading mdi-spin absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-500 text-xl z-10"></i>
+                <i v-else class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xl z-10"></i>
+                <input 
+                  v-model="materialSearch"
+                  type="text"
+                  placeholder="Search by Code or Name..."
+                  @focus="showResults = true"
+                  @input="onSearchInput"
+                  class="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-lg text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-0 transition-all font-bold placeholder:font-sans"
+                />
+
+                <div v-if="showResults && (displayInventory.length > 0 || searching)" 
+                     class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-2xl overflow-hidden z-[50] max-h-[300px] overflow-y-auto">
+                   <div v-if="searching" class="p-8 text-center text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest">Searching...</div>
+                   <div v-else v-for="item in displayInventory" :key="item.id"
+                        @click="selectMaterial(item)"
+                        class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 flex justify-between items-center group transition-colors font-sans">
+                      <div class="flex items-center gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-500">
+                           <i class="mdi mdi-package-variant"></i>
+                        </div>
+                        <div>
+                           <p class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ item.material_name }}</p>
+                           <p class="text-[9px] font-mono text-slate-400 dark:text-slate-500 uppercase">{{ item.material_code }}</p>
+                        </div>
+                      </div>
+                      <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">{{ item.available }} {{ item.unit_of_measure }}</span>
+                   </div>
                 </div>
-              </div>
+             </div>
 
-               <div class="p-6 bg-white/5 rounded-3xl border border-white/10">
-                 <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">Location</p>
-                 <div class="flex items-center gap-4">
-                   <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                     <i class="mdi mdi-warehouse text-xl"></i>
+             <div v-if="selectedMaterial" class="p-4 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-between font-sans">
+                <div class="flex items-center gap-4">
+                   <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-500">
+                      <i class="mdi mdi-check-circle-outline text-2xl"></i>
                    </div>
                    <div>
-                     <p class="text-xs font-black">{{ form.location || 'Not Assigned' }}</p>
-                     <p class="text-[9px] text-white/40 uppercase font-black">Main Stores</p>
+                      <p class="text-[9px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">Selected Item</p>
+                      <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ selectedMaterial.material_name }}</h4>
                    </div>
-                 </div>
-               </div>
-            </div>
-
-            <div v-else class="p-12 text-center opacity-30 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center">
-              <i class="mdi mdi-package-variant-closed text-5xl mb-4"></i>
-              <p class="text-[10px] font-black uppercase tracking-widest">Select material to see summary</p>
-            </div>
+                </div>
+                <button @click="currentStep = 2" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20 dark:shadow-emerald-900/20">
+                   Continue
+                </button>
+             </div>
           </div>
+
+          <!-- Step 2: Details -->
+          <div v-if="currentStep === 2" class="space-y-8 animate-fade-in font-sans">
+             <div class="space-y-1">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Stock Details</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Enter the quantity, reference and warehouse location</p>
+             </div>
+
+             <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-2">
+                   <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Quantity</label>
+                   <div class="relative">
+                      <input 
+                        v-model.number="form.quantity"
+                        type="number" 
+                        placeholder="0.00"
+                        class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-lg text-lg font-bold text-slate-900 dark:text-white focus:ring-0 transition-all text-center"
+                      />
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                        {{ selectedMaterial?.unit_of_measure }}
+                      </span>
+                   </div>
+                </div>
+
+                <div class="space-y-2">
+                   <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Location</label>
+                   <input 
+                     v-model="form.location"
+                     type="text" 
+                     placeholder="Shelf/Bin"
+                     class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-lg text-sm font-bold text-slate-900 dark:text-white focus:ring-0 transition-all font-sans"
+                   />
+                </div>
+             </div>
+
+             <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Reference (LPO/GRN)</label>
+                <div class="relative">
+                  <i class="mdi mdi-file-document-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg"></i>
+                  <input 
+                    v-model="form.reference_no"
+                    type="text" 
+                    placeholder="Ref No."
+                    class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-lg text-sm font-bold text-slate-900 dark:text-white focus:ring-0 transition-all font-sans"
+                  />
+                </div>
+             </div>
+
+             <div class="flex justify-between pt-6 border-t border-slate-100 dark:border-slate-700">
+                <button @click="currentStep = 1" class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Back</button>
+                <button @click="currentStep = 3" :disabled="!form.quantity" class="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20 dark:shadow-emerald-900/20">
+                   Review Submission
+                </button>
+             </div>
+          </div>
+
+          <!-- Step 3: Confirmation -->
+          <div v-if="currentStep === 3" class="space-y-8 animate-fade-in font-sans">
+             <div class="space-y-1">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Review & Confirm</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Review the stock entry before saving</p>
+             </div>
+
+             <div class="p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl space-y-6">
+                <div class="flex items-center gap-4">
+                   <div class="w-12 h-12 rounded-lg bg-emerald-600/10 text-emerald-600 dark:text-emerald-500 flex items-center justify-center text-2xl border border-emerald-500/20">
+                      <i class="mdi mdi-check-all"></i>
+                   </div>
+                   <div class="flex-1">
+                      <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Material</p>
+                      <h4 class="text-base font-bold text-slate-900 dark:text-white">{{ selectedMaterial?.material_name }}</h4>
+                   </div>
+                   <div class="text-right">
+                      <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Adding</p>
+                      <h4 class="text-2xl font-bold text-emerald-600 dark:text-emerald-500">+ {{ form.quantity }}</h4>
+                   </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                   <div>
+                      <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Target Location</p>
+                      <p class="text-xs font-bold text-slate-900 dark:text-white">{{ form.location || 'Warehouse Main' }}</p>
+                   </div>
+                   <div>
+                      <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Reference No.</p>
+                      <p class="text-xs font-bold text-slate-900 dark:text-white">{{ form.reference_no || '-' }}</p>
+                   </div>
+                </div>
+             </div>
+
+             <div class="space-y-2">
+                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Notes</label>
+                <textarea 
+                  v-model="form.notes"
+                  rows="2"
+                  placeholder="Additional notes..."
+                  class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 rounded-lg text-sm text-slate-900 dark:text-white focus:ring-0 transition-all font-medium placeholder:font-sans"
+                ></textarea>
+             </div>
+
+             <div class="flex justify-between pt-6 border-t border-slate-100 dark:border-slate-700">
+                <button @click="currentStep = 2" class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">Edit Details</button>
+                <button 
+                  @click="submitCheckIn"
+                  :disabled="submitting"
+                  class="px-10 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 dark:shadow-emerald-900/20"
+                >
+                  <i v-if="submitting" class="mdi mdi-loading mdi-spin text-lg"></i>
+                  <i v-else class="mdi mdi-content-save-check text-lg"></i>
+                  {{ submitting ? 'Saving...' : 'Confirm Stock In' }}
+                </button>
+             </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Inventory Preview Side -->
+      <div class="col-span-12 lg:col-span-4 font-sans">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm dark:shadow-xl sticky top-8 transition-all">
+           <h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-8 px-1">Current Status</h4>
+           
+           <div v-if="selectedMaterial" class="space-y-10 animate-fade-in text-center">
+              <div class="relative w-32 h-32 mx-auto">
+                 <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="16" fill="none" class="stroke-slate-100 dark:stroke-slate-900" stroke-width="3" />
+                    <circle cx="18" cy="18" r="16" fill="none" 
+                            class="stroke-emerald-600 dark:stroke-emerald-500"
+                            stroke-width="3" 
+                            stroke-dasharray="100" 
+                            :stroke-dashoffset="100 - ((selectedMaterial.quantity_on_hand + (form.quantity || 0)) / (selectedMaterial.min_stock_level * 4 || 100) * 100)"
+                            stroke-linecap="round" />
+                 </svg>
+                 <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">Total</span>
+                    <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ selectedMaterial.available + (form.quantity || 0) }}</span>
+                 </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-center">
+                 <div class="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 p-3 rounded-lg">
+                    <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Before</p>
+                    <p class="text-sm font-bold text-slate-500 dark:text-slate-400">{{ selectedMaterial.available }}</p>
+                 </div>
+                 <div class="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 p-3 rounded-lg border-emerald-500/10">
+                    <p class="text-[8px] font-bold text-emerald-600 dark:text-emerald-500 uppercase mb-1">Increase</p>
+                    <p class="text-sm font-bold text-emerald-600 dark:text-emerald-500">+{{ form.quantity || 0 }}</p>
+                 </div>
+              </div>
+           </div>
+
+           <div v-else class="h-64 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center text-center p-6 opacity-40">
+              <i class="mdi mdi-package-variant-closed text-4xl mb-3 text-slate-400 dark:text-slate-600"></i>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 leading-relaxed">Search for an item to see stock preview</p>
+           </div>
         </div>
       </div>
     </div>
 
-    <!-- Transaction History Section -->
-    <div class="mt-12">
-      <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-        <!-- Header -->
-        <div class="p-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Recent Receipts</h2>
-            <p class="text-xs text-slate-500 dark:text-gray-400 mt-1">Track all stock check-in transactions with batch numbers</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <button
-              @click="fetchRecentLogs"
-              class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
-            >
-              <i class="mdi mdi-refresh" :class="{'animate-spin': loadingLogs}"></i>
-              Refresh
-            </button>
-            <button
-              @click="exportToCSV"
-              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
-            >
-              <i class="mdi mdi-download"></i>
-              Export CSV
-            </button>
-          </div>
-        </div>
+    <!-- Recent Logs -->
+    <div class="max-w-7xl mx-auto mt-16 space-y-6 font-sans">
+       <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Recent Activity</h2>
+          <button @click="exportToCSV" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-500 transition-all">Download Log (.CSV)</button>
+       </div>
 
-        <!-- Search & Filters -->
-        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="relative">
-              <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search batch number, material..."
-                class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
-              />
-            </div>
-            <input
-              v-model="filterReference"
-              type="text"
-              placeholder="Filter by Reference/LPO"
-              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-            <input
-              v-model="filterDateFrom"
-              type="date"
-              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-            <input
-              v-model="filterDateTo"
-              type="date"
-              class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-          </div>
-        </div>
-
-        <!-- Transaction Table -->
-        <div class="overflow-x-auto">
-          <div v-if="loadingLogs" class="p-12 text-center">
-            <i class="mdi mdi-loading mdi-spin text-4xl text-slate-400"></i>
-            <p class="text-sm text-slate-500 mt-4">Loading transaction history...</p>
-          </div>
-          <table v-else-if="filteredLogs.length > 0" class="w-full">
-            <thead class="bg-slate-50 dark:bg-slate-800/50">
-              <tr>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Batch #</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Material</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Quantity</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Location</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Reference</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Received By</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Date & Time</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Notes</th>
-                <th class="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-              <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    <span class="text-xs font-bold text-slate-900 dark:text-white font-mono">{{ log.batch_number }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <p class="text-xs font-bold text-slate-900 dark:text-white">{{ log.material?.material_name || 'N/A' }}</p>
-                  <p class="text-[10px] text-slate-500 dark:text-gray-400">{{ log.material?.material_code }}</p>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold">
-                    <i class="mdi mdi-plus-circle-outline"></i>
-                    {{ Math.abs(log.quantity) }} {{ log.material?.unit_of_measure || 'units' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-xs text-slate-600 dark:text-slate-300">{{ log.location || 'N/A' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-xs text-slate-600 dark:text-slate-300 font-mono">{{ log.reference_no || '-' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-xs text-slate-600 dark:text-slate-300">{{ log.user?.name || 'System' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <p class="text-xs text-slate-600 dark:text-slate-300">{{ formatDateTime(log.created_at) }}</p>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-xs text-slate-500 dark:text-gray-400 italic">{{ log.notes || '-' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <button 
-                    @click="deleteLog(log.id)"
-                    class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                    title="Delete Log"
-                  >
-                    <i class="mdi mdi-delete-outline text-lg"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
+       <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:shadow-xl">
+          <table class="w-full text-left">
+             <thead>
+                <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Transaction ID</th>
+                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Item</th>
+                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Qty</th>
+                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Timestamp</th>
+                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"></th>
+                </tr>
+             </thead>
+             <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <tr v-for="log in paginatedLogs" :key="log.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                   <td class="px-6 py-4">
+                      <p class="text-xs font-bold text-emerald-600 dark:text-emerald-500">{{ log.batch_number }}</p>
+                   </td>
+                   <td class="px-6 py-4">
+                      <p class="text-xs font-bold text-slate-900 dark:text-white uppercase">{{ log.material?.material_name }}</p>
+                      <p class="text-[9px] font-mono text-slate-400 dark:text-slate-500">{{ log.material?.material_code }}</p>
+                   </td>
+                   <td class="px-6 py-4 text-xs font-bold text-slate-900 dark:text-white">
+                      +{{ Math.abs(log.quantity) }} {{ log.material?.unit_of_measure }}
+                   </td>
+                   <td class="px-6 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                      {{ formatDateTime(log.created_at) }}
+                   </td>
+                   <td class="px-6 py-4 text-right">
+                      <button @click="deleteLog(log.id)" class="text-slate-400 hover:text-rose-600 dark:text-slate-600 dark:hover:text-rose-500 transition-colors">
+                         <i class="mdi mdi-delete-outline text-lg"></i>
+                      </button>
+                   </td>
+                </tr>
+             </tbody>
           </table>
-          <div v-else class="p-12 text-center">
-            <i class="mdi mdi-package-variant-closed-plus text-5xl text-slate-300 dark:text-slate-600"></i>
-            <p class="text-sm text-slate-500 dark:text-gray-400 mt-4">No check-in transactions found</p>
+          
+          <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/30 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+             <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Page {{ currentPage }} of {{ totalPages }}</span>
+             <div class="flex gap-2">
+                <button @click="currentPage--" :disabled="currentPage === 1" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Prev</button>
+                <button @click="currentPage++" :disabled="currentPage >= totalPages" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Next</button>
+             </div>
           </div>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="filteredLogs.length > logsPerPage" class="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <p class="text-xs text-slate-500 dark:text-gray-400">
-            Showing {{ ((currentPage - 1) * logsPerPage) + 1 }} to {{ Math.min(currentPage * logsPerPage, filteredLogs.length) }} of {{ filteredLogs.length }} transactions
-          </p>
-          <div class="flex gap-2">
-            <button
-              @click="currentPage--"
-              :disabled="currentPage === 1"
-              class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-            >
-              Previous
-            </button>
-            <button
-              @click="currentPage++"
-              :disabled="currentPage >= totalPages"
-              class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
+       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { useInventory } from '../../composables/useInventory'
 import api from '@/plugins/axios'
 
+const router = useRouter()
 const { inventory, fetchInventory } = useInventory()
+
+const currentStep = ref(1)
+const stepLabels = ['Selection', 'Entry Details', 'Verification']
 
 interface CheckInForm {
   material_id: string | number
@@ -402,15 +341,13 @@ const materialSearch = ref('')
 const searching = ref(false)
 let searchTimeout: any = null
 
-const onSearchInput = (event: any) => {
-  const query = event.target.value
+const onSearchInput = () => {
   showResults.value = true
   if (searchTimeout) clearTimeout(searchTimeout)
-  
   searchTimeout = setTimeout(async () => {
     searching.value = true
     try {
-      await fetchInventory({ search: query })
+      await fetchInventory({ search: materialSearch.value })
     } finally {
       searching.value = false
     }
@@ -430,49 +367,27 @@ const selectMaterial = (item: any) => {
   selectedMaterial.value = item
   materialSearch.value = item.material_name
   showResults.value = false
+  currentStep.value = 2
 }
 
 watch([() => form.value.material_id, inventory], () => {
-  if (!form.value.material_id) {
-    selectedMaterial.value = null
-    return
-  }
+  if (!form.value.material_id) return
   const found = (inventory.value || []).find(i => i.id === form.value.material_id)
-  if (found) {
-    selectedMaterial.value = found
-    // Update search box if empty or just an ID
-    if (!materialSearch.value || materialSearch.value === found.id.toString()) {
-      materialSearch.value = found.material_name
-    }
-  }
+  if (found) selectedMaterial.value = found
 }, { immediate: true })
 
-const displayInventory = computed(() => {
-  const list = Array.isArray(inventory.value) ? [...inventory.value] : []
-  // Only include selected material at the top if we are NOT actively searching
-  if (!searching.value && !materialSearch.value && selectedMaterial.value && !list.find(i => i.id === selectedMaterial.value.id)) {
-    list.unshift(selectedMaterial.value)
-  }
-  return list
-})
+const displayInventory = computed(() => Array.isArray(inventory.value) ? inventory.value : [])
 
-// Transaction History State
+// Logs table management
 const recentLogs = ref<any[]>([])
 const loadingLogs = ref(false)
-const searchQuery = ref('')
-const filterReference = ref('')
-const filterDateFrom = ref('')
-const filterDateTo = ref('')
 const currentPage = ref(1)
-const logsPerPage = 10
+const logsPerPage = 5
 
-// Fetch recent check-in logs
 const fetchRecentLogs = async () => {
   loadingLogs.value = true
   try {
-    const response = await api.get('/api/procurement-stores/inventory-logs', {
-      params: { type: 'check_in' }
-    })
+    const response = await api.get('/api/procurement-stores/inventory-logs', { params: { type: 'check_in' } })
     recentLogs.value = response.data.data || []
   } catch (err) {
     console.error('Failed to fetch logs:', err)
@@ -481,129 +396,49 @@ const fetchRecentLogs = async () => {
   }
 }
 
-// Computed: Filtered logs
-const filteredLogs = computed(() => {
-  let logs = recentLogs.value
-
-  // Search filter
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    logs = logs.filter(log => 
-      log.batch_number?.toLowerCase().includes(query) ||
-      log.material?.material_name?.toLowerCase().includes(query) ||
-      log.material?.material_code?.toLowerCase().includes(query)
-    )
-  }
-
-  // Reference filter
-  if (filterReference.value) {
-    logs = logs.filter(log => log.reference_no?.toLowerCase().includes(filterReference.value.toLowerCase()))
-  }
-
-  // Date range filter
-  if (filterDateFrom.value) {
-    logs = logs.filter(log => new Date(log.created_at) >= new Date(filterDateFrom.value))
-  }
-  if (filterDateTo.value) {
-    logs = logs.filter(log => new Date(log.created_at) <= new Date(filterDateTo.value + 'T23:59:59'))
-  }
-
-  return logs
-})
-
-// Computed: Paginated logs
 const paginatedLogs = computed(() => {
   const start = (currentPage.value - 1) * logsPerPage
-  const end = start + logsPerPage
-  return filteredLogs.value.slice(start, end)
+  return recentLogs.value.slice(start, start + logsPerPage)
 })
 
-// Computed: Total pages
-const totalPages = computed(() => {
-  return Math.ceil(filteredLogs.value.length / logsPerPage)
-})
+const totalPages = computed(() => Math.ceil(recentLogs.value.length / logsPerPage) || 1)
 
-// Format date time helper
 const formatDateTime = (dateStr: string) => {
-  if (!dateStr) return 'N/A'
-  const date = new Date(dateStr)
-  return date.toLocaleString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  const d = new Date(dateStr)
+  return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-// Export to CSV
 const exportToCSV = () => {
-  const headers = ['Batch Number', 'Material', 'Code', 'Quantity', 'Unit', 'Location', 'Reference', 'Received By', 'Date', 'Notes']
-  const rows = filteredLogs.value.map(log => [
-    log.batch_number || '',
-    log.material?.material_name || '',
-    log.material?.material_code || '',
-    Math.abs(log.quantity),
-    log.material?.unit_of_measure || '',
-    log.location || '',
-    log.reference_no || '',
-    log.user?.name || 'System',
-    formatDateTime(log.created_at),
-    log.notes || ''
+  const headers = ['Ref', 'Material', 'Qty', 'Unit', 'Date']
+  const rows = recentLogs.value.map(log => [
+    log.batch_number, log.material?.material_name, Math.abs(log.quantity), log.material?.unit_of_measure, formatDateTime(log.created_at)
   ])
-  
-  const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
   const url = window.URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `check-in-report-${new Date().toISOString().split('T')[0]}.csv`
-  link.click()
-  window.URL.revokeObjectURL(url)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `check-in-logs.csv`
+  a.click()
 }
 
 const deleteLog = async (id: number) => {
-  if (!confirm('Are you sure you want to delete this log entry? This will revert the stock adjustment.')) return
-  
-  loadingLogs.value = true
+  if (!confirm('Revert this stock entry?')) return
   try {
     await api.delete(`/api/procurement-stores/inventory-logs/${id}`)
     await fetchRecentLogs()
     await fetchInventory()
-  } catch (err) {
-    console.error('Failed to delete log:', err)
-    alert('Failed to delete log. Please try again.')
-  } finally {
-    loadingLogs.value = false
-  }
+  } catch (err) { console.error(err) }
 }
 
 const submitCheckIn = async () => {
   submitting.value = true
   try {
-    const response = await api.post('/api/procurement-stores/check-in', {
-        ...form.value,
-        warehouse_code: 'MAIN'
-    })
-    
-    const batchNumber = response.data.batch_number
-    
-    // Clear form and refresh data
-    form.value = {
-      material_id: '',
-      quantity: null,
-      location: '',
-      reference_no: '',
-      notes: '',
-      type: 'check_in'
-    }
-    await fetchInventory()
-    await fetchRecentLogs() // Refresh transaction history
-    alert(`✅ Stock checked in successfully!\n\nBatch Number: ${batchNumber}`)
+    await api.post('/api/procurement-stores/check-in', { ...form.value, warehouse_code: 'MAIN' })
+    alert('Stock successfully updated.')
+    router.push('/stores/dashboard')
   } catch (err: any) {
-    console.error('Check-in failed:', err)
-    const errorMsg = err.response?.data?.message || 'Verification error. Please check batch details.'
-    alert(`❌ ${errorMsg}`)
+    alert('Update failed. Please check inputs.')
   } finally {
     submitting.value = false
   }
@@ -614,3 +449,13 @@ onMounted(() => {
   fetchRecentLogs()
 })
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

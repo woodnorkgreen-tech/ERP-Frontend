@@ -652,11 +652,11 @@ class PettyCashService {
   // Projects Integration
   async getProjects(): Promise<ApiResponse<any[]>> {
     try {
-      console.log('🌐 Calling Projects API via makeRequest: /projects')
+      console.log(' Calling Projects API via makeRequest: /projects')
       // Standard call to /api/finance/petty-cash/projects
       return await this.makeRequest<ApiResponse<any[]>>('GET', '/projects')
     } catch (error: any) {
-      console.error('❌ Projects API Error:', error)
+      console.error(' Projects API Error:', error)
       return {
         success: true,
         data: [],
@@ -671,6 +671,10 @@ class PettyCashService {
 
   async getProjectBudgetItems(jobNumber: string): Promise<ApiResponse<any[]>> {
     return this.makeRequest<ApiResponse<any[]>>('GET', `/projects/${jobNumber}/budget-items`)
+  }
+
+  async getChartOfAccounts(): Promise<ApiResponse<any[]>> {
+    return this.makeRequest<ApiResponse<any[]>>('GET', '/accounts')
   }
 
 

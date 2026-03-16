@@ -85,6 +85,15 @@ api.interceptors.response.use(
         window.location.href = loginPath;
       }
     }
+
+    if (error.response?.status === 403) {
+      const { useNotificationStore } = await import('@/stores/notifications');
+      const notifications = useNotificationStore();
+
+      const message = (error.response.data as any)?.message || 'Action Forbidden';
+      notifications.notifyGovernance(message);
+    }
+
     return Promise.reject(error);
   }
 );

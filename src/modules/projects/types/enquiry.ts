@@ -7,7 +7,7 @@ export interface ProjectEnquiry {
   description?: string;
   project_scope?: string[];
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'client_registered' | 'enquiry_logged' | 'site_survey_completed' | 'design_completed' | 'design_approved' | 'materials_specified' | 'budget_created' | 'quote_prepared' | 'quote_approved' | 'planning' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'client_registered' | 'enquiry_logged' | 'site_survey_completed' | 'design_completed' | 'design_approved' | 'materials_specified' | 'budget_created' | 'quote_prepared' | 'quote_approved' | 'awaiting_deposit' | 'planning' | 'in_progress' | 'completed' | 'cancelled';
   department_id?: number;
   assigned_department?: string;
   project_deliverables?: string;
@@ -19,6 +19,7 @@ export interface ProjectEnquiry {
   contact_email?: string;
   contact_phone?: string;
   job_number?: string;
+  client_approved_quote?: number;
 
   venue?: string;
   site_survey_skipped: boolean;
@@ -177,6 +178,7 @@ export interface CreateProjectEnquiryData {
 
 export interface UpdateProjectEnquiryData extends Partial<CreateProjectEnquiryData> {
   status?: ProjectEnquiry['status'];
+  client_approved_quote?: number;
 }
 
 export interface SiteSurvey {

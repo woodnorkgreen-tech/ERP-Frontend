@@ -8,6 +8,7 @@ export const ENQUIRY_STATUSES = [
   'budget_created',
   'quote_prepared',
   'quote_approved',
+  'awaiting_deposit',
 
   'planning',
   'in_progress',
@@ -32,6 +33,7 @@ export const ENQUIRY_STATUS_LABELS: Record<string, string> = {
   'budget_created': 'Budget Created',
   'quote_prepared': 'Quote Prepared',
   'quote_approved': 'Quote Approved',
+  'awaiting_deposit': 'Awaiting Deposit',
 
   'planning': 'Planning',
   'in_progress': 'In Progress',
@@ -50,6 +52,7 @@ export const ENQUIRY_STATUS_COLORS: Record<string, string> = {
   'budget_created': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
   'quote_prepared': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
   'quote_approved': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
+  'awaiting_deposit': 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300 border-amber-200',
 
   'planning': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
   'in_progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
