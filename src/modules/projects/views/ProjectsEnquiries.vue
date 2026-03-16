@@ -412,7 +412,7 @@
                     {{ enquiry.enquiry_number }}
                   </span>
                   <div class="flex items-center gap-2">
-                    <div v-if="enquiry.status === 'awaiting_deposit'" class="w-6 h-6 rounded bg-amber-500/20 flex items-center justify-center text-amber-600 border border-amber-500/30" title="Locked: Awaiting Deposit">
+                    <div v-if="enquiry.status === 'awaiting_deposit'" class="w-6 h-6 rounded bg-emerald-500/20 flex items-center justify-center text-emerald-600 border border-emerald-500/30" title="Locked: Awaiting Deposit">
                       <i class="mdi mdi-lock text-sm"></i>
                     </div>
                     <span 
@@ -1176,7 +1176,7 @@
                   <tr v-for="entry in sortedLogisticsEntries" :key="entry.id" class="group transition-all hover:bg-blue-600/5 dark:hover:bg-blue-400/5">
                     <td class="px-8 py-10 whitespace-nowrap">
                       <div class="flex items-center gap-3">
-                        <div v-if="getProjectStatus(entry.project_id) === 'awaiting_deposit'" class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-600 border border-amber-500/30 shadow-sm" title="Locked: Awaiting Deposit">
+                        <div v-if="getProjectStatus(entry.project_id) === 'awaiting_deposit'" class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-600 border border-emerald-500/30 shadow-sm" title="Locked: Awaiting Deposit">
                           <i class="mdi mdi-lock text-lg"></i>
                         </div>
                         <div class="flex flex-col">
@@ -1839,37 +1839,6 @@ const dashboardTabs = [
   { id: 'canceled', label: 'Canceled', desc: 'Rejected enquiries' }
 ]
 
-const statusTabs = computed(() => {
-  if (currentView.value === 'projects') {
-    return [
-      { key: 'all', label: 'All', count: pagination.value.total },
-       // { key: 'all', label: 'All', count: filteredEnquiries.value.length },
-      { key: 'pre_prod', label: 'Preparation', count: enquiries.value.filter(e => ['quote_approved', 'planning'].includes(e.status)).length },
-      { key: 'in_progress_active', label: 'Active', count: enquiries.value.filter(e => e.status === 'in_progress').length }
-    ]
-  }
-  
-  if (currentView.value === 'completed') {
-    return [
-      { key: 'all', label: 'All History', count: pagination.value.total },
-      { key: 'completed', label: 'Finished', count: enquiries.value.filter(e => e.status === 'completed').length }
-    ]
-  }
-  
-  if (currentView.value === 'canceled') {
-    return [
-      { key: 'all', label: 'All Canceled', count: pagination.value.total },
-      { key: 'cancelled', label: 'Cancelled', count: enquiries.value.filter(e => e.status === 'cancelled').length }
-    ]
-  }
-
-  // Default: Enquiries View
-  return [
-    { key: 'all', label: 'All', count: pagination.value.total },
-    { key: 'new', label: 'New', count: newEnquiries.value.length },
-    { key: 'in_progress_enquiry', label: 'In Prep', count: enquiries.value.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified', 'budget_created', 'quote_prepared'].includes(e.status)).length }
-  ]
-})
 
 
 

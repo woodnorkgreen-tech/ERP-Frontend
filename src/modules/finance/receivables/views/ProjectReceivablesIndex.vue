@@ -271,30 +271,19 @@ const filteredEnquiries = computed(() => {
 const fetchEnquiries = async () => {
   loading.value = true
   try {
-    // 1. Fetch Active Projects (Awaiting + Production)
+    // Single call using view=receivables, which covers:
+    // awaiting_deposit (Finance Gate pending), quote_approved (legacy),
+    // planning, in_progress (active), completed (for Settled tab)
     const response = await api.get('/api/projects/enquiries', {
       params: { 
-        view: 'projects',
-        per_page: 200
+        view: 'receivables',
+        per_page: 500
       }
     })
     
-    const activeProjects = response.data.data?.data || []
+    const all = response.data.data?.data || []
 
-    // 2. Fetch Completed Projects if needed or as a separate batch
-    const completedResponse = await api.get('/api/projects/enquiries', {
-       params: {
-          view: 'completed',
-          per_page: 200
-       }
-    })
-    const completedProjects = completedResponse.data.data?.data || []
-
-    const all = [...activeProjects, ...completedProjects]
-
-    // Enrich with finance progress placeholder (this usually needs a separate call per item or specialized endpoint)
-    // For now, we'll map them. In a real scenario, we might want a 'receivables' specialized endpoint.
-    enquiries.value = all.map(e => ({
+    enquiries.value = all.map((e: any) => ({
        ...e,
        finance_progress: typeof e.payment_progress_percentage === 'number' 
           ? e.payment_progress_percentage 
@@ -308,6 +297,7 @@ const fetchEnquiries = async () => {
     loading.value = false
   }
 }
+
 
 const updateStats = () => {
    stats.value.awaiting_release = enquiries.value.filter(e => (e.status === 'awaiting_deposit' || e.status === 'quote_approved') && e.finance_progress < 100).length
@@ -324,14 +314,14 @@ const getReleaseIcon = (status: string) => {
 }
 
 const getReleaseColor = (status: string) => {
-   if (status === 'awaiting_deposit') return 'text-orange-500'
+   if (status === 'awaiting_deposit') return 'text-emerald-500'
    if (status === 'planning' || status === 'in_progress') return 'text-blue-500'
    if (status === 'completed') return 'text-emerald-500'
    return 'text-slate-400'
 }
 
 const getStatusBadgeClass = (status: string) => {
-   if (status === 'awaiting_deposit') return 'bg-orange-50 text-orange-600 border-orange-100'
+   if (status === 'awaiting_deposit') return 'bg-emerald-50 text-emerald-700 border-emerald-200'
    if (status === 'planning') return 'bg-blue-50 text-blue-600 border-blue-100'
    if (status === 'in_progress') return 'bg-indigo-50 text-indigo-600 border-indigo-100'
    if (status === 'completed') return 'bg-emerald-50 text-emerald-600 border-emerald-100'
