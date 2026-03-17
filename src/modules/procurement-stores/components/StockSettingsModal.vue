@@ -16,6 +16,28 @@
 
       <!-- Form Body -->
       <div class="p-8 space-y-6">
+        <!-- Current Stock Level (Adjustment) -->
+        <div class="space-y-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex justify-between items-end">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Stock Balance</label>
+            <span class="text-[9px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-md italic">Direct Adjustment</span>
+          </div>
+          <div class="relative group">
+            <i class="mdi mdi-cube-outline absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl group-focus-within:text-blue-500 transition-colors"></i>
+            <input 
+              type="number" 
+              v-model.number="form.quantity_on_hand"
+              step="0.01"
+              placeholder="0.00"
+              class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-2xl font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all font-mono"
+            />
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 h-8 px-3 flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg text-[10px] font-black uppercase text-slate-500">
+              {{ material.unit_of_measure }}
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 ml-1">Warning: Changing this will create a manual adjustment log.</p>
+        </div>
+
         <!-- Minimum Stock Level -->
         <div class="space-y-3">
           <div class="flex justify-between items-end">
@@ -29,10 +51,10 @@
               v-model.number="form.min_stock_level"
               step="1"
               placeholder="0"
-              class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-2xl font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
+              class="w-full pl-14 pr-6 py-5 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-2xl font-black text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all font-mono"
             />
             <div class="absolute right-6 top-1/2 -translate-y-1/2 h-8 px-3 flex items-center bg-slate-200 dark:bg-slate-700 rounded-lg text-[10px] font-black uppercase text-slate-500">
-              {{ material.unit_of_measure }}
+              {{ material.unit_of_measure || 'Units' }}
             </div>
           </div>
           <p class="text-[9px] text-slate-400 ml-1">When available stock drops to or below this, a critical alert will be raised.</p>
@@ -60,7 +82,7 @@
                     type="text" 
                     v-model="form.warehouse_code"
                     placeholder="MAIN"
-                    class="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 transition-all"
+                    class="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 transition-all font-mono"
                     />
                 </div>
             </div>
@@ -99,6 +121,7 @@ const submitting = ref(false)
 
 const form = reactive({
   material_id: props.material.id,
+  quantity_on_hand: props.material.quantity_on_hand || 0,
   min_stock_level: props.material.min_stock_level || 0,
   location_bin: props.material.location_bin || props.material.location || '',
   warehouse_code: props.material.warehouse_code || 'MAIN'

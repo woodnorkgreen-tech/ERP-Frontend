@@ -246,7 +246,7 @@
                 <td class="px-6 py-5 whitespace-nowrap relative">
                   <div class="flex flex-col relative">
                     <button 
-                        @click.stop="editingAssigneeId = editingAssigneeId === enquiry.id ? null : enquiry.id"
+                        @click.stop="openAssigneeMenu($event, enquiry)"
                         class="text-left group/assign"
                     >
                         <span class="text-base font-bold text-slate-800 dark:text-slate-200 group-hover/assign:text-blue-600 transition-colors border-b border-dashed border-transparent group-hover/assign:border-blue-400">
@@ -254,24 +254,6 @@
                         </span>
                     </button>
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-[0.05em] mt-0.5">{{ enquiry.contact_person || 'No Contact' }}</span>
-                    
-                    <!-- Quick Assign Dropdown -->
-                    <div v-if="editingAssigneeId === enquiry.id" class="absolute left-0 top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-                        <div class="fixed inset-0 z-40" @click.stop="editingAssigneeId = null"></div>
-                        <div class="relative z-50 max-h-60 overflow-y-auto custom-scrollbar p-1">
-                            <div class="px-3 py-2 text-xs font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-900/50 mb-1">Select Officer</div>
-                            <button 
-                                v-for="officer in availableProjectOfficers" 
-                                :key="officer.id"
-                                @click.stop="updateAssignment(enquiry, officer.id); editingAssigneeId = null"
-                                class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 transition-colors flex items-center justify-between"
-                                :class="enquiry.project_officer_id === officer.id ? 'bg-blue-50 text-blue-600' : 'text-slate-700 dark:text-slate-300'"
-                            >
-                                <span>{{ officer.name }}</span>
-                                <i v-if="enquiry.project_officer_id === officer.id" class="mdi mdi-check-circle text-blue-600"></i>
-                            </button>
-                        </div>
-                    </div>
                   </div>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
@@ -317,7 +299,7 @@
                   <!-- Default Status Display -->
                   <div v-else class="flex flex-col gap-2 relative">
                     <button 
-                      @click.stop="editingStatusId = editingStatusId === enquiry.id ? null : enquiry.id"
+                      @click.stop="openStatusMenu($event, enquiry)"
                       class="px-4 py-1.5 text-xs font-black rounded-full uppercase tracking-widest border shadow-sm inline-flex w-fit items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer"
                       :class="getStatusColor(enquiry.status)"
                     >
@@ -325,25 +307,8 @@
                       <i class="mdi mdi-chevron-down text-[10px] opacity-70"></i>
                     </button>
                     
-                    <!-- Quick Status Dropdown -->
-                    <div v-if="editingStatusId === enquiry.id" class="absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
-                        <div class="fixed inset-0 z-40" @click.stop="editingStatusId = null"></div>
-                        <div class="relative z-50 py-1">
-                            <button 
-                              v-for="(label, key) in ENQUIRY_STATUS_LABELS"
-                              :key="key"
-                              @click.stop="quickUpdateStatus(enquiry, key); editingStatusId = null"
-                              class="w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 border-l-4 border-transparent hover:border-l-blue-500 transition-all"
-                              :class="key === enquiry.status ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-gray-300'"
-                            >
-                              <div class="w-2 h-2 rounded-full" :class="getStatusColorDot(key)"></div>
-                              {{ label }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="getUserTaskCount(enquiry) > 0" class="flex items-center gap-1.5 text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-md border border-amber-100 dark:border-amber-800/50 w-fit">
-                      <span class="text-xs font-black uppercase tracking-tight">{{ getUserTaskCount(enquiry) }} Tasks</span>
+                    <div v-if="getUserPendingTaskCount(enquiry) > 0" class="flex items-center gap-1.5 text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-md border border-amber-100 dark:border-amber-800/50 w-fit">
+                      <span class="text-xs font-black uppercase tracking-tight">{{ getUserPendingTaskCount(enquiry) }} Tasks</span>
                     </div>
                   </div>
                 </td>
@@ -1366,6 +1331,80 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Status Change Menu -->
+    <Teleport to="body">
+      <div v-if="activeStatusEnquiry" class="fixed inset-0 z-[9999] bg-transparent" @click="activeStatusEnquiry = null"></div>
+      
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0"
+      >
+        <div 
+          v-if="activeStatusEnquiry" 
+          :style="{ top: `${statusMenuPosition.top}px`, left: `${statusMenuPosition.left}px` }" 
+          class="fixed z-[10000] w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 backdrop-blur-xl origin-top"
+        >
+          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Update Status</p>
+          </div>
+          
+          <div class="max-h-64 overflow-y-auto custom-scrollbar">
+            <button 
+              v-for="(label, key) in ENQUIRY_STATUS_LABELS"
+              :key="key"
+              @click.stop="quickUpdateStatus(activeStatusEnquiry, key as string); activeStatusEnquiry = null"
+              class="w-full text-left px-3 py-2.5 text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2 border-l-4 border-transparent hover:border-l-blue-500 transition-all"
+              :class="key === activeStatusEnquiry.status ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'text-slate-600 dark:text-gray-300'"
+            >
+              <div class="w-2 h-2 rounded-full" :class="getStatusColorDot(key as string)"></div>
+              {{ label }}
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Assignee Change Menu -->
+    <Teleport to="body">
+      <div v-if="activeAssigneeEnquiry" class="fixed inset-0 z-[9999] bg-transparent" @click="activeAssigneeEnquiry = null"></div>
+      
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0"
+      >
+        <div 
+          v-if="activeAssigneeEnquiry" 
+          :style="{ top: `${assigneeMenuPosition.top}px`, left: `${assigneeMenuPosition.left}px` }" 
+          class="fixed z-[10000] w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 backdrop-blur-xl origin-top"
+        >
+          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">Assign Officer</p>
+          </div>
+          
+          <div class="max-h-72 overflow-y-auto custom-scrollbar scroll-p-1">
+            <button 
+                v-for="officer in availableProjectOfficers" 
+                :key="officer.id"
+                @click.stop="updateAssignment(activeAssigneeEnquiry, officer.id); activeAssigneeEnquiry = null"
+                class="w-full text-left px-3 py-3 rounded-xl text-xs font-bold hover:bg-blue-50 dark:hover:bg-slate-700/50 hover:text-blue-600 transition-colors flex items-center justify-between"
+                :class="activeAssigneeEnquiry.project_officer_id === officer.id ? 'bg-blue-50 text-blue-600' : 'text-slate-700 dark:text-slate-300'"
+            >
+                <span>{{ officer.name }}</span>
+                <i v-if="activeAssigneeEnquiry.project_officer_id === officer.id" class="mdi mdi-check-circle text-blue-600"></i>
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -2287,6 +2326,65 @@ const handleFormSubmit = async () => {
 const editingStatusId = ref<number | null>(null)
 const editingAssigneeId = ref<number | null>(null)
 
+const activeStatusEnquiry = ref<ProjectEnquiry | null>(null)
+const activeAssigneeEnquiry = ref<ProjectEnquiry | null>(null)
+const statusMenuPosition = ref({ top: 0, left: 0 })
+const assigneeMenuPosition = ref({ top: 0, left: 0 })
+
+const openStatusMenu = (event: MouseEvent, enquiry: ProjectEnquiry) => {
+  if (activeStatusEnquiry.value?.id === enquiry.id) {
+    activeStatusEnquiry.value = null
+    return
+  }
+  
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  
+  const spaceBelow = window.innerHeight - rect.bottom
+  const menuHeight = 280
+  
+  if (spaceBelow < menuHeight) {
+    statusMenuPosition.value = {
+      top: rect.top - menuHeight + 10,
+      left: rect.left
+    }
+  } else {
+    statusMenuPosition.value = {
+      top: rect.bottom + 8,
+      left: rect.left
+    }
+  }
+  
+  activeStatusEnquiry.value = enquiry
+}
+
+const openAssigneeMenu = (event: MouseEvent, enquiry: ProjectEnquiry) => {
+  if (activeAssigneeEnquiry.value?.id === enquiry.id) {
+    activeAssigneeEnquiry.value = null
+    return
+  }
+  
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  
+  const spaceBelow = window.innerHeight - rect.bottom
+  const menuHeight = 320
+  
+  if (spaceBelow < menuHeight) {
+    assigneeMenuPosition.value = {
+      top: rect.top - menuHeight + 10,
+      left: rect.left
+    }
+  } else {
+    assigneeMenuPosition.value = {
+      top: rect.bottom + 8,
+      left: rect.left
+    }
+  }
+  
+  activeAssigneeEnquiry.value = enquiry
+}
+
 const togglePriority = async (enquiry: ProjectEnquiry) => {
   const priorities = ['low', 'medium', 'high', 'urgent']
   // Handle 'normal' as 'medium'
@@ -2356,6 +2454,7 @@ const getStatusColorDot = (status: string) => {
   }
   return dotColors[status] || 'bg-slate-400'
 }
+
 
 const updateStatus = async (enquiry: ProjectEnquiry, newStatus: string) => {
   const oldStatus = enquiry.status
@@ -2441,26 +2540,7 @@ const getStatusLabel = (status: string | undefined) => {
 }
 
 const getUserTaskCount = (enquiry: any) => {
-  const tasks = enquiry.enquiryTasks || enquiry.enquiry_tasks
-  if (!user.value || !tasks) return 0
-  return tasks.filter((task: any) => {
-    // Check legacy assignment
-    if (task.assigned_to?.id === user.value!.id) return true
-    // Check multi-user assignment (handle both camelCase and snake_case)
-    const assignedUsers = task.assignedUsers || task.assigned_users
-    if (assignedUsers?.some((u: any) => u.id === user.value!.id)) return true
-
-    // Check Role-Based Visibility
-    const userRoles = user.value?.roles || []
-    if (userRoles.includes('Production') && ['materials', 'teams', 'production', 'budget'].includes(task.type)) return true
-    if (userRoles.includes('Designer') && ['design', 'site-survey', 'site_survey'].includes(task.type)) return true
-    if (userRoles.includes('Stores') && ['materials', 'stores'].includes(task.type)) return true
-    if (userRoles.includes('Procurement') && ['materials', 'procurement'].includes(task.type)) return true
-    if (userRoles.includes('Costing') && ['materials', 'budget', 'quote'].includes(task.type)) return true
-    if (userRoles.includes('Accounts') && ['budget', 'quote', 'quote_approval'].includes(task.type)) return true
-
-    return false
-  }).length
+  return getUserPendingTaskCount(enquiry)
 }
 
 const getLogisticsStatusColor = (status: string) => {

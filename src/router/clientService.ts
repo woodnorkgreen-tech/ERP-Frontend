@@ -41,6 +41,12 @@ export const clientServiceRoutes: RouteRecordRaw[] = [
         component: () => import('../modules/clientService/views/LeadCaptureManagement.vue'),
         meta: { title: 'Lead Capture Management' }
       },
+      {
+        path: 'handovers',
+        name: 'client-service-handovers',
+        component: () => import('../modules/clientService/views/HandoversManagement.vue'),
+        meta: { title: 'Client Handover Insights' }
+      },
     ],
   },
 ]

@@ -29,18 +29,18 @@
     </div>
 
     <!-- Metrics Engine -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div v-if="dashboardData" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <!-- Total Clients -->
       <div class="group relative p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:border-blue-500/30">
         <div class="flex justify-between items-start mb-4">
           <div class="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
             <i class="mdi mdi-account-group-outline text-2xl"></i>
           </div>
-          <span class="text-xs font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">+{{ (totalClients * 0.05).toFixed(0) }} NEW</span>
+          <span class="text-xs font-black text-emerald-500 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">+{{ (dashboardData.stats.total_clients * 0.05).toFixed(0) }} NEW</span>
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Clients</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalClients }}</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardData.stats.total_clients }}</p>
         </div>
       </div>
 
@@ -54,7 +54,7 @@
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Active Projects</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ activeProjects.length }}</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardData.stats.active_projects_count }}</p>
         </div>
       </div>
 
@@ -64,11 +64,11 @@
           <div class="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-2xl text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
             <i class="mdi mdi-alert-circle-outline text-2xl"></i>
           </div>
-          <span class="text-xs font-black text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-500/20">PENDING</span>
+          <span class="text-xs font-black text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-500/20">THIS MONTH</span>
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">New Enquiries</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ newEnquiries.length }}</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardData.stats.new_enquiries_count }}</p>
         </div>
       </div>
 
@@ -82,7 +82,7 @@
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Conversion Rate</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalEnquiries ? ((convertedEnquiries.length / totalEnquiries) * 100).toFixed(1) : 0 }}%</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardData.stats.conversion_rate }}%</p>
         </div>
       </div>
 
@@ -95,7 +95,40 @@
         </div>
         <div class="space-y-1">
           <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total Enquiries</span>
-          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ totalEnquiries }}</p>
+          <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{{ dashboardData.stats.total_enquiries }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton Loader -->
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div v-for="i in 5" :key="i" class="h-32 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-3xl"></div>
+    </div>
+
+    <!-- Expert Handover Insights Section -->
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm relative overflow-hidden group">
+      <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl"></div>
+      
+      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-6">
+          <div class="p-5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl text-white shadow-xl shadow-blue-500/20">
+            <i class="mdi mdi-handshake-outline text-3xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Client Handover Insights</h2>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Professional feedback analysis from completed projects.</p>
+          </div>
+        </div>
+        
+        <div class="flex gap-4">
+          <div class="hidden lg:block text-right pr-6 border-r border-slate-100 dark:border-slate-800">
+             <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Customer Satisfaction</div>
+             <div class="text-2xl font-black text-emerald-500 leading-none">EXCELLENT</div>
+          </div>
+          <button @click="router.push('/client-service/handovers')" class="flex items-center gap-3 px-8 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all font-black text-xs tracking-widest uppercase">
+            VIEW REPORTS
+            <i class="mdi mdi-arrow-right"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -108,7 +141,7 @@
           <div class="flex items-center justify-between mb-8">
             <div>
               <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Pipeline</h2>
-              <p class="text-sm text-slate-500 font-medium">Enquiry lifecycle status</p>
+              <p class="text-sm text-slate-500 font-medium">Conversion progression</p>
             </div>
             <div class="flex gap-2">
                    <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">
@@ -123,54 +156,47 @@
             <div class="relative">
               <!-- Progress Track -->
               <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-100 dark:bg-slate-800 -translate-y-1/2 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-500 transition-all duration-1000" :style="{ width: totalEnquiries ? ((convertedEnquiries.length / totalEnquiries) * 100) + '%' : '0%' }"></div>
+                <div class="h-full bg-emerald-500 transition-all duration-1000" :style="{ width: dashboardData ? dashboardData.stats.conversion_rate + '%' : '0%' }"></div>
               </div>
               
               <div class="relative flex justify-between items-center">
-                <!-- Stage: Initial Enquiries -->
+                <!-- Stage: Logged -->
                 <div class="flex flex-col items-center gap-3">
-                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 border-amber-500 flex items-center justify-center text-amber-500 transition-transform hover:scale-110 z-10 shadow-lg">
-                    <i class="mdi mdi-email-open-outline text-xl"></i>
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 border-blue-500 flex items-center justify-center text-blue-500 transition-transform hover:scale-110 z-10 shadow-lg">
+                    <i class="mdi mdi-checkbox-marked-circle-outline text-xl"></i>
                   </div>
                   <div class="text-center">
                     <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Logged</p>
-                    <p class="text-sm text-slate-500 font-black">{{ newEnquiries.length }}</p>
                   </div>
                 </div>
 
-                <!-- Stage: Technical Phase -->
+                <!-- Stage: Survey -->
                 <div class="flex flex-col items-center gap-3">
-                  <div :class="['w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 flex items-center justify-center transition-transform hover:scale-110 z-10 shadow-lg', 
-                    enquiries.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified'].includes(e.status)).length > 0 ? 'border-blue-500 text-blue-500' : 'border-slate-200 dark:border-slate-800 text-slate-400']">
-                    <i class="mdi mdi-draw-pen text-xl"></i>
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 border-amber-500 flex items-center justify-center text-amber-500 transition-transform hover:scale-110 z-10 shadow-lg">
+                    <i class="mdi mdi-map-search-outline text-xl"></i>
                   </div>
                   <div class="text-center">
-                    <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Technical</p>
-                    <p class="text-sm text-slate-500 font-black">{{ enquiries.filter(e => ['site_survey_completed', 'design_completed', 'design_approved', 'materials_specified'].includes(e.status)).length }}</p>
+                    <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Survey</p>
                   </div>
                 </div>
 
-                <!-- Stage: Financial Quote -->
+                <!-- Stage: Quoting -->
                 <div class="flex flex-col items-center gap-3">
-                  <div :class="['w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 flex items-center justify-center transition-transform hover:scale-110 z-10 shadow-lg', 
-                    enquiries.filter(e => ['budget_created', 'quote_prepared', 'quote_approved'].includes(e.status)).length > 0 ? 'border-purple-500 text-purple-500' : 'border-slate-200 dark:border-slate-800 text-slate-400']">
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 border-purple-500 flex items-center justify-center text-purple-500 transition-transform hover:scale-110 z-10 shadow-lg">
                     <i class="mdi mdi-file-document-outline text-xl"></i>
                   </div>
                   <div class="text-center">
-                    <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Financial</p>
-                    <p class="text-sm text-slate-500 font-black">{{ enquiries.filter(e => ['budget_created', 'quote_prepared', 'quote_approved'].includes(e.status)).length }}</p>
+                    <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Quoting</p>
                   </div>
                 </div>
 
-                <!-- Stage: Conversion -->
+                <!-- Stage: Converted -->
                 <div class="flex flex-col items-center gap-3">
-                  <div :class="['w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 flex items-center justify-center transition-transform hover:scale-110 z-10 shadow-lg', 
-                    convertedEnquiries.length > 0 ? 'border-emerald-500 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400']">
+                  <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border-4 border-emerald-500 flex items-center justify-center text-emerald-500 transition-transform hover:scale-110 z-10 shadow-lg">
                     <i class="mdi mdi-check-decagram-outline text-xl"></i>
                   </div>
                   <div class="text-center">
                     <p class="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white">Converted</p>
-                    <p class="text-sm text-slate-500 font-black">{{ convertedEnquiries.length }}</p>
                   </div>
                 </div>
               </div>
@@ -184,21 +210,21 @@
             <div class="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
             <h3 class="text-lg font-black uppercase tracking-widest mb-6 opacity-80">Quick Actions</h3>
             <div class="grid grid-cols-2 gap-3">
-              <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
-                <i class="mdi mdi-file-chart-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Sales<br/>Report</span>
+              <button @click="router.push('/client-service/enquiries')" class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10 text-left">
+                <i class="mdi mdi-email-multiple-outline text-3xl"></i>
+                <span class="text-sm font-black uppercase tracking-tight leading-tight">Manage<br/>Enquiries</span>
               </button>
-              <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
-                <i class="mdi mdi-account-star-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">VIP<br/>Clients</span>
+              <button @click="router.push('/client-service/clients')" class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10 text-left">
+                <i class="mdi mdi-account-group-outline text-3xl"></i>
+                <span class="text-sm font-black uppercase tracking-tight leading-tight">View<br/>Clients</span>
               </button>
-              <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
-                <i class="mdi mdi-clock-alert-outline text-3xl"></i>
-                <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Follow<br/>Ups</span>
+              <button @click="router.push('/client-service/enquiries?status=quote_prepared')" class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10 text-left">
+                <i class="mdi mdi-file-clock-outline text-3xl"></i>
+                <span class="text-sm font-black uppercase tracking-tight leading-tight">Follow Up<br/>Quotes</span>
               </button>
-              <button class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10">
-                 <i class="mdi mdi-help-circle-outline text-3xl"></i>
-                 <span class="text-sm font-black uppercase tracking-tight text-left leading-tight">Help<br/>Support</span>
+              <button @click="router.push('/client-service/clients?customer_type=company')" class="flex flex-col items-start gap-4 p-4 bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/10 text-left">
+                 <i class="mdi mdi-domain text-3xl"></i>
+                 <span class="text-sm font-black uppercase tracking-tight leading-tight">Corporate<br/>Leads</span>
               </button>
             </div>
           </div>
@@ -215,18 +241,18 @@
              <!-- Chart Container -->
              <div class="flex-1 relative min-h-[220px] flex items-center justify-center">
                 <canvas id="leadSourceChart" ref="chartCanvas"></canvas>
-                <div v-if="!totalClients" class="absolute inset-0 flex items-center justify-center opacity-30">
+                <div v-if="!dashboardData || Object.keys(dashboardData.stats.lead_sources).length === 0" class="absolute inset-0 flex items-center justify-center opacity-30">
                     <p class="text-xs font-black uppercase tracking-widest text-slate-500">No Data Points</p>
                 </div>
              </div>
 
              <div class="mt-6 space-y-3">
                 <div class="flex items-center justify-between text-xs font-black">
-                   <span class="text-slate-500 uppercase tracking-widest">Top Source:</span>
-                   <span class="text-blue-500 uppercase tracking-widest">Digital Channels</span>
+                   <span class="text-slate-500 uppercase tracking-widest">Aggregate Strength:</span>
+                   <span class="text-blue-500 uppercase tracking-widest">Multi-Channel</span>
                 </div>
                 <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                   <div class="h-full bg-blue-500" style="width: 75%"></div>
+                   <div class="h-full bg-blue-500" :style="{ width: dashboardData ? '100%' : '0%' }"></div>
                 </div>
              </div>
           </div>
@@ -247,36 +273,36 @@
               <p class="text-sm font-black uppercase tracking-widest text-slate-500">Syncing Feed...</p>
             </div>
             
-            <div v-else-if="recentEnquiries.length === 0" class="flex flex-col items-center justify-center py-12 gap-4 opacity-50">
+            <div v-else-if="!dashboardData || dashboardData.activity.length === 0" class="flex flex-col items-center justify-center py-12 gap-4 opacity-50">
               <i class="mdi mdi-tray-remove text-5xl text-slate-300"></i>
               <p class="text-xs font-black uppercase tracking-widest text-slate-400">No active enquiries</p>
             </div>
 
-            <div v-else v-for="enquiry in recentEnquiries" :key="enquiry.id" class="group relative pl-8">
+            <div v-else v-for="item in dashboardData.activity" :key="item.id + item.type" class="group relative pl-8">
               <!-- Timeline Indicator -->
               <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-100 dark:bg-slate-800 group-last:bg-transparent"></div>
               <div class="absolute left-[-4px] top-2 w-2.5 h-2.5 rounded-full ring-4 ring-white dark:ring-slate-900 shadow-sm"
-                   :class="enquiry.status === 'enquiry_logged' ? 'bg-amber-500' : 'bg-blue-500'"></div>
+                   :class="item.type === 'lead' ? 'bg-emerald-500' : (item.status === 'enquiry_logged' ? 'bg-amber-500' : 'bg-blue-500')"></div>
               
               <div class="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer">
                 <div class="flex justify-between items-start mb-3">
                   <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                    {{ new Date(enquiry.created_at).toLocaleDateString([], {day: '2-digit', month: 'short', year: 'numeric'}) }}
+                    {{ new Date(item.created_at).toLocaleDateString([], {day: '2-digit', month: 'short', year: 'numeric'}) }}
                   </span>
-                  <div :class="['px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-widest border', getPriorityColor(enquiry.priority)]">
-                    {{ enquiry.priority }}
+                  <div :class="['px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-widest border', getPriorityColor(item.priority)]">
+                    {{ item.priority }}
                   </div>
                 </div>
                 
-                <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors mb-1 truncate">{{ enquiry.title }}</h4>
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors mb-1 truncate">{{ item.title }}</h4>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1">
-                  <i class="mdi mdi-account-circle-outline"></i>
-                  {{ enquiry.client?.full_name || enquiry.client?.FullName || 'Anonymous Client' }}
+                  <i :class="['mdi', item.type === 'lead' ? 'mdi-lightning-bolt-outline' : 'mdi-account-circle-outline']"></i>
+                  {{ item.client_name }}
                 </p>
 
                  <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
-                    <div :class="['px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest border', getStatusColor(enquiry.status)]">
-                       {{ getStatusLabel(enquiry.status) }}
+                    <div :class="['px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest border', getStatusColor(item.status)]">
+                       {{ item.type === 'lead' ? 'Public Lead' : getStatusLabel(item.status) }}
                     </div>
                  </div>
               </div>
@@ -296,30 +322,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useClients } from '../composables/useClients'
-import { useEnquiries } from '../composables/useEnquiries'
-import { useProjects } from '../composables/useProjects'
-import { useProjectsStore } from '@/stores/projects'
+import { useClientServiceDashboard } from '../composables/useClientServiceDashboard'
 import Chart from 'chart.js/auto'
 
 const router = useRouter()
-const { totalClients, activeClients, fetchClients, clients } = useClients()
-const { totalEnquiries, newEnquiries, convertedEnquiries, enquiries, loading, fetchEnquiries } = useEnquiries()
-const { fetchProjects, activeProjects } = useProjects()
+const { dashboardData, loading, fetchDashboardData } = useClientServiceDashboard()
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
 let leadChart: Chart | null = null
 
-const recentEnquiries = computed(() => {
-  return [...enquiries.value]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 10)
-})
-
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
+    'new': 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20',
+    'processed': 'bg-blue-500/10 text-blue-500',
     'client_registered': 'bg-blue-500/10 text-blue-500',
     'enquiry_logged': 'bg-amber-500/10 text-amber-500 border border-amber-500/20',
     'site_survey_completed': 'bg-indigo-500/10 text-indigo-500',
@@ -363,16 +380,10 @@ const getPriorityColor = (priority: string) => {
 }
 
 const initChart = () => {
-  if (!chartCanvas.value) return
+  if (!chartCanvas.value || !dashboardData.value) return
   if (leadChart) leadChart.destroy()
 
-  // Calculate Lead Source Distribution from clients
-  const sources: Record<string, number> = {}
-  clients.value.forEach(c => {
-    const s = c.LeadSource || 'Unknown'
-    sources[s] = (sources[s] || 0) + 1
-  })
-
+  const sources = dashboardData.value.stats.lead_sources
   const labels = Object.keys(sources).length ? Object.keys(sources) : ['Digital', 'Referral', 'Events', 'Others']
   const data = Object.keys(sources).length ? Object.values(sources) : [45, 25, 20, 10]
 
@@ -425,15 +436,13 @@ const initChart = () => {
   })
 }
 
-watch(clients, () => {
+watch(dashboardData, () => {
   initChart()
 }, { deep: true })
 
 onMounted(async () => {
-   await fetchClients()
-   await fetchEnquiries()
-   await fetchProjects()
-   setTimeout(initChart, 500) // Small delay for layout calculation
+   await fetchDashboardData()
+   initChart()
 })
 </script>
 
