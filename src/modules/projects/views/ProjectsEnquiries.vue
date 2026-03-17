@@ -130,12 +130,14 @@
               class="w-full h-10 pl-3 pr-8 bg-white dark:bg-slate-800 border-0 rounded-lg text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 appearance-none uppercase tracking-wider cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
               <option value="">Status: All</option>
+              <optgroup v-if="currentView === 'awaiting_deposit'" label="Financial Pipeline">
+                <option value="awaiting_deposit">Awaiting Deposit</option>
+              </optgroup>
               <optgroup v-if="currentView === 'enquiries'" :label="filters.is_non_profit ? 'Internal Pipeline' : 'New/Planning'">
                 <option value="enquiry_logged">Logged</option>
                 <option value="site_survey_completed">Survey Done</option>
                 <option value="design_completed">Design Done</option>
                 <option value="quote_prepared">Budget/Quote Done</option>
-                <option value="awaiting_deposit">Awaiting Deposit</option>
                 <option v-if="!filters.is_non_profit" value="client_registered">New Client</option>
               </optgroup>
               <optgroup v-if="currentView === 'projects'" :label="filters.is_non_profit ? 'Active Internal' : 'Execution'">
@@ -1869,10 +1871,11 @@ if (!enquiryFormData.value.selected_workflow_tasks || enquiryFormData.value.sele
 
 
 
-const currentView = ref<'enquiries' | 'projects' | 'completed' | 'canceled'>('enquiries')
+const currentView = ref< 'enquiries' |'awaiting_deposit' | 'projects' | 'completed' | 'canceled'>('enquiries')
 
 const dashboardTabs = [
   { id: 'enquiries', label: 'New Enquiries', desc: 'In the pipeline' },
+  { id: 'awaiting_deposit', label: 'Awaiting Deposit', desc: 'Pending Funds' },
   { id: 'projects', label: 'In Progress', desc: 'Active projects' },
   { id: 'completed', label: 'Completed', desc: 'Finished projects' },
   { id: 'canceled', label: 'Canceled', desc: 'Rejected enquiries' }
