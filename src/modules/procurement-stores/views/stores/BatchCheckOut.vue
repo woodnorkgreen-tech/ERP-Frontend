@@ -31,18 +31,30 @@
           <div class="space-y-4">
             <div class="space-y-2">
               <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Target Project</label>
-              <div class="relative">
-                <i class="mdi mdi-briefcase-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg"></i>
-                <select 
-                  v-model="batchProject"
-                  class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-rose-500/50 rounded-lg text-sm font-bold text-slate-900 dark:text-white appearance-none cursor-pointer focus:ring-0 transition-all font-sans"
-                >
-                  <option value="" disabled>Select project...</option>
-                  <option v-for="prj in projects" :key="prj.id" :value="prj.id">
-                    {{ prj.project_id }} - {{ prj.enquiry?.title }}
-                  </option>
-                </select>
-                <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"></i>
+              <div class="relative group" ref="projectSearchContainer">
+                <i class="mdi mdi-briefcase-outline absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg z-10"></i>
+                <input 
+                  v-model="projectSearchQuery"
+                  type="text"
+                  placeholder="Search Project Code or Name..."
+                  @focus="showProjectResults = true"
+                  class="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-rose-500/50 rounded-lg text-sm font-bold text-slate-900 dark:text-white focus:ring-0 transition-all font-sans"
+                />
+                <div v-if="showProjectResults && filteredProjects.length > 0" 
+                     class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-2xl overflow-hidden z-[60] max-h-[250px] overflow-y-auto animate-in zoom-in-95 duration-200">
+                   <div v-for="p in filteredProjects" :key="p.id" 
+                        @click="selectProject(p)"
+                        class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 group transition-colors">
+                      <div class="flex justify-between items-center text-left">
+                         <div>
+                            <p class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 uppercase font-mono">{{ p.project_id }}</p>
+                            <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase truncate max-w-[200px]">{{ p.enquiry?.title }}</p>
+                         </div>
+                         <i class="mdi mdi-link-variant text-slate-300 group-hover:text-rose-500 transition-colors"></i>
+                      </div>
+                   </div>
+                </div>
+                <i class="mdi mdi-magnify absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"></i>
               </div>
             </div>
 
@@ -208,6 +220,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { onClickOutside } from '@vueuse/core'
 import { useInventory } from '../../composables/useInventory'
 import api from '@/plugins/axios'
 
@@ -218,6 +231,18 @@ const projects = ref<any[]>([])
 const batchProject = ref('')
 const batchRequestor = ref('')
 const batchReference = ref('')
+
+// Project Search State
+const projectSearchQuery = ref('')
+const showProjectResults = ref(false)
+const projectSearchContainer = ref<HTMLElement | null>(null)
+onClickOutside(projectSearchContainer, () => showProjectResults.value = false)
+
+const selectProject = (prj: any) => {
+  batchProject.value = prj.id
+  projectSearchQuery.value = prj.project_id
+  showProjectResults.value = false
+}
 
 const rows = ref([
   { material_id: '', quantity: null as number | null, search: '', showResults: false, unit: '', usage_type: 'consumable' }
@@ -298,6 +323,16 @@ const isValid = computed(() => {
          batchRequestor.value && 
          rows.value.length > 0 && 
          rows.value.every(row => row.material_id && row.quantity && row.quantity > 0)
+})
+
+const filteredProjects = computed(() => {
+  const query = projectSearchQuery.value.toLowerCase()
+  return projects.value
+    .filter(p => 
+      p.project_id?.toLowerCase().includes(query) || 
+      (p.enquiry?.title || '').toLowerCase().includes(query)
+    )
+    .sort((a, b) => b.id - a.id)
 })
 
 const submitBatch = async () => {
