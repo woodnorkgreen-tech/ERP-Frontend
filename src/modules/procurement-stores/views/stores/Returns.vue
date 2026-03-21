@@ -72,6 +72,33 @@
                  </div>
               </div>
 
+              <!-- Usage Type -->
+              <div class="space-y-2">
+                 <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-1">Return Classification</label>
+                 <div class="grid grid-cols-2 gap-3">
+                    <button 
+                      @click="form.usage_type = 'consumable'"
+                      type="button"
+                      :class="['px-4 py-3 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition-all', 
+                        form.usage_type === 'consumable' 
+                        ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400' 
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600']"
+                    >
+                      Consumable
+                    </button>
+                    <button 
+                      @click="form.usage_type = 'reusable'"
+                      type="button"
+                      :class="['px-4 py-3 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition-all', 
+                        form.usage_type === 'reusable' 
+                        ? 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400' 
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600']"
+                    >
+                      Reusable
+                    </button>
+                 </div>
+              </div>
+
               <!-- Notes -->
               <div class="space-y-2">
                  <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-1">Reason for Return</label>
@@ -141,6 +168,65 @@
          </div>
       </div>
     </div>
+
+    <!-- Site Inventory Table (Contextual) -->
+    <div v-if="form.project_id" class="max-w-7xl mx-auto mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+       <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm dark:shadow-xl">
+          <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+             <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Items currently at Site</h3>
+                <p class="text-[9px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mt-0.5">Project Stock Balance</p>
+             </div>
+             <div class="text-right">
+                <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active Project</p>
+                <p class="text-xs font-bold text-slate-900 dark:text-white uppercase">{{ selectedProject?.project_id }}</p>
+             </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+             <table class="w-full text-left">
+                <thead>
+                   <tr class="bg-white dark:bg-slate-800 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50">
+                      <th class="px-6 py-3">Material</th>
+                      <th class="px-6 py-3 text-center">Issued</th>
+                      <th class="px-6 py-3 text-center">Returned</th>
+                      <th class="px-6 py-3 text-center">At Site</th>
+                      <th class="px-6 py-3 text-right">Action</th>
+                   </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-700/30">
+                   <tr v-for="item in currentProjectOutstanding" :key="item.material_id" class="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
+                      <td class="px-6 py-4">
+                         <p class="text-xs font-bold text-slate-900 dark:text-white uppercase">{{ item.material_name }}</p>
+                         <p class="text-[9px] text-slate-400 font-mono">{{ item.material_code }}</p>
+                      </td>
+                      <td class="px-6 py-4 text-center text-[10px] font-bold text-slate-500">{{ item.issued }} {{ item.unit }}</td>
+                      <td class="px-6 py-4 text-center text-[10px] font-bold text-emerald-600 dark:text-emerald-500">{{ item.returned }} {{ item.unit }}</td>
+                      <td class="px-6 py-4 text-center">
+                         <span class="text-sm font-bold text-amber-600 dark:text-amber-500">
+                           {{ item.balance }}
+                         </span>
+                         <span class="text-[9px] font-bold text-slate-400 ml-1 uppercase">{{ item.unit }}</span>
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                         <button 
+                           @click="fillFromOutstanding(item)"
+                           class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all"
+                         >
+                            Load Into Form
+                         </button>
+                      </td>
+                   </tr>
+                </tbody>
+             </table>
+          </div>
+          
+          <div v-if="currentProjectOutstanding.length === 0" class="p-12 text-center opacity-40">
+             <i class="mdi mdi-check-circle-outline text-4xl mb-2 text-slate-300 dark:text-slate-600"></i>
+             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">No outstanding reusable items for this project</p>
+          </div>
+       </div>
+    </div>
   </div>
 </template>
 
@@ -151,12 +237,14 @@ import api from '@/plugins/axios'
 
 const { inventory, fetchInventory } = useInventory()
 const projects = ref<any[]>([])
+const outstandingReusables = ref<any[]>([])
 
 const form = ref({
   material_id: '',
   project_id: '',
   quantity: null as number | null,
   notes: '',
+  usage_type: 'consumable'
 })
 
 const submitting = ref(false)
@@ -171,6 +259,25 @@ const fetchProjects = async () => {
   } catch (err) { console.error(err) }
 }
 
+const fetchOutstanding = async () => {
+  try {
+    const response = await api.get('/api/procurement-stores/outstanding-reusables')
+    outstandingReusables.value = response.data.data || []
+  } catch (err) { console.error(err) }
+}
+
+const currentProjectOutstanding = computed(() => {
+  if (!form.value.project_id) return []
+  const proj = outstandingReusables.value.find(p => Number(p.project_id) === Number(form.value.project_id))
+  return proj ? proj.items : []
+})
+
+const fillFromOutstanding = (item: any) => {
+  form.value.material_id = item.material_id
+  form.value.quantity = item.balance
+  form.value.usage_type = 'reusable'
+}
+
 const relevantProjects = computed(() => projects.value)
 
 const submitReturn = async () => {
@@ -178,13 +285,18 @@ const submitReturn = async () => {
   try {
     await api.post('/api/procurement-stores/returns', { ...form.value })
     alert('Return processed successfully.')
-    form.value = { material_id: '', project_id: '', quantity: null, notes: '' }
+    form.value = { material_id: '', project_id: '', quantity: null, notes: '', usage_type: 'consumable' }
     await fetchInventory()
+    await fetchOutstanding()
   } catch (err: any) { alert('Process failed. Check connection.') }
   finally { submitting.value = false }
 }
 
-onMounted(() => { fetchInventory(); fetchProjects() })
+onMounted(() => { 
+  fetchInventory()
+  fetchProjects()
+  fetchOutstanding()
+})
 </script>
 
 <style scoped>

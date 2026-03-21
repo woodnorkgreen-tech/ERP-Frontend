@@ -148,6 +148,33 @@
                 </div>
 
                 <div class="space-y-2">
+                   <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Usage Classification</label>
+                   <div class="grid grid-cols-2 gap-3">
+                      <button 
+                        @click="form.usage_type = 'consumable'"
+                        type="button"
+                        :class="['px-4 py-3 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition-all', 
+                          form.usage_type === 'consumable' 
+                          ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400' 
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600']"
+                      >
+                        Consumable
+                      </button>
+                      <button 
+                        @click="form.usage_type = 'reusable'"
+                        type="button"
+                        :class="['px-4 py-3 rounded-lg border text-[10px] font-bold uppercase tracking-widest transition-all', 
+                          form.usage_type === 'reusable' 
+                          ? 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400' 
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600']"
+                      >
+                        Reusable
+                      </button>
+                   </div>
+                   <p class="text-[8px] italic text-slate-400 px-1">Note: Reusables will track project balances for later return.</p>
+                </div>
+
+                <div class="space-y-2">
                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Internal Notes</label>
                    <textarea 
                      v-model="form.notes"
@@ -329,6 +356,7 @@ const form = ref({
   project_id: '',
   quantity: null as number | null,
   notes: '',
+  usage_type: 'consumable',
   type: 'check_out'
 })
 
@@ -355,6 +383,7 @@ onClickOutside(materialSearchContainer, () => showResults.value = false)
 
 const selectMaterial = (item: any) => {
   form.value.material_id = item.id
+  form.value.usage_type = item.material_type || 'consumable'
   selectedMaterial.value = item
   materialSearch.value = item.material_name
   showResults.value = false

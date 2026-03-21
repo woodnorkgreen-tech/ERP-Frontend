@@ -93,6 +93,7 @@
               <thead>
                 <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Item Search</th>
+                  <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-40">Usage Type</th>
                   <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-32">Quantity</th>
                   <th class="px-4 py-4 text-center text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-16"></th>
                 </tr>
@@ -116,7 +117,7 @@
                           <i class="mdi mdi-check-circle text-lg"></i>
                         </div>
                       </div>
-
+ 
                       <!-- Search Dropdown -->
                       <div v-if="row.showResults" 
                            class="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl dark:shadow-2xl z-[50] max-h-[250px] overflow-y-auto p-1 space-y-1">
@@ -137,6 +138,15 @@
                         <div v-else class="p-6 text-center text-slate-400 dark:text-slate-600 font-bold text-[10px] uppercase tracking-widest">No Results found</div>
                       </div>
                     </div>
+                  </td>
+                  <td class="px-6 py-4">
+                      <select 
+                        v-model="row.usage_type"
+                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-rose-500/50 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300 appearance-none focus:ring-0 transition-all"
+                      >
+                        <option value="consumable">Consumable</option>
+                        <option value="reusable">Reusable</option>
+                      </select>
                   </td>
                   <td class="px-6 py-4">
                       <div class="relative">
@@ -210,7 +220,7 @@ const batchRequestor = ref('')
 const batchReference = ref('')
 
 const rows = ref([
-  { material_id: '', quantity: null as number | null, search: '', showResults: false, unit: '' }
+  { material_id: '', quantity: null as number | null, search: '', showResults: false, unit: '', usage_type: 'consumable' }
 ])
 
 const submitting = ref(false)
@@ -219,7 +229,7 @@ let searchTimeout: any = null
 const rowRefs = ref<any[]>([])
 
 const addRow = () => {
-  rows.value.push({ material_id: '', quantity: null, search: '', showResults: false, unit: '' })
+  rows.value.push({ material_id: '', quantity: null, search: '', showResults: false, unit: '', usage_type: 'consumable' })
 }
 
 const removeRow = (index: number) => {
@@ -238,6 +248,7 @@ const selectMaterial = (index: number, item: any) => {
   row.search = `${item.material_name} (${item.material_code})`
   row.showResults = false
   row.unit = item.unit_of_measure
+  row.usage_type = item.material_type || 'consumable'
 }
 
 const onSearchInput = (index: number) => {
@@ -298,7 +309,8 @@ const submitBatch = async () => {
       reference_no: batchReference.value,
       items: rows.value.map(row => ({
         material_id: row.material_id,
-        quantity: row.quantity
+        quantity: row.quantity,
+        usage_type: row.usage_type
       }))
     })
     

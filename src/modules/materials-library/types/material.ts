@@ -8,6 +8,7 @@ export interface LibraryMaterial {
     material_name: string;
     category: string | null;
     subcategory: string | null;
+    material_type: 'consumable' | 'reusable' | null;
     unit_of_measure: string;
     unit_cost: number;
     attributes: Record<string, any>;
@@ -33,6 +34,7 @@ export interface CreateMaterialDTO {
     material_name: string;
     category?: string;
     subcategory?: string;
+    material_type?: string;
     unit_of_measure: string;
     unit_cost?: number;
     attributes?: Record<string, any>;
