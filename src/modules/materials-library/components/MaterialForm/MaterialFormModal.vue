@@ -61,6 +61,24 @@
                 </div>
               </div>
 
+              <!-- Material Type -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Material Type</label>
+                <div class="relative">
+                  <select 
+                    v-model="form.material_type" 
+                    required 
+                    class="w-full pl-3 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white text-sm appearance-none shadow-sm"
+                  >
+                    <option value="consumable">Consumable</option>
+                    <option value="reusable">Reusable</option>
+                  </select>
+                  <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+
               <div class="relative group">
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Material Code / SKU</label>
                 <div class="relative">
@@ -129,14 +147,17 @@
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Unit of Measure</label>
                 <div class="relative">
-                   <input 
-                    type="text" 
+                  <select 
                     v-model="form.unit_of_measure" 
                     required 
-                    placeholder="Pcs, Mtr, Kg, Ltr..."
-                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white"
+                    class="w-full pl-4 pr-10 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none shadow-sm"
                   >
-                  <div class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 tracking-tighter uppercase">UOM</div>
+                    <option value="" disabled>Select Unit...</option>
+                    <option v-for="u in AVAILABLE_UNITS" :key="u" :value="u">{{ u }}</option>
+                  </select>
+                  <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
                 </div>
               </div>
 
@@ -150,6 +171,21 @@
                     v-model.number="form.unit_cost" 
                     class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                   >
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ isEditing ? 'Current Stock' : 'Initial Stock Quantity' }}</label>
+                <div class="relative group">
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    v-model.number="form.quantity" 
+                    placeholder="0.00"
+                    class="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  >
+                  <div class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 tracking-tighter uppercase">{{ form.unit_of_measure || 'Units' }}</div>
                 </div>
               </div>
             </div>
@@ -284,6 +320,8 @@ const { createMaterial, updateMaterial, loading, error: apiError } = useMaterial
 const { workstations, fetchWorkstations } = useWorkstations();
 const { schema, loading: schemaLoading, fetchSchema } = useMaterialSchema();
 
+const AVAILABLE_UNITS = ['Pcs', 'Ltrs', 'Mtrs', 'sqm', 'Gallons', 'Bouquet', 'Kgs', 'Sets', 'Rolls', 'Boxes', 'Cans', 'Bags', 'Packets', 'Cartons'];
+
 const isEditing = computed(() => !!props.material);
 const localError = ref<string | null>(null);
 
@@ -293,8 +331,10 @@ const form = reactive({
   material_name: '',
   category: '',
   subcategory: '',
+  material_type: 'consumable' as string,
   unit_of_measure: '',
   unit_cost: 0,
+  quantity: 0,
   notes: '',
   attributes: {} as Record<string, any>
 });
@@ -316,25 +356,25 @@ const handleSkuInput = (event: any) => {
 const generateSku = () => {
   if (isEditing.value || isSkuManuallyEdited.value) return;
 
-  const cat = (form.category || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
-  const name = (form.material_name || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+  const workstation = workstations.value.find(ws => ws.id === form.workstation_id);
+  const wsPart = (workstation?.name || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
+  const namePart = (form.material_name || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 4);
   
-  if (!cat) {
+  if (!wsPart) {
     form.material_code = '';
     return;
   }
 
-  // Proactive generation: suggest [CAT]-0001 even before name is entered
-  // and [CAT]-[NAME]-0001 once both are available
-  let code = cat;
-  if (name) {
-    code += `-${name}`;
+  // Generate [WS]-[NAME]-0001
+  let code = wsPart;
+  if (namePart) {
+    code += `-${namePart}`;
   }
   form.material_code = `${code}-0001`;
 };
 
 // Use standard Vue 3 multi-source watcher for better reactivity
-watch([() => form.category, () => form.material_name], () => {
+watch([() => form.workstation_id, () => form.material_name], () => {
   generateSku();
 });
 
@@ -352,8 +392,10 @@ onMounted(async () => {
     form.material_name = props.material.material_name;
     form.category = props.material.category || '';
     form.subcategory = props.material.subcategory || '';
+    form.material_type = props.material.material_type || 'consumable';
     form.unit_of_measure = props.material.unit_of_measure;
     form.unit_cost = props.material.unit_cost;
+    form.quantity = props.material.quantity_on_hand || 0;
     form.notes = props.material.notes || '';
     
     // Attributes
@@ -395,8 +437,10 @@ const handleSubmit = async () => {
             material_name: form.material_name,
             category: form.category,
             subcategory: form.subcategory,
+            material_type: form.material_type,
             unit_of_measure: form.unit_of_measure,
             unit_cost: form.unit_cost,
+            quantity: form.quantity,
             notes: form.notes,
             attributes: form.attributes
         };

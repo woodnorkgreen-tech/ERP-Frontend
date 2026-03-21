@@ -1875,7 +1875,7 @@ const currentView = ref< 'enquiries' |'awaiting_deposit' | 'projects' | 'complet
 
 const dashboardTabs = [
   { id: 'enquiries', label: 'New Enquiries', desc: 'In the pipeline' },
-  { id: 'awaiting_deposit', label: 'Awaiting Deposit', desc: 'Pending Funds' },
+  { id: 'awaiting_deposit', label: 'Confirmed Jobs', desc: 'Pending Funds' },
   { id: 'projects', label: 'In Progress', desc: 'Active projects' },
   { id: 'completed', label: 'Completed', desc: 'Finished projects' },
   { id: 'canceled', label: 'Canceled', desc: 'Rejected enquiries' }
