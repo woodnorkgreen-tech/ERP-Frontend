@@ -118,9 +118,9 @@
             <div class="flex items-center gap-2">
               <div class="w-32 h-1.5 bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div class="h-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all duration-1000 rounded-full"
-                     :style="{ width: `${(missionMilestones.filter(m => m.completed).length / missionMilestones.length) * 100}%` }"></div>
+                     :style="{ width: `${(projectMilestones.filter(m => m.completed).length / projectMilestones.length) * 100}%` }"></div>
               </div>
-              <span class="text-sm font-black text-slate-800 dark:text-white tabular-nums">{{ Math.round((missionMilestones.filter(m => m.completed).length / missionMilestones.length) * 100) }}%</span>
+              <span class="text-sm font-black text-slate-800 dark:text-white tabular-nums">{{ Math.round((projectMilestones.filter(m => m.completed).length / projectMilestones.length) * 100) }}%</span>
             </div>
           </div>
 
@@ -129,12 +129,12 @@
             <!-- Track -->
             <div class="absolute inset-x-0 h-px bg-slate-200 dark:bg-gray-700 top-1/2 -translate-y-1/2"></div>
             <div class="absolute left-0 h-px bg-gradient-to-r from-emerald-500 to-blue-500 top-1/2 -translate-y-1/2 transition-all duration-1000"
-                 :style="{ width: `${(missionMilestones.filter(m => m.completed).length / Math.max(missionMilestones.length - 1, 1)) * 100}%` }"></div>
+                 :style="{ width: `${(projectMilestones.filter(m => m.completed).length / Math.max(projectMilestones.length - 1, 1)) * 100}%` }"></div>
 
             <!-- Milestones -->
             <div class="relative w-full flex justify-between">
               <div 
-                v-for="(milestone, index) in missionMilestones" 
+                v-for="(milestone, index) in projectMilestones" 
                 :key="index"
                 class="group relative flex flex-col items-center"
               >
@@ -545,9 +545,9 @@ const viewMode = ref<'grid' | 'table' | 'board'>('grid')
 const showAllTasks = ref(true)
 const availableUsers = ref<Array<{ id: number; name: string; department?: string }>>([])
 
-// Mission Milestones Logic
-// Mission Milestones Logic - Dynamic based on project tasks
-const missionMilestones = computed(() => {
+// Project Milestones Logic
+// Project Milestones Logic - Dynamic based on project tasks
+const projectMilestones = computed(() => {
   const existingTaskTypes = new Set(enquiryTasks.value.map(t => t.type?.toLowerCase()))
   const completedTaskTypes = completedTasks.value.map(t => t.type?.toLowerCase())
   

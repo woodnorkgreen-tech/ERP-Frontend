@@ -1,39 +1,39 @@
 <template>
   <div class="h-full flex flex-col">
     <!-- Header -->
-    <div class="px-6 py-5 border-b border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/50">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-          <i class="mdi mdi-history text-slate-400"></i>
-          Transaction History
-        </h3>
+    <div class="px-6 py-6 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="mdi mdi-swap-horizontal text-blue-500"></i>
+            Transaction History
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Review all credits and debits from the petty cash vault.</p>
+        </div>
+
         <div class="flex flex-wrap items-center gap-3">
           <!-- Search -->
-          <div class="relative group">
+          <div class="relative group flex-1 min-w-[300px]">
+            <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors text-lg"></i>
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search transactions..."
-              class="block w-64 pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700/60 rounded-xl leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+              placeholder="Search by beneficiary, purpose, or reference..."
+              class="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
             />
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
           </div>
           
           <!-- Filters Toggle -->
           <button
             @click="showFilters = !showFilters"
             :class="[
-              'inline-flex items-center px-4 py-2 border rounded-xl text-sm font-bold transition-all shadow-sm',
+              'inline-flex items-center px-4 py-2.5 border rounded-xl text-sm font-bold transition-all shadow-sm',
               showFilters 
                 ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
             ]"
           >
-            <i class="mdi mdi-filter-variant mr-2 text-lg"></i>
+            <i class="mdi mdi-filter-variant mr-2 text-lg text-slate-400"></i>
             Filters
           </button>
 
@@ -41,7 +41,7 @@
           <button
             @click="handleDownloadReport"
             :disabled="store.loading.voucher"
-            class="inline-flex items-center px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-transparent rounded-xl text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+            class="inline-flex items-center px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border border-transparent rounded-xl text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
           >
             <i v-if="store.loading.voucher" class="mdi mdi-loading mdi-spin mr-2 text-lg"></i>
             <i v-else class="mdi mdi-file-pdf-box mr-2 text-lg text-red-500"></i>
@@ -178,357 +178,348 @@
     </div>
     
     <!-- Transaction Table -->
-    <div class="overflow-x-auto">
-      <div v-if="loading" class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+    <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+      <div v-if="loading" class="flex-1 flex flex-col items-center justify-center p-12">
+        <div class="relative w-16 h-16">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+        </div>
+        <p class="mt-4 text-sm font-bold text-slate-500 animate-pulse uppercase tracking-[0.2em]">Synchronizing...</p>
       </div>
       
-      <div v-else-if="allTransactions.length === 0" class="text-center py-12">
-        <div class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
+      <div v-else-if="allTransactions.length === 0" class="flex-1 flex flex-col items-center justify-center p-16 text-center">
+        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center mb-6 rotate-3">
+          <i class="mdi mdi-tray-check text-4xl text-slate-300 dark:text-slate-600"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">No transactions found</h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
-          {{ hasActiveFilters ? 'Try adjusting your filters or search terms to find what you looking for.' : 'There are no transactions recorded yet. Start by adding a top-up.' }}
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">History Clear</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+          {{ hasActiveFilters ? 'No transactions match your current filter criteria. Try resetting filters to see more.' : 'There are no transactions recorded in this period yet. All systems reporting normal.' }}
         </p>
+        <button v-if="hasActiveFilters" @click="clearFilters" class="mt-8 px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-blue-600 uppercase tracking-widest shadow-sm hover:shadow-md transition-all active:scale-95">
+          Reset All Filters
+        </button>
       </div>
 
-      <table v-else class="min-w-full divide-y divide-slate-200 dark:divide-slate-700/60">
-        <thead class="bg-slate-50 dark:bg-slate-800/80">
-          <tr>
-            <th scope="col" class="px-4 py-4 text-left">
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  :checked="isAllSelected"
-                  @change="toggleSelectAll"
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded transition-all cursor-pointer"
-                />
-              </div>
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Date
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Type
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Beneficiary
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Purpose / Description
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Project Context
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Classification
-            </th>
-            <th scope="col" class="px-4 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Ref / Method
-            </th>
-            <th scope="col" class="px-4 py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Amount (KES)
-            </th>
-            <th scope="col" class="px-4 py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
-          <tr 
-            v-for="transaction in allTransactions" 
-            :key="transaction.id + '-' + transaction.type"
-            class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all group"
-            :class="{ 
-              'bg-blue-50/30 dark:bg-blue-900/10': isSelected(transaction),
-              'bg-slate-50/50 dark:bg-slate-800/30': transaction.type === 'top_up',
-            }"
-          >
-            <!-- Checkbox -->
-            <td class="px-4 py-4 whitespace-nowrap">
-              <input
-                v-if="transaction.type === 'disbursement'"
-                type="checkbox"
-                :checked="isSelected(transaction)"
-                @change="toggleSelection(transaction)"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer transition-all"
-              />
-              <div v-else class="flex justify-center">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Top-up (Credit)"></div>
-              </div>
-            </td>
+      <div v-else class="flex-1 overflow-x-auto min-h-0">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+          <thead class="bg-slate-50/50 dark:bg-slate-800/50 sticky top-0 z-10 backdrop-blur-md">
+            <tr>
+              <th scope="col" class="px-4 py-4 text-left">
+                <div class="flex items-center ml-2">
+                  <input
+                    type="checkbox"
+                    :checked="isAllSelected"
+                    @change="toggleSelectAll"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded transition-all cursor-pointer"
+                  />
+                </div>
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Date
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Type
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Beneficiary
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Purpose / Description
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Project Context
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Classification
+              </th>
+              <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Ref / Method
+              </th>
+              <th scope="col" class="px-4 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Amount
+              </th>
+              <th scope="col" class="px-4 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+            <tr 
+              v-for="transaction in allTransactions" 
+              :key="transaction.id + '-' + transaction.type"
+              class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all group"
+              :class="{ 
+                'bg-blue-50/30 dark:bg-blue-900/10': isSelected(transaction),
+                'bg-slate-50/30 dark:bg-slate-800/20': transaction.type === 'top_up',
+              }"
+            >
+              <!-- Checkbox -->
+              <td class="px-4 py-4 whitespace-nowrap">
+                <div class="flex items-center ml-2">
+                  <input
+                    v-if="transaction.type === 'disbursement'"
+                    type="checkbox"
+                    :checked="isSelected(transaction)"
+                    @change="toggleSelection(transaction)"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer transition-all"
+                  />
+                  <div v-else class="flex justify-center ml-1">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm" title="Top-up (Credit)"></div>
+                  </div>
+                </div>
+              </td>
 
-            <!-- Date -->
-            <td class="px-4 py-4 whitespace-nowrap">
-              <div class="flex flex-col">
-                <span class="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">
-                  {{ formatDateOnly(transaction.created_at.raw) }}
-                </span>
-                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">
-                  {{ formatTimeOnly(transaction.created_at.raw) }}
-                </span>
-              </div>
-            </td>
-
-            <!-- Type -->
-            <td class="px-4 py-4 whitespace-nowrap">
-              <span 
-                class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm"
-                :class="transaction.type === 'top_up' 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' 
-                  : 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'"
-              >
-                {{ transaction.type === 'top_up' ? 'Credit' : 'Debit' }}
-              </span>
-            </td>
-
-            <!-- Beneficiary -->
-            <td class="px-4 py-4">
-              <div class="flex items-center min-w-[140px]">
+              <!-- Date -->
+              <td class="px-4 py-4 whitespace-nowrap">
                 <div class="flex flex-col">
-                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight">
-                    {{ transaction.type === 'top_up' ? 'Main Account' : (transaction.receiver || 'General Payee') }}
+                  <span class="text-xs font-bold text-slate-900 dark:text-white">
+                    {{ formatDateOnly(transaction.created_at.raw) }}
                   </span>
-                  
-                  <!-- Receipt Status -->
-                  <div class="mt-1.5">
-                    <span 
-                      v-if="transaction.received_at" 
-                      class="inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded"
-                    >
-                      <i class="mdi mdi-check-circle text-[10px]"></i> Confirmed
-                    </span>
-                    <span 
-                      v-else-if="transaction.type === 'disbursement' && transaction.requisition_id" 
-                      class="inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-1.5 py-0.5 rounded"
-                    >
-                      <i class="mdi mdi-clock-outline text-[10px]"></i> Awaiting
+                  <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                    {{ formatTimeOnly(transaction.created_at.raw) }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Type -->
+              <td class="px-4 py-4 whitespace-nowrap">
+                <span 
+                  class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border shadow-sm"
+                  :class="transaction.type === 'top_up' 
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' 
+                    : 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'"
+                >
+                  {{ transaction.type === 'top_up' ? 'Credit' : 'Debit' }}
+                </span>
+              </td>
+
+              <!-- Beneficiary -->
+              <td class="px-4 py-4">
+                <div class="flex items-center min-w-[140px]">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                      {{ transaction.type === 'top_up' ? 'Main Vault Account' : (transaction.receiver || 'General Payee') }}
                     </span>
                     
-                    <!-- Previous Balance for Top-ups -->
-                    <span 
-                      v-if="transaction.type === 'top_up' && transaction.previous_balance != null" 
-                      class="inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-700/60"
-                    >
-                      <i class="mdi mdi-scale-balance text-[10px]"></i> Prev: KES {{ formatCurrency(transaction.previous_balance) }}
+                    <!-- Receipt Status -->
+                    <div class="mt-1.5 flex gap-1.5 flex-wrap">
+                      <span 
+                        v-if="transaction.received_at" 
+                        class="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-800"
+                      >
+                        <i class="mdi mdi-check-circle text-xs"></i> Confirmed
+                      </span>
+                      <span 
+                        v-else-if="transaction.type === 'disbursement' && transaction.requisition_id" 
+                        class="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-lg border border-amber-100 dark:border-amber-800"
+                      >
+                        <i class="mdi mdi-clock-outline text-xs"></i> Awaiting
+                      </span>
+                      
+                      <!-- Previous Balance for Top-ups -->
+                      <span 
+                        v-if="transaction.type === 'top_up' && transaction.previous_balance != null" 
+                        class="inline-flex items-center gap-1 text-[9px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700"
+                      >
+                        Prev: KES {{ formatCurrency(transaction.previous_balance) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Purpose -->
+              <td class="px-4 py-4">
+                <div class="max-w-[220px]">
+                  <p class="text-[11px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
+                    {{ transaction.description || 'No description provided' }}
+                  </p>
+                </div>
+              </td>
+
+              <!-- Project Context -->
+              <td class="px-4 py-4">
+                <div class="flex flex-col gap-1.5 min-w-[150px]">
+                  <div v-if="transaction.project_name" class="flex items-center gap-1.5">
+                    <i class="mdi mdi-cube-outline text-blue-500 text-xs"></i>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                      {{ transaction.project_name }}
+                    </span>
+                  </div>
+                  <div v-if="transaction.job_number" class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-2 py-0.5 rounded-lg border border-orange-100 dark:border-orange-800 font-mono tracking-wider">
+                      {{ transaction.job_number }}
+                    </span>
+                  </div>
+                  <div v-if="!transaction.project_name && !transaction.job_number" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    General Expense
+                  </div>
+                </div>
+              </td>
+
+              <!-- Classification -->
+              <td class="px-4 py-4 whitespace-nowrap">
+                <div v-if="transaction.classification" class="flex items-center">
+                  <span 
+                    class="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border"
+                    :class="getClassificationBadgeClass(transaction.classification.value)"
+                  >
+                    {{ transaction.classification.label }}
+                  </span>
+                </div>
+                <div v-else class="text-xs text-slate-400">-</div>
+              </td>
+
+              <!-- Ref / Method -->
+              <td class="px-4 py-4">
+                <div class="flex flex-col gap-1.5 min-w-[140px]">
+                  <!-- Payment Method -->
+                  <div v-if="transaction.payment_method" class="flex items-center gap-1.5">
+                    <i class="mdi mdi-credit-card-outline text-slate-400 text-sm"></i>
+                    <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                      {{ transaction.payment_method.label }}
+                    </span>
+                  </div>
+                  
+                  <!-- Account / Venue -->
+                  <div class="flex flex-wrap gap-1">
+                    <span v-if="transaction.account" class="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                      {{ transaction.account }}
+                    </span>
+                    <span v-if="transaction.transaction_code" class="text-[9px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-lg border border-blue-100 dark:border-blue-800 font-mono">
+                      {{ transaction.transaction_code }}
                     </span>
                   </div>
                 </div>
-              </div>
-            </td>
+              </td>
 
-            <!-- Purpose -->
-            <td class="px-4 py-4">
-              <div class="max-w-[200px]">
-                <p class="text-[11px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed italic line-clamp-2">
-                  "{{ transaction.description || 'No description provided' }}"
-                </p>
-              </div>
-            </td>
-
-            <!-- Project Context -->
-            <td class="px-4 py-4">
-              <div class="flex flex-col gap-1.5 min-w-[150px]">
-                <div v-if="transaction.project_name" class="flex items-center gap-1.5">
-                  <i class="mdi mdi-folder-outline text-slate-400 text-xs"></i>
-                  <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tight">
-                    {{ transaction.project_name }}
+              <!-- Amount -->
+              <td class="px-4 py-4 whitespace-nowrap text-right">
+                <div class="flex flex-col items-end">
+                  <span 
+                    class="text-base font-bold tabular-nums tracking-tight"
+                    :class="transaction.type === 'top_up' ? 'text-emerald-600 dark:text-emerald-400' : getDisbursementAmountColor(transaction.status?.value)"
+                  >
+                    {{ transaction.type === 'top_up' ? '+' : '-' }}{{ transaction.amount.formatted.replace('KES ', '') }}
+                  </span>
+                  
+                  <!-- Extra Costs -->
+                  <span 
+                    v-if="transaction.type === 'disbursement' && transaction.transaction_cost && transaction.transaction_cost.raw > 0"
+                    class="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5"
+                  >
+                    Fee: {{ transaction.transaction_cost.formatted.replace('KES ', '') }}
+                  </span>
+                  
+                  <span v-if="transaction.status?.is_voided" class="text-[9px] font-bold text-red-500 uppercase tracking-widest leading-none mt-1">
+                    VOIDED
                   </span>
                 </div>
-                <div v-if="transaction.job_number" class="flex items-center gap-1.5">
-                  <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono">
-                    #{{ transaction.job_number }}
-                  </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  <button
+                    @click="viewTransaction(transaction)"
+                    class="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all"
+                    title="Full View"
+                  >
+                    <i class="mdi mdi-eye-outline text-lg"></i>
+                  </button>
+
+                  <!-- Individual Voucher Download -->
+                  <button
+                    v-if="transaction.type === 'disbursement' && transaction.requisition_id"
+                    @click="handleDownloadIndividualVoucher(transaction.requisition_id)"
+                    :disabled="store.loading.voucher"
+                    class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                    title="Download Voucher"
+                  >
+                    <i class="mdi mdi-file-pdf-box text-lg"></i>
+                  </button>
+
+                  <button
+                    v-if="(transaction.type === 'disbursement' && transaction.can_edit && isSuperAdmin) || (transaction.type === 'top_up' && isSuperAdmin)"
+                    @click="transaction.type === 'top_up' ? editTopUp(transaction) : editDisbursement(transaction)"
+                    class="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-all"
+                    :title="transaction.type === 'top_up' ? 'Modify' : 'Modify'"
+                  >
+                    <i class="mdi mdi-pencil-outline text-lg"></i>
+                  </button>
+
+                  <button
+                    v-if="!transaction.is_archived && isSuperAdmin"
+                    @click="archiveTransaction(transaction.original_id, transaction.type)"
+                    class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
+                    title="Archive"
+                  >
+                    <i class="mdi mdi-archive-outline text-lg"></i>
+                  </button>
+                  
+                  <button
+                    v-if="(transaction.type === 'disbursement' && transaction.can_delete && isSuperAdmin) || (transaction.type === 'top_up' && isSuperAdmin)"
+                    @click="transaction.type === 'top_up' ? deleteTopUp(transaction.original_data) : deleteDisbursement(transaction.original_data)"
+                    class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                    :title="transaction.type === 'top_up' ? 'Remove Top-up' : 'Remove'"
+                  >
+                    <i class="mdi mdi-trash-can-outline text-lg"></i>
+                  </button>
                 </div>
-                <div v-if="!transaction.project_name && !transaction.job_number" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
-                  General Expense
-                </div>
-              </div>
-            </td>
-
-            <!-- Classification -->
-            <td class="px-4 py-4 whitespace-nowrap">
-              <div v-if="transaction.classification" class="flex items-center">
-                <span 
-                  class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border"
-                  :class="getClassificationBadgeClass(transaction.classification.value)"
-                >
-                  {{ transaction.classification.label }}
-                </span>
-              </div>
-              <div v-else class="text-xs text-slate-400">-</div>
-            </td>
-
-            <!-- Ref / Method -->
-            <td class="px-4 py-4">
-              <div class="flex flex-col gap-1.5 min-w-[140px]">
-                <!-- Payment Method -->
-                <div v-if="transaction.payment_method" class="flex items-center gap-1.5">
-                  <i class="mdi mdi-credit-card-outline text-slate-400 text-xs"></i>
-                  <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">
-                    {{ transaction.payment_method.label }}
-                  </span>
-                </div>
-                
-                <!-- Account / Venue -->
-                <div class="flex flex-wrap gap-1">
-                  <span v-if="transaction.account" class="text-[8px] font-black uppercase text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-700/60">
-                    {{ transaction.account }}
-                  </span>
-                  <span v-if="transaction.transaction_code" class="text-[8px] font-black text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded font-mono">
-                    {{ transaction.transaction_code }}
-                  </span>
-                </div>
-              </div>
-            </td>
-
-            <!-- Amount -->
-            <td class="px-4 py-4 whitespace-nowrap text-right">
-              <div class="flex flex-col items-end">
-                <span 
-                  class="text-sm font-black tracking-tighter"
-                  :class="transaction.type === 'top_up' ? 'text-emerald-600 dark:text-emerald-400' : getDisbursementAmountColor(transaction.status?.value)"
-                >
-                  {{ transaction.type === 'top_up' ? '+' : '-' }}{{ transaction.amount.formatted.replace('KES ', '') }}
-                </span>
-                
-                <!-- Extra Costs -->
-                <span 
-                  v-if="transaction.type === 'disbursement' && transaction.transaction_cost && transaction.transaction_cost.raw > 0"
-                  class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-1"
-                >
-                  Fee: KES {{ transaction.transaction_cost.formatted.replace('KES ', '') }}
-                </span>
-                
-                <span v-if="transaction.status?.is_voided" class="text-[8px] font-black text-red-500 uppercase tracking-[0.2em] leading-none mt-1.5">
-                  VOIDED
-                </span>
-              </div>
-            </td>
-
-            <!-- Actions -->
-            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                <button
-                  @click="viewTransaction(transaction)"
-                  class="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all"
-                  title="Full View"
-                >
-                  <i class="mdi mdi-eye-outline text-lg"></i>
-                </button>
-
-                <!-- Individual Voucher Download -->
-                <button
-                  v-if="transaction.type === 'disbursement' && transaction.requisition_id"
-                  @click="handleDownloadIndividualVoucher(transaction.requisition_id)"
-                  :disabled="store.loading.voucher"
-                  class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
-                  title="Download Voucher"
-                >
-                  <i class="mdi mdi-file-pdf-box text-lg"></i>
-                </button>
-
-                <button
-                  v-if="(transaction.type === 'disbursement' && transaction.can_edit && isSuperAdmin) || (transaction.type === 'top_up' && isSuperAdmin)"
-                  @click="transaction.type === 'top_up' ? editTopUp(transaction) : editDisbursement(transaction)"
-                  class="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-all"
-                  :title="transaction.type === 'top_up' ? 'Modify' : 'Modify'"
-                >
-                  <i class="mdi mdi-pencil-outline text-lg"></i>
-                </button>
-
-                <button
-                  v-if="!transaction.is_archived && isSuperAdmin"
-                  @click="archiveTransaction(transaction.original_id, transaction.type)"
-                  class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
-                  title="Archive"
-                >
-                  <i class="mdi mdi-archive-outline text-lg"></i>
-                </button>
-                
-                <button
-                  v-if="(transaction.type === 'disbursement' && transaction.can_delete && isSuperAdmin) || (transaction.type === 'top_up' && isSuperAdmin)"
-                  @click="transaction.type === 'top_up' ? deleteTopUp(transaction.original_data) : deleteDisbursement(transaction.original_data)"
-                  class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
-                  :title="transaction.type === 'top_up' ? 'Remove Top-up' : 'Remove'"
-                >
-                  <i class="mdi mdi-trash-can-outline text-lg"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Pagination -->
-    <div v-if="hasPagination" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+    <div v-if="hasPagination" class="px-6 py-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
       <div class="flex items-center justify-between">
-        <div class="flex-1 flex justify-between sm:hidden">
-          <button
-            @click="goToPreviousPage"
-            :disabled="currentPage <= 1"
-            class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <button
-            @click="goToNextPage"
-            :disabled="currentPage >= totalPages"
-            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
-        </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Showing
-              <span class="font-medium">{{ Math.min((currentPage - 1) * itemsPerPage + 1, totalItems) }}</span>
+              <span class="text-slate-900 dark:text-white">{{ Math.min((currentPage - 1) * itemsPerPage + 1, totalItems) }}</span>
               to
-              <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
+              <span class="text-slate-900 dark:text-white">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
               of
-              <span class="font-medium">{{ totalItems }}</span>
+              <span class="text-slate-900 dark:text-white">{{ totalItems }}</span>
               results
             </p>
           </div>
           <div>
-            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <nav class="relative z-0 inline-flex items-center gap-1" aria-label="Pagination">
               <button
                 @click="goToPreviousPage"
                 :disabled="currentPage <= 1"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="relative inline-flex items-center px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
               >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
+                <i class="mdi mdi-chevron-left text-xl"></i>
               </button>
 
-              <button
-                v-for="page in visiblePages"
-                :key="page"
-                @click="goToPage(page)"
-                :class="[
-                  'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-                  page === currentPage
-                    ? 'z-10 bg-blue-50 dark:bg-blue-900/50 border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                ]"
-              >
-                {{ page }}
-              </button>
+              <div class="flex items-center gap-1 px-1">
+                <button
+                  v-for="page in visiblePages"
+                  :key="page"
+                  @click="goToPage(page)"
+                  :class="[
+                    'w-10 h-10 flex items-center justify-center rounded-xl text-xs font-bold transition-all shadow-sm border',
+                    page === currentPage
+                      ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-lg shadow-slate-900/20'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </div>
 
               <button
                 @click="goToNextPage"
                 :disabled="currentPage >= totalPages"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="relative inline-flex items-center px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
               >
-                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
+                <i class="mdi mdi-chevron-right text-xl"></i>
               </button>
             </nav>
           </div>

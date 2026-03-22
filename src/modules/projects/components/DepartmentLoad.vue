@@ -157,7 +157,7 @@
 
               <!-- No Projects Message -->
               <div v-if="dept.enquiries.length === 0" class="py-10 text-center bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Active Missions in Sector</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Active Projects in Sector</p>
               </div>
             </div>
           </transition>

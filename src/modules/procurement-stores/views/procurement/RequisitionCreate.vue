@@ -355,18 +355,34 @@ const handleSubmit = async () => {
     }
 
     const response = await axios.post('/api/procurement-stores/requisitions', payload)
+    const resData = response.data
     
-    if (response.data && response.data.id) {
-      router.push(`/procurement/requisition/${response.data.id}`)
-    } else if (response.data.data && response.data.data.id) {
-      router.push(`/procurement/requisition/${response.data.data.id}`)
+    if (resData.success === false) {
+      if (resData.error && typeof resData.error !== 'string') {
+        errors.value = resData.error
+        errorMessage.value = Object.values(resData.error).flat().join(', ')
+      } else {
+        errorMessage.value = resData.error || resData.message || 'Failed to submit requisition'
+      }
+      loading.value = false
+      return
+    }
+    
+    const id = resData.id || resData.data?.id
+    if (id) {
+      router.push(`/procurement/requisition/${id}`)
     }
   } catch (error: any) {
-    if (error.response?.data?.error) {
-      errors.value = error.response.data.error
-      errorMessage.value = Object.values(error.response.data.error).flat().join(', ')
-    } else if (error.response?.data?.message) {
-      errorMessage.value = error.response.data.message
+    const data = error.response?.data
+    if (data?.error) {
+      if (typeof data.error === 'string') {
+        errorMessage.value = data.error
+      } else {
+        errors.value = data.error
+        errorMessage.value = Object.values(data.error).flat().join(', ')
+      }
+    } else if (data?.message) {
+      errorMessage.value = data.message
     } else {
       errorMessage.value = 'An error occurred while creating the requisition.'
     }

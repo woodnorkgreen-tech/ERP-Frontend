@@ -8,7 +8,7 @@
           <i class="mdi mdi-information-outline text-slate-300 hover:text-blue-500 cursor-help transition-colors"></i>
           <div class="absolute left-0 bottom-full mb-4 w-64 p-4 bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-[10px] font-normal leading-relaxed rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-[100] backdrop-blur-xl border border-white/10 dark:border-slate-200/50">
             <div class="font-black uppercase tracking-widest mb-2 text-blue-400">Tactical Criteria</div>
-            Correlates historical task durations, financial margins, and enquiry staleness to generate proactive operational strategies for the mission.
+            Correlates historical task durations, financial margins, and enquiry staleness to generate proactive operational strategies for the project.
             <div class="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-900/95 dark:bg-white/95 rotate-45 border-r border-b border-white/10 dark:border-slate-200/50"></div>
           </div>
         </div>

@@ -412,27 +412,40 @@
                 <div class="relative">
                     <input
                       id="job_number"
-                      list="job_number_list"
                       v-model="form.job_number"
-                      @input="onProjectSelect"
+                      @input="onProjectInput"
+                      @focus="showProjectDropdown = true"
+                      @blur="hideProjectDropdown"
                       type="text"
                       class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Type or select job number (e.g. WNG-01-2026-009)"
+                      placeholder="Type to search job number (e.g. WNG-01-2026-009)"
                       autocomplete="off"
                     />
                   
-                  <datalist id="job_number_list">
-                    <option 
-                      v-for="project in projects" 
-                      :key="project.id" 
-                      :value="project.job_number || project.project_id"
+                  <!-- Custom Dropdown -->
+                  <div
+                    v-if="showProjectDropdown && filteredProjects.length"
+                    class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-slate-200 dark:border-slate-700"
+                  >
+                    <div
+                      v-for="project in filteredProjects"
+                      :key="project.id"
+                      @mousedown="selectProject(project)"
+                      class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      {{ project.title || project.enquiry?.title }}
-                    </option>
-                  </datalist>
+                      <div class="flex flex-col">
+                        <span class="font-medium text-gray-900 dark:text-white">
+                          {{ project.title || project.enquiry?.title || project.job_number || project.project_id }}
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {{ project.job_number || project.project_id }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
                   <!-- Loading Indicator -->
-                  <div v-if="projects.length === 0" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <div v-if="isLoadingProjects" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -681,36 +694,51 @@ const selectAccount = (account: Account) => {
 
 
 
-// Handle project selection from datalist
-const onProjectSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const value = input.value
+// Handle project selection from custom dropdown
+const showProjectDropdown = ref(false)
+const isLoadingProjects = ref(false)
+
+const filteredProjects = computed(() => {
+  const query = (form.job_number || '').toLowerCase()
+  if (!query) return projects.value.slice(0, 50)
   
-  // Find matching project
-  const project = projects.value.find(p => 
-    (p.job_number === value) || (p.project_id === value)
-  )
+  return projects.value.filter(p => {
+    const term = query.toLowerCase()
+    return (p.title || p.enquiry?.title || '').toLowerCase().includes(term) ||
+           (p.job_number || '').toLowerCase().includes(term) ||
+           (p.project_id || '').toLowerCase().includes(term)
+  }).slice(0, 50)
+})
 
-  if (project) {
-    selectedProject.value = project
-    form.job_number = project.job_number || project.project_id
-    // Auto-fill project name - ALWAYS update when a strict match is found
-    form.project_name = project.title || project.enquiry?.title || ''
-    
-    // UX Improvement: Automatically switch classification to 'operations' 
-    // if it's currently default/empty, as project codes are usually ops-related
-    if (!form.classification || form.classification === 'admin') {
-      form.classification = 'operations'
-    }
-
-    // Fetch budget categories
-    fetchBudgetCategories(form.job_number)
-  } else {
-    // Just update the manual entry
-    form.job_number = value
+const onProjectInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  form.job_number = target.value
+  showProjectDropdown.value = true
+  
+  // If user clears the input, reset budget categories
+  if (!target.value.trim()) {
     availableBudgetItems.value = []
     form.budget_category = ''
   }
+}
+
+const hideProjectDropdown = () => {
+  setTimeout(() => {
+    showProjectDropdown.value = false
+  }, 200)
+}
+
+const selectProject = (project: any) => {
+  selectedProject.value = project
+  form.job_number = project.job_number || project.project_id
+  form.project_name = project.title || project.enquiry?.title || ''
+  
+  if (!form.classification || form.classification === 'admin') {
+    form.classification = 'operations'
+  }
+  
+  showProjectDropdown.value = false
+  fetchBudgetCategories(form.job_number)
 }
 
 const fetchBudgetCategories = async (jobNumber: string) => {
@@ -956,10 +984,12 @@ const initializeModal = async () => {
     // Sequence matters: Load critical dependencies first
     await Promise.all([
       store.fetchAvailableTopUps(),
-      store.fetchCurrentBalance(),
-      fetchProjects(),
-      fetchAccounts()
+      store.fetchCurrentBalance()
     ])
+
+    // Load massive dropdown data in the background to prevent modal UI blocking
+    fetchProjects()
+    fetchAccounts()
 
     if (props.editMode && props.disbursement) {
       loadDisbursementData()
@@ -986,6 +1016,7 @@ const initializeModal = async () => {
 }
 
 const fetchProjects = async () => {
+  isLoadingProjects.value = true
   try {
     console.log('🔍 Fetching approved projects for dropdown...')
     const response = await pettyCashService.getProjects()
@@ -999,6 +1030,8 @@ const fetchProjects = async () => {
     }
   } catch (error) {
     console.error('❌ Error fetching projects:', error)
+  } finally {
+    isLoadingProjects.value = false
   }
 }
 

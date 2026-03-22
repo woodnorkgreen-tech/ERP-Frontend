@@ -3,10 +3,10 @@
     <!-- Header Area -->
     <div v-if="!isEmbedded" class="flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-          FINANCE & ACCOUNTS REQUISITIONS
+        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
+          Finance & Accounts Requisitions
         </h1>
-        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+        <p class="text-[12px] font-semibold text-slate-500 uppercase tracking-widest mt-1.5">
           Internal Expense Management Portal
         </p>
       </div>
@@ -44,35 +44,32 @@
             <input
               v-model="filters.search"
               type="text"
-              placeholder="SEARCH PURPOSE OR PAYEE..."
-              class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest outline-none focus:border-slate-900 dark:focus:border-white transition-all shadow-sm"
+              placeholder="Search reference, purpose or category..."
+              class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-950 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-[13px] font-semibold shadow-sm transition-all placeholder:text-slate-400 placeholder:font-medium"
               @input="debounceSearch"
             />
           </div>
           
           <div class="flex items-center gap-2 shrink-0">
-             <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <span class="text-[9px] font-black text-slate-400 mr-2 uppercase">FROM</span>
+             <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg px-4 py-2 border border-slate-200 dark:border-slate-700 shadow-sm gap-3">
                 <input
                   v-model="filters.start_date"
                   type="date"
-                  class="bg-transparent border-none text-[10px] font-black text-slate-900 dark:text-slate-200 w-24 focus:ring-0 p-0"
+                  class="bg-transparent border-none text-[11px] font-bold text-slate-900 dark:text-slate-200 w-28 focus:ring-0 p-0"
                   @change="fetchRequisitions"
                 />
-             </div>
-             <div class="flex items-center bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <span class="text-[9px] font-black text-slate-400 mr-2 uppercase">TO</span>
+                <span class="text-slate-300 font-bold">/</span>
                 <input
                   v-model="filters.end_date"
                   type="date"
-                  class="bg-transparent border-none text-[10px] font-black text-slate-900 dark:text-slate-200 w-24 focus:ring-0 p-0"
+                  class="bg-transparent border-none text-[11px] font-bold text-slate-900 dark:text-slate-200 w-28 focus:ring-0 p-0"
                   @change="fetchRequisitions"
                 />
              </div>
              <button 
                 v-if="filters.start_date || filters.end_date"
                 @click="clearDates"
-                class="px-3 py-2 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-black text-[10px] uppercase tracking-widest"
+                class="px-4 py-2 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold text-[11px] uppercase tracking-widest shadow-sm hover:opacity-90 transition-all"
               >
                 Clear
               </button>
@@ -92,35 +89,33 @@
           </button>
 
           <button
-            v-for="status in ['pending', 'approved', 'disbursed']"
+            v-for="status in ['all', 'pending', 'approved', 'disbursed', 'received', 'rejected']"
             :key="status"
-            @click="setStatus(status)"
+            @click="setStatus(status === 'all' ? '' : status)"
             :class="[
-              'flex items-center gap-3 transition-all px-4 py-2 rounded-xl shrink-0 group border-2',
-              filters.status === status 
-                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                : 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30'
+              'px-5 py-2.5 rounded-xl border transition-all duration-300 flex items-center gap-3 whitespace-nowrap group',
+              (filters.status === status || (status === 'all' && !filters.status))
+                ? 'bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-500/20 scale-105' 
+                : 'bg-white dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 text-slate-500 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'
             ]"
           >
              <span 
                :class="[
-                 'text-[10px] font-black uppercase tracking-[0.2em]',
-                 filters.status === status 
-                    ? 'text-white' 
-                    : (status === 'pending' ? 'text-amber-600' : status === 'approved' ? 'text-blue-600' : 'text-emerald-600')
+                 'text-[11px] font-bold uppercase tracking-widest',
+                 (filters.status === status || (status === 'all' && !filters.status)) ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'
                ]"
              >
-               {{ status === 'disbursed' ? 'Paid' : status }}
+               {{ status === 'disbursed' ? 'Paid' : (status === 'all' ? 'All' : status) }}
              </span>
              <span 
                :class="[
-                 'text-[10px] font-black font-mono px-2 py-0.5 rounded-lg border',
-                 filters.status === status 
-                    ? 'bg-white/20 border-white/20 text-white' 
-                    : 'bg-white dark:bg-slate-800 border-blue-100 dark:border-blue-800 text-slate-500'
+                 'text-[10px] px-2 py-0.5 rounded-lg font-black font-technical',
+                 (filters.status === status || (status === 'all' && !filters.status)) 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
                ]"
              >
-                {{ requisitionStats?.[status]?.count || 0 }}
+               {{ getStatusCount(status) }}
              </span>
           </button>
 
@@ -136,193 +131,229 @@
       </div>
     </div>
 
-    <!-- Split-Pane Container -->
-    <div class="flex flex-col md:flex-row h-[calc(100vh-280px)] min-h-[600px] gap-6 overflow-hidden">
-      <div 
-        :class="[
-          'flex flex-col w-full md:w-96 lg:w-[28rem] grow-0 shrink-0 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-700/60 shadow-sm transition-all relative z-10',
-          selectedId && 'hidden md:flex'
-        ]"
-      >
-        <!-- List Header (Search/Filters integrated or summarized) -->
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-900 border-t border-x rounded-t-2xl">
-          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white">CLAIMS INBOX</span>
-          <span class="text-[10px] font-black font-mono text-slate-400">{{ meta.total }}</span>
+    <!-- Data Area: Professional Financial Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col min-h-[600px] transition-all">
+      
+      <!-- Table Header / Stats Bar -->
+      <div class="px-8 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Transaction Registry</span>
+          <div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+          <span class="text-[10px] font-black font-mono text-slate-900 dark:text-white">{{ meta.total }} Total Records</span>
         </div>
-
-        <!-- Scrollable List -->
-        <div class="flex-grow overflow-y-auto custom-scrollbar p-2 space-y-2 rounded-b-[2.5rem] pr-1">
-          <div v-if="loading && !requisitions.length" class="space-y-2 p-2" >
-            <div v-for="i in 5" :key="i" class="h-20 bg-slate-50 dark:bg-slate-900/50 animate-pulse rounded-2xl"></div>
-          </div>
-          
-          <div 
-            v-else-if="requisitions.length === 0" 
-            class="flex flex-col items-center justify-center py-12 text-center"
-          >
-            <i class="mdi mdi-tray-blank text-4xl text-slate-200 mb-2"></i>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">No Requests</p>
-          </div>
-
-          <button
-            v-for="req in requisitions"
-            :key="req.id"
-            @click="selectRequisition(req)"
-            :class="[
-              'w-full text-left p-4 transition-all relative group overflow-hidden border-b last:border-b-0 pl-7',
-              selectedId === req.id 
-                ? 'bg-slate-900 shadow-2xl z-10' 
-                : [
-                    'bg-white dark:bg-slate-800/40 border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/60',
-                    getStatusBgColor(req.status)
-                  ]
-            ]"
-          >
-            <!-- Left Status Strip -->
-            <div 
-              class="absolute inset-y-0 left-0 w-1 transition-all duration-300"
-              :class="getStatusDotColor(req.status)"
-            ></div>
-
-            <!-- Background Accent (Selected - Right) -->
-            <div v-if="selectedId === req.id" class="absolute inset-y-0 right-0 w-1 bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]"></div>
-
-            <div class="relative z-10 space-y-3">
-              <!-- Row 1: Document ID, Status & Date -->
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                   <span 
-                    class="text-[9px] font-black uppercase tracking-[0.2em] font-technical"
-                    :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"
-                  >
-                    {{ req.requisition_number }}
-                  </span>
-                  <span 
-                    v-if="req.is_public"
-                    class="px-1.5 py-0.5 rounded-[4px] text-[7px] font-black uppercase tracking-widest bg-purple-500 text-white"
-                  >
-                    Public
-                  </span>
-                </div>
-                <div class="flex items-center gap-2">
-                   <span class="text-[9px] font-bold text-slate-400 font-technical">{{ formatDate(req.created_at) }}</span>
-                   <div 
-                    :class="[
-                      'w-1.5 h-1.5 rounded-full',
-                      selectedId === req.id ? 'bg-blue-400 anim-pulse' : getStatusDotColor(req.status)
-                    ]"
-                  ></div>
-                </div>
-              </div>
-
-              <!-- Row 2: Purpose (Primary Read) -->
-              <h4 
-                class="text-[13px] font-black uppercase tracking-tight leading-tight line-clamp-2"
-                :class="selectedId === req.id ? 'text-white' : 'text-slate-900 dark:text-slate-100'"
-              >
-                {{ req.purpose }}
-              </h4>
-
-              <!-- Row 3: Metadata (Project & Payee) -->
-              <div class="grid grid-cols-2 gap-2">
-                 <!-- Associated Entity -->
-                 <div class="flex items-center gap-2 overflow-hidden">
-                    <i class="mdi mdi-briefcase-variant-outline text-[11px]" :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"></i>
-                    <span 
-                      class="text-[9px] font-bold uppercase tracking-tight truncate"
-                      :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-500'"
-                    >
-                      {{ req.project?.enquiry?.title || req.project_name || 'General Operations' }}
-                    </span>
-                 </div>
-                 <!-- Recipient -->
-                 <div class="flex items-center gap-2 overflow-hidden justify-end">
-                    <span 
-                      class="text-[9px] font-bold uppercase tracking-tight truncate text-right"
-                      :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-500'"
-                    >
-                      {{ req.is_public ? req.requester_name : (req.requester?.name || 'Staff') }}
-                    </span>
-                    <i class="mdi mdi-account-circle-outline text-[11px]" :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"></i>
-                 </div>
-              </div>
-
-              <!-- Row 4: Financial Summary -->
-              <div class="flex items-center justify-between pt-2 border-t" :class="selectedId === req.id ? 'border-white/10' : 'border-slate-50 dark:border-slate-700/50'">
-                 <div class="flex items-center gap-2">
-                    <span 
-                      class="text-[10px] font-black uppercase tracking-[0.2em]"
-                      :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-300'"
-                    >
-                      Total Allocation
-                    </span>
-                 </div>
-                 <span 
-                  class="text-[15px] font-black font-technical tabular-nums tracking-tighter"
-                  :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-900 dark:text-slate-100'"
-                >
-                  {{ formatCurrency(req.total_amount) }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Enhanced Status Label (Floating Overlay on hover) -->
-            <div 
-              v-if="selectedId !== req.id"
-              class="absolute top-0 right-0 py-1 px-3 text-white text-[7px] font-black uppercase tracking-widest transform translate-x-full group-hover:translate-x-0 transition-transform duration-300"
-              :class="getStatusDotColor(req.status)"
-            >
-               {{ req.status === 'disbursed' ? 'Paid' : req.status }}
-            </div>
-          </button>
-        </div>
-
-        <!-- Pagination (Mini) -->
-        <div v-if="meta.last_page > 1" class="p-3 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
-          <button @click="changePage(meta.current_page - 1)" :disabled="meta.current_page === 1" class="p-1.5 hover:bg-slate-100 rounded-lg disabled:opacity-20"><i class="mdi mdi-chevron-left"></i></button>
-          <span class="text-[10px] font-black text-slate-400">{{ meta.current_page }} / {{ meta.last_page }}</span>
-          <button @click="changePage(meta.current_page + 1)" :disabled="meta.current_page === meta.last_page" class="p-1.5 hover:bg-slate-100 rounded-lg disabled:opacity-20"><i class="mdi mdi-chevron-right"></i></button>
+        
+        <div class="flex items-center gap-2">
+           <div class="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-500 anim-pulse"></div>
+              <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest">Live Registry</span>
+           </div>
         </div>
       </div>
 
-      <!-- Right Pane: Detailed Preview -->
-      <div 
-        :class="[
-          'flex-grow flex flex-col bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-700/60 shadow-sm overflow-hidden p-6',
-          !selectedId && 'hidden md:flex'
-        ]"
-      >
-        <!-- Mobile Back Button -->
-        <button 
-          v-if="selectedId" 
-          @click="selectedId = null" 
-          class="md:hidden flex items-center gap-2 text-blue-600 mb-4 font-black uppercase text-xs"
-        >
-          <i class="mdi mdi-arrow-left text-lg"></i> Back to Inbox
-        </button>
+      <!-- Scrollable Table Area -->
+      <div class="flex-grow overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse table-fixed min-w-[1200px]">
+          <thead>
+            <tr class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+              <th class="px-8 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-40">Reference</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-40">Submission</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-64">Beneficiary</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Purpose & Detail</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-64">Project / Job</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-40 text-right">Total Amount</th>
+              <th class="px-6 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-32 text-center">Status</th>
+              <th class="px-8 py-5 text-[11px] font-bold text-slate-500 uppercase tracking-widest w-32 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+            <template v-if="loading && !requisitions.length">
+              <tr v-for="i in 8" :key="i" class="animate-pulse">
+                <td colspan="8" class="px-8 py-4"><div class="h-10 bg-slate-50 dark:bg-slate-800/50 rounded-xl"></div></td>
+              </tr>
+            </template>
 
-        <RequisitionPreview 
-           v-if="selectedRequisition" 
-           :requisition="selectedRequisition" 
-           :can-manage="true" 
-           @approve="handleApprove"
-           @reject="handleReject"
-           @disburse="handleDisburse"
-           @edit="handleEdit"
-           @delete="handleDelete"
-        />
+            <tr 
+              v-for="req in requisitions" 
+              :key="req.id"
+              @click="openPreview(req)"
+              class="group hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all cursor-pointer border-l-4 border-l-transparent hover:border-l-blue-500"
+            >
+              <!-- Ref # -->
+               <td class="px-8 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="text-[13px] font-bold font-technical text-slate-900 dark:text-white tracking-tight">{{ req.requisition_number }}</span>
+                  <span v-if="req.is_public" class="px-2 py-0.5 rounded-[4px] text-[8px] font-bold uppercase tracking-widest bg-purple-600 text-white">Public</span>
+                </div>
+              </td>
 
-        <div v-else class="h-full flex flex-col items-center justify-center text-center p-12">
-            <div class="w-24 h-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6">
-              <i class="mdi mdi-eye-outline text-6xl opacity-20"></i>
-            </div>
-            <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Select a Claim</h3>
-            <p class="text-slate-500 dark:text-slate-400 mt-2 font-medium max-w-sm">
-              Click on a requisition from the list to view its full details and actions.
-            </p>
+              <!-- Date -->
+              <td class="px-6 py-4">
+                <div class="flex flex-col">
+                  <span class="text-[12px] font-bold text-slate-800 dark:text-slate-200">{{ formatDate(req.created_at) }}</span>
+                  <span class="text-[10px] font-semibold text-slate-400 uppercase mt-0.5">{{ formatTime(req.created_at) }}</span>
+                </div>
+              </td>
+
+              <!-- Beneficiary -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700">
+                    <i class="mdi mdi-account-circle-outline text-xl"></i>
+                  </div>
+                  <div class="flex flex-col overflow-hidden">
+                    <span class="text-[12px] font-bold text-slate-900 dark:text-white truncate uppercase tracking-tight">
+                      {{ req.is_public ? req.requester_name : (req.requester?.name || 'Staff') }}
+                    </span>
+                    <span class="text-[10px] font-semibold text-slate-500 truncate tracking-widest uppercase mt-0.5">
+                      {{ req.payee_phone || req.payee?.phone || '-' }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Purpose -->
+               <td class="px-6 py-4">
+                <div class="flex flex-col gap-1.5">
+                  <div class="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase leading-relaxed line-clamp-1 italic tracking-tight">
+                    "{{ req.purpose }}"
+                  </div>
+                  <div v-if="req.category" class="flex">
+                    <span class="px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-widest border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 shadow-sm">
+                      {{ req.category }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Project -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3 overflow-hidden">
+                  <div class="px-2 py-1 bg-slate-900 dark:bg-slate-700 text-white text-[9px] font-bold rounded-lg font-technical flex-shrink-0 shadow-sm">
+                    {{ req.project?.project_id || 'GEN' }}
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase truncate">
+                    {{ req.project?.enquiry?.title || req.project_name || 'General Operations' }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Amount -->
+              <td class="px-6 py-4 text-right">
+                <span class="text-[15px] font-black font-technical text-slate-900 dark:text-white tabular-nums tracking-tighter">
+                  {{ formatCurrency(req.total_amount) }}
+                </span>
+              </td>
+
+              <!-- Status -->
+               <td class="px-6 py-4 text-center">
+                <span 
+                  class="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border shadow-sm"
+                  :class="getStatusClass(req.status)"
+                >
+                  {{ req.status === 'disbursed' ? 'Paid' : req.status }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-8 py-4 text-right" @click.stop>
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    @click="openPreview(req)"
+                    class="p-2 text-slate-400 hover:text-blue-500 transition-colors"
+                    title="Quick Preview"
+                  >
+                    <i class="mdi mdi-eye-outline text-lg"></i>
+                  </button>
+                  <button 
+                    v-if="req.status === 'pending'"
+                    @click="handleEdit(req)"
+                    class="p-2 text-slate-400 hover:text-amber-500 transition-colors"
+                    title="Edit Record"
+                  >
+                    <i class="mdi mdi-pencil-outline text-lg"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Footer / Pagination Area -->
+      <div class="px-8 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          Showing {{ requisitions.length }} of {{ meta.total }} Transactions
+        </div>
+        
+        <div v-if="meta.last_page > 1" class="flex items-center gap-2">
+          <button 
+            @click="changePage(meta.current_page - 1)" 
+            :disabled="meta.current_page === 1"
+            class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 transition-all shadow-sm"
+          >
+            Prev
+          </button>
+          
+          <div class="flex items-center gap-1.5 px-4 font-black text-xs font-technical">
+            <span class="text-slate-900 dark:text-white">{{ meta.current_page }}</span>
+            <span class="text-slate-300">/</span>
+            <span class="text-slate-400">{{ meta.last_page }}</span>
+          </div>
+
+          <button 
+            @click="changePage(meta.current_page + 1)" 
+            :disabled="meta.current_page === meta.last_page"
+            class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-50 transition-all shadow-sm"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Professional Slide-over Drawer (Preview) -->
+    <Teleport to="body">
+      <Transition name="slide-right">
+        <div v-if="showPreview" class="fixed inset-0 z-[100] flex justify-end overflow-hidden">
+          <!-- Backdrop -->
+          <Transition name="fade">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="closePreview"></div>
+          </Transition>
+
+          <!-- Drawer Content -->
+          <div class="relative w-full max-w-4xl bg-white dark:bg-slate-950 shadow-2xl flex flex-col h-full transform transition-transform duration-500 ease-out border-l border-slate-200/60 dark:border-slate-800">
+            <!-- Close Header -->
+            <div class="absolute top-6 left-0 -translate-x-full pr-4 z-10 hidden md:block">
+              <button 
+                @click="closePreview" 
+                class="w-12 h-12 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all border border-slate-100 dark:border-slate-700"
+              >
+                <i class="mdi mdi-close text-2xl"></i>
+              </button>
+            </div>
+
+            <div class="flex-grow overflow-y-auto custom-scrollbar relative">
+               <!-- Mobile Close Button -->
+               <div class="md:hidden flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Document Registry</span>
+                  <button @click="closePreview" class="text-slate-400"><i class="mdi mdi-close text-2xl"></i></button>
+               </div>
+
+               <RequisitionPreview 
+                 v-if="selectedRequisition" 
+                 :requisition="selectedRequisition" 
+                 :can-manage="true" 
+                 @approve="handleApprove"
+                 @reject="handleReject"
+                 @disburse="handleDisburse"
+                 @edit="handleEdit"
+                 @delete="handleDelete"
+               />
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Rejection Modal -->
     <div v-if="showRejectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -398,11 +429,17 @@ const selectedRequisition = ref<any>(null)
 const showRejectModal = ref(false)
 const showDisburseModal = ref(false)
 const showForm = ref(false)
+const showPreview = ref(false)
 const formRequisitionId = ref<number | null>(null)
 const preFillData = ref<any>(null)
 const rejectionReason = ref('')
 const requisitionStats = ref<any>(null)
 const linkCopied = ref(false)
+
+const getStatusCount = (status: string) => {
+  if (status === 'all') return meta.value.total
+  return requisitionStats.value?.[status]?.count || 0
+}
 
 const statCards = computed(() => [
   { 
@@ -491,6 +528,16 @@ const selectRequisition = async (req: any) => {
   } catch (error) {
     console.error('Failed to fetch requisition details:', error)
   }
+}
+
+const openPreview = async (req: any) => {
+  await selectRequisition(req)
+  showPreview.value = true
+}
+
+const closePreview = () => {
+  showPreview.value = false
+  // Don't null selectedId immediately to avoid flicker if it animates
 }
 
 const fetchStats = async () => {
@@ -639,8 +686,17 @@ const formatCurrency = (amount: number) => {
 const formatDate = (date: string) => {
   if (!date) return '-'
   return new Date(date).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short'
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  }).toUpperCase()
+}
+
+const formatTime = (date: string) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
@@ -721,6 +777,19 @@ watch(() => route.query, () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-technical {
+  font-family: 'IBM Plex Sans', sans-serif;
+  letter-spacing: -0.01em;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
@@ -742,8 +811,23 @@ watch(() => route.query, () => {
   scrollbar-color: #475569 transparent;
 }
 
-.anim-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Drawer Animations */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @keyframes pulse {

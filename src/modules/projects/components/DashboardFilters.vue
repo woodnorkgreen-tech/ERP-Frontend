@@ -22,7 +22,7 @@
           <input
             v-model="filters.searchQuery"
             type="text"
-            placeholder="Mission ID, Client, or Scope..."
+            placeholder="Project ID, Client, or Scope..."
             class="w-full h-12 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-11 text-xs font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
           />
           <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-xl text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
@@ -88,7 +88,7 @@
 
       <!-- Export Interface -->
       <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Mission Logistics</label>
+        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Project Logistics</label>
         <div class="grid grid-cols-2 gap-3">
           <button
             @click="exportToPDF"

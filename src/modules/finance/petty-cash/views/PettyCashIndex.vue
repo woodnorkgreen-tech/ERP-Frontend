@@ -40,9 +40,9 @@
             v-for="tab in dashboardTabs" 
             :key="tab.id"
             @click="activeDashboardTab = tab.id"
-            class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all transition-all duration-300"
+            class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300"
             :class="activeDashboardTab === tab.id 
-              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-lg shadow-slate-900/20 scale-105' 
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-lg shadow-slate-900/20 active:scale-95' 
               : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/50'"
           >
              <i class="mdi mr-2" :class="activeDashboardTab === tab.id ? tab.activeIcon : tab.icon"></i>

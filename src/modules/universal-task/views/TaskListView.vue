@@ -14,7 +14,7 @@
         </button>
         <div>
           <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Strategic Tasks</h1>
-          <p class="text-slate-500 font-medium mt-1">Manage and track your operational deployment missions.</p>
+          <p class="text-slate-500 font-medium mt-1">Manage and track your operational deployment projects.</p>
         </div>
       </div>
       <button
@@ -141,7 +141,7 @@
           </button>
         </div>
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          {{ pagination.total }} tasks found
+          {{ pagination.total ?? 0 }} tasks found
         </div>
       </div>
     </div>
@@ -209,8 +209,8 @@
           </div>
           <div class="text-sm text-gray-500 dark:text-gray-400">
             Showing {{ (pagination.page - 1) * pagination.per_page + 1 }} -
-            {{ Math.min(pagination.page * pagination.per_page, pagination.total) }}
-            of {{ pagination.total }}
+            {{ Math.min(pagination.page * pagination.per_page, pagination.total ?? 0) }}
+            of {{ pagination.total ?? 0 }}
           </div>
         </div>
 
@@ -616,8 +616,8 @@
             <div class="flex items-center gap-2">
               <span class="text-sm text-gray-700 dark:text-gray-300">Rows per page:</span>
               <select
-                v-model="pagination.per_page"
-                @change="onPageChange({ page: 0, rows: parseInt(pagination.per_page) })"
+                v-model.number="pagination.per_page"
+                @change="onPageChange({ page: 0, rows: pagination.per_page })"
                 class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="10">10</option>
@@ -637,12 +637,12 @@
               </button>
 
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                Page {{ pagination.page }} of {{ Math.ceil(pagination.total / pagination.per_page) }}
+                Page {{ pagination.page }} of {{ Math.ceil((pagination.total ?? 0) / pagination.per_page) }}
               </span>
 
               <button
                 @click="onPageChange({ page: pagination.page, rows: pagination.per_page })"
-                :disabled="pagination.page >= Math.ceil(pagination.total / pagination.per_page)"
+                :disabled="pagination.page >= Math.ceil((pagination.total ?? 0) / pagination.per_page)"
                 class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 Next
@@ -1017,7 +1017,7 @@ const getUserInitials = (user: any) => {
   if (!name || name.startsWith('User #')) return '';
   
   // Extract initials from name (handle multiple words)
-  const words = name.split(' ').filter(word => word.length > 0);
+  const words = name.split(' ').filter((word: string) => word.length > 0);
   if (words.length === 0) return '';
   
   if (words.length === 1) {

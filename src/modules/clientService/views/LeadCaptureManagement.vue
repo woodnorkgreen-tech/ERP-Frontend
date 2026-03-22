@@ -242,7 +242,7 @@
                     {{ selectedLead.service_interest || 'General' }}
                   </div>
                   <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
-                     {{ selectedLead.description || 'No specific mission parameters provided.' }}
+                     {{ selectedLead.description || 'No specific project parameters provided.' }}
                   </p>
                 </div>
               </div>

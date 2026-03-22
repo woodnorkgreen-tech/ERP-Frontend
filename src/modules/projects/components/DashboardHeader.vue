@@ -24,7 +24,7 @@
             Project <span class="text-blue-500 opacity-80">Sync</span>
           </h1>
           <p class="text-slate-400 text-sm font-medium mt-2 max-w-md opacity-80">
-            Real-time operational overview and mission tracking across all active project nodes.
+            Real-time operational overview and project tracking across all active project nodes.
           </p>
         </div>
 

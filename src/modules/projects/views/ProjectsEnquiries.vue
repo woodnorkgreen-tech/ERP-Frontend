@@ -523,7 +523,7 @@
           </nav>
         </div>
 
-        <!-- Scrollable Mission Parameters -->
+        <!-- Scrollable Project Parameters -->
         <form @submit.prevent="handleFormSubmit" class="flex-1 overflow-y-auto p-12 custom-scrollbar">
           <!-- Strategic Parameters Tab -->
           <div v-if="activeModalTab === 'basic'" class="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
