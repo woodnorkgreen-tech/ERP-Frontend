@@ -182,11 +182,11 @@
           <div class="border border-gray-200 p-4 bg-slate-50/50 text-xs shadow-sm">
             <!-- Project Description -->
             <div class="mb-3">
-              <h4 class="font-black text-gray-500 uppercase text-[9px] mb-1 tracking-wider">Mission Statement / Description</h4>
+              <h4 class="font-black text-gray-500 uppercase text-[9px] mb-1 tracking-wider">Project Statement / Description</h4>
               <div v-if="!isEditMode && (editableDescriptions['project_overview'] || quoteData.projectInfo.description)" class="text-gray-900 leading-relaxed font-medium">
                 {{ editableDescriptions['project_overview'] || quoteData.projectInfo.description }}
               </div>
-              <div v-else-if="!isEditMode" class="text-gray-400 italic font-medium">No detailed mission description available.</div>
+              <div v-else-if="!isEditMode" class="text-gray-400 italic font-medium">No detailed project description available.</div>
               <textarea
                 v-else
                 v-model="editableDescriptions['project_overview']"

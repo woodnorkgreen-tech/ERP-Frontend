@@ -12,6 +12,7 @@ export interface User {
     name: string
   }
   roles?: string[]
+  last_login_at?: string
 }
 
 export interface UserPermissions {
@@ -41,37 +42,35 @@ const permissions = ref<UserPermissionList | null>(null)
 
 export function useAuth() {
 
-const login = async (email: string, password: string) => {
-  console.log('Login attempt started for email:', email)
-  try {
-    console.log('Initializing Sanctum CSRF protection...')
-    await api.get('/sanctum/csrf-cookie', { withCredentials: true })
+  const login = async (email: string, password: string) => {
+    console.log('Login attempt started for email:', email)
+    try {
+      console.log('Initializing Sanctum CSRF protection...')
+      await api.get('/sanctum/csrf-cookie', { withCredentials: true })
 
-    console.log('Sending login request to /api/login')
-    const response = await api.post('/api/login', { email, password }, { withCredentials: true })
+      console.log('Sending login request to /api/login')
+      const response = await api.post('/api/login', { email, password }, { withCredentials: true })
 
-    console.log('Login response status:', response.status)
-    console.log('Login response data:', response.data)
+      console.log('Login response status:', response.status)
+      console.log('Login response data:', response.data)
 
-    if (response.status === 200 && response.data.token) {
-      setAuthToken(response.data.token)
-      console.log('Auth token stored in localStorage')
-      isLoggedIn.value = true
-      await fetchUser()
-      localStorage.setItem('isLoggedIn', 'true')
-      console.log('Login successful, user authenticated')
-      return true
-    } else {
-      console.log('Login failed: No token in response or status not 200')
-      return false
+      if (response.status === 200 && response.data.token) {
+        setAuthToken(response.data.token)
+        console.log('Auth token stored in localStorage')
+        isLoggedIn.value = true
+        await fetchUser()
+        localStorage.setItem('isLoggedIn', 'true')
+        console.log('Login successful, user authenticated')
+        return true
+      } else {
+        console.log('Login failed: No token in response or status not 200')
+        return false
+      }
+    } catch (error) {
+      console.error('Login failed with error:', error)
+      throw error
     }
-  } catch (error) {
-    console.error('Login failed with error:', error)
-    console.error('Error response:', error.response?.data)
-    console.error('Error status:', error.response?.status)
-    throw error
   }
-}
 
 
   const register = async (name: string, email: string, password: string, password_confirmation?: string) => {
@@ -106,9 +105,9 @@ const login = async (email: string, password: string) => {
       permissions.value = null
       localStorage.removeItem('isLoggedIn')
       // Navigation will be handled by the component using this composable
-          //  Dynamic redirect based on environment
-    const baseUrl = import.meta.env.VITE_APP_URL || '/'
-    window.location.href = baseUrl
+      //  Dynamic redirect based on environment
+      const baseUrl = import.meta.env.VITE_APP_URL || '/'
+      window.location.href = baseUrl
     }
   }
 

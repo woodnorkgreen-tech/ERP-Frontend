@@ -13,7 +13,7 @@
           </svg>
         </button>
         <div>
-          <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Mission Analytics</h1>
+          <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Project Analytics</h1>
           <p class="text-slate-500 font-medium mt-1">Operational performance and deployment intelligence.</p>
         </div>
       </div>

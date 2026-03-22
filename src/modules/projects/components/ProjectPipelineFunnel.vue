@@ -70,7 +70,7 @@
                 <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <i class="mdi mdi-check-decagram-outline text-base"></i>
                 </div>
-                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Mission Approval</span>
+                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Project Approval</span>
             </div>
             <div class="flex flex-col items-end">
                 <span class="text-lg font-black text-slate-900 dark:text-white">{{ quotesApproved }}</span>

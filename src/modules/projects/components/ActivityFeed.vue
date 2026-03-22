@@ -10,7 +10,7 @@
         <i class="mdi mdi-pulse text-3xl"></i>
       </div>
       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Feed Flatline</p>
-      <p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight opacity-60">No mission activity signatures detected.</p>
+      <p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight opacity-60">No project activity signatures detected.</p>
     </div>
 
     <div v-else class="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2">

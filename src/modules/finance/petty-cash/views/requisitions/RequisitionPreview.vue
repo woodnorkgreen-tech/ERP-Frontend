@@ -93,288 +93,192 @@
         </div>
       </div>
 
-      <!-- Quote Body (High Density Document) -->
-      <div class="flex-grow bg-white dark:bg-slate-950 p-2 print:p-0 print:bg-white h-auto overflow-y-auto no-scrollbar">
-        <div class="requisition-content w-[99%] max-w-[99%] mx-auto bg-white border border-slate-100 rounded-sm p-6 sm:p-10 print:p-0 print:shadow-none print:max-w-none print:mx-0 print:min-h-[268mm] print:flex print:flex-col transition-all duration-700 animate-in fade-in slide-in-from-bottom-6">
-          <!-- Unified Header + Requisition Info -->
-          <div class="mb-5 border-2 border-slate-100 rounded-sm overflow-hidden shadow-sm">
-            <!-- Top Brand/Title Bar -->
-            <div class="flex items-center justify-between bg-slate-900 px-6 py-3">
-              <div class="flex items-center gap-3">
-                <div class="h-6 w-1 bg-blue-500"></div>
-                <div>
-                  <span class="text-[12px] font-black text-white uppercase tracking-[0.3em]">Woodwork Green</span>
-                  <span class="ml-4 text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em] border-l border-slate-700 pl-4">Registry ID: #{{ requisition.id }}</span>
-                </div>
+      <!-- Document Body (Simplified) -->
+      <div class="flex-grow bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 print:p-0 print:bg-white h-auto overflow-y-auto no-scrollbar relative">
+
+        <div class="requisition-content w-full max-w-5xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-10 print:p-0 shadow-sm relative z-10 transition-all">
+          
+          <!-- Cleaner Header -->
+          <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                <i class="mdi mdi-file-document-check text-2xl"></i>
               </div>
-              <div class="text-[12px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                <i class="mdi mdi-certificate text-blue-400"></i>
-                REQUISITION — {{ requisition.requisition_number }}
+              <div>
+                <h1 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Requisition Voucher</h1>
+                <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-1">Reference: {{ requisition.requisition_number }}</p>
               </div>
             </div>
-
-            <!-- Info Grid -->
-            <div class="grid grid-cols-12 divide-x divide-slate-100">
-
-              <!-- Left: Doc Labels & Registry -->
-              <div class="col-span-3 bg-slate-50/50 p-5 flex flex-col gap-4">
-                <div>
-                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Issue Date</div>
-                  <div class="text-[14px] font-black text-slate-900 font-technical">{{ formatDate(requisition.created_at) }}</div>
-                </div>
-                <div>
-                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Accounting Dept</div>
-                  <div class="text-[12px] font-black text-slate-700 uppercase tracking-wide">{{ requisition.department?.name || 'Unassigned' }}</div>
-                </div>
-                <div class="pt-2 border-t border-slate-200/60">
-                   <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Originator</div>
-                   <div class="text-[12px] font-black text-blue-600 uppercase">{{ requisition.requester?.name || requisition.requester_name || 'System' }}</div>
-                </div>
-              </div>
-
-              <!-- Center/Right Area: Primary Context -->
-              <div class="col-span-9 p-0 divide-y divide-slate-100">
-                <!-- Row 1: Payee & Purpose -->
-                <div class="grid grid-cols-12 divide-x divide-slate-100 h-full">
-                  <div class="col-span-5 p-5">
-                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Primary Payee / Recipient</div>
-                    <div class="text-[16px] font-black uppercase text-slate-900 flex items-center gap-2">
-                      <i class="mdi mdi-account-circle text-slate-300"></i>
-                      <span v-if="requisition.payee">{{ requisition.payee.first_name }} {{ requisition.payee.last_name }}</span>
-                      <span v-else-if="requisition.payee_name">{{ requisition.payee_name }}</span>
-                      <span v-else>{{ requisition.requester_name || 'Individual' }}</span>
-                    </div>
-                    <div v-if="requisition.payee_phone || requisition.payee?.phone || requisition.requester_phone" class="text-[11px] font-black text-blue-500 font-technical mt-1 ml-6">
-                      {{ requisition.payee_phone || requisition.payee?.phone || requisition.requester_phone }}
-                    </div>
-                  </div>
-                  <div class="col-span-7 p-5 bg-blue-50/20">
-                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">General Purpose</div>
-                    <div class="text-[13px] font-black uppercase text-slate-800 leading-snug italic line-clamp-2">"{{ requisition.purpose }}"</div>
-                  </div>
-                </div>
-
-                <!-- Row 2: Project & Venue -->
-                <div class="grid grid-cols-12 divide-x divide-slate-100">
-                  <div class="col-span-7 p-5">
-                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Associated Project / Job</div>
-                    <div class="flex items-start gap-2">
-                      <div class="p-1 px-2 bg-slate-900 text-white text-[10px] font-black rounded font-technical mt-0.5 whitespace-nowrap">
-                        {{ requisition.project?.enquiry?.job_number || requisition.enquiry?.job_number || 'GEN' }}
-                      </div>
-                      <div class="text-[13px] font-black text-slate-900 uppercase leading-snug">
-                        <span v-if="requisition.project">
-                          {{ requisition.project.enquiry?.title || requisition.project.title }}
-                        </span>
-                        <span v-else-if="requisition.enquiry">
-                          {{ requisition.enquiry.title }}
-                        </span>
-                        <span v-else class="text-slate-400 italic">None (General Office Expenses)</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-span-5 p-5">
-                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Dispatch / Venue</div>
-                    <div class="text-[13px] font-black uppercase text-slate-900 flex items-center gap-2">
-                       <i class="mdi mdi-map-marker text-red-400"></i>
-                       {{ requisition.venue || 'Woodwork Green HQ' }}
-                    </div>
-                  </div>
-                </div>
+            
+            <div class="flex items-center gap-3">
+              <span 
+                class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border"
+                :class="getStatusContextClass(requisition.status)"
+              >
+                {{ requisition.status === 'disbursed' ? 'Settle/Paid' : requisition.status }}
+              </span>
+              <div class="h-8 w-px bg-slate-100 dark:bg-slate-800 hidden md:block"></div>
+              <div class="text-right hidden md:block">
+                <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest leading-none">ID Registry</div>
+                <div class="text-[15px] font-black text-slate-900 dark:text-white font-technical mt-1.5">#{{ requisition.id }}</div>
               </div>
             </div>
           </div>
 
-          <!-- Distribution Table -->
-          <div class="mb-6">
-            <div class="border-b-2 border-slate-900 mb-4 pb-2 flex items-center justify-between">
-              <h3 class="text-slate-950 font-black text-[14px] uppercase tracking-[0.4em]">Resource Distribution Registry</h3>
-              <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Values in KES</div>
-            </div>
-            <table class="w-full text-[14px] border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-y border-slate-200">
-                  <th class="text-center py-3 px-4 font-black text-slate-400 w-12 uppercase tracking-widest text-[9px]">#</th>
-                  <th class="text-left py-3 px-6 font-black text-slate-900 uppercase tracking-widest text-[10px]">Description of Item / Service</th>
-                  <th class="text-left py-3 px-6 font-black text-slate-900 uppercase tracking-widest text-[10px]">Beneficiary / Receiver</th>
-                  <th class="text-right py-3 px-6 font-black text-slate-900 uppercase tracking-widest text-[10px] w-48">Allocated Amount</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 border-b border-slate-200">
-                <tr v-for="(item, idx) in requisition.items" :key="item.id || idx" class="bg-white hover:bg-slate-50/30 transition-colors group">
-                  <td class="py-4 px-4 text-center font-technical font-black text-slate-300 text-[12px]">
-                    {{ pad(Number(idx) + 1) }}
-                  </td>
-                  <td class="py-4 px-6">
-                    <div class="font-black text-slate-900 uppercase leading-tight tracking-tight">
-                      {{ item.description }}
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 border-x border-slate-100/50">
-                    <div class="flex items-center gap-2">
-                       <i class="mdi" :class="String(item.payee_name || '').includes('Tech Labour') ? 'mdi-hammer-wrench text-amber-500' : 'mdi-account-tie text-blue-500'"></i>
-                       <div class="font-black text-slate-950 uppercase tracking-tight text-[13px]">
-                         {{ item.payee_name || (item.payee?.first_name ? `${item.payee.first_name} ${item.payee.last_name}` : (requisition.payee_name || requisition.requester?.name)) }}
-                       </div>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-bold flex items-center gap-1 mt-1.5 ml-6">
-                      <i class="mdi mdi-phone-outline text-[9px]"></i>
-                      {{ item.payee_phone || (item.payee?.phone) || (requisition.payee_phone || requisition.payee?.phone || requisition.requester?.employee?.phone || '-') }}
-                    </div>
-                  </td>
-                  <td class="py-4 px-6 text-right font-black text-slate-950 tabular-nums text-[15px] bg-slate-50/30 font-technical">
-                    {{ formatCurrency(item.amount) }}
-                    <div v-if="item.received_at" class="flex items-center justify-end gap-1 text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1">
-                       <i class="mdi mdi-check-decagram text-[10px]"></i>
-                       Verified
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <!-- Total Style -->
-                <tr class="bg-slate-900 text-white">
-                  <td colspan="2" class="py-6 px-6">
-                    <div class="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400">Authorization Registry Summary</div>
-                  </td>
-                  <td class="py-6 px-6 font-black border-l border-white/10 uppercase tracking-[0.2em] text-[10px] text-right">Aggregate Total</td>
-                  <td class="py-6 px-6 text-right font-black text-blue-400 text-2xl tabular-nums tracking-tighter font-technical">
-                    {{ formatReceiptAmount(requisition.total_amount) }}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          <!-- Validation Hub (Verification & Registry) -->
-          <div class="mt-8 pt-6 border-t border-slate-200">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-              <!-- Approval Path (Nodes) -->
-              <div class="md:col-span-7">
-                <div class="flex items-center gap-2 mb-4">
-                   <div class="h-4 w-1 bg-emerald-500"></div>
-                   <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Mandatory Approval Sequence</h4>
-                </div>
-                
+          <!-- Simplified Details Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <!-- Source Details -->
+            <div class="space-y-6">
+              <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
+                <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-5">Transaction Context</h4>
                 <div class="space-y-4">
-                  <!-- Node: Origin -->
-                  <div class="flex items-start gap-4">
-                    <div class="mt-1 flex flex-col items-center">
-                      <div class="w-2.5 h-2.5 rounded-full border-2 border-slate-900 bg-white"></div>
-                      <div class="w-0.5 h-10 bg-slate-100"></div>
-                    </div>
-                    <div>
-                      <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">01. Origin/Request</div>
-                      <div class="text-[13px] font-black text-slate-900 flex items-center gap-2 uppercase">
-                        {{ requisition.is_public ? (requisition.requester_name || 'Public Guest') : requisition.requester?.name }}
-                        <span v-if="requisition.is_public" class="text-[8px] px-1.5 py-0.5 bg-purple-600 text-white rounded font-black tracking-tighter">PUBLIC</span>
-                      </div>
-                      <div class="text-[10px] text-slate-500 font-technical italic">{{ formatDate(requisition.created_at) }}</div>
-                    </div>
+                  <div class="flex justify-between items-center text-[13px]">
+                    <span class="font-semibold text-slate-500 uppercase">Beneficiary</span>
+                    <span class="font-bold text-slate-900 dark:text-white uppercase truncate ml-4">
+                      {{ requisition.payee?.first_name ? `${requisition.payee.first_name} ${requisition.payee.last_name}` : (requisition.payee_name || requisition.requester?.name || '-') }}
+                    </span>
                   </div>
-
-                  <!-- Node: Authorization -->
-                  <div class="flex items-start gap-4">
-                    <div class="mt-1 flex flex-col items-center">
-                      <div class="w-2.5 h-2.5 rounded-full border-2" :class="requisition.approved_at ? 'border-blue-600 bg-blue-600' : 'border-slate-200 bg-white'"></div>
-                      <div class="w-0.5 h-10 bg-slate-100"></div>
-                    </div>
-                    <div>
-                      <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">02. Authorization</div>
-                      <div v-if="requisition.approved_at" class="text-[13px] font-black text-slate-900 uppercase">
-                        {{ requisition.approver?.name || 'Authorized Official' }}
-                      </div>
-                      <div v-else class="text-[13px] font-black text-slate-300 uppercase italic">Pending Finance Review</div>
-                      <div v-if="requisition.approved_at" class="text-[10px] text-slate-500 font-technical italic">{{ formatDate(requisition.approved_at) }}</div>
-                    </div>
+                  <div class="flex justify-between items-center text-[13px]">
+                    <span class="font-semibold text-slate-500 uppercase">Contact</span>
+                    <span class="font-bold text-blue-600 font-technical tracking-widest">
+                      {{ requisition.payee_phone || requisition.payee?.phone || requisition.requester_phone || requisition.requester?.employee?.phone || 'N/A' }}
+                    </span>
                   </div>
-
-                  <!-- Node: Disbursement -->
-                  <div class="flex items-start gap-4">
-                    <div class="mt-1">
-                      <div class="w-2.5 h-2.5 rounded-full border-2" :class="requisition.disbursement ? 'border-slate-900 bg-slate-900' : 'border-slate-200 bg-white'"></div>
-                    </div>
-                    <div>
-                      <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">03. Fund Distribution</div>
-                      <div v-if="requisition.disbursement" class="text-[13px] font-black text-blue-600 uppercase flex items-center gap-2">
-                        <i class="mdi mdi-check-circle"></i> Funds Released
-                      </div>
-                      <div v-else class="text-[13px] font-black text-slate-200 uppercase italic">Awaiting Authorization</div>
-                    </div>
+                  <div class="flex justify-between items-center text-[13px]">
+                    <span class="font-semibold text-slate-500 uppercase">Issue Date</span>
+                    <span class="font-bold text-slate-900 dark:text-white font-technical">{{ formatDate(requisition.created_at) }}</span>
                   </div>
-                </div>
-              </div>
-
-              <!-- Registry Audit (Card) -->
-              <div class="md:col-span-5 flex flex-col">
-                <div class="bg-slate-50 p-6 rounded-sm border border-slate-100 flex-grow relative overflow-hidden">
-                   <div class="absolute top-0 right-0 p-4 opacity-[0.03] rotate-12">
-                      <i class="mdi mdi-database-check text-9xl"></i>
-                   </div>
-                   <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 border-b border-slate-200 pb-2">Registry Metadata</h4>
-                   
-                   <div class="space-y-4 relative z-10">
-                      <div class="flex justify-between items-end border-b border-dashed border-slate-200 pb-2">
-                         <span class="text-[9px] font-black text-slate-400 uppercase">Registry Reference</span>
-                         <span class="text-[13px] font-black text-slate-900 font-technical uppercase">REF#{{ requisition.id }}</span>
-                      </div>
-                      <div v-if="requisition.disbursement" class="flex justify-between items-end border-b border-dashed border-slate-200 pb-2">
-                         <span class="text-[9px] font-black text-slate-400 uppercase">Transaction Path</span>
-                         <span class="text-[13px] font-black text-slate-900 font-technical uppercase italic">{{ requisition.disbursement.transaction_code }}</span>
-                      </div>
-                      <div class="flex justify-between items-end border-b border-dashed border-slate-200 pb-2">
-                         <span class="text-[9px] font-black text-slate-400 uppercase">Flow Integrity</span>
-                         <span class="text-[10px] font-black px-2 py-0.5 rounded" :class="getStatusContextClass(requisition.status)">
-                            {{ requisition.status.toUpperCase() }}
-                         </span>
-                      </div>
-                      <div v-if="requisition.received_at" class="flex justify-between items-end">
-                         <span class="text-[9px] font-black text-slate-400 uppercase">Final Receipt</span>
-                         <span class="text-[12px] font-black text-emerald-600 uppercase italic tracking-tighter">AUTHENTICATED HUB ENTRY</span>
-                      </div>
-                   </div>
-
-                   <!-- Signature Seal (If exists) -->
-                   <div v-if="requisition.digital_signature" class="mt-6 pt-4 border-t-2 border-slate-900">
-                      <div class="flex items-center gap-4">
-                         <img :src="requisition.digital_signature" alt="SIG" class="h-10 grayscale brightness-0 opacity-80" />
-                         <div>
-                            <div class="text-[11px] font-black text-slate-900 uppercase tracking-tight">{{ requisition.received_by || 'Confirmed Recipient' }}</div>
-                            <div class="text-[9px] font-bold text-slate-400 font-mono">{{ formatReceiptDateTime(requisition.received_at) }}</div>
-                         </div>
-                      </div>
-                   </div>
-
-                   <div v-else-if="requisition.status === 'disbursed'" class="mt-6 p-3 bg-white border border-dashed border-slate-300 rounded flex items-center justify-between">
-                      <QrcodeVue :value="publicSignOffUrl" :size="40" />
-                      <div class="text-right">
-                         <div class="text-[8px] font-black text-slate-400 uppercase mb-1">Verify Acceptance</div>
-                         <button @click="copyToClipboard" class="text-[9px] font-black text-blue-600 uppercase hover:underline">
-                            {{ copied ? 'Link Copied' : 'Copy Seal Link' }}
-                         </button>
-                      </div>
-                   </div>
+                  <div class="flex justify-between items-center text-[13px]">
+                    <span class="font-semibold text-slate-500 uppercase">Project / Job</span>
+                    <span class="font-bold text-slate-900 dark:text-white uppercase truncate ml-4">
+                      <template v-if="requisition.project">
+                        {{ requisition.project.project_id }} — {{ requisition.project.enquiry?.title || requisition.project.title }}
+                      </template>
+                      <template v-else-if="requisition.enquiry">
+                        #{{ requisition.enquiry.enquiry_number }} — {{ requisition.enquiry.title }}
+                      </template>
+                      <template v-else>
+                        {{ requisition.project_name || 'General Context' }}
+                      </template>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <!-- Quantitative Details -->
+            <div class="space-y-6">
+                <div class="bg-blue-600 rounded-3xl p-8 text-white shadow-2xl shadow-blue-500/30">
+                  <h4 class="text-[11px] font-bold text-blue-100 uppercase tracking-widest mb-4">Total Allocation</h4>
+                  <div class="text-5xl font-black font-technical tracking-tighter tabular-nums mb-3">
+                    {{ formatCurrency(requisition.total_amount) }}
+                  </div>
+                  <div class="flex items-center gap-2 text-[11px] font-semibold text-blue-200 uppercase tracking-widest">
+                     <i class="mdi mdi-shield-check"></i>
+                     <span>Secured Financial Record</span>
+                  </div>
+               </div>
+               
+               <div class="px-7 py-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900/50 shadow-sm">
+                  <span class="text-[12px] font-semibold text-slate-600 dark:text-slate-300 italic">"{{ requisition.purpose }}"</span>
+                  <i class="mdi mdi-format-quote-close text-slate-200 text-3xl"></i>
+               </div>
+            </div>
           </div>
+
+          <!-- Cleaner Validation Ledger -->
+          <div class="mb-10">
+            <h3 class="text-slate-900 dark:text-white font-black text-[13px] uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+               <i class="mdi mdi-shield-check-outline text-blue-600 text-lg"></i>
+               Verification Registry
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Step 1 -->
+              <div class="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-black text-slate-400">1</div>
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Initiated</span>
+                </div>
+                <div class="text-[13px] font-black text-slate-900 dark:text-white uppercase">{{ requisition.requester?.name || requisition.requester_name }}</div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase mt-1">{{ formatDate(requisition.created_at) }}</div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-black text-slate-400">2</div>
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approved</span>
+                </div>
+                <div v-if="requisition.approved_at">
+                  <div class="text-[13px] font-black text-slate-900 dark:text-white uppercase">{{ requisition.approver?.name || 'Authorized' }}</div>
+                  <div class="text-[9px] font-bold text-slate-400 uppercase mt-1">{{ formatDate(requisition.approved_at) }}</div>
+                </div>
+                <div v-else class="text-[11px] font-black text-slate-300 uppercase italic">Pending Review</div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-[10px] font-black text-slate-400">3</div>
+                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Released</span>
+                </div>
+                <div v-if="requisition.disbursement">
+                  <div class="text-[13px] font-black text-emerald-600 uppercase">Funds Disbursed</div>
+                  <div class="text-[9px] font-black text-slate-400 font-technical mt-1 tracking-widest">{{ requisition.disbursement.transaction_code }}</div>
+                </div>
+                <div v-else class="text-[11px] font-black text-slate-300 uppercase italic">Awaiting Release</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legacy Audit trail removed in favor of Ledger above -->
+
+
+            <!-- Registry Metadata & Validation Seal -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mt-12 border-t border-slate-100 pt-8">
+              <div class="md:col-span-5 p-7 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner">
+                  <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-5">Official Tracking Seal</div>
+                  <div class="flex items-center gap-7">
+                      <QrcodeVue :value="publicSignOffUrl" :size="90" background="#f8fafc" foreground="#0f172a" level="H" class="rounded-xl shadow-md" />
+                      <div>
+                        <div class="text-[12px] font-black text-slate-900 dark:text-white uppercase leading-tight mb-3">VALIDATED BY WOODWORK GREEN AUDIT ENGINE</div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">REF# {{ requisition.requisition_number }}</div>
+                        <button @click="copyToClipboard" class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[9px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+                           {{ copied ? 'Reference Copied' : 'Copy Seal Link' }}
+                        </button>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="md:col-span-7 flex flex-col justify-center">
+                  <div class="text-[14px] font-black text-slate-900 dark:text-white uppercase tracking-widest mb-3 italic">Integrity Statement</div>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-semibold uppercase tracking-tight">
+                    This document is a system-generated financial record. All disbursements are tracked against internal task codes and project Job Numbers. Digitally authorized via secure financial gate.
+                  </p>
+                  <div class="mt-4 flex items-center gap-4 grayscale opacity-40">
+                      <div class="h-8 w-8 bg-slate-900 dark:bg-white rounded-full"></div>
+                      <div class="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                  </div>
+              </div>
+          </div>
+        </div>
 
             <!-- Final Footer Strip -->
-            <div class="flex items-center justify-between text-[9px] text-slate-400 pt-5 border-t border-slate-100/60 mt-8">
+            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-5 border-t border-slate-100/60 mt-8">
               <div class="flex items-center gap-6">
-                <span class="font-black text-slate-900 uppercase tracking-[0.2em]">Woodwork Green Ltd</span>
-                <div class="flex items-center gap-4 border-l border-slate-200 pl-6 text-[8px] font-bold uppercase tracking-widest text-slate-400">
+                <span class="font-bold text-slate-900 uppercase tracking-widest leading-none">Woodwork Green Ltd</span>
+                <div class="flex items-center gap-4 border-l border-slate-200 pl-6 text-[9px] font-semibold uppercase tracking-widest text-slate-400">
                    <span class="flex items-center gap-1"><i class="mdi mdi-phone text-slate-300"></i> +254 780 397 798</span>
                    <span class="flex items-center gap-1"><i class="mdi mdi-web text-slate-300"></i> woodworkgreen.co.ke</span>
                 </div>
               </div>
-              <div class="text-right font-black uppercase tracking-[0.2em] text-slate-400">
+              <div class="text-right font-bold uppercase tracking-widest text-slate-400">
                 Official Validation Registry Hub — v2.0
               </div>
           </div>
         </div>
       </div>
-    </div>
   </transition>
 </template>
 
@@ -474,7 +378,12 @@ const formatReceiptDateTime = (date: string) => {
     day: '2-digit',
     month: '2-digit',
     year: '2-digit'
-  }) + ' ' + d.toLocaleTimeString('en-GB', {
+  }) + ' ' + formatTime(date)
+}
+
+const formatTime = (date: string) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
@@ -505,25 +414,28 @@ const formatDate = (date: string) => {
 
 const getStatusContextClass = (status: string) => {
   switch (status) {
-    case 'pending': return 'bg-amber-500/10 border-amber-500/20 text-amber-500'
-    case 'approved': return 'bg-blue-500/10 border-blue-500/20 text-blue-500'
-    case 'rejected': return 'bg-red-500/10 border-red-500/20 text-red-500'
-    case 'disbursed': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-    case 'received': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+    case 'pending': return 'bg-amber-500/10 border-amber-500/20 text-amber-600'
+    case 'approved': return 'bg-blue-500/10 border-blue-500/20 text-blue-600'
+    case 'rejected': return 'bg-red-500/10 border-red-500/20 text-red-600'
+    case 'disbursed': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+    case 'received': return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
     default: return 'bg-slate-500/10 border-slate-500/20 text-slate-500'
   }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
 * {
-  font-family: 'Roboto', 'Open Sans', 'Lato', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-technical {
   font-family: 'IBM Plex Sans', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .no-scrollbar::-webkit-scrollbar {

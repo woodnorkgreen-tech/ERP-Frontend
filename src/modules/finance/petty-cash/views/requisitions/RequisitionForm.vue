@@ -92,22 +92,50 @@
             <label class="block text-xs font-black uppercase tracking-widest text-slate-400 ml-1">
               Project / Enquiry (Search or Select)
             </label>
-            <select
-              v-model="projectSelection"
-              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all"
-            >
-              <option :value="null">None (General Office / Manual Entry)</option>
-              <optgroup label="Approved Projects">
-                <option v-for="p in formData.projects" :key="'p'+p.id" :value="'p'+p.id">
-                  {{ p.label }}
-                </option>
-              </optgroup>
-              <optgroup label="Enquiries">
-                <option v-for="e in formData.enquiries" :key="'e'+e.id" :value="'e'+e.id">
-                  {{ e.label }}
-                </option>
-              </optgroup>
-            </select>
+            <div class="relative group" ref="projectSearchContainer">
+              <i class="mdi mdi-briefcase-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg z-10"></i>
+              <input 
+                v-model="projectSearchQuery"
+                type="text"
+                placeholder="Search Project Code, Name or Enquiry..."
+                @focus="showProjectResults = true"
+                class="w-full pl-11 pr-10 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white font-bold transition-all"
+                :disabled="isFinancialLocked"
+              />
+              
+              <!-- Project Results Dropdown -->
+              <div v-if="showProjectResults && filteredProjectResults.length > 0" 
+                   class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-2xl overflow-hidden z-[100] max-h-[300px] overflow-y-auto animate-in zoom-in-95 duration-200">
+                <div v-for="opt in filteredProjectResults" :key="opt.type + opt.id" 
+                     @click="selectProjectOption(opt)"
+                     class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-slate-100 dark:border-slate-700/50 last:border-0 group transition-colors">
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <p class="text-xs font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 uppercase tracking-tight">
+                        {{ opt.label }}
+                      </p>
+                      <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1 mt-0.5">
+                        <span :class="opt.type === 'p' ? 'text-emerald-500' : 'text-amber-500'">
+                          {{ opt.type === 'p' ? 'Project' : 'Enquiry' }}
+                        </span>
+                        <span v-if="opt.project_id">• {{ opt.project_id }}</span>
+                      </p>
+                    </div>
+                    <i class="mdi mdi-chevron-right text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Clear/Cancel selection button -->
+              <button 
+                v-if="projectSelection || projectSearchQuery"
+                type="button"
+                @click="clearProjectSelection"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors z-10"
+              >
+                <i class="mdi mdi-close-circle text-lg"></i>
+              </button>
+            </div>
           </div>
 
           <!-- Manual Project Name (Shown if no project selected) -->
@@ -394,7 +422,34 @@
                     class="w-full bg-white dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-900 dark:text-white text-sm disabled:opacity-50"
                   />
                 </div>
+
+                <!-- Remarks / Notes -->
+                <div class="md:col-span-12 space-y-1 pt-1">
+                  <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">Task Reference / Specific Note (Optional)</label>
+                  <input
+                    v-model="item.remarks"
+                    :disabled="isFinancialLocked"
+                    placeholder="e.g. Task name, site location, or special instruction..."
+                    :class="standalone ? 'py-2 px-3' : 'py-2.5 px-4'"
+                    class="w-full bg-slate-100/50 dark:bg-slate-700/30 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-slate-700 dark:text-slate-300 text-xs italic disabled:opacity-50"
+                  />
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div v-if="errorMessage" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+          <div class="flex items-start gap-3">
+            <div class="p-1 bg-red-100 dark:bg-red-800/40 rounded-lg">
+              <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-red-800 dark:text-red-200 uppercase tracking-wider">Submission Error</h4>
+              <p class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{{ errorMessage }}</p>
             </div>
           </div>
         </div>
@@ -428,6 +483,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { onClickOutside } from '@vueuse/core'
+
 import axios from '@/plugins/axios'
 import { useToast } from '@/modules/universal-task/composables/useToast'
 import { pettyCashService } from '../../services/pettyCashService'
@@ -451,6 +508,8 @@ const requisitionStatus = ref('')
 const isFinancialLocked = computed(() => requisitionStatus.value === 'disbursed')
 
 const submitting = ref(false)
+const errorMessage = ref('')
+
 const formData = reactive({
   departments: [] as any[],
   categories: [] as string[],
@@ -463,6 +522,53 @@ const projectTeams = ref<Record<string, any[]>>({})
 const loadingTeams = ref(false)
 
 const projectSelection = ref<string | null>(null)
+const projectSearchQuery = ref('')
+const showProjectResults = ref(false)
+const projectSearchContainer = ref<HTMLElement | null>(null)
+
+const allProjectOptions = computed(() => {
+  const projects = (formData.projects || []).map(p => ({ ...p, type: 'p' }))
+  const enquiries = (formData.enquiries || []).map(e => ({ ...e, type: 'e' }))
+  return [...projects, ...enquiries].sort((a, b) => b.id - a.id)
+})
+
+const filteredProjectResults = computed(() => {
+  const query = projectSearchQuery.value.toLowerCase()
+  if (!query) return allProjectOptions.value
+  return allProjectOptions.value.filter(item => 
+    item.label?.toLowerCase().includes(query) || 
+    (item.project_id?.toLowerCase().includes(query)) ||
+    (item.enquiry_id?.toString().includes(query))
+  )
+})
+
+const selectProjectOption = (option: any) => {
+  projectSelection.value = option.type + option.id
+  projectSearchQuery.value = option.label
+  showProjectResults.value = false
+}
+
+const clearProjectSelection = () => {
+  projectSelection.value = null
+  projectSearchQuery.value = ''
+  showProjectResults.value = false
+}
+
+onClickOutside(projectSearchContainer, () => showProjectResults.value = false)
+
+// Sync search query when projectSelection is updated (edit mode, pre-fill)
+watch(projectSelection, (newVal) => {
+  if (newVal) {
+    const option = allProjectOptions.value.find(o => (o.type + o.id) === newVal)
+    if (option && projectSearchQuery.value !== option.label) {
+      projectSearchQuery.value = option.label
+    }
+  } else if (!projectSearchQuery.value) {
+    // Only clear if the user hasn't typed anything
+    projectSearchQuery.value = ''
+  }
+}, { immediate: true })
+
 
 const form = reactive({
   department_id: '',
@@ -483,6 +589,7 @@ const form = reactive({
       payee_id: null as number | null, 
       payee_name: '', 
       payee_phone: '',
+      remarks: '',
       is_external: false,
       payee_search: '',
       show_results: false,
@@ -740,6 +847,7 @@ const addItem = () => {
     payee_id: null, 
     payee_name: '', 
     payee_phone: '',
+    remarks: '',
     is_external: false,
     payee_search: '',
     show_results: false,
@@ -903,6 +1011,7 @@ const submitForm = async () => {
   }
 
   submitting.value = true
+  errorMessage.value = ''
   try {
     // Set project/enquiry IDs based on selection
     if (projectSelection.value) {
@@ -971,12 +1080,23 @@ const submitForm = async () => {
       
     // Handle both public service (direct data) and axios (response object)
     const resData = props.isPublic ? response : response.data
+    
+    if (resData.success === false) {
+      const message = resData.error || resData.message || 'Failed to submit requisition'
+      errorMessage.value = message
+      toast.error(message)
+      submitting.value = false
+      return
+    }
+
     toast.success(resData.message || 'Success')
     emit('success', resData.data)
     emit('close')
   } catch (error: any) {
     console.error('Submission failed:', error)
-    const message = error.response?.data?.message || 'Failed to submit requisition'
+    const data = error.response?.data
+    const message = data?.error || data?.message || 'Failed to submit requisition'
+    errorMessage.value = message
     toast.error(message)
   } finally {
     submitting.value = false
@@ -1045,6 +1165,7 @@ const handleQueryPreFill = async () => {
             payee_id: null,
             payee_name: supplierName,
             payee_phone: '',
+            remarks: '',
             is_external: !!supplierName,
             payee_search: supplierName,
             show_results: false,
@@ -1079,6 +1200,7 @@ const resetForm = () => {
     payee_id: null, 
     payee_name: '', 
     payee_phone: '',
+    remarks: '',
     is_external: false,
     payee_search: '',
     show_results: false,

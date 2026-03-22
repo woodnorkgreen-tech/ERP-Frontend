@@ -202,6 +202,10 @@
                         </template>
                       </span>
                       <span class="text-xs text-slate-500 dark:text-slate-400 font-bold block italic">{{ item.description }}</span>
+                      <span v-if="item.remarks" class="text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-tight mt-1 flex items-center gap-1">
+                        <i class="mdi mdi-tag-text-outline"></i>
+                        {{ item.remarks }}
+                      </span>
                         <span v-if="item.payee_phone || item.payee?.phone || requisition.requester?.employee?.phone" class="text-[9px] text-blue-500 font-black uppercase tracking-widest block mt-0.5">
                           <i class="mdi mdi-phone text-[8px] mr-1"></i> {{ item.payee_phone || item.payee?.phone || requisition.requester?.employee?.phone }}
                         </span>
@@ -753,24 +757,37 @@
                   <div class="relative">
                       <input
                         id="job_number_approval"
-                        list="job_number_approval_list"
                         v-model="approvalForm.job_number"
-                        @input="onProjectSelect"
+                        @input="onProjectInput"
+                        @focus="showProjectDropdown = true"
+                        @blur="hideProjectDropdown"
                         type="text"
                         class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        placeholder="Type or select job number (e.g. WNG-01-2026-009)"
+                        placeholder="Type to search job number (e.g. WNG-01-2026-009)"
                         autocomplete="off"
                       />
                     
-                    <datalist id="job_number_approval_list">
-                      <option 
-                        v-for="project in projects" 
-                        :key="project.id" 
-                        :value="project.job_number || project.project_id"
+                    <!-- Custom Dropdown -->
+                    <div
+                      v-if="showProjectDropdown && filteredApprovalProjects.length"
+                      class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-slate-200 dark:border-slate-700"
+                    >
+                      <div
+                        v-for="project in filteredApprovalProjects"
+                        :key="project.id"
+                        @mousedown="selectProjectApproval(project)"
+                        class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
-                        {{ project.title || project.enquiry?.title }}
-                      </option>
-                    </datalist>
+                        <div class="flex flex-col">
+                          <span class="font-medium text-gray-900 dark:text-white">
+                            {{ project.title || project.enquiry?.title || project.job_number || project.project_id }}
+                          </span>
+                          <span class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {{ project.job_number || project.project_id }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -944,19 +961,43 @@ const hideAccountDropdown = () => {
   setTimeout(() => { showAccountDropdown.value = false }, 150)
 }
 
-const onProjectSelect = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const value = input.value
-  const project = projects.value.find(p => (p.job_number === value) || (p.project_id === value))
-  if (project) {
-    approvalForm.job_number = project.job_number || project.project_id
-    approvalForm.project_name = project.title || project.enquiry?.title || ''
-    if (!approvalForm.classification || approvalForm.classification === 'admin') {
-      approvalForm.classification = 'operations'
-    }
-  } else {
-    approvalForm.job_number = value
+const showProjectDropdown = ref(false)
+
+const filteredApprovalProjects = computed(() => {
+  const query = (approvalForm.job_number || '').toLowerCase()
+  if (!query) {
+    // Return top 50 to avoid rendering thousands instantly
+    return projects.value.slice(0, 50)
   }
+  
+  return projects.value.filter(p => {
+    const term = query.toLowerCase()
+    const match1 = (p.title || p.enquiry?.title || '').toLowerCase().includes(term)
+    const match2 = (p.job_number || '').toLowerCase().includes(term)
+    const match3 = (p.project_id || '').toLowerCase().includes(term)
+    return match1 || match2 || match3
+  }).slice(0, 50)
+})
+
+const onProjectInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  approvalForm.job_number = target.value
+  showProjectDropdown.value = true
+}
+
+const hideProjectDropdown = () => {
+  setTimeout(() => {
+    showProjectDropdown.value = false
+  }, 200)
+}
+
+const selectProjectApproval = (project: any) => {
+  approvalForm.job_number = project.job_number || project.project_id
+  approvalForm.project_name = project.title || project.enquiry?.title || ''
+  if (!approvalForm.classification || approvalForm.classification === 'admin') {
+    approvalForm.classification = 'operations'
+  }
+  showProjectDropdown.value = false
 }
 
 const downloading = ref(false)
@@ -1045,11 +1086,20 @@ const approveRequisition = async () => {
   
   isSubmitting.value = true
   try {
-    await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/approve`)
-    toast.success('Requisition marked as Approved')
+    const response = await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/approve`)
+    const resData = response.data
+    if (resData.success === false) {
+      const msg = resData.error || resData.message || 'Failed to approve requisition'
+      toast.error(msg)
+      isSubmitting.value = false
+      return
+    }
+    toast.success(resData.message || 'Requisition marked as Approved')
     fetchRequisition()
   } catch (error: any) {
-    toast.error(error.response?.data?.message || 'Failed to approve requisition')
+    const data = error.response?.data
+    const message = data?.error || data?.message || 'Failed to approve requisition'
+    toast.error(message)
   } finally {
     isSubmitting.value = false
   }
@@ -1111,15 +1161,24 @@ const submitApprovalWithDisbursement = async () => {
   isSubmitting.value = true
   errors.value = {}
   try {
-    await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/disburse`, approvalForm)
-    toast.success('Cash disbursed and QR code generated')
+    const response = await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/disburse`, approvalForm)
+    const resData = response.data
+    if (resData.success === false) {
+      const msg = resData.error || resData.message || 'Failed to disburse cash'
+      toast.error(msg)
+      isSubmitting.value = false
+      return
+    }
+    toast.success(resData.message || 'Cash disbursed and QR code generated')
     showApproveModal.value = false
     fetchRequisition()
   } catch (error: any) {
-    if (error.response?.data?.errors) {
-      errors.value = error.response.data.errors
+    const data = error.response?.data
+    if (data?.errors) {
+      errors.value = data.errors
     }
-    toast.error(error.response?.data?.message || 'Failed to disburse cash')
+    const message = data?.error || data?.message || 'Failed to disburse cash'
+    toast.error(message)
   } finally {
     isSubmitting.value = false
   }
@@ -1136,14 +1195,22 @@ const rejectRequisition = async () => {
     return
   }
   try {
-    await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/reject`, {
+    const response = await axios.post(`/api/finance/petty-cash/requisitions/${requisition.value.id}/reject`, {
       reason: rejectionReason.value
     })
-    toast.success('Requisition rejected')
+    const resData = response.data
+    if (resData.success === false) {
+      const msg = resData.error || resData.message || 'Failed to reject requisition'
+      toast.error(msg)
+      return
+    }
+    toast.success(resData.message || 'Requisition rejected')
     showRejectModal.value = false
     fetchRequisition()
-  } catch (error) {
-    toast.error('Failed to reject requisition')
+  } catch (error: any) {
+    const data = error.response?.data
+    const message = data?.error || data?.message || 'Failed to reject requisition'
+    toast.error(message)
   }
 }
 
