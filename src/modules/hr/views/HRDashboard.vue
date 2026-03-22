@@ -129,17 +129,20 @@
           </div>
         </router-link>
 
-        <div class="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <router-link
+          to="/hr/leave"
+          class="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+        >
           <div class="p-2 bg-green-500 rounded-lg mr-3">
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <div>
-            <h3 class="font-medium text-gray-900 dark:text-white">Payroll</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Process salaries and benefits</p>
+            <h3 class="font-medium text-gray-900 dark:text-white">Leave Management</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Manage requests, balances, and policies</p>
           </div>
-        </div>
+        </router-link>
 
         <div class="flex items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
           <div class="p-2 bg-purple-500 rounded-lg mr-3">
