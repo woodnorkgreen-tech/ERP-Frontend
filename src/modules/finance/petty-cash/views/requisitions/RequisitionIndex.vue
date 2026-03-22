@@ -141,12 +141,148 @@
           <div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
           <span class="text-[10px] font-black font-mono text-slate-900 dark:text-white">{{ meta.total }} Total Records</span>
         </div>
+<<<<<<< Updated upstream
         
         <div class="flex items-center gap-2">
            <div class="flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20">
               <div class="w-1.5 h-1.5 rounded-full bg-blue-500 anim-pulse"></div>
               <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest">Live Registry</span>
            </div>
+=======
+
+        <!-- Scrollable List -->
+        <div class="flex-grow overflow-y-auto custom-scrollbar p-2 space-y-2 rounded-b-[2.5rem] pr-1">
+          <div v-if="loading && !requisitions.length" class="space-y-2 p-2" >
+            <div v-for="i in 5" :key="i" class="h-20 bg-slate-50 dark:bg-slate-900/50 animate-pulse rounded-2xl"></div>
+          </div>
+          
+          <div 
+            v-else-if="requisitions.length === 0" 
+            class="flex flex-col items-center justify-center py-12 text-center"
+          >
+            <i class="mdi mdi-tray-blank text-4xl text-slate-200 mb-2"></i>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">No Requests</p>
+          </div>
+
+          <button
+            v-for="req in requisitions"
+            :key="req.id"
+            @click="selectRequisition(req)"
+            :class="[
+              'w-full text-left p-4 transition-all relative group overflow-hidden border-b last:border-b-0 pl-7',
+              selectedId === req.id 
+                ? 'bg-slate-900 shadow-2xl z-10' 
+                : [
+                    'bg-white dark:bg-slate-800/40 border-slate-50 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/60',
+                    getStatusBgColor(req.status)
+                  ]
+            ]"
+          >
+            <!-- Left Status Strip -->
+            <div 
+              class="absolute inset-y-0 left-0 w-1 transition-all duration-300"
+              :class="getStatusDotColor(req.status)"
+            ></div>
+
+            <!-- Background Accent (Selected - Right) -->
+            <div v-if="selectedId === req.id" class="absolute inset-y-0 right-0 w-1 bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)]"></div>
+
+            <div class="relative z-10 space-y-3">
+              <!-- Row 1: Document ID, Status & Date -->
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                   <span 
+                    class="text-[9px] font-black uppercase tracking-[0.2em] font-technical"
+                    :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"
+                  >
+                    {{ req.requisition_number }}
+                  </span>
+                  <span 
+                    v-if="req.is_public"
+                    class="px-1.5 py-0.5 rounded-[4px] text-[7px] font-black uppercase tracking-widest bg-purple-500 text-white"
+                  >
+                    Public
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                   <span class="text-[9px] font-bold text-slate-400 font-technical">{{ formatDate(req.created_at) }}</span>
+                   <div 
+                    :class="[
+                      'w-1.5 h-1.5 rounded-full',
+                      selectedId === req.id ? 'bg-blue-400 anim-pulse' : getStatusDotColor(req.status)
+                    ]"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Row 2: Purpose (Primary Read) -->
+              <h4 
+                class="text-[13px] font-black uppercase tracking-tight leading-tight line-clamp-2"
+                :class="selectedId === req.id ? 'text-white' : 'text-slate-900 dark:text-slate-100'"
+              >
+                {{ req.purpose }}
+              </h4>
+
+              <!-- Row 3: Metadata (Project & Payee) -->
+              <div class="grid grid-cols-2 gap-2">
+                 <!-- Associated Entity -->
+                 <div class="flex items-center gap-2 overflow-hidden">
+                    <i class="mdi mdi-briefcase-variant-outline text-[11px]" :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"></i>
+                    <span 
+                      class="text-[9px] font-bold uppercase tracking-tight truncate"
+                      :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-500'"
+                    >
+                      {{ req.project?.enquiry?.title || req.project_name || 'General Operations' }}
+                    </span>
+                 </div>
+                 <!-- Recipient -->
+                 <div class="flex items-center gap-2 overflow-hidden justify-end">
+                    <span 
+                      class="text-[9px] font-bold uppercase tracking-tight truncate text-right"
+                      :class="selectedId === req.id ? 'text-slate-300' : 'text-slate-500'"
+                    >
+                      {{ req.is_public ? req.requester_name : (req.requester?.name || 'Staff') }}
+                    </span>
+                    <i class="mdi mdi-account-circle-outline text-[11px]" :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-400'"></i>
+                 </div>
+              </div>
+
+              <!-- Row 4: Financial Summary -->
+              <div class="flex items-center justify-between pt-2 border-t" :class="selectedId === req.id ? 'border-white/10' : 'border-slate-50 dark:border-slate-700/50'">
+                 <div class="flex items-center gap-2">
+                    <span 
+                      class="text-[10px] font-black uppercase tracking-[0.2em]"
+                      :class="selectedId === req.id ? 'text-slate-400' : 'text-slate-300'"
+                    >
+                      Total Allocation
+                    </span>
+                 </div>
+                 <span 
+                  class="text-[15px] font-black font-technical tabular-nums tracking-tighter"
+                  :class="selectedId === req.id ? 'text-blue-400' : 'text-slate-900 dark:text-slate-100'"
+                >
+                  {{ formatCurrency(req.total_amount) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Enhanced Status Label (Floating Overlay on hover) -->
+            <div 
+              v-if="selectedId !== req.id"
+              class="absolute top-0 right-0 py-1 px-3 text-white text-[7px] font-black uppercase tracking-widest transform translate-x-full group-hover:translate-x-0 transition-transform duration-300"
+              :class="getStatusDotColor(req.status)"
+            >
+               {{ req.status === 'disbursed' ? 'Paid' : req.status }}
+            </div>
+          </button>
+        </div>
+
+        <!-- Pagination (Mini) -->
+        <div v-if="meta.last_page > 1" class="p-3 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
+          <button @click="changePage(meta.current_page - 1)" :disabled="meta.current_page === 1" class="p-1.5 hover:bg-slate-100 rounded-lg disabled:opacity-20"><i class="mdi mdi-chevron-left"></i></button>
+          <span class="text-[10px] font-black text-slate-400">{{ meta.current_page }} / {{ meta.last_page }}</span>
+          <button @click="changePage(meta.current_page + 1)" :disabled="meta.current_page === meta.last_page" class="p-1.5 hover:bg-slate-100 rounded-lg disabled:opacity-20"><i class="mdi mdi-chevron-right"></i></button>
+>>>>>>> Stashed changes
         </div>
       </div>
 
@@ -811,6 +947,7 @@ watch(() => route.query, () => {
   scrollbar-color: #475569 transparent;
 }
 
+<<<<<<< Updated upstream
 /* Drawer Animations */
 .slide-right-enter-active,
 .slide-right-leave-active {
@@ -828,6 +965,10 @@ watch(() => route.query, () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+=======
+.anim-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+>>>>>>> Stashed changes
 }
 
 @keyframes pulse {
