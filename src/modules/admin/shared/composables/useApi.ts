@@ -18,8 +18,8 @@ export function useApi() {
     return response.data
   }
 
-  const deleteRequest = async (endpoint: string): Promise<ApiResponse<null>> => {
-    const response = await api.delete(endpoint)
+  const deleteRequest = async (endpoint: string, params?: FilterOptions): Promise<ApiResponse<null>> => {
+    const response = await api.delete(endpoint, { params })
     return response.data
   }
 

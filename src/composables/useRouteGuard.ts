@@ -124,6 +124,7 @@ export function useRouteGuard() {
       // HR routes - require HR permissions
       case 'hr-dashboard':
       case 'hr-employees':
+      case 'hr-leave':
         return hasPermission(PERMISSIONS.HR_VIEW_EMPLOYEES)
 
       // Department-specific routes - Managers, Employees, and Super Admin
@@ -305,7 +306,9 @@ export function useRouteGuard() {
           department: 'Human Resources',
           routes: [
             { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
-            { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' }
+            { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
+            { name: 'hr-leave', path: '/hr/leave', label: 'Leave Management', icon: 'mdi-calendar-clock' },
+            { name: 'hr-payroll', path: '/hr/payroll', label: 'Payroll Engine', icon: 'mdi-calculator-variant-outline' }
           ]
         },
         {
@@ -374,7 +377,7 @@ export function useRouteGuard() {
             { name: 'logistics-routes', path: '/logistics/routes', label: 'Routes', icon: 'mdi-map-marker-path' },
             { name: 'logistics-tracking', path: '/logistics/tracking', label: 'Tracking', icon: 'mdi-crosshairs-gps' }
           ]
-        },
+        }
       )
     }
     // Admin gets admin routes
@@ -392,6 +395,8 @@ export function useRouteGuard() {
       routes.push(
         { name: 'hr-dashboard', path: '/hr', label: 'HR Dashboard', icon: 'mdi-account-group' },
         { name: 'hr-employees', path: '/hr/employees', label: 'Employee Management', icon: 'mdi-account-hard-hat' },
+        { name: 'hr-leave', path: '/hr/leave', label: 'Leave Management', icon: 'mdi-calendar-clock' },
+        { name: 'hr-payroll', path: '/hr/payroll', label: 'Payroll Engine', icon: 'mdi-calculator-variant-outline' },
         { name: 'production-reports', path: '/production/reports', label: 'Production Reports', icon: 'mdi-chart-box' }
       )
     }

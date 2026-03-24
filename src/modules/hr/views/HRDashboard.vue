@@ -344,7 +344,7 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
-import { useEmployees } from '../../shared/composables/useEmployees'
+import { useEmployees } from '../composables/useEmployees'
 import { useTechnicalLabour, type TechnicalLabour } from '../composables/useTechnicalLabour'
 
 const { employees, fetchEmployees } = useEmployees()

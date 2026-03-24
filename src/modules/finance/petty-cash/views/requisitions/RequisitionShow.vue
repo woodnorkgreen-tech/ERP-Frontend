@@ -1095,15 +1095,16 @@ const initiateDisbursement = async () => {
   errors.value = {}
   
   showApproveModal.value = true
-  await fetchFormData()
   
-  // After fetching accounts, try to find and set Petty Cash
-  const pettyCashAccount = accounts.value.find(acc => acc.code === 'PETTY-001')
-  if (pettyCashAccount) {
-    approvalForm.account = pettyCashAccount.name
-    approvalForm.account_id = pettyCashAccount.id
-    accountSearch.value = pettyCashAccount.name
-  }
+  // Do not block UI render: fetch asynchronously and patch petty cash account once resolved.
+  fetchFormData().then(() => {
+    const pettyCashAccount = accounts.value.find(acc => acc.code === 'PETTY-001')
+    if (pettyCashAccount) {
+      approvalForm.account = pettyCashAccount.name
+      approvalForm.account_id = pettyCashAccount.id
+      accountSearch.value = pettyCashAccount.name
+    }
+  })
 }
 
 const submitApprovalWithDisbursement = async () => {
