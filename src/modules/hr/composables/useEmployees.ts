@@ -152,6 +152,40 @@ export function useEmployees() {
     }
   }
 
+  const fetchEmployeeActions = async (employeeId: number) => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await get(`/api/hr/employees/${employeeId}/actions`)
+      return (response as any).data || []
+    } catch (err) {
+      error.value = 'Failed to fetch employee actions'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const recordHRAction = async (actionData: {
+    employee_id: number,
+    action_type: string,
+    effective_date: string,
+    reason?: string,
+    new_data?: Record<string, any>
+  }) => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await post('/api/hr/actions', actionData as any)
+      return (response as any).data
+    } catch (err: any) {
+      error.value = err.message || 'Failed to record HR action'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     employees: readonly(employees),
     loading: readonly(loading),
@@ -160,6 +194,8 @@ export function useEmployees() {
     fetchEmployees,
     createEmployee,
     updateEmployee,
-    deleteEmployee
+    deleteEmployee,
+    fetchEmployeeActions,
+    recordHRAction
   }
 }
