@@ -151,7 +151,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { Employee } from '../../shared/types/employee'
+import type { Employee } from '../types/employee'
 import type {
   CreateLeaveRequestPayload,
   LeaveBalance,

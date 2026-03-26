@@ -238,7 +238,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
-import { useEmployees } from '../../shared/composables/useEmployees'
+import { useEmployees } from '../composables/useEmployees'
 import LeaveRequestModal from '../components/LeaveRequestModal.vue'
 import { useLeave } from '../composables/useLeave'
 import type { CreateLeaveRequestPayload, LeaveBalance, LeaveRequest, LeaveType } from '../types/leave'
