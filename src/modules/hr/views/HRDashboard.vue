@@ -7,65 +7,60 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-blue-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            </svg>
+    <!-- Workforce Summary -->
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-blue-500">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Total Workforce</p>
+              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.length }}</p>
+              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">All Enrolled Employees</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20">
+              <i class="mdi mdi-account-group text-xl"></i>
+            </div>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Employees</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats.totalEmployees }}</p>
-          </div>
-        </div>
-      </div>
+        </article>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-green-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-emerald-500">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Departments</p>
+              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ departmentCount }}</p>
+              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Functional Departments</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+              <i class="mdi mdi-domain text-xl"></i>
+            </div>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Employees</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats.activeEmployees }}</p>
-          </div>
-        </div>
-      </div>
+        </article>
 
-      <!-- <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-yellow-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-            </svg>
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-amber-500">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">On Leave</p>
+              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.filter(e => e.status === 'on-leave').length }}</p>
+              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Away from Work</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
+              <i class="mdi mdi-calendar-clock text-xl"></i>
+            </div>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Salary</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">${{ stats.averageSalary.toLocaleString() }}</p>
-          </div>
-        </div>
-      </div> -->
+        </article>
 
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center">
-          <div class="p-2 bg-purple-500 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
+        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-rose-500">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Terminated</p>
+              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.filter(e => e.status === 'terminated').length }}</p>
+              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Separated from Work</p>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-lg shadow-rose-500/20">
+              <i class="mdi mdi-account-off text-xl"></i>
+            </div>
           </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">New Hires</p>
-            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ stats.newHiresThisMonth }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">This month</p>
-          </div>
-        </div>
+        </article>
       </div>
-    </div>
 
     <!-- Department Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -113,7 +108,7 @@
     <!-- Quick Actions -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <router-link
           to="/hr/employees"
           class="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
@@ -155,188 +150,21 @@
             <p class="text-sm text-gray-600 dark:text-gray-400">Review and manage performance</p>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Technical Labour Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mt-10">
-      <div class="p-8 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/50 dark:bg-slate-700/20">
-        <div>
-          <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Technical Resource Pool</h2>
-          <p class="text-sm text-slate-500 font-medium mt-1">Registry for specialized external teams and freelancers</p>
-        </div>
-        <div class="flex flex-wrap items-center gap-4">
-          <!-- Search in Pool -->
-          <div class="relative min-w-[280px]">
-            <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input 
-              v-model="labourSearch"
-              type="text" 
-              placeholder="Search skills (e.g. Rigger)..." 
-              class="w-full h-11 pl-11 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500 transition-all uppercase tracking-widest"
-            />
+        <router-link
+          to="/hr/payroll"
+          class="flex items-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+        >
+          <div class="p-2 bg-amber-500 rounded-lg mr-3">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.407 2.651 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.651-1M12 16c1.657 0 3-.895 3-2s-1.343-2-3-2-3 .895-3 2 1.343 2 3 2m0-8c1.11 0 2.08.407 2.651 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.407-2.651-1M12 16c1.11 0 2.08.407 2.651 1" />
+            </svg>
           </div>
-          <!-- Import/Export Actions -->
-          <div class="flex items-center gap-2">
-             <button 
-                @click="downloadTemplate"
-                class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
-                title="Download CSV Template"
-             >
-                <i class="mdi mdi-file-download-outline text-xl"></i>
-             </button>
-
-             <input type="file" ref="fileInput" class="hidden" @change="handleFileUpload" accept=".csv" />
-             <button 
-                @click="triggerUpload"
-                class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
-                title="Import From CSV"
-             >
-                <i class="mdi mdi-file-upload-outline text-xl"></i>
-             </button>
+          <div>
+            <h3 class="font-medium text-gray-900 dark:text-white">Payroll Engine</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Manage salaries and disbursements</p>
           </div>
-
-          <button 
-            @click="openLabourModal()"
-            class="h-11 px-6 bg-slate-900 dark:bg-white hover:bg-blue-600 dark:hover:bg-blue-500 text-white dark:text-slate-900 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition-all flex items-center gap-2 active:scale-95"
-          >
-            <i class="mdi mdi-account-plus text-lg"></i>
-            Capture New Skill
-          </button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto custom-scrollbar">
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-white dark:bg-gray-800 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-            <tr>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Team Member Identity</th>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Specialization</th>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700 text-center">Efficiency Rating</th>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Standard Rate</th>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Status</th>
-              <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
-            <tr v-if="filteredLabours.length === 0" class="text-center py-20">
-              <td colspan="6" class="px-8 py-20">
-                <div class="flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
-                  <i class="mdi mdi-account-search-outline text-6xl mb-4"></i>
-                  <p class="text-sm font-black uppercase tracking-widest">No resources match your search criteria</p>
-                </div>
-              </td>
-            </tr>
-            <tr v-for="labour in filteredLabours" :key="labour.id" class="group hover:bg-blue-50/30 dark:hover:bg-blue-900/5 transition-all">
-              <td class="px-8 py-6">
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-500 transition-colors">
-                    <i class="mdi mdi-account text-xl"></i>
-                  </div>
-                  <div>
-                    <div class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ labour.full_name }}</div>
-                    <div class="text-[10px] text-slate-400 font-bold tracking-widest">{{ labour.phone || 'No Phone' }}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-8 py-6 text-sm">
-                <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-[10px] font-black text-slate-500 dark:text-slate-300 uppercase tracking-widest">
-                  {{ labour.specialization || 'Generalist' }}
-                </span>
-              </td>
-              <td class="px-8 py-6 text-center">
-                 <div class="flex items-center justify-center gap-0.5 text-amber-400">
-                   <i v-for="i in 5" :key="i" class="mdi" :class="i <= Math.round(labour.rating) ? 'mdi-star' : 'mdi-star-outline'"></i>
-                 </div>
-              </td>
-              <td class="px-8 py-6">
-                <div class="text-sm font-black text-slate-900 dark:text-white">KES {{ Number(labour.day_rate).toLocaleString() }}</div>
-                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Fixed Day Rate</div>
-              </td>
-              <td class="px-8 py-6">
-                <span 
-                  class="px-3 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest shadow-sm"
-                  :class="{
-                    'bg-emerald-50 text-emerald-600 border border-emerald-100': labour.status === 'active',
-                    'bg-slate-50 text-slate-500 border border-slate-200': labour.status === 'inactive',
-                    'bg-rose-50 text-rose-600 border border-rose-100': labour.status === 'blacklisted'
-                  }"
-                >
-                  {{ labour.status }}
-                </span>
-              </td>
-              <td class="px-8 py-6 text-right">
-                <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                  <button @click="openLabourModal(labour)" class="p-2.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-blue-500 transition-all active:scale-95" title="Modify Record">
-                    <i class="mdi mdi-pencil text-lg"></i>
-                  </button>
-                  <button @click="handleDeleteLabour(labour.id)" class="p-2.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-rose-500 transition-all active:scale-95" title="Purge Record">
-                    <i class="mdi mdi-delete-outline text-lg"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Technical Labour Modal -->
-    <div v-if="showLabourModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-200">
-        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-          <h3 class="text-xl font-bold dark:text-white">{{ editingLabour ? 'Update Technical Team Member' : 'New Technical Labour Capture' }}</h3>
-          <button @click="showLabourModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-        </div>
-
-        <form @submit.prevent="handleSaveLabour" class="p-6 space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Full Name *</label>
-              <input v-model="labourForm.full_name" required type="text" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Specialization</label>
-              <input v-model="labourForm.specialization" type="text" placeholder="e.g. Electrician, Rigger" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
-              <input v-model="labourForm.phone" type="tel" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Email Address</label>
-              <input v-model="labourForm.email" type="email" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Day Rate (KES) *</label>
-              <input v-model="labourForm.day_rate" required type="number" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Efficiency Rating (1-5)</label>
-              <input v-model="labourForm.rating" type="number" min="1" max="5" step="0.5" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-gray-500 uppercase">Availability Status</label>
-              <select v-model="labourForm.status" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white">
-                <option value="active">Active / Available</option>
-                <option value="inactive">Inactive</option>
-                <option value="blacklisted">Blacklisted / Do Not Hire</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-xs font-bold text-gray-500 uppercase">Internal Notes / Performance Record</label>
-            <textarea v-model="labourForm.notes" rows="3" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all dark:text-white lg:resize-none"></textarea>
-          </div>
-
-          <div class="flex justify-end gap-3 pt-4">
-            <button type="button" @click="showLabourModal = false" class="px-6 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">Cancel</button>
-            <button :disabled="labourLoading" type="submit" class="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50">
-              {{ labourLoading ? 'Processing...' : (editingLabour ? 'Update Records' : 'Save To Database') }}
-            </button>
-          </div>
-        </form>
+        </router-link>
       </div>
     </div>
   </div>
@@ -345,114 +173,14 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
-import { useTechnicalLabour, type TechnicalLabour } from '../composables/useTechnicalLabour'
 
 const { employees, fetchEmployees } = useEmployees()
-const { labours, loading: labourLoading, fetchLabours, createLabour, updateLabour, deleteLabour, importLabour } = useTechnicalLabour()
 
-// State for technical labour UI
-const showLabourModal = ref(false)
-const editingLabour = ref<TechnicalLabour | null>(null)
-const labourSearch = ref('')
-const labourForm = ref({
-  full_name: '',
-  specialization: '',
-  phone: '',
-  email: '',
-  day_rate: 0,
-  status: 'active' as 'active' | 'inactive' | 'blacklisted',
-  notes: '',
-  rating: 5
+// Unique department count derived from employees
+const departmentCount = computed(() => {
+  const names = new Set(employees.value.map(e => e.department?.name).filter(Boolean))
+  return names.size
 })
-
-const fileInput = ref<HTMLInputElement | null>(null)
-
-const downloadTemplate = () => {
-    window.open('/api/hr/technical-labour/template', '_blank')
-}
-
-const triggerUpload = () => {
-    fileInput.value?.click()
-}
-
-const handleFileUpload = async (event: Event) => {
-    const target = event.target as HTMLInputElement
-    if (target.files && target.files[0]) {
-        try {
-            await importLabour(target.files[0])
-            await fetchLabours()
-            alert('Import Successful! Records have been added.')
-        } catch (e) {
-            console.error(e)
-            alert('Import Failed. Please check the CSV format.')
-        }
-        target.value = ''
-    }
-}
-
-const filteredLabours = computed(() => {
-  if (!labourSearch.value) return labours.value
-  const search = labourSearch.value.toLowerCase()
-  return labours.value.filter(l => 
-    l.full_name.toLowerCase().includes(search) || 
-    l.specialization?.toLowerCase().includes(search) ||
-    l.email?.toLowerCase().includes(search)
-  )
-})
-
-const openLabourModal = (labour: TechnicalLabour | null = null) => {
-  if (labour) {
-    editingLabour.value = labour
-    labourForm.value = {
-      full_name: labour.full_name,
-      specialization: labour.specialization,
-      phone: labour.phone,
-      email: labour.email,
-      day_rate: Number(labour.day_rate),
-      status: labour.status,
-      notes: labour.notes,
-      rating: Number(labour.rating)
-    }
-  } else {
-    editingLabour.value = null
-    labourForm.value = {
-      full_name: '',
-      specialization: '',
-      phone: '',
-      email: '',
-      day_rate: 0,
-      status: 'active',
-      notes: '',
-      rating: 5
-    }
-  }
-  showLabourModal.value = true
-}
-
-const handleSaveLabour = async () => {
-  try {
-    if (editingLabour.value) {
-      await updateLabour(editingLabour.value.id, labourForm.value)
-    } else {
-      await createLabour(labourForm.value)
-    }
-    showLabourModal.value = false
-    await fetchLabours()
-  } catch (err) {
-    console.error('Failed to save technical labour:', err)
-  }
-}
-
-const handleDeleteLabour = async (id: number) => {
-  if (confirm('Are you sure you want to remove this technical labour record?')) {
-    try {
-      await deleteLabour(id)
-      await fetchLabours()
-    } catch (err) {
-      console.error('Failed to delete labour:', err)
-    }
-  }
-}
 
 // Computed stats
 const stats = computed(() => {
@@ -496,6 +224,5 @@ const formatDate = (dateString: string) => {
 
 onMounted(() => {
   fetchEmployees()
-  fetchLabours()
 })
 </script>

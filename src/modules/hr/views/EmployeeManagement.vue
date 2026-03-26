@@ -9,90 +9,65 @@
             <ol class="inline-flex items-center space-x-2 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
               <li><router-link to="/hr" class="hover:text-blue-500 transition-colors">HR</router-link></li>
               <li><i class="mdi mdi-chevron-right text-xs"></i></li>
-              <li class="text-slate-500 dark:text-slate-300">Personnel Registry</li>
+              <li class="text-slate-500 dark:text-slate-300">{{ activeMainTab === 'roster' ? 'Personnel Registry' : 'Resource Management' }}</li>
             </ol>
           </nav>
-           <h1 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
-             Employee <span class="text-blue-600">Hub</span>
-           </h1>
-           <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Central command for workforce management, payroll nodes, and career lifecycles.</p>
+            <h1 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+              {{ activeMainTab === 'roster' ? 'Employee' : 'Technical' }} <span class="text-blue-600">{{ activeMainTab === 'roster' ? 'Hub' : 'Pool' }}</span>
+            </h1>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ activeMainTab === 'roster' ? 'Central command for workforce management, payroll nodes, and career lifecycles.' : 'Registry for specialized external teams, freelancers, and technical freelancers.' }}</p>
          </div>
          
          <div class="flex flex-wrap gap-3">
-           <button
-             @click="showAddModal = true"
-             class="flex items-center gap-2 px-6 py-3.5 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-black text-[11px] uppercase tracking-[0.18em] shadow-xl shadow-blue-500/10 hover:scale-105 active:scale-95 transition-all"
-           >
-             <i class="mdi mdi-account-plus-outline text-lg"></i>
-             Enroll Employee
-           </button>
-           <button
+            <button
+              v-if="activeMainTab === 'roster'"
+              @click="showAddModal = true"
+              class="flex items-center gap-2 px-6 py-3.5 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-black text-[11px] uppercase tracking-[0.18em] shadow-xl shadow-blue-500/10 hover:scale-105 active:scale-95 transition-all"
+            >
+              <i class="mdi mdi-account-plus-outline text-lg"></i>
+              Enroll Employee
+            </button>
+           <!-- <button
              @click="showDeptsModal = true"
              class="flex items-center gap-2 px-6 py-3.5 border border-slate-200 dark:border-slate-800 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 transition-all active:scale-95"
            >
              <i class="mdi mdi-door-open text-lg"></i>
              Departments
-           </button>
+           </button> -->
          </div>
       </div>
-
-      <!-- Workforce Summary Nodes -->
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-blue-500">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Total Workforce</p>
-              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.length }}</p>
-              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Active Personnel Nodes</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20">
-              <i class="mdi mdi-account-group text-xl"></i>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-emerald-500">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Department Nodes</p>
-              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ availableDepartments.length }}</p>
-              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Functional Sub-Units</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
-              <i class="mdi mdi-domain text-xl"></i>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-amber-500">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">On Leave</p>
-              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.filter(e => e.status === 'on-leave').length }}</p>
-              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Away from Keyboard</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
-              <i class="mdi mdi-calendar-clock text-xl"></i>
-            </div>
-          </div>
-        </article>
-
-        <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 border-b-4 border-b-rose-500">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300 pl-1">Terminated</p>
-              <p class="mt-3 text-4xl font-black tracking-tight text-slate-900 dark:text-white">{{ employees.filter(e => e.status === 'terminated').length }}</p>
-              <p class="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300 pl-1">Separated from Service</p>
-            </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-lg shadow-rose-500/20">
-              <i class="mdi mdi-account-off text-xl"></i>
-            </div>
-          </div>
-        </article>
+      
+      <!-- Premium View Switcher -->
+      <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1.5 rounded-[2rem] w-fit border border-slate-200 dark:border-slate-800">
+         <button 
+           @click="activeMainTab = 'roster'"
+           :class="[
+             'px-10 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3',
+             activeMainTab === 'roster' 
+               ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-xl border border-slate-200 dark:border-slate-700' 
+               : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+           ]"
+         >
+           <i class="mdi mdi-account-group-outline text-lg"></i>
+           Employee Registry
+         </button>
+         <button 
+           @click="activeMainTab = 'technical'"
+           :class="[
+             'px-10 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3',
+             activeMainTab === 'technical' 
+               ? 'bg-white dark:bg-slate-800 text-emerald-600 shadow-xl border border-slate-200 dark:border-slate-700' 
+               : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+           ]"
+         >
+           <i class="mdi mdi-hammer-wrench text-lg"></i>
+           TechnicalResource Pool
+         </button>
       </div>
 
-      <!-- Simple Employee Search -->
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative z-20">
+      <div v-if="activeMainTab === 'roster'" class="space-y-6">
+        <!-- Simple Employee Search -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm relative z-20">
         <div class="relative w-full md:w-96 flex-shrink-0">
           <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
           <input
@@ -192,126 +167,143 @@
            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm">
              <div class="overflow-x-auto !overflow-y-visible pb-24">
                <table class="w-full border-collapse">
-                 <thead>
-                   <tr class="bg-slate-50/50 dark:bg-slate-800/30">
-                     <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">Employee Identity</th>
-                     <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">Job Role</th>
-                     <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">Department</th>
-                     <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">Salary & Payment</th>
-                     <th class="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800">Status</th>
-                     <th class="px-6 py-5 text-right text-[10px] font-black text-slate-500 dark:text-slate-400  tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 sticky right-0 bg-white dark:bg-slate-900 z-30 shadow-[-12px_0_15px_-3px_rgba(0,0,0,0.06)]">Actions</th>
-                   </tr>
-                 </thead>
-                 <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-                   <tr v-for="employee in activeGroup.members" :key="employee.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all group" :class="{ 'z-50 relative': openDropdownId === employee.id }">
-                     <td class="px-6 py-5 whitespace-nowrap">
-                       <div class="flex items-center gap-4">
-                         <div class="relative">
-                           <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-black text-sm text-slate-500 shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-105 transition-transform">
-                             {{ employee.first_name[0] }}{{ employee.last_name[0] }}
+                  <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-900/50">
+                      <th class="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 dark:border-slate-800">Operational Identity</th>
+                      <th class="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 dark:border-slate-800">Structural Node</th>
+                      <th class="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 dark:border-slate-800">Financial Stream</th>
+                      <th class="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 dark:border-slate-800">Protocol Status</th>
+                      <th class="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50 dark:border-slate-800 sticky right-0 bg-white dark:bg-slate-950 z-30 shadow-[-15px_0_20px_-5px_rgba(0,0,0,0.05)]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+                    <tr v-for="employee in activeGroup.members" :key="employee.id" class="hover:bg-blue-50/30 dark:hover:bg-blue-600/5 transition-all group" :class="{ 'z-50 relative': openDropdownId === employee.id }">
+                      <td class="px-8 py-6 whitespace-nowrap">
+                        <div class="flex items-center gap-5">
+                          <div class="relative group-hover:scale-110 transition-transform duration-500">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center font-black text-base text-slate-400 shadow-inner border border-slate-100 dark:border-slate-800 group-hover:border-blue-500/30">
+                              {{ employee.first_name[0] }}{{ employee.last_name[0] }}
+                            </div>
+                            <div :class="[
+                              'absolute -top-1.5 -right-1.5 w-5 h-5 border-4 border-white dark:border-slate-950 rounded-full shadow-lg',
+                              employee.status === 'active' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-slate-400 shadow-slate-400/20'
+                            ]"></div>
+                          </div>
+                          <div>
+                            <div @click="viewEmployee(employee)" class="font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2 flex items-center gap-2 text-base cursor-pointer hover:text-blue-600 transition-colors">
+                              {{ employee.first_name }} {{ employee.last_name }}
+                              <i v-if="employee.is_on_probation" class="mdi mdi-shield-clock text-amber-500 text-sm" title="On Probation"></i>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-bold tracking-widest leading-none flex items-center gap-2">
+                              <span class="text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">ID-{{ employee.id.toString().padStart(4, '0') }}</span>
+                              <span class="w-1 h-1 rounded-full bg-slate-200 dark:bg-slate-700"></span>
+                              <span class="lowercase">{{ employee.email }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-8 py-6 whitespace-nowrap">
+                        <div class="flex flex-col gap-1">
+                           <span class="text-[13px] font-black text-slate-800 dark:text-slate-200 tracking-tight">{{ employee.position }}</span>
+                           <div class="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                              <i class="mdi mdi-map-marker-radius text-blue-500/50"></i>
+                              {{ employee.department?.name || 'Unassigned' }}
                            </div>
-                           <div :class="[
-                             'absolute -top-1 -right-1 w-4 h-4 border-4 border-white dark:border-slate-900 rounded-full shadow-sm',
-                             employee.status === 'active' ? 'bg-emerald-500' : 'bg-slate-400'
-                           ]"></div>
-                         </div>
-                         <div>
-                           <div class="font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1.5 flex items-center gap-2 text-base">
-                             {{ employee.first_name }} {{ employee.last_name }}
-                             <span v-if="employee.is_on_probation" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" title="In Probation"></span>
-                           </div>
-                           <div class="text-[10px] text-slate-400 font-bold tracking-tight leading-none flex items-center gap-2">
-                             <span class="text-blue-500/70">#{{ employee.employee_id }}</span>
-                             <span class="w-1 h-1 rounded-full bg-slate-200"></span>
-                             <span>{{ employee.email }}</span>
-                           </div>
-                         </div>
-                       </div>
-                     </td>
-                     <td class="px-6 py-5 whitespace-nowrap">
-                       <div class="flex flex-col">
-                          <span class="text-sm font-black text-slate-700 dark:text-slate-200 tracking-tight italic">{{ employee.position }}</span>
-                          <span class="text-[10px] font-bold text-slate-400 tracking-tight mt-1">{{ employee.employment_type?.replace('-', ' ') || 'full-time' }}</span>
-                       </div>
-                     </td>
-                     <td class="px-6 py-5 whitespace-nowrap">
-                       <span class="px-3 py-1 bg-slate-50 dark:bg-slate-800 text-[10px] font-black text-slate-500 rounded-lg tracking-tight">
-                          {{ employee.department?.name || 'Unassigned' }}
-                       </span>
-                     </td>
-                     <td class="px-6 py-5 whitespace-nowrap">
-                       <div class="flex flex-col">
-                          <span class="text-sm font-black text-slate-900 dark:text-white leading-none">KES {{ employee.salary?.toLocaleString() }}</span>
-                          <span class="text-[10px] font-bold text-slate-400 tracking-tight mt-1">{{ employee.payment_method?.replace('_', ' ') || 'unset' }}</span>
-                       </div>
-                     </td>
-                     <td class="px-6 py-5 whitespace-nowrap">
-                       <span
-                         :class=" [
-                           'px-3 py-1.5 rounded-xl text-[10px] font-black tracking-tight shadow-sm',
-                           employee.status === 'active'
-                             ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                             : employee.status === 'inactive'
-                             ? 'bg-slate-500/10 text-slate-600 border border-slate-500/20'
-                             : employee.status === 'terminated'
-                             ? 'bg-red-500/10 text-red-600 border border-red-500/20'
-                             : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
-                         ]"
-                       >
-                         {{ employee.status.replace('-', ' ') }}
-                       </span>
-                     </td>
-                      <td class="px-3 py-5 whitespace-nowrap text-right sticky right-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/40 shadow-[-12px_0_15px_-3px_rgba(0,0,0,0.06)] transition-all z-20">
-                        <div class="relative">
-                          <button
-                            @click.stop="toggleDropdown($event, employee.id)"
-                            class="actions-trigger inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-blue-600 text-white font-black text-[10px] tracking-tight shadow-xl shadow-blue-500/10 active:scale-95 transition-all"
-                          >
-                            <i class="mdi mdi-dots-horizontal text-base"></i>
-                            <span>Actions</span>
-                            <i :class="['mdi text-[10px] transition-transform', openDropdownId === employee.id ? 'mdi-chevron-up' : 'mdi-chevron-down']"></i>
-                          </button>
+                        </div>
+                      </td>
+                      <td class="px-8 py-6 whitespace-nowrap">
+                        <div class="flex flex-col gap-1">
+                           <span class="text-[13px] font-black text-slate-950 dark:text-white leading-none">KES {{ employee.salary?.toLocaleString() }}</span>
+                           <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md w-fit">{{ employee.payment_method?.replace('_', ' ') || 'STANDARD' }}</span>
+                        </div>
+                      </td>
+                      <td class="px-8 py-6 whitespace-nowrap text-center">
+                        <span
+                          :class=" [
+                            'px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-sm inline-block',
+                            employee.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-500/20' : 
+                            employee.status === 'inactive' ? 'bg-slate-50 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700' : 
+                            employee.status === 'on-leave' ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-500/20' :
+                            'bg-red-50 text-red-600 border border-red-100 dark:bg-red-900/20 dark:border-red-500/20'
+                          ]"
+                        >
+                          {{ employee.status }}
+                        </span>
+                      </td>
+                      <td class="px-8 py-6 whitespace-nowrap text-right sticky right-0 bg-white dark:bg-slate-950 group-hover:bg-blue-50/50 dark:group-hover:bg-slate-900/80 shadow-[-15px_0_20px_-5px_rgba(0,0,0,0.05)] transition-all z-20">
+                         <div class="relative flex justify-end">
+                           <button
+                             @click.stop="toggleDropdown($event, employee.id)"
+                             :class="['actions-trigger inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.18em] transition-all', openDropdownId === employee.id ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700']"
+                           >
+                             <i class="mdi mdi-tune-variant text-lg"></i>
+                             <span>Execute</span>
+                           </button>
 
-                          <Teleport to="body">
-                            <Transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-95 -translate-y-1" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95 -translate-y-1">
+                           <Teleport to="body">
+                             <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-95 -translate-y-4" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95 -translate-y-4">
                                <div
                                  v-if="openDropdownId === employee.id"
                                  :style="{ position: 'absolute', top: dropdownCoords.top + 'px', left: dropdownCoords.left + 'px' }"
-                                 class="w-56 bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-slate-800 z-[99999] overflow-hidden origin-top-right backdrop-blur-xl bg-white/90 dark:bg-slate-900/90"
+                                 class="w-64 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 z-[99999] overflow-hidden origin-top-right ring-1 ring-black/5"
                                >
-                               <!-- Employee Profile -->
-                               <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                                 <p class="text-sm font-black text-slate-900 dark:text-white truncate tracking-tight">{{ employee.first_name }} {{ employee.last_name }}</p>
-                                 <p class="text-[10px] font-bold text-slate-400 mt-1 tracking-tight truncate uppercase">{{ employee.position }}</p>
+                                 <!-- Profile Preview -->
+                                 <div class="p-6 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                                   <p class="text-sm font-black text-slate-900 dark:text-white truncate tracking-tight uppercase mb-1">{{ employee.first_name }} {{ employee.last_name }}</p>
+                                   <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase truncate">{{ employee.position }}</p>
+                                 </div>
+  
+                                 <!-- Command Grid -->
+                                 <div class="p-3 grid grid-cols-1 gap-2">
+                                   <button @click.stop="openActionModal(employee); openDropdownId = null" class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-purple-50 dark:hover:bg-purple-900/20 group/item transition-all">
+                                     <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 group-hover/item:scale-110 group-hover/item:rotate-12 transition-all">
+                                        <i class="mdi mdi-flash text-xl"></i>
+                                     </div>
+                                     <div class="text-left">
+                                        <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase leading-none mb-1">HR Actions</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Promotion / Warning</p>
+                                     </div>
+                                   </button>
+
+                                   <button @click.stop="viewEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 group/item transition-all">
+                                     <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 group-hover/item:scale-110 group-hover/item:rotate-12 transition-all">
+                                        <i class="mdi mdi-account-details text-xl"></i>
+                                     </div>
+                                     <div class="text-left">
+                                        <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase leading-none mb-1">View Bio</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Profile & Files</p>
+                                     </div>
+                                   </button>
+
+                                   <button @click.stop="editEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 group/item transition-all">
+                                     <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 group-hover/item:scale-110 group-hover/item:rotate-12 transition-all">
+                                        <i class="mdi mdi-account-edit text-xl"></i>
+                                     </div>
+                                     <div class="text-left">
+                                        <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase leading-none mb-1">Modify Node</p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Update Identity</p>
+                                     </div>
+                                   </button>
+
+                                   <div class="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
+                                      <button @click.stop="deleteEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 group/item transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-red-600 group-hover/item:scale-110 group-hover/item:rotate-12 transition-all">
+                                           <i class="mdi mdi-trash-can text-xl"></i>
+                                        </div>
+                                        <div class="text-left">
+                                           <p class="text-[11px] font-black text-red-600 uppercase leading-none mb-1">Purge Record</p>
+                                           <p class="text-[9px] text-red-400 font-bold uppercase tracking-widest">Permanent Deletion</p>
+                                        </div>
+                                      </button>
+                                   </div>
+                                 </div>
                                </div>
- 
-                              <!-- Actions -->
-                              <div class="py-2.5 space-y-1 px-2">
-                                <button @click.stop="openActionModal(employee); openDropdownId = null" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-purple-50 dark:hover:bg-purple-900/20 text-slate-600 dark:text-slate-300 hover:text-purple-700 dark:hover:text-purple-300 transition-all group/item">
-                                  <span class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center shrink-0 border border-purple-200/50 dark:border-purple-800/50 transition-transform group-hover/item:scale-110"><i class="mdi mdi-flash text-sm text-purple-600"></i></span>
-                                  <span class="text-[11px] font-black tracking-tight mt-0.5">HR Action</span>
-                                </button>
-                                <button @click.stop="viewEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-300 transition-all group/item">
-                                  <span class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0 border border-blue-200/50 dark:border-blue-800/50 transition-transform group-hover/item:scale-110"><i class="mdi mdi-eye text-sm text-blue-600"></i></span>
-                                  <span class="text-[11px] font-black tracking-tight mt-0.5">View Profile</span>
-                                </button>
-                                <button @click.stop="editEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-600 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-300 transition-all group/item">
-                                  <span class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0 border border-amber-200/50 dark:border-amber-800/50 transition-transform group-hover/item:scale-110"><i class="mdi mdi-account-edit text-sm text-amber-600"></i></span>
-                                  <span class="text-[11px] font-black tracking-tight mt-0.5">Edit Profile</span>
-                                </button>
-                                <div class="border-t border-slate-100 dark:border-slate-800/50 my-2 mx-2"></div>
-                                <button @click.stop="deleteEmployee(employee); openDropdownId = null" class="w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-600 dark:text-slate-300 hover:text-red-700 dark:hover:text-red-300 transition-all group/item">
-                                  <span class="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0 border border-red-200/50 dark:border-red-800/50 transition-transform group-hover/item:scale-110"><i class="mdi mdi-account-remove text-sm text-red-600"></i></span>
-                                  <span class="text-[11px] font-black tracking-tight mt-0.5 text-red-600">Delete Employee</span>
-                                </button>
-                              </div>
-                            </div>
-                            </Transition>
-                          </Teleport>
-                        </div>
+                             </Transition>
+                           </Teleport>
+                         </div>
                       </td>
-                   </tr>
-                 </tbody>
+                    </tr>
+                  </tbody>
                </table>
              </div>
            </div>
@@ -354,7 +346,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Protocol Type</label>
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Action Type</label>
               <select v-model="selectedActionType" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all">
                 <option value="promotion">Promotion</option>
                 <option value="transfer">Transfer</option>
@@ -390,7 +382,7 @@
 
           <div>
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 block pl-1">Reason for Action</label>
-            <textarea v-model="actionFormData.reason" rows="3" placeholder="Enter protocol justification..." class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-medium focus:ring-2 focus:ring-purple-500/20 shadow-inner outline-none transition-all"></textarea>
+            <textarea v-model="actionFormData.reason" rows="3" placeholder="Enter reason for this action..." class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-medium focus:ring-2 focus:ring-purple-500/20 shadow-inner outline-none transition-all"></textarea>
           </div>
 
           <div v-if="actionError" class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-900 rounded-2xl text-red-600 font-black text-xs uppercase tracking-widest italic">
@@ -899,30 +891,30 @@
                       <input v-model="editFormData.kra_pin" type="text" placeholder="Tax ID / KRA PIN" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500/20" />
                       <input v-model="editFormData.nssf_id" type="text" placeholder="Social Security (NSSF)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500/20" />
                       <input v-model="editFormData.nhif_id" type="text" placeholder="Health Insurance (NHIF)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500/20" />
-                      <input v-model="editFormData.phone" type="tel" placeholder="Mobile Node Number" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500/20" />
+                      <input v-model="editFormData.phone" type="tel" placeholder="Phone Number" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-amber-500/20" />
                    </div>
                 </div>
 
                 <!-- Structural Nodes -->
                 <div class="space-y-4">
-                   <h4 class="text-xs font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2"><i class="mdi mdi-briefcase-account"></i> Structural</h4>
+                   <h4 class="text-xs font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2"><i class="mdi mdi-briefcase-account"></i> Job Info</h4>
                    <div class="space-y-3">
                       <input v-model="editFormData.position" type="text" placeholder="Current Position *" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-emerald-500/20" />
-                      <select v-model="editFormData.department_id" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        <option value="">Select Department *</option>
+                      <select v-model="editFormData.department_id" placeholder="Current Position *" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
+                        <option value="" disabled>-- Select Department --</option>
                         <option v-for="dept in availableDepartments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
                       </select>
                       <select v-model="editFormData.employment_type" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/20">
-                        <option value="full-time">Full-Time Direct</option>
+                        <option value="full-time">Full-Time</option>
                         <option value="part-time">Part-Time</option>
-                        <option value="contract">Project Contract</option>
-                        <option value="intern">Registry Intern</option>
+                        <option value="contract">Contract</option>
+                        <option value="intern">Intern</option>
                       </select>
                       <select v-model="editFormData.status" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20">
-                        <option value="active">Active Service</option>
+                        <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
-                        <option value="on-leave">Registry Leave</option>
-                        <option value="terminated">Separated</option>
+                        <option value="on-leave">On Leave</option>
+                        <option value="terminated">Terminated</option>
                       </select>
                    </div>
                 </div>
@@ -931,18 +923,18 @@
                 <div class="space-y-4">
                    <h4 class="text-xs font-black text-purple-500 uppercase tracking-widest flex items-center gap-2"><i class="mdi mdi-bank"></i> Financial</h4>
                    <div class="space-y-3">
-                      <input v-model="editFormData.salary" type="number" placeholder="Base Salary *" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
+                      <input v-model="editFormData.salary" type="number" placeholder="Monthly Salary (e.g. 50,000) *" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
                       <input v-model="editFormData.bank_name" type="text" placeholder="Bank Institution" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
                       <div class="grid grid-cols-2 gap-3">
                         <input v-model="editFormData.bank_branch" type="text" placeholder="Bank Branch" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
                         <input v-model="editFormData.bank_code" type="text" placeholder="Bank Code (Optional)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
                       </div>
-                      <input v-model="editFormData.account_number" type="text" placeholder="Account Identifier" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
+                      <input v-model="editFormData.account_number" type="text" placeholder="Account Number" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold focus:ring-2 focus:ring-purple-500/20" />
                       <select v-model="editFormData.payment_method" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-black shadow-sm outline-none focus:ring-2 focus:ring-purple-500/20">
-                        <option value="bank">Direct Bank Wire</option>
-                        <option value="mobile_money">Mobile Wallet</option>
-                        <option value="cheque">Corporate Cheque</option>
-                        <option value="cash">Fiscal Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="mobile_money">Mobile Money</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="cash">Cash</option>
                       </select>
                    </div>
                 </div>
@@ -1022,9 +1014,9 @@
         <div class="flex items-center justify-between mb-8 relative z-10">
           <div>
              <h2 class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
-              Initialize <span class="text-emerald-500">Personnel</span>
+              Add New <span class="text-emerald-500">Employee</span>
             </h2>
-            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-2 px-1">Enter new employee details</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-2 px-1">Fill in the employee's details below</p>
           </div>
           <button @click="closeCreateModal" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors shadow-inner">
             <i class="mdi mdi-close text-xl"></i>
@@ -1036,7 +1028,7 @@
              <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Identity Matrix -->
                 <div class="space-y-6">
-                   <h4 class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-account-circle text-lg"></i> Basic Identity</h4>
+                   <h4 class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-account-circle text-lg"></i> Personal Info</h4>
                    <div class="space-y-4">
                       <input v-model="newEmployee.first_name" type="text" placeholder="First Name *" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" />
                       <input v-model="newEmployee.last_name" type="text" placeholder="Last Name *" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" />
@@ -1047,12 +1039,12 @@
 
                 <!-- Statutory Info -->
                 <div class="space-y-6">
-                   <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-shield-check text-lg"></i> Statutory Info</h4>
+                   <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-shield-check text-lg"></i> Tax & Compliance</h4>
                    <div class="space-y-4">
                       <input v-model="newEmployee.kra_pin" type="text" placeholder="Tax ID / KRA PIN" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
                       <input v-model="newEmployee.nssf_id" type="text" placeholder="Social Security (NSSF)" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
                       <input v-model="newEmployee.nhif_id" type="text" placeholder="Health Insurance (NHIF)" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
-                      <input v-model="newEmployee.phone" type="tel" placeholder="Mobile Node Number" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
+                      <input v-model="newEmployee.phone" type="tel" placeholder="Phone Number" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-amber-500/20 transition-all" />
                    </div>
                 </div>
 
@@ -1061,26 +1053,36 @@
                    <h4 class="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-briefcase-account text-lg"></i> Job Details</h4>
                    <div class="space-y-4">
                       <input v-model="newEmployee.position" type="text" placeholder="Current Position *" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" />
-                      <select v-model="newEmployee.department_id" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                        <option value="">Select Department *</option>
-                        <option v-for="dept in availableDepartments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
-                      </select>
+                       <div class="relative">
+                         <i class="mdi mdi-domain absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500/60 text-base pointer-events-none z-10"></i>
+                         <select v-model="newEmployee.department_id" required
+                           :class="['w-full pl-10 pr-10 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer', !newEmployee.department_id ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white']">
+                           <option value="" disabled selected>Select a department...</option>
+                           <option v-for="dept in availableDepartments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                         </select>
+                         <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base"></i>
+                       </div>
                       <select v-model="newEmployee.employment_type" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                        <option value="full-time">Full-Time Direct</option>
+                        <option value="full-time">Full-Time</option>
                         <option value="part-time">Part-Time</option>
-                        <option value="contract">Project Contract</option>
-                        <option value="intern">Registry Intern</option>
+                        <option value="contract">Contract</option>
+                        <option value="intern">Intern</option>
                       </select>
                       <select v-model="newEmployee.status" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                        <option value="active">Active Service</option>
+                        <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
-                        <option value="on-leave">Registry Leave</option>
-                        <option value="terminated">Separated</option>
+                        <option value="on-leave">On Leave</option>
+                        <option value="terminated">Terminated</option>
                       </select>
-                      <select v-model="newEmployee.manager_id" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-inter">
-                        <option value="">Direct Supervisor (Optional)</option>
-                        <option v-for="emp in availableEmployees" :key="emp.id" :value="emp.id">{{ emp.first_name }} {{ emp.last_name }}</option>
-                      </select>
+                       <div class="relative">
+                         <i class="mdi mdi-account-tie absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none z-10"></i>
+                         <select v-model="newEmployee.manager_id"
+                           :class="['w-full pl-10 pr-10 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer font-inter', !newEmployee.manager_id ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white']">
+                           <option value="">No manager assigned (optional)</option>
+                           <option v-for="emp in availableEmployees" :key="emp.id" :value="emp.id">{{ emp.first_name }} {{ emp.last_name }}</option>
+                         </select>
+                         <i class="mdi mdi-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-base"></i>
+                       </div>
                    </div>
                 </div>
 
@@ -1088,18 +1090,18 @@
                 <div class="space-y-6">
                    <h4 class="text-[10px] font-black text-purple-500 uppercase tracking-widest flex items-center gap-3 pl-1"><i class="mdi mdi-bank text-lg"></i> Payroll Details</h4>
                    <div class="space-y-4">
-                      <input v-model="newEmployee.salary" type="number" placeholder="Base Renumeration *" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
-                      <input v-model="newEmployee.bank_name" type="text" placeholder="Banking Institution" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
+                      <input v-model="newEmployee.salary" type="number" placeholder="Monthly Salary (e.g. 50,000) *" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
+                      <input v-model="newEmployee.bank_name" type="text" placeholder="Bank Name" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
                       <div class="grid grid-cols-2 gap-4">
                         <input v-model="newEmployee.bank_branch" type="text" placeholder="Branch Name" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
-                        <input v-model="newEmployee.bank_code" type="text" placeholder="Routing Code" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
+                        <input v-model="newEmployee.bank_code" type="text" placeholder="Bank Code" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
                       </div>
-                      <input v-model="newEmployee.account_number" type="text" placeholder="Account Identifier" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
+                      <input v-model="newEmployee.account_number" type="text" placeholder="Account Number" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all" />
                       <select v-model="newEmployee.payment_method" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black shadow-inner outline-none focus:ring-2 focus:ring-purple-500/20 transition-all">
-                        <option value="bank">Direct Wire</option>
-                        <option value="mobile_money">Mobile Wallet</option>
-                        <option value="cheque">Corporate Cheque</option>
-                        <option value="cash">Fiscal Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="mobile_money">Mobile Money</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="cash">Cash</option>
                       </select>
                    </div>
                 </div>
@@ -1115,11 +1117,11 @@
                          <input v-model="newEmployee.hire_date" type="date" required class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl text-[11px] font-black focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all" />
                       </div>
                       <div>
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Probation Threshold</label>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Probation End Date</label>
                          <input v-model="newEmployee.probation_end_date" type="date" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl text-[11px] font-black focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all" />
                       </div>
                       <div>
-                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Contract Termination</label>
+                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2 mb-2 block">Contract End Date</label>
                          <input v-model="newEmployee.contract_end_date" type="date" class="w-full px-5 py-4 bg-white dark:bg-slate-900 border-none rounded-2xl text-[11px] font-black focus:ring-2 focus:ring-blue-500/20 shadow-sm transition-all" />
                       </div>
                       <div class="flex items-center gap-4 pt-8 pl-2">
@@ -1158,7 +1160,7 @@
         </div>
 
         <div class="flex justify-end gap-5 pt-8 border-t border-slate-50 dark:border-slate-800 mt-auto relative z-10">
-          <button @click="closeCreateModal" class="px-8 py-3.5 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors" :disabled="saving">Cancel Enrollment</button>
+          <button @click="closeCreateModal" class="px-8 py-3.5 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors" :disabled="saving">Cancel</button>
           <button @click="handleCreateEmployee" :disabled="saving" class="px-12 py-3.5 bg-slate-900 dark:bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-emerald-500/10 hover:scale-105 active:scale-95 flex items-center gap-3 transition-all">
             <i v-if="saving" class="mdi mdi-loading mdi-spin text-lg"></i>
             {{ saving ? 'Saving...' : 'Save Employee' }}
@@ -1166,8 +1168,198 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
+    </div> <!-- End of v-if="activeMainTab === 'roster'" -->
+
+    <!-- Technical Labour Section -->
+    <div v-else-if="activeMainTab === 'technical'" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      <div v-if="labourLoading" class="p-20 text-center flex flex-col items-center gap-4 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm animate-pulse">
+        <div class="w-12 h-12 border-4 border-slate-100 border-t-emerald-500 rounded-full animate-spin"></div>
+        <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Syncing Specialist Nodes...</p>
+      </div>
+
+      <div v-else class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-10">
+        <div class="p-8 border-b border-gray-100 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/50 dark:bg-slate-700/20">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Technical Resource Pool</h2>
+            <p class="text-sm text-slate-500 font-medium mt-1">Registry for specialized external teams and freelancers</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="relative min-w-[280px]">
+              <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input 
+                v-model="labourSearch"
+                type="text" 
+                placeholder="Search skills (e.g. Rigger)..." 
+                class="w-full h-11 pl-11 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-emerald-500 transition-all uppercase tracking-widest"
+              />
+            </div>
+            <div class="flex items-center gap-2">
+               <button 
+                  @click="downloadTemplate"
+                  class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
+                  title="Download CSV Template"
+               >
+                  <i class="mdi mdi-file-download-outline text-xl"></i>
+               </button>
+
+               <input type="file" ref="labourFileInput" class="hidden" @change="handleLabourFileUpload" accept=".csv" />
+               <button 
+                  @click="triggerLabourUpload"
+                  class="h-11 w-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-500 rounded-xl flex items-center justify-center shadow-sm transition-all active:scale-95"
+                  title="Import From CSV"
+               >
+                  <i class="mdi mdi-file-upload-outline text-xl"></i>
+               </button>
+            </div>
+
+            <button 
+              @click="openLabourModal()"
+              class="h-11 px-6 bg-slate-900 dark:bg-white hover:bg-emerald-600 dark:hover:bg-emerald-500 text-white dark:text-slate-900 hover:text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg transition-all flex items-center gap-2 active:scale-95"
+            >
+              <i class="mdi mdi-account-plus text-lg"></i>
+              Capture New Skill
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-white dark:bg-gray-800 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <tr>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Team Member Identity</th>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Specialization</th>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700 text-center">Efficiency Rating</th>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Standard Rate</th>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700">Status</th>
+                <th class="px-8 py-5 border-b border-gray-100 dark:border-gray-700 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+              <tr v-if="filteredLabours.length === 0" class="text-center py-20">
+                <td colspan="6" class="px-8 py-20">
+                  <div class="flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
+                    <i class="mdi mdi-account-search-outline text-6xl mb-4"></i>
+                    <p class="text-sm font-black uppercase tracking-widest">No resources match your search criteria</p>
+                  </div>
+                </td>
+              </tr>
+              <tr v-for="labour in filteredLabours" :key="labour.id" class="group hover:bg-emerald-50/30 dark:hover:bg-emerald-900/5 transition-all">
+                <td class="px-8 py-6">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-500 transition-colors">
+                      <i class="mdi mdi-account text-xl"></i>
+                    </div>
+                    <div>
+                      <div class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ labour.full_name }}</div>
+                      <div class="text-[10px] text-slate-400 font-bold tracking-widest">{{ labour.phone || 'No Phone' }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-8 py-6 text-sm">
+                  <span class="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-[10px] font-black text-slate-500 dark:text-slate-300 uppercase tracking-widest">
+                    {{ labour.specialization || 'Generalist' }}
+                  </span>
+                </td>
+                <td class="px-8 py-6 text-center">
+                   <div class="flex items-center justify-center gap-0.5 text-amber-400">
+                     <i v-for="i in 5" :key="i" class="mdi" :class="i <= Math.round(labour.rating) ? 'mdi-star' : 'mdi-star-outline'"></i>
+                   </div>
+                </td>
+                <td class="px-8 py-6">
+                  <div class="text-sm font-black text-slate-900 dark:text-white">KES {{ Number(labour.day_rate).toLocaleString() }}</div>
+                  <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Fixed Day Rate</div>
+                </td>
+                <td class="px-8 py-6">
+                  <span 
+                    class="px-3 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest shadow-sm"
+                    :class="{
+                      'bg-emerald-50 text-emerald-600 border border-emerald-100': labour.status === 'active',
+                      'bg-slate-50 text-slate-500 border border-slate-200': labour.status === 'inactive',
+                      'bg-rose-50 text-rose-600 border border-rose-100': labour.status === 'blacklisted'
+                    }"
+                  >
+                    {{ labour.status }}
+                  </span>
+                </td>
+                <td class="px-8 py-6 text-right">
+                  <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                    <button @click="openLabourModal(labour)" class="p-2.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-emerald-500 transition-all active:scale-95" title="Modify Record">
+                      <i class="mdi mdi-pencil text-lg"></i>
+                    </button>
+                    <button @click="handleDeleteLabour(labour.id)" class="p-2.5 bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-rose-500 transition-all active:scale-95" title="Purge Record">
+                      <i class="mdi mdi-delete-outline text-lg"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Technical Labour Modal -->
+      <div v-if="showLabourModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-200 dark:border-gray-700 animate-in zoom-in-95 duration-200">
+          <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-xl font-bold dark:text-white">{{ editingLabour ? 'Update Technical Team Member' : 'New Technical Labour Capture' }}</h3>
+            <button @click="showLabourModal = false" class="text-gray-400 hover:text-gray-600 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+          </div>
+
+          <form @submit.prevent="handleSaveLabour" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Full Name *</label>
+                <input v-model="labourForm.full_name" required type="text" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Specialization</label>
+                <input v-model="labourForm.specialization" type="text" placeholder="e.g. Electrician, Rigger" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
+                <input v-model="labourForm.phone" type="tel" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Email Address</label>
+                <input v-model="labourForm.email" type="email" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Day Rate (KES) *</label>
+                <input v-model="labourForm.day_rate" required type="number" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Efficiency Rating (1-5)</label>
+                <input v-model="labourForm.rating" type="number" min="1" max="5" step="0.5" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Availability Status</label>
+                <select v-model="labourForm.status" class="w-full h-12 px-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white">
+                  <option value="active">Active / Available</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="blacklisted">Blacklisted / Do Not Hire</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-gray-500 uppercase">Internal Notes / Performance Record</label>
+              <textarea v-model="labourForm.notes" rows="3" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all dark:text-white lg:resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+              <button type="button" @click="showLabourModal = false" class="px-6 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">Cancel</button>
+              <button :disabled="labourLoading" type="submit" class="px-8 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50">
+                {{ labourLoading ? 'Processing...' : (editingLabour ? 'Update Records' : 'Save To Database') }}
+              </button>
+            </div>
+          </form>
+          </div>
+      </div>
+    </div>
+
+    </div> <!-- Close max-w-auto -->
+  </div> <!-- Close min-h-screen -->
 </template>
 
 <script setup lang="ts">
@@ -1177,8 +1369,11 @@ import { useEmployees } from '../composables/useEmployees'
 import { useEmployeeDocuments } from '../composables/useEmployeeDocuments'
 import { usePayroll } from '../composables/usePayroll'
 import { useApi } from '../../admin/shared/composables/useApi'
+import { useTechnicalLabour, type TechnicalLabour } from '../composables/useTechnicalLabour'
 
+const activeMainTab = ref<'roster' | 'technical'>('roster')
 const { employees, loading, error, fetchEmployees, createEmployee, updateEmployee, deleteEmployee: deleteEmployeeApi } = useEmployees()
+const { labours, loading: labourLoading, fetchLabours, createLabour, updateLabour, deleteLabour, importLabour } = useTechnicalLabour()
 
 const groupedEmployees = computed(() => {
   const groups: Record<number | string, { department: any, members: Employee[] }> = {}
@@ -1426,7 +1621,7 @@ const newEmployee = ref({
 
   email: '',
   phone: '',
-  department_id: undefined as number | undefined,
+  department_id: '' as number | string | undefined,
   position: '',
   hire_date: new Date().toISOString().split('T')[0],
   probation_end_date: '',
@@ -1442,7 +1637,7 @@ const newEmployee = ref({
 
   employment_type: 'full-time' as 'full-time' | 'part-time' | 'contract' | 'intern',
   status: 'active' as 'active' | 'inactive' | 'terminated' | 'on-leave',
-  manager_id: undefined as number | undefined,
+  manager_id: '' as number | string | undefined,
   address: '',
   emergency_contact: {
     name: '',
@@ -1615,7 +1810,7 @@ const closeCreateModal = () => {
 const handleCreateEmployee = async () => {
   if (!newEmployee.value.first_name || !newEmployee.value.last_name || !newEmployee.value.email ||
       !newEmployee.value.position || !newEmployee.value.department_id || !newEmployee.value.hire_date) {
-    formError.value = 'Required protocol nodes missing.'; return
+    formError.value = 'Please fill in all required fields.'; return
   }
 
   saving.value = true
@@ -1635,6 +1830,7 @@ const handleCreateEmployee = async () => {
     const employeeData = {
       ...newEmployee.value,
       department_id: newEmployee.value.department_id as number,
+      manager_id: newEmployee.value.manager_id || undefined,
       emergency_contact: emergencyContact
     }
     await createEmployee(employeeData as any)
@@ -1692,12 +1888,115 @@ const formatDate = (ds: string) => ds ? new Date(ds).toLocaleDateString() : 'N/A
 
 onMounted(async () => {
   document.addEventListener('click', closeAllDropdowns)
-  await fetchEmployees(); await fetchDepartments(); await fetchAvailableEmployees()
+  await fetchEmployees(); await fetchDepartments(); await fetchAvailableEmployees(); await fetchLabours()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', closeAllDropdowns)
 })
+
+// Technical Labour State & Logic
+const showLabourModal = ref(false)
+const editingLabour = ref<TechnicalLabour | null>(null)
+const labourSearch = ref('')
+const labourForm = ref({
+  full_name: '',
+  specialization: '',
+  phone: '',
+  email: '',
+  day_rate: 0,
+  status: 'active' as 'active' | 'inactive' | 'blacklisted',
+  notes: '',
+  rating: 5
+})
+
+const labourFileInput = ref<HTMLInputElement | null>(null)
+
+const downloadTemplate = () => {
+    window.open('/api/hr/technical-labour/template', '_blank')
+}
+const triggerLabourUpload = () => {
+    labourFileInput.value?.click()
+}
+const handleLabourFileUpload = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files[0]) {
+        try {
+            await importLabour(target.files[0])
+            await fetchLabours()
+            alert('Import Successful! Records have been added.')
+        } catch (e) {
+            console.error(e)
+            alert('Import Failed. Please check the CSV format.')
+        }
+        target.value = ''
+    }
+}
+
+const filteredLabours = computed(() => {
+  if (!labourSearch.value) return labours.value
+  const search = labourSearch.value.toLowerCase()
+  return labours.value.filter(l => 
+    l.full_name.toLowerCase().includes(search) || 
+    l.specialization?.toLowerCase().includes(search) ||
+    l.email?.toLowerCase().includes(search)
+  )
+})
+
+const openLabourModal = (labour: TechnicalLabour | null = null) => {
+  if (labour) {
+    editingLabour.value = labour
+    labourForm.value = {
+      full_name: labour.full_name,
+      specialization: labour.specialization,
+      phone: labour.phone,
+      email: labour.email,
+      day_rate: Number(labour.day_rate),
+      status: labour.status,
+      notes: labour.notes,
+      rating: Number(labour.rating)
+    }
+  } else {
+    editingLabour.value = null
+    labourForm.value = {
+      full_name: '',
+      specialization: '',
+      phone: '',
+      email: '',
+      day_rate: 0,
+      status: 'active',
+      notes: '',
+      rating: 5
+    }
+  }
+  showLabourModal.value = true
+}
+
+const handleSaveLabour = async () => {
+  try {
+    if (editingLabour.value) {
+      await updateLabour(editingLabour.value.id, labourForm.value)
+    } else {
+      await createLabour(labourForm.value)
+    }
+    showLabourModal.value = false
+    await fetchLabours()
+  } catch (err) {
+    console.error('Failed to save technical labour:', err)
+  }
+}
+
+const handleDeleteLabour = async (id: number) => {
+  if (confirm('Are you sure you want to remove this technical labour record?')) {
+    try {
+      await deleteLabour(id)
+      await fetchLabours()
+    } catch (err) {
+      console.error('Failed to delete labour:', err)
+    }
+  }
+}
+
 </script>
 
 <style scoped>
@@ -1706,3 +2005,4 @@ onUnmounted(() => {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
 </style>
+

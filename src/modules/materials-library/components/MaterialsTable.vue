@@ -15,6 +15,9 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Category
                 </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Type
+                </th>
                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   UOM
                 </th>
@@ -57,6 +60,14 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {{ material.category }}
                   <span v-if="material.subcategory" class="text-xs text-gray-400 ml-1">({{ material.subcategory }})</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold uppercase tracking-widest">
+                  <span v-if="material.material_type === 'reusable'" class="px-2 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 rounded-lg">
+                    Reusable
+                  </span>
+                  <span v-else class="px-2 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-lg">
+                    Consumable
+                  </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500 dark:text-gray-400">
                   {{ material.unit_of_measure || '-' }}
