@@ -28,8 +28,17 @@
         </div>
       </div>
 
-      <div v-if="banner.message" :class="banner.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/40 dark:text-rose-300'" class="rounded-2xl border px-5 py-4 text-sm font-semibold">
-        {{ banner.message }}
+      <div
+        v-if="banner.message"
+        :class="banner.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/40 dark:text-rose-300'"
+        class="fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-2xl border px-5 py-4 text-sm font-semibold shadow-lg"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <span>{{ banner.message }}</span>
+          <button @click="banner.message = ''" class="rounded-lg p-1 hover:bg-black/10 dark:hover:bg-white/10">
+            <i class="mdi mdi-close text-lg"></i>
+          </button>
+        </div>
       </div>
 
       <section v-if="dashboard?.employee" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -135,7 +144,7 @@
 
           <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">Important Notes</h2>
-            <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Rejected and cancelled requests show the manager note directly on the request card below.</p>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Rejected and cancelled requests show manager note directly on request card below. You can cancel pending requests anytime before approval.</p>
             <div class="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-950/60 dark:text-slate-300">
               <p v-if="annualBalance" class="mb-2">
                 Annual leave accrues at <span class="font-black text-slate-900 dark:text-white">{{ annualBalance.code === 'ANNUAL' ? '1.75 days per month' : 'policy rate' }}</span>, and advance use is reflected in your balance cards.
@@ -158,13 +167,18 @@
             <h2 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">My Leave Requests</h2>
             <p class="text-sm text-slate-600 dark:text-slate-300">Your latest applications, statuses, dates, and review reasons.</p>
           </div>
-          <button @click="refreshData" class="rounded-xl border border-slate-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:border-slate-700 dark:text-slate-300">
+          <button @click="refreshData()" class="rounded-xl border border-slate-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:border-slate-700 dark:text-slate-300">
             Refresh
           </button>
         </div>
 
         <div v-if="requests.length" class="space-y-3">
-          <article v-for="request in requests" :key="request.id" class="rounded-2xl border border-slate-100 px-4 py-4 dark:border-slate-800">
+          <article
+            v-for="request in requests"
+            :key="request.id"
+            class="cursor-pointer rounded-2xl border border-slate-100 px-4 py-4 transition-colors hover:border-teal-300 hover:bg-teal-50/50 dark:border-slate-800 dark:hover:bg-teal-900/10"
+            @click="openLeaveDetail(request)"
+          >
             <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p class="text-sm font-black text-slate-900 dark:text-white">{{ leaveTypeName(request) }}</p>
@@ -173,13 +187,22 @@
                 <p v-if="request.explanation" class="mt-2 rounded-2xl bg-purple-50 px-3 py-3 text-xs font-semibold text-purple-700 dark:bg-purple-950/30 dark:text-purple-200">
                   {{ request.leaveType?.code === 'SPECIAL' ? 'Explanation:' : 'Compensation details:' }} {{ request.explanation }}
                 </p>
-                <p v-if="request.review_notes && ['rejected', 'cancelled'].includes(request.status)" class="mt-3 rounded-2xl bg-rose-50 px-3 py-3 text-xs font-semibold text-rose-700 dark:bg-rose-950/30 dark:text-rose-200">
-                  {{ request.status === 'rejected' ? 'Rejected because:' : 'Cancelled because:' }} {{ request.review_notes }}
+                <p v-if="request.review_notes && ['rejected', 'cancelled', 'recalled'].includes(request.status)" class="mt-3 rounded-2xl bg-rose-50 px-3 py-3 text-xs font-semibold text-rose-700 dark:bg-rose-950/30 dark:text-rose-200">
+                  {{ request.status === 'rejected' ? 'Rejected because:' : request.status === 'cancelled' ? 'Cancelled because:' : 'Recall reason:' }} {{ request.review_notes }}
                 </p>
               </div>
               <div class="flex flex-col items-start gap-2 lg:items-end">
                 <span :class="statusClasses(request.status)">{{ request.status }}</span>
                 <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{{ request.session.replace('_', ' ') }}</span>
+                <button
+                  v-if="request.status === 'pending'"
+                  @click.stop="cancelLeaveRequest(request)"
+                  :disabled="cancellingRequest === request.id"
+                  class="mt-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-800 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50"
+                >
+                  <span v-if="cancellingRequest === request.id">Cancelling...</span>
+                  <span v-else>Cancel Request</span>
+                </button>
               </div>
             </div>
           </article>
@@ -187,6 +210,43 @@
 
         <div v-else class="rounded-2xl border border-dashed border-slate-200 px-6 py-10 text-center text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
           You have not submitted any leave requests yet.
+        </div>
+
+        <div v-if="paginator.lastPage > 1" class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Showing {{ (paginator.currentPage - 1) * paginator.perPage + 1 }} to {{ Math.min(paginator.currentPage * paginator.perPage, paginator.total) }} of {{ paginator.total }} requests
+          </p>
+          <div class="flex items-center gap-1">
+            <button
+              @click="goToPage(paginator.currentPage - 1)"
+              :disabled="paginator.currentPage === 1"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Previous
+            </button>
+            <template v-for="page in paginator.lastPage" :key="page">
+              <button
+                v-if="page === 1 || page === paginator.lastPage || (page >= paginator.currentPage - 1 && page <= paginator.currentPage + 1)"
+                @click="goToPage(page)"
+                :class="[
+                  'rounded-lg px-3 py-2 text-xs font-medium transition-colors',
+                  page === paginator.currentPage
+                    ? 'bg-slate-900 text-white dark:bg-teal-600'
+                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
+                ]"
+              >
+                {{ page }}
+              </button>
+              <span v-else-if="page === paginator.currentPage - 2 || page === paginator.currentPage + 2" class="px-2 text-xs text-slate-400">...</span>
+            </template>
+            <button
+              @click="goToPage(paginator.currentPage + 1)"
+              :disabled="paginator.currentPage === paginator.lastPage"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -201,24 +261,91 @@
       :submitting="loading"
       @close="showRequestForm = false"
       @submit="submitRequest"
+      @submit-with-handover="submitRequestWithHandover"
     />
+
+    <div v-if="showCancelModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+      <div class="mx-4 w-full max-w-2xl rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 md:p-8">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Cancel Leave</p>
+            <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white">{{ cancelForm.request_label || 'Leave request' }}</h2>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Add a clear reason for cancelling this leave request.</p>
+          </div>
+          <button @click="closeCancelModal()" class="rounded-xl bg-slate-100 p-3 text-slate-600 transition-colors hover:text-rose-500 dark:bg-slate-800 dark:text-slate-300">
+            <i class="mdi mdi-close text-xl"></i>
+          </button>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+          <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Reason</p>
+          <textarea
+            v-model="cancelForm.reason"
+            rows="5"
+            placeholder="Explain why this request is being cancelled..."
+            class="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+          ></textarea>
+          <p class="mt-3 text-xs font-medium text-slate-600 dark:text-slate-300">The reason will be recorded for audit purposes.</p>
+        </div>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeCancelModal()" class="rounded-xl border border-slate-200 px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:border-slate-700 dark:text-slate-300">
+            Back
+          </button>
+          <button
+            @click="submitCancelRequest"
+            :disabled="!cancelForm.reason.trim() || cancellingRequest !== null"
+            class="rounded-xl bg-amber-500 px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span v-if="cancellingRequest">Cancelling...</span>
+            <span v-else>Confirm Cancellation</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <LeaveDetailModal :open="showDetailModal" :request="selectedLeaveRequest" :handover="selectedLeaveHandover" @close="closeLeaveDetail" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import LeaveDetailModal from '../components/LeaveDetailModal.vue'
 import LeaveRequestModal from '../components/LeaveRequestModal.vue'
 import { useLeave } from '../composables/useLeave'
-import type { CreateLeaveRequestPayload, LeaveBalance, LeaveRequest } from '../types/leave'
+import { leaveService } from '../services/leaveService'
+import type { CreateLeaveHandoverPayload, CreateLeaveRequestPayload, LeaveBalance, LeaveHandover, LeaveRequest } from '../types/leave'
 
 const { user } = useAuth()
-const { dashboard, leaveTypes, requests, loading, fetchDashboard, fetchLeaveTypes, fetchRequests, createRequest } = useLeave()
+const {
+  dashboard,
+  leaveTypes,
+  requests,
+  loading,
+  fetchDashboard,
+  fetchLeaveTypes,
+  fetchRequests,
+  createRequest,
+  createHandover,
+  cancelRequest,
+  requestMeta,
+} = useLeave()
 
 const showRequestForm = ref(false)
+const showCancelModal = ref(false)
+const showDetailModal = ref(false)
+const selectedLeaveRequest = ref<LeaveRequest | null>(null)
+const selectedLeaveHandover = ref<LeaveHandover | null>(null)
+const cancellingRequest = ref<number | null>(null)
+const cancelForm = ref({
+  request_id: null as number | null,
+  request_label: '',
+  reason: '',
+})
 const banner = ref<{ type: 'success' | 'error'; message: string }>({ type: 'success', message: '' })
 const year = new Date().getFullYear()
 const toneMap: Record<string, string> = { emerald: 'bg-emerald-500', blue: 'bg-blue-500', amber: 'bg-amber-500', green: 'bg-green-500', rose: 'bg-rose-500', slate: 'bg-slate-500', purple: 'bg-purple-500', orange: 'bg-orange-500' }
+
 const toNumber = (value: unknown) => {
   const numericValue = typeof value === 'number' ? value : Number(value ?? 0)
   return Number.isFinite(numericValue) ? numericValue : 0
@@ -226,14 +353,8 @@ const toNumber = (value: unknown) => {
 
 const balances = computed(() => [...(dashboard.value?.balances || [])] as LeaveBalance[])
 const employeeDirectory = computed(() => {
-  if (dashboard.value?.contact_employees?.length) {
-    return dashboard.value.contact_employees
-  }
-
-  if (dashboard.value?.employee) {
-    return [dashboard.value.employee]
-  }
-
+  if (dashboard.value?.contact_employees?.length) return dashboard.value.contact_employees
+  if (dashboard.value?.employee) return [dashboard.value.employee]
   return []
 })
 
@@ -247,16 +368,36 @@ const cancelledCount = computed(() => requests.value.filter(request => request.s
 const advanceInUse = computed(() => roundTotal(balances.value.reduce((sum, balance) => sum + Math.max(toNumber(balance.used_days) - toNumber(balance.earned_days ?? balance.used_days), 0), 0)))
 const annualBalance = computed(() => balances.value.find(balance => balance.code === 'ANNUAL') || null)
 
+const paginator = computed(() => ({
+  currentPage: requestMeta.value.current_page,
+  lastPage: requestMeta.value.last_page,
+  perPage: requestMeta.value.per_page,
+  total: requestMeta.value.total,
+}))
+
 const usagePercent = (balance: LeaveBalance) => {
   const allocated = toNumber(balance.allocated_days)
   return allocated ? Math.min(100, (toNumber(balance.used_days) / allocated) * 100) : 0
 }
+
 const advanceForBalance = (balance: LeaveBalance) => roundTotal(Math.max(toNumber(balance.used_days) - toNumber(balance.earned_days ?? balance.used_days), 0))
 const roundTotal = (value: unknown) => Number(toNumber(value).toFixed(2))
 const formatDate = (value: string) => new Date(value).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' })
 const rangeLabel = (start: string, end: string) => `${formatDate(start)} to ${formatDate(end)}`
 const leaveTypeName = (request: LeaveRequest) => request.leaveType?.name || request.leave_type?.name || 'Leave'
-const statusClasses = (status: LeaveRequest['status']) => ['inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]', status === 'approved' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : status === 'rejected' ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : status === 'cancelled' ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300']
+
+const statusClasses = (status: LeaveRequest['status']) => [
+  'inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em]',
+  status === 'approved'
+    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+    : status === 'rejected'
+      ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
+      : status === 'cancelled'
+        ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+        : status === 'recalled'
+          ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+          : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+]
 
 const setBanner = (type: 'success' | 'error', message: string) => {
   banner.value = { type, message }
@@ -267,19 +408,41 @@ const setBanner = (type: 'success' | 'error', message: string) => {
 
 const extractErrorMessage = (error: any, fallback: string) => {
   const responseData = error?.response?.data
-  const firstValidationError = responseData?.errors
-    ? Object.values(responseData.errors).flat().find(Boolean)
-    : null
-
+  const firstValidationError = responseData?.errors ? Object.values(responseData.errors).flat().find(Boolean) : null
   return firstValidationError || responseData?.message || fallback
 }
 
-const refreshData = async () => {
+const refreshData = async (page = 1) => {
   await Promise.all([
     fetchDashboard({ year }),
     fetchLeaveTypes(),
-    fetchRequests({ year, per_page: 50 }),
+    fetchRequests({ year, page, per_page: 6 }),
   ])
+}
+
+const goToPage = async (page: number) => {
+  if (page < 1 || page > requestMeta.value.last_page) return
+  await refreshData(page)
+}
+
+const openLeaveDetail = async (request: LeaveRequest) => {
+  selectedLeaveRequest.value = request
+  selectedLeaveHandover.value = null
+
+  try {
+    const response = await leaveService.getHandoversByLeaveRequest(request.id)
+    if (response?.data?.length) selectedLeaveHandover.value = response.data[0]
+  } catch {
+    selectedLeaveHandover.value = null
+  }
+
+  showDetailModal.value = true
+}
+
+const closeLeaveDetail = () => {
+  showDetailModal.value = false
+  selectedLeaveRequest.value = null
+  selectedLeaveHandover.value = null
 }
 
 const submitRequest = async (payload: CreateLeaveRequestPayload) => {
@@ -290,6 +453,59 @@ const submitRequest = async (payload: CreateLeaveRequestPayload) => {
     await refreshData()
   } catch (error: any) {
     setBanner('error', extractErrorMessage(error, 'Failed to submit leave request.'))
+  }
+}
+
+const submitRequestWithHandover = async (payload: CreateLeaveRequestPayload, handover: CreateLeaveHandoverPayload) => {
+  try {
+    const response = await createRequest(payload)
+
+    if (response?.data?.id) {
+      await createHandover({
+        ...handover,
+        leave_request_id: response.data.id,
+      })
+    }
+
+    setBanner('success', 'Leave request with handover submitted successfully.')
+    showRequestForm.value = false
+    await refreshData()
+  } catch (error: any) {
+    setBanner('error', extractErrorMessage(error, 'Failed to submit leave request with handover.'))
+  }
+}
+
+const cancelLeaveRequest = (request: LeaveRequest) => {
+  cancelForm.value = {
+    request_id: request.id,
+    request_label: `${leaveTypeName(request)} - ${rangeLabel(request.start_date, request.end_date)}`,
+    reason: '',
+  }
+  showCancelModal.value = true
+}
+
+const closeCancelModal = () => {
+  showCancelModal.value = false
+  cancelForm.value = {
+    request_id: null,
+    request_label: '',
+    reason: '',
+  }
+}
+
+const submitCancelRequest = async () => {
+  if (!cancelForm.value.reason.trim()) return
+
+  try {
+    cancellingRequest.value = cancelForm.value.request_id
+    await cancelRequest(cancelForm.value.request_id!, cancelForm.value.reason.trim())
+    setBanner('success', 'Leave request cancelled successfully.')
+    closeCancelModal()
+    await refreshData()
+  } catch (error: any) {
+    setBanner('error', extractErrorMessage(error, 'Failed to cancel leave request.'))
+  } finally {
+    cancellingRequest.value = null
   }
 }
 

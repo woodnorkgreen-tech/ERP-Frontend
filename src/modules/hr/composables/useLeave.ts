@@ -2,6 +2,7 @@ import { readonly, ref } from 'vue'
 import { leaveService } from '../services/leaveService'
 import type {
   CreateLeaveRequestPayload,
+  CreateLeaveHandoverPayload,
   CreateLeaveTypePayload,
   LeaveDashboardData,
   LeaveRequest,
@@ -15,6 +16,7 @@ export function useLeave() {
   const dashboard = ref<LeaveDashboardData | null>(null)
   const leaveTypes = ref<LeaveType[]>([])
   const requests = ref<LeaveRequest[]>([])
+  const statistics = ref<any>(null)
   const loading = ref(false)
   const requestMeta = ref({
     current_page: 1,
@@ -75,6 +77,19 @@ export function useLeave() {
   const cancelRequest = async (id: number, reviewNotes?: string) =>
     withState(async () => leaveService.cancelLeaveRequest(id, reviewNotes))
 
+  const recallRequest = async (id: number, recallReason: string, daysToRecall?: number) =>
+    withState(async () => leaveService.recallLeaveRequest(id, recallReason, daysToRecall))
+
+  const fetchStatistics = async (params?: { year?: number }) =>
+    withState(async () => {
+      const response = await leaveService.getStatistics(params)
+      statistics.value = response.data
+      return response.data
+    })
+
+  const adjustBalance = async (payload: { employee_id: number; leave_type_id: number; adjustment_days: number; reason: string }) =>
+    withState(async () => leaveService.adjustBalance(payload))
+
   const createPolicy = async (payload: CreateLeaveTypePayload) =>
     withState(async () => leaveService.createLeaveType(payload))
 
@@ -84,23 +99,43 @@ export function useLeave() {
   const deletePolicy = async (id: number) =>
     withState(async () => leaveService.deleteLeaveType(id))
 
+  const fetchHandovers = async (params?: { status?: string; employee_id?: number; page?: number; per_page?: number }) =>
+    withState(async () => leaveService.getHandovers(params))
+
+  const createHandover = async (payload: CreateLeaveHandoverPayload) =>
+    withState(async () => leaveService.createHandover(payload))
+
+  const updateHandover = async (id: number, payload: Partial<CreateLeaveHandoverPayload>) =>
+    withState(async () => leaveService.updateHandover(id, payload))
+
+  const deleteHandover = async (id: number) =>
+    withState(async () => leaveService.deleteHandover(id))
+
   return {
     dashboard: readonly(dashboard),
     leaveTypes: readonly(leaveTypes),
     requests: readonly(requests),
+    statistics: readonly(statistics),
     requestMeta: readonly(requestMeta),
     loading: readonly(loading),
     error: readonly(error),
     fetchDashboard,
     fetchLeaveTypes,
     fetchRequests,
+    fetchStatistics,
+    adjustBalance,
     createRequest,
     updateRequest,
     approveRequest,
     rejectRequest,
     cancelRequest,
+    recallRequest,
     createPolicy,
     updatePolicy,
     deletePolicy,
+    fetchHandovers,
+    createHandover,
+    updateHandover,
+    deleteHandover,
   }
 }

@@ -79,6 +79,38 @@
           <div v-if="isGroupExpanded('Self Service') || collapsed" class="overflow-hidden">
             <div class="space-y-1.5 px-1 pb-2 border-l-2 border-blue-100/30 dark:border-blue-500/10 ml-8 mt-1">
               <RouterLink
+                to="/self-service/leave"
+                :class="[
+                  'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',
+                  route.path.startsWith('/self-service/leave')
+                    ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)]'
+                    : 'text-slate-900 hover:text-black dark:text-gray-400 dark:hover:text-gray-100 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
+                ]"
+                :title="collapsed ? 'My Leave' : ''"
+              >
+                <div
+                  class="absolute left-0 w-1.5 bg-blue-600 dark:bg-blue-300 rounded-r-full transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                  :class="route.path.startsWith('/self-service/leave') ? 'h-7 top-2.5 opacity-100' : 'h-0 top-1/2 opacity-0'"
+                ></div>
+
+                <div class="w-14 flex items-center justify-center shrink-0">
+                  <i
+                    :class="[
+                      'mdi mdi-calendar-heart text-2xl transition-all duration-300 drop-shadow-md',
+                      route.path.startsWith('/self-service/leave') ? 'scale-110 rotate-3 opacity-100' : 'opacity-60 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-3'
+                    ]"
+                  ></i>
+                </div>
+
+                <span
+                  class="font-semibold text-[13px] font-['Poppins'] uppercase tracking-wide whitespace-nowrap transition-all duration-500 overflow-hidden"
+                  :class="collapsed ? 'w-0 opacity-0 -translate-x-4' : 'w-full opacity-100 translate-x-0'"
+                >
+                  My Leave
+                </span>
+              </RouterLink>
+
+              <RouterLink
                 to="/finance/petty-cash/requisitions"
                 :class="[
                   'flex items-center h-12 rounded-xl transition-all duration-300 group ring-inset relative overflow-hidden',

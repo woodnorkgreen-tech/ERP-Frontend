@@ -22,6 +22,7 @@ export interface LeaveBalance {
   icon: string | null
   allocated_days: number
   earned_days?: number
+  carry_forward_days?: number
   used_days: number
   pending_days: number
   available_days: number
@@ -53,8 +54,9 @@ export interface LeaveRequest {
   start_date: string
   end_date: string
   days_requested: number
+  carry_forward_days?: number | null
   session: 'full_day' | 'first_half' | 'second_half'
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'recalled'
   reason: string
   explanation?: string | null
   handover_notes?: string | null
@@ -62,6 +64,9 @@ export interface LeaveRequest {
   review_notes?: string | null
   approved_at?: string | null
   cancelled_at?: string | null
+  recalled_at?: string | null
+  recalled_by?: number | null
+  recall_reason?: string | null
   date_range_label?: string
   employee?: LeaveRequestEmployee
   contactEmployee?: LeaveContactEmployee | null
@@ -124,6 +129,7 @@ export interface LeaveRequestsResponse {
 }
 
 export interface CreateLeaveRequestPayload {
+  attachment?: File
   employee_id?: number
   contact_employee_id?: number
   leave_type_id: number
@@ -155,3 +161,49 @@ export interface CreateLeaveTypePayload {
 }
 
 export interface UpdateLeaveTypePayload extends Partial<CreateLeaveTypePayload> {}
+
+export interface LeaveRecallSummary {
+  original_days: number
+  days_recalled: number
+  remaining_days: number
+}
+
+export interface LeaveRequestWithRecall extends LeaveRequest {
+  recall_summary?: LeaveRecallSummary
+}
+
+export interface LeaveHandover {
+  id: number
+  leave_request_id: number
+  employee_id: number
+  project_name?: string | null
+  task_description?: string | null
+  current_status?: string | null
+  pending_actions?: string | null
+  handed_over_to_employee_id?: number | null
+  department?: string | null
+  follow_up_deadline?: string | null
+  update_during_leave?: string | null
+  updated_by?: number | null
+  updated_at?: string | null
+  created_at?: string
+  employee?: LeaveRequestEmployee
+  handedOverTo?: LeaveRequestEmployee
+  leave_request?: LeaveRequest
+  updatedBy?: {
+    id: number
+    name: string
+  }
+}
+
+export interface CreateLeaveHandoverPayload {
+  leave_request_id: number
+  project_name?: string
+  task_description?: string
+  current_status?: string
+  pending_actions?: string
+  handed_over_to_employee_id?: number
+  department?: string
+  follow_up_deadline?: string
+  update_during_leave?: string
+}
